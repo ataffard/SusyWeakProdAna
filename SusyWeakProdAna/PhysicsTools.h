@@ -1,0 +1,38 @@
+#ifndef SusyWeakProdAna_PhysicsTools_h
+#define SusyWeakProdAna_PhysicsTools_h
+
+#include <math.h>
+
+// Root Packages
+#include "TLorentzVector.h"
+
+// Classify using MCTruthClassifier
+enum LEP_TYPE{PR=0, HF, LF, CONV, TYPE_Undef};
+
+bool isHF(int org);
+bool isPT(int org);
+bool isConv(int org);
+bool isLF(int org);
+LEP_TYPE  getType(int org);
+
+//Efficiency using binomial error
+void binomialError(float Num, float Den, float& Eff, float& EffErr);
+
+
+//NVtx correction for data/MC beam size
+float GetNVertexBsCorrected(float nRecoVtx);
+
+//
+//Physics quantities
+//
+
+//Transverse mass
+float mT(TLorentzVector _l, TLorentzVector _nu);
+
+// Signed d0 wrt to jet axis 
+float signedD0(float d0, float sigmaD0, TLorentzVector _p, TLorentzVector _j);
+
+// pT relative to jet axis 
+float ptRel(TLorentzVector j, TLorentzVector p);
+
+#endif
