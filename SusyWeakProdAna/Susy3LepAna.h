@@ -43,7 +43,7 @@ class Susy3LepAna: public SusyNtTools
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
     void doAnalysis();
-    void fillHistograms();
+    void fillHistograms(uint iSR);
     void end();
 
     // Full event selection. Specify which leptons to use.
@@ -53,6 +53,8 @@ class Susy3LepAna: public SusyNtTools
     void reset();
    
     // Cut methods
+    bool passEventCleaning();
+    bool passNBaseLepCut(const LeptonVector* leptons);//for WZ regions only !
     bool passNLep3Cut(const LeptonVector* leptons);
     bool passNLep4Cut(const LeptonVector* leptons);
     bool passTrigger(const LeptonVector* leptons);
@@ -63,8 +65,8 @@ class Susy3LepAna: public SusyNtTools
     bool passMtCut  (const LeptonVector* leptons, const Susy::Met* met);
     bool passLepPtCut(const LeptonVector* leptons);
             
-    // Selection region // remove
-    void setSelection(std::string s) { m_sel = s; }
+    // Selection region 
+    void setSelection(std::string s);
 
     //Other functions
     void setEventWeight(int mode=0);
@@ -100,55 +102,54 @@ class Susy3LepAna: public SusyNtTools
     TrilTrigLogic*      m_trigObj;      // My trigger logic class
 
     //Multilep enum 
-    enum ML_SR{ML_SR1a=0,
-	       ML_SR1b=1, ML_SR2=2, 
-	       ML_4lep=3, ML_4lepnoZ=4, 
-	       //ML_StgProd=5, ML_UED=6,
-	       ML_NSR=5};
+    enum ML_SR{ML_SR3Lep=0, ML_SRB=1,
+	       ML_SR1a=2, ML_SR1b=3, ML_SR2=4, 
+	       ML_VR0=5,  ML_VR1=6,  ML_VR2=7, ML_VR3=8,
+	       ML_VRWZ=9, ML_NRWZ=10,
+	       ML_SR4lep=11, ML_SR4lepNoZ=12, 
+	       ML_NSR=13};
     enum ML_CATG{eee=0, mmm=1, eem=2, mme=3, eme=4, emm=5}; //2st 2 are leading pt
 
 
     //Event variables
     float _ww;           //full event weight either full lumi or unblinded 
-    
-    bool isDGML_SR1a;    //>=3 lep
-    bool isDGML_SR1b;    //SR1: ==3lep - SFOS pair, Etmiss>50, Zveto, bjet veto
-    bool isDGML_SR2;     //SR2: ==3lep - SFOS pair in Z peak, Etmiss>50
-    bool isML_4Lep;      //SR3 4Lep: >=4 lep, Etmiss>50
-    bool isML_4LepnoZ;   //SR4 SR3+ Zveto
-
+    uint   SR;
 
     // Cut variables
+    bool                m_cutNBaseLep;  // apply nLep cuts to baseline leptons as well as signal
     uint                m_nLep3Min;     // min leptons
     uint                m_nLep3Max;     // max leptons
     uint                m_nLep4Min;     // min leptons
     uint                m_nLep4Max;     // max leptons
-    bool                m_selectZ;      // switch to select Zs
+    bool                m_selZ;         // switch to select Zs
     bool                m_vetoZ;        // switch to veto Zs
-    bool                m_selectB;      // switch to select b-tagged jets
+    bool                m_selB;         // switch to select b-tagged jets
     bool                m_vetoB;        // switch to veto b-tagged jets
-    bool                m_selectSFOS;   // switch to select SFOS pairs
+    bool                m_selSFOS;      // switch to select SFOS pairs
     bool                m_vetoSFOS;     // switch to veto SFOS pairs
-    double              m_metMin;       // min MET cut
-    double              m_minMt;        // minimum Mt cut
+    float               m_metMin;       // min MET cut
+    float               m_metMax;       // max MET cut
+    float               m_minMt;        // minimum Mt cut
+    float               m_lepPtMin;     // high lepton pt cuts
 
     bool                m_writeOut;     // switch to control output dump
 
     // Event counters
     uint                n_readin;
-    uint                n_pass_LAr;
+    uint                n_pass_HotSpot;
     uint                n_pass_BadJet;
     uint                n_pass_BadMuon;
-    uint                n_pass_Cosmic;
-    uint                n_pass_nLep3;
-    uint                n_pass_nLep4;
-    uint                n_pass_trig;
-    uint                n_pass_sfos;
-    uint                n_pass_met;
-    uint                n_pass_z;
-    uint                n_pass_bjet;
-    uint                n_pass_mt;
-    uint                n_pass_lep30;
+    uint                n_pass_Cosmic; 
+
+    uint                n_pass_nLep3[ML_NSR];
+    uint                n_pass_nLep4[ML_NSR];
+    uint                n_pass_trig[ML_NSR];
+    uint                n_pass_sfos[ML_NSR];
+    uint                n_pass_met[ML_NSR];
+    uint                n_pass_z[ML_NSR];
+    uint                n_pass_bjet[ML_NSR];
+    uint                n_pass_mt[ML_NSR];
+    uint                n_pass_lep30[ML_NSR];
 
 };
 

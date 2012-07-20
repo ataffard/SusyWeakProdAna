@@ -454,6 +454,11 @@ for(int j=0; j<nHMC; j++){						\
   BOOK_FRCR(e_tight_dPhilmet,"dPhi(#slash{E}_{T},l)","degree",syaxis,9,0,180);
   BOOK_FRCR(e_tight_dPhijmet,"dPhi(#slash{E}_{T},j)","degree",syaxis,9,0,180);
   BOOK_FRCR(e_tight_nJets,"nJets","",syaxis,10,-0.5,9.5);
+  BOOK_FRCR(e_tightPP_pt,"P_{T}","GeV",syaxis,nElePtBins,pt_e_bins);
+  BOOK_FRCR(e_tightPP_eta,"#eta","",syaxis,10,-2.5,2.5);
+  BOOK_FRCR(e_tightPP_d0S,"d0/#sigma_{d0}^{l1}","",syaxis,100,-10,10);
+  BOOK_FRCR(e_tightPP_z0sintheta,"z0 sin(#theta)^{l1}","mm",syaxis,100,-2,2);
+  BOOK_FRCR(e_tightPP_met,"#slash{E}_{T}","GeV",syaxis,20,0,200);
   BOOK_FRCR(e_tightNI_pt,"P_{T}","GeV",syaxis,nElePtBins,pt_e_bins);
   BOOK_FRCR(e_tightNI_eta,"#eta","",syaxis,10,-2.5,2.5);
   BOOK_FRCR(e_tightNI_d0S,"d0/#sigma_{d0}^{l1}","",syaxis,100,-10,10);
@@ -521,12 +526,17 @@ for(int j=0; j<nHMC; j++){						\
 #define BOOK_DG2Lfk(hN, ...)						\
   for(int i=0; i<nHSR_DG2L; i++){					\
     string sr;								\
-    if(i==0) sr="DG2L_SR0_OS_";						\
-    if(i==1) sr="DG2L_SR0_SS_";						\
-    if(i==2) sr="DG2L_SR1_";						\
-    if(i==3) sr="DG2L_SR2_";						\
-    if(i==4) sr="DG2L_SR3_";						\
-    if(i==5) sr="DG2L_SR4_";						\
+    if(i==0) sr="DG2L_SRjveto_";					\
+    if(i==1) sr="DG2L_SRSSjveto_";					\
+    if(i==2) sr="DG2L_SR2jet_";					\
+    if(i==3) sr="DG2L_SRmT2_";					\
+    if(i==4) sr="DG2L_SR5_";						\
+    if(i==5) sr="DG2L_CRZ_";						\
+    if(i==6) sr="DG2L_NTOP_";					\
+    if(i==7) sr="DG2L_NWW1_";					\
+    if(i==8) sr="DG2L_NWW2_";					\
+    if(i==9) sr="DG2L_CR2LepOS_";					\
+    if(i==10) sr="DG2L_CR2LepSS_";					\
     for(int j=0; j<2; j++){						\
       string sFlav;							\
       if(j==0) sFlav="E_";						\
@@ -553,13 +563,19 @@ for(int j=0; j<nHMC; j++){						\
 #define BOOK_MLfk(hN, ...)						\
   for(int i=0; i<nHSR_ML; i++){						\
     string sr;								\
-    if(i==0) sr="ML_SR0_";						\
-    if(i==1) sr="ML_SR1_";						\
-    if(i==2) sr="ML_SR2_";						\
-    if(i==3) sr="ML_4lep_";						\
-    if(i==4) sr="ML_4lepnoZ_";						\
-    if(i==5) sr="ML_StgProd_";						\
-    if(i==6) sr="ML_UED_";						\
+    if(i==0) sr="ML_SR3Lep_";						\
+    if(i==1) sr="ML_SRB_";						\
+    if(i==2) sr="ML_SR1a_";						\
+    if(i==3) sr="ML_SR1b_";						\
+    if(i==4) sr="ML_SR2_";						\
+    if(i==5) sr="ML_VR0_";						\
+    if(i==6) sr="ML_VR1_";						\
+    if(i==7) sr="ML_VR2_";						\
+    if(i==8) sr="ML_VR3_";						\
+    if(i==9) sr="ML_VRWZ_";						\
+    if(i==10) sr="ML_NRWZ_";						\
+    if(i==11) sr="ML_SR4lep_";						\
+    if(i==12) sr="ML_SR4lepNoZ_";					\
     for(int j=0; j<2; j++){						\
       string sFlav;							\
       if(j==0) sFlav="E_";						\

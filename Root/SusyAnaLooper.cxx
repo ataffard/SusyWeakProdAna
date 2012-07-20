@@ -92,6 +92,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   // grab base object and select signal objects
   selectObjects(NtSys_NOM);
   
+  if(dbgEvt()) dumpEvent();
 
   //perform event analysis
   if(_doFakeAna){
@@ -125,3 +126,36 @@ void SusyAnaLooper::Terminate()
 
 }
 
+/*--------------------------------------------------------------------------------*/
+void SusyAnaLooper::dumpEvent()
+{
+  cout << ">>> ";  nt.evt()->print();
+  
+  cout << "Baseline objects" << endl;
+  for(uint iEl=0; iEl < m_baseElectrons.size(); iEl++){
+    cout << "  ";
+    m_baseElectrons[iEl]->print();
+  }
+  for(uint iMu=0; iMu < m_baseMuons.size(); iMu++){
+    cout << "  ";
+    m_baseMuons[iMu]->print();
+  }
+  for(uint iJ=0; iJ < m_baseJets.size(); iJ++){
+    cout << "  ";
+    m_baseJets[iJ]->print();
+  }
+
+  cout << "Signal objects" << endl;
+  for(uint iEl=0; iEl < m_signalElectrons.size(); iEl++){
+    cout << "  ";
+    m_signalElectrons[iEl]->print();
+  }
+  for(uint iMu=0; iMu < m_signalMuons.size(); iMu++){
+    cout << "  ";
+    m_signalMuons[iMu]->print();
+  }
+  for(uint iJ=0; iJ < m_signalJets.size(); iJ++){
+    cout << "  ";
+    m_signalJets[iJ]->print();
+  }
+}

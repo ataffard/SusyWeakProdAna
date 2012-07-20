@@ -321,6 +321,11 @@ class Histos_Fake
   TH1F*  DEF_HPROBE_CR( e_tight_dPhilmet );
   TH1F*  DEF_HPROBE_CR( e_tight_dPhijmet );
   TH1F*  DEF_HPROBE_CR( e_tight_nJets );
+  TH1F*  DEF_HPROBE_CR( e_tightPP_pt );
+  TH1F*  DEF_HPROBE_CR( e_tightPP_eta );
+  TH1F*  DEF_HPROBE_CR( e_tightPP_d0S );
+  TH1F*  DEF_HPROBE_CR( e_tightPP_z0sintheta );
+  TH1F*  DEF_HPROBE_CR( e_tightPP_met );
   TH1F*  DEF_HPROBE_CR( e_tightNI_pt );
   TH1F*  DEF_HPROBE_CR( e_tightNI_eta );
   TH1F*  DEF_HPROBE_CR( e_tightNI_d0S );

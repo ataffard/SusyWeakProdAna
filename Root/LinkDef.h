@@ -10,6 +10,7 @@
 #include "SusyWeakProdAna/Histos_2L.h"
 #include "SusyWeakProdAna/Histos_3L.h"
 #include "SusyWeakProdAna/SusyHistos.h"
+#include "SusyWeakProdAna/DrawPlots.h"
 
 #include "SusyWeakProdAna/PhysicsTools.h"
 
@@ -32,6 +33,7 @@
 #pragma link C++ class Histos_2L+;
 #pragma link C++ class Histos_3L+;
 #pragma link C++ class SusyHistos+;
+#pragma link C++ class DrawPlots+;
 
 //#pragma link C++ class PhysicsTools+;
 

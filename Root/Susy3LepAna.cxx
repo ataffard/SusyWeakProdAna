@@ -5,44 +5,55 @@
 using namespace std;
 using namespace Susy;
 
+const string ML_SRNAME[] = {"SR3Lep", "SRB", 
+			    "SR1a","SR1b","SR2",
+			    "VR0", "VR1","VR2","VR3",
+			    "VRWZ", "NRWZ", 
+			    "SR4Lep", "SR4LepNoZ"
+};
+
 /*--------------------------------------------------------------------------------*/
 // Susy3LepAna Constructor
 /*--------------------------------------------------------------------------------*/
 Susy3LepAna::Susy3LepAna(SusyHistos* _histos) :
   _hh(_histos),
+  m_cutNBaseLep(false),
   m_nLep3Min   (  3  ),
   m_nLep3Max   (  3  ),
   m_nLep4Min   (  4  ),
   m_nLep4Max   (  99  ),
-  m_selectZ   (false),
-  m_vetoZ     (true),
-  m_selectB   (false),
-  m_vetoB     (true),
-  m_selectSFOS(true),
-  m_vetoSFOS  (false),
-  m_metMin    ( 75  ),
-  m_minMt     ( -1  ),
-  m_writeOut  (false)
+  m_selZ       (false),
+  m_vetoZ      (false),
+  m_selB       (false),
+  m_vetoB      (false),
+  m_selSFOS    (false),
+  m_vetoSFOS   (false),
+  m_metMin     ( -1  ),
+  m_metMax     ( -1  ),
+  m_minMt      ( -1  ),
+  m_lepPtMin   ( -1  ),
+  m_writeOut   (false)
 {
   n_readin        = 0;
-  n_pass_LAr      = 0;
+  n_pass_HotSpot  = 0;
   n_pass_BadJet   = 0;
   n_pass_BadMuon  = 0;
   n_pass_Cosmic   = 0;
-  n_pass_nLep3    = 0;
-  n_pass_nLep4    = 0;
-  n_pass_trig     = 0;
-  n_pass_sfos     = 0;
-  n_pass_met      = 0;
-  n_pass_z        = 0;
-  n_pass_bjet     = 0;
-  n_pass_mt       = 0;
-  n_pass_lep30    = 0;
 
-  m_trigObj = new TrilTrigLogic(nt);
+  for(int i=0; i<ML_NSR; ++i){
+    n_pass_nLep3[i]    = 0;
+    n_pass_nLep4[i]    = 0;
+    n_pass_trig[i]     = 0;
+    n_pass_sfos[i]     = 0;
+    n_pass_met[i]      = 0;
+    n_pass_z[i]        = 0;
+    n_pass_bjet[i]     = 0;
+    n_pass_mt[i]       = 0;
+    n_pass_lep30[i]    = 0;
+  }
+
+  m_trigObj = new TrilTrigLogic();
   m_trigObj->loadTriggerMaps();
-
-  //  setAnaType(Ana_3Lep);
 
   if(m_writeOut) {
     out.open("event.dump");
@@ -68,8 +79,6 @@ void Susy3LepAna::hookContainers(Susy::SusyNtObject* _ntPtr,
   v_sigJet   = _sigJetA;
 }
 
-
-
 /*--------------------------------------------------------------------------------*/
 // Main process loop function 
 /*--------------------------------------------------------------------------------*/
@@ -77,10 +86,9 @@ void Susy3LepAna::doAnalysis()
 {
   n_readin++;
 
+  reset();
   // Check Event
   if(!selectEvent(v_sigLep, v_sigJet, m_met)) return;
-
-  fillHistograms();
 
   return;
 }
@@ -96,22 +104,32 @@ void Susy3LepAna::end()
   cout << "**********************************************" << endl;
   cout << "Susy3LepAna event counters"    << endl;
   cout << "read in     :  " << n_readin        << endl;
-  cout << "pass LAr    :  " << n_pass_LAr      << endl;
+  cout << "pass HotSpot:  " << n_pass_HotSpot  << endl;
   cout << "pass BadJet :  " << n_pass_BadJet   << endl;
   cout << "pass BadMu  :  " << n_pass_BadMuon  << endl;
   cout << "pass Cosmic :  " << n_pass_Cosmic   << endl;
-  cout << "pass nLep   :  " << n_pass_nLep3    << endl;
-  cout << "pass trig   :  " << n_pass_trig     << "\t(" << 100.*n_pass_trig/n_pass_nLep3 << "%)" << endl;
-  cout << "pass sfos   :  " << n_pass_sfos     << endl;
-  cout << "pass met    :  " << n_pass_met      << endl;
-  cout << "pass z      :  " << n_pass_z        << endl;
-  cout << "pass b-jet  :  " << n_pass_bjet     << endl;
-  cout << "pass mt     :  " << n_pass_mt       << endl;
-  cout << "pass 30x3   :  " << n_pass_lep30    << endl;
+  
 
+  //loop over SR and print only the relevant ones
+  for(uint iSR=ML_SR3Lep; iSR<ML_NSR; iSR++){
+    if(iSR>= ML_SR4lep) continue;
+    cout << "====================================" << endl;
+    cout << "Selected SR " << ML_SRNAME[iSR] << endl;
+    
+    cout << "pass nLep   :  " << n_pass_nLep3[iSR]    << endl;
+    cout << "pass trig   :  " << n_pass_trig[iSR]     << "\t(" << 100.*n_pass_trig[iSR]/n_pass_nLep3[iSR] << "%)" << endl;
+    cout << "pass sfos   :  " << n_pass_sfos[iSR]     << endl;
+    cout << "pass met    :  " << n_pass_met[iSR]      << endl;
+    cout << "pass z      :  " << n_pass_z[iSR]        << endl;
+    cout << "pass b-jet  :  " << n_pass_bjet[iSR]     << endl;
+    cout << "pass mt     :  " << n_pass_mt[iSR]       << endl;
+    cout << "pass 30x3   :  " << n_pass_lep30[iSR]    << endl;
+  }
+  
   if(m_writeOut) {
     out.close();
   }
+
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -120,69 +138,80 @@ void Susy3LepAna::end()
 void Susy3LepAna::reset()
 {
   _ww=0;
-  
-  isDGML_SR1a = false;
-  isDGML_SR1b = false;
-  isDGML_SR2  = false;
-  isML_4Lep   = false;
-  isML_4LepnoZ = false;
-  
-
 }
 /*--------------------------------------------------------------------------------*/
 // Full event selection
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::selectEvent(const LeptonVector* leptons, const JetVector* jets, const Met* met)
 {
-  // In this method place all event selection cuts.
-  int flag = nt->evt()->evtFlag[NtSys_NOM];
+  if(!passEventCleaning() ) return false;
+  
+  for(uint iSR=ML_SR3Lep; iSR<ML_NSR; iSR++){
+    string sSR=ML_SRNAME[iSR];
+    setSelection(sSR);
+    SR=iSR;
 
-  if( !passLAr(flag            ))  return false;
-  n_pass_LAr++;
-  if( !passBadJet(flag         ))  return false;
-  n_pass_BadJet++;
-  if( !passBadMuon(flag        ))  return false;
-  n_pass_BadMuon++;
-  if( !passCosmic (flag        ))  return false;
-  n_pass_Cosmic++;
+    if(iSR>=ML_SR4lep){ //4Lep
+       int icut=0;
+       if(!passNLep4Cut(leptons)) continue;
+       if(!passTrigger(leptons))  continue;
+       setEventWeight(LUMIMODE); //set _ww to the appropriate weighting
+       _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww);
+       
+       if( !passMetCut (met))     continue;
+       _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww); 
+      
+       if(!passZCut(leptons))     continue;
+       _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww); 
+    }
+    else{ //3Lep
+      int icut=0;
+      if(!passNBaseLepCut(v_baseLep)) continue;
+      if(!passNLep3Cut(leptons)) continue;
+      if(!passTrigger(leptons))  continue;
+      setEventWeight(LUMIMODE); //set _ww to the appropriate weighting
+      
+      _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww);
 
-  //3 lep SR
-  if( passNLep3Cut(leptons     )){
-    if( !passTrigger(leptons     ))  return false;
-    setEventWeight(LUMIMODE); //set _ww to the appropriate weighting
+      if( !passSFOSCut(leptons)) continue;
+      _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww); 
+      
+      if( !passMetCut (met))     continue;
+      _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww); 
+
+      if(!passZCut(leptons))     continue;
+      _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww); 
+
+      if( !passBJetCut())        continue;
+      _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww);
+
+      /*
+      if(dbg()==-99 && hasSFOS(*v_sigLep)){
+	uint zl1, zl2;
+	float mT=0;
+	bestZ(zl1, zl2, *v_sigLep);
+	for(uint iL=0; iL<v_sigLep->size(); iL++)	{
+	  if(iL!=zl1 && iL!=zl2)  mT= Mt(v_sigLep->at(iL),m_met);
+	}
+	cout << "PASS " << ML_SRNAME[SR] 
+	     << " " << nt->evt()->run << " " << nt->evt()->event 
+	     << " " << v_sigJet->size() << " " << mT
+	     <<endl;
+      }
+      */
+      
+      if( !passMtCut  (leptons,met ))  continue;
+      _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww); 
+      
+      if( !passLepPtCut(leptons)    )  continue;
+      _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww); 
+    }
     
-    for(uint j=0; j<ML_NSR; j++)
-      _hh->H1FILL(_hh->ML_cutflow[j],0,_ww); 
-    
-    if( !passSFOSCut(leptons     ))  return false;
-    for(uint j=0; j<ML_NSR; j++)
-      _hh->H1FILL(_hh->ML_cutflow[j],1,_ww); 
-    
-    //SR1a
-    ML_SR SR=ML_SR1a;
-    if( !passMetCut (met         ))  return false;
-    _hh->H1FILL(_hh->ML_cutflow[SR],2,_ww); 
-    if( !passZCut   (leptons     ))  return false;
-    _hh->H1FILL(_hh->ML_cutflow[SR],3,_ww); 
-    if( !passBJetCut(            ))  return false;
-    _hh->H1FILL(_hh->ML_cutflow[SR],4,_ww); 
-    isDGML_SR1a =true;
-
-    //SR1b
-    SR=ML_SR1b;
-    if( !passMtCut  (leptons,met ))  return false;
-    _hh->H1FILL(_hh->ML_cutflow[SR],2,_ww); 
-
-    if( !passLepPtCut(leptons)    )  return false;
-    _hh->H1FILL(_hh->ML_cutflow[SR],3,_ww); 
-    isDGML_SR1b = true;
+    if(dbg()==-99) cout << "PASS " << ML_SRNAME[SR] 
+			<< " " << nt->evt()->run 
+			<< " " << nt->evt()->event <<endl;
+    fillHistograms(iSR);
   }
-  //>=4 lep SR's
-  else if( passNLep4Cut(leptons     )){
-    
-  }
-  else return false;
-
 
   if( m_writeOut ) {
     out << nt->evt()->run << " " << nt->evt()->event << endl;
@@ -190,22 +219,155 @@ bool Susy3LepAna::selectEvent(const LeptonVector* leptons, const JetVector* jets
 
   return true;
 }
+
+/*--------------------------------------------------------------------------------*/
+// Set Selection 
+/*--------------------------------------------------------------------------------*/
+void Susy3LepAna::setSelection(std::string s)
+{
+  m_sel=s;
+
+  m_cutNBaseLep=false;
+  m_nLep3Min=3;  
+  m_nLep3Max=3;
+  m_nLep4Min=4;
+  m_nLep4Max=99; 
+  m_selZ=false;
+  m_vetoZ=false;
+  m_selB=false;
+  m_vetoB=false;
+  m_selSFOS=false;
+  m_vetoSFOS=false;
+  m_metMin=-1;  
+  m_metMax=-1;  
+  m_minMt=-1;  
+  m_lepPtMin=-1;
+
+  if(m_sel=="SR3Lep"){
+    //Default - 3 signal leptons 
+  }
+  else if (m_sel=="SRB"){ //Baseline SR
+    m_selSFOS=true;
+    m_metMin=75;
+  }
+  else if (m_sel=="SR1a"){ //Zveto loose
+    m_selSFOS=true;
+    m_metMin=75;
+    m_vetoZ=true;
+    m_vetoB=true;
+  }
+  else if (m_sel=="SR1b"){ //Zveto tight
+    m_selSFOS=true;
+    m_metMin=75;
+    m_vetoZ=true;
+    m_vetoB=true;
+    m_minMt=90;
+    m_lepPtMin=30;
+  }
+  else if (m_sel=="SR2"){ //In Z peal
+    m_selZ=true;
+    m_selSFOS=true;
+    m_metMin=75;
+    m_minMt=90;
+  }
+  else if (m_sel=="VR0"){ //Low met validation inclusive
+    m_metMax=75;
+  }
+  else if (m_sel=="VR1"){ //Intermediate met Zveto
+    m_metMin=30;
+    m_metMax=75;
+    m_selSFOS=true;
+    m_vetoZ=true; 
+  }
+  else if (m_sel=="VR2"){ //High Met veto SFOS
+    m_metMin=50;
+    m_vetoSFOS=true;
+  }
+  else if (m_sel=="VR3"){ //Intermediate met in Z peak
+    m_metMin=50;
+    m_metMax=75;
+    m_selSFOS=true;
+    m_selZ=true;
+  }
+  else if (m_sel=="VRWZ"){ //WZ validation region
+    m_cutNBaseLep = true;
+    m_selSFOS = true;
+    m_selZ = true;
+    m_metMin = 55;
+    m_metMax = 70;
+    m_minMt = 40;
+    m_vetoB = true;
+  }
+  else if (m_sel=="NRWZ"){//WZ normalisation region
+    m_cutNBaseLep = true;
+    m_selSFOS = true;
+    m_selZ = true;
+    m_metMax = 50;
+    m_minMt = 40;
+    m_vetoB = true;
+  }
+  else if(m_sel=="SR4Lep"){
+    //Default - 4 signal leptons 
+    m_metMin = 50;
+  }
+  else if(m_sel=="SR4LepNoZ"){
+    m_metMin = 50;
+    m_vetoZ=true;
+  }
+
+
+}
+
 /*--------------------------------------------------------------------------------*/
 // Event weight
 /*--------------------------------------------------------------------------------*/
 void Susy3LepAna::setEventWeight(int mode)
 {
-  if(mode==0) _ww=nt->evt()->fullWeight();
+  if(mode==0){
+    _ww=getEventWeight(nt->evt());
+  }
   if(mode==1){
-    _ww=nt->evt()->wPileup1fb 
-      * nt->evt()->xsec 
-      * nt->evt()->lumiSF;
+    _ww=getEventWeight1fb(nt->evt());
   }
-  for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
-    const Susy::Lepton* _l = v_sigLep->at(ilep);
-    _ww *= _l->effSF;
+  if(mode==0 || mode==1){
+    for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
+      const Susy::Lepton* _l = v_sigLep->at(ilep);
+      _ww *= _l->effSF;
+    }
   }
+  if(mode==3) _ww= 1;
   //TODO: Add trigger weighting 
+}
+/*--------------------------------------------------------------------------------*/
+// Event cleaning
+/*--------------------------------------------------------------------------------*/
+bool Susy3LepAna::passEventCleaning()
+{
+  int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
+
+  if(!passHotSpot(cutFlag)) return false;
+  n_pass_HotSpot++;
+
+  if(!passBadJet (cutFlag)) return false;
+  n_pass_BadJet++;
+
+  if(!passBadMuon(cutFlag)) return false;
+  n_pass_BadMuon++;
+
+  if(!passCosmic (cutFlag)) return false;
+  n_pass_Cosmic++;
+
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
+bool Susy3LepAna::passNBaseLepCut(const LeptonVector* baseLeptons)
+{
+  if(m_cutNBaseLep){
+    uint nLep = baseLeptons->size();
+    if(m_nLep3Min>=0 && nLep < m_nLep3Min) return false;
+    if(m_nLep3Max>=0 && nLep > m_nLep3Max) return false;
+  }
+  return true;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -216,7 +378,7 @@ bool Susy3LepAna::passNLep3Cut(const LeptonVector* leptons)
   uint nLep = leptons->size();
   if(m_nLep3Min>=0 && nLep < m_nLep3Min) return false;
   if(m_nLep3Max>=0 && nLep > m_nLep3Max) return false;
-  n_pass_nLep3++;
+  n_pass_nLep3[SR]++;
   return true;
 }
 /*--------------------------------------------------------------------------------*/
@@ -227,28 +389,23 @@ bool Susy3LepAna::passNLep4Cut(const LeptonVector* leptons)
   uint nLep = leptons->size();
   if(m_nLep4Min>=0 && nLep < m_nLep4Min) return false;
   if(m_nLep4Max>=0 && nLep > m_nLep4Max) return false;
-  n_pass_nLep4++;
+  n_pass_nLep4[SR]++;
   return true;
 }
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passTrigger(const LeptonVector* leptons) 
 {
-  //ANYES - TODO
-  n_pass_trig++;
+  if(!m_trigObj->passTriggerMatching(*leptons, nt->evt())) return false;
+  n_pass_trig[SR]++;
   return true;
-  /*
-  if(!m_trigObj->passTriggerMatching(*leptons)) return false;
-  n_pass_trig++;
-  return true;
-  */
 }
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passSFOSCut(const LeptonVector* leptons)
 {
   bool sfos = hasSFOS(*leptons);
-  if(m_vetoSFOS   &&  sfos) return false;
-  if(m_selectSFOS && !sfos) return false;
-  n_pass_sfos++;
+  if(m_vetoSFOS &&  sfos) return false;
+  if(m_selSFOS  && !sfos) return false;
+  n_pass_sfos[SR]++;
   return true;
 }
 /*--------------------------------------------------------------------------------*/
@@ -256,167 +413,155 @@ bool Susy3LepAna::passMetCut(const Met* met)
 {
   double missEt = met->lv().Et();
   if( m_metMin >= 0 && missEt < m_metMin ) return false;
-  n_pass_met++;
-  return true;
-}
-/*--------------------------------------------------------------------------------*/
-bool Susy3LepAna::passLepPtCut(const LeptonVector* leptons)
-{
-  if(leptons->size()<3) return false;
-  int nLep30=0;
-  for(uint iL=0; iL<leptons->size(); iL++){
-    if(leptons->at(iL)->Pt()>30) nLep30++;
-  }
-  if(nLep30<3) return false;
-  n_pass_lep30++;
+  if( m_metMax >= 0 && missEt > m_metMax ) return false;
+  n_pass_met[SR]++;
   return true;
 }
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passZCut(const LeptonVector* leptons)
 {
   bool hasz = hasZ(*leptons);
-  if( m_vetoZ   &&  hasz ) return false;
-  if( m_selectZ && !hasz ) return false;
-  n_pass_z++;
+  if( m_vetoZ  &&  hasz ) return false;
+  if( m_selZ   && !hasz ) return false;
+  n_pass_z[SR]++;
   return true;
 }
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passBJetCut( )
 {
   bool hasB = hasBJet(*v_sigJet);
-  if( m_vetoB   &&  hasB ) return false;
-  if( m_selectB && !hasB ) return false;
-  n_pass_bjet++;
+  if( m_vetoB &&  hasB ) return false;
+  if( m_selB  && !hasB ) return false;
+  n_pass_bjet[SR]++;
   return true;
 }
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passMtCut(const LeptonVector* leptons, const Met* met)
 {
   // Find the best Z candidate pair, use remaining lepton to form Mt
-  if(m_minMt > 0)
-  {
+  if(m_minMt > 0){
     uint zl1, zl2;
     bestZ(zl1, zl2, *leptons);
-
-    for(uint iL=0; iL<leptons->size(); iL++)
-    {
-      if(iL!=zl1 && iL!=zl2)
-      {
+    for(uint iL=0; iL<leptons->size(); iL++){
+      if(iL!=zl1 && iL!=zl2){
         if( Mt(leptons->at(iL),met) < m_minMt ) return false;
       }
     }
   }
-
-  n_pass_mt++;
+  n_pass_mt[SR]++;
   return true;
 }
-
 /*--------------------------------------------------------------------------------*/
-void Susy3LepAna::fillHistograms()
+bool Susy3LepAna::passLepPtCut(const LeptonVector* leptons)
+{
+  if(m_lepPtMin > 0){
+    int nLep30=0;
+    for(uint iL=0; iL<leptons->size(); iL++){
+      if(leptons->at(iL)->Pt()<m_lepPtMin) continue;
+      nLep30++;
+    }
+    if(nLep30<3) return false;
+    n_pass_lep30[SR]++;
+    return true;
+  }
+  n_pass_lep30[SR]++;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
+void Susy3LepAna::fillHistograms(uint iSR)
 {
 
-  for(uint iSR=0; iSR<ML_NSR; iSR++){
-    if(iSR==0 && !isDGML_SR1a)   continue;
-    if(iSR==1 && !isDGML_SR1b)   continue;
-    if(iSR==2 && !isDGML_SR2)    continue;
-    if(iSR==3 && !isML_4Lep)     continue;
-    if(iSR==4 && !isML_4LepnoZ)  continue;
-    //    if(iSR==5 && !isML_stgProd) continue;
-    //    if(iSR==6 && !isML_UED)     continue;
-    
-    _hh->H1FILL(_hh->ML_nLep[iSR], v_sigLep->size(), _ww); 
-    _hh->H1FILL(_hh->ML_evtCatgUnOrdered[iSR], evtCatgUnOrd(v_sigLep), _ww);
-    _hh->H1FILL(_hh->ML_evtCatgOSpair[iSR], evtCatgOrd(v_sigLep), _ww);
-
-    bool sfos = hasSFOS(*v_sigLep);
-    TLorentzVector _3l;
-    TLorentzVector _4l;
-    for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
-      const Susy::Lepton* _l = v_sigLep->at(ilep);
-      if(ilep>=4) continue;
-      if(ilep<3) _3l += (*_l);
-      if(ilep<4) _4l += (*_l);
-      if(ilep==0){
-	_hh->H1FILL(_hh->ML_ptl1[iSR],_l->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etal1[iSR],_l->Eta(),_ww); 
-	_hh->H1FILL(_hh->ML_d0Sl1[iSR],_l->d0/_l->errD0,_ww); 
-	_hh->H1FILL(_hh->ML_z0sinthetal1[iSR],_l->z0*sin(_l->Theta()),_ww); 
-      }
-      else if(ilep==1){
-	_hh->H1FILL(_hh->ML_ptl2[iSR],_l->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etal2[iSR],_l->Eta(),_ww); 
-	_hh->H1FILL(_hh->ML_d0Sl2[iSR],_l->d0/_l->errD0,_ww); 
-	_hh->H1FILL(_hh->ML_z0sinthetal2[iSR],_l->z0*sin(_l->Theta()),_ww); 
-      }
-      else if(ilep==2){
-	_hh->H1FILL(_hh->ML_ptl3[iSR],_l->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etal3[iSR],_l->Eta(),_ww); 
-	_hh->H1FILL(_hh->ML_d0Sl3[iSR],_l->d0/_l->errD0,_ww); 
-	_hh->H1FILL(_hh->ML_z0sinthetal3[iSR],_l->z0*sin(_l->Theta()),_ww); 
-      }
-      else if(ilep==3){
-	_hh->H1FILL(_hh->ML_ptl4[iSR],_l->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etal4[iSR],_l->Eta(),_ww); 
-	_hh->H1FILL(_hh->ML_d0Sl4[iSR],_l->d0/_l->errD0,_ww); 
-	_hh->H1FILL(_hh->ML_z0sinthetal4[iSR],_l->z0*sin(_l->Theta()),_ww); 
-      }
+  _hh->H1FILL(_hh->ML_nLep[iSR], v_sigLep->size(), _ww); 
+  _hh->H1FILL(_hh->ML_evtCatgUnOrdered[iSR], evtCatgUnOrd(v_sigLep), _ww);
+  _hh->H1FILL(_hh->ML_evtCatgOSpair[iSR], evtCatgOrd(v_sigLep), _ww);
+  
+  bool sfos = hasSFOS(*v_sigLep);
+  TLorentzVector _3l;
+  TLorentzVector _4l;
+  for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
+    const Susy::Lepton* _l = v_sigLep->at(ilep);
+    if(ilep>=4) continue;
+    if(ilep<3) _3l += (*_l);
+    if(ilep<4) _4l += (*_l);
+    if(ilep==0){
+      _hh->H1FILL(_hh->ML_ptl1[iSR],_l->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etal1[iSR],_l->Eta(),_ww); 
+      _hh->H1FILL(_hh->ML_d0Sl1[iSR],_l->d0/_l->errD0,_ww); 
+      _hh->H1FILL(_hh->ML_z0sinthetal1[iSR],_l->z0*sin(_l->Theta()),_ww); 
     }
-    
-    _hh->H1FILL(_hh->ML_AllMlll[iSR],_3l.M(),_ww); 
-    if(sfos){
-      _hh->H1FILL(_hh->ML_SFOSMlll[iSR],_3l.M(),_ww); 
-
-      //Compute MT
-      //Find the 2 SFOS leptons - closest to Z peak
-      //Use the 3rd one to reco MT
-      uint zl1, zl2;
-      float mT=0;
-      bestZ(zl1, zl2, *v_sigLep);
-      for(uint iL=0; iL<v_sigLep->size(); iL++)	{
-	if(iL!=zl1 && iL!=zl2)  mT= Mt(v_sigLep->at(iL),m_met);
-      }
-      _hh->H1FILL(_hh->ML_SFOSMT[iSR],mT,_ww); 
+    else if(ilep==1){
+      _hh->H1FILL(_hh->ML_ptl2[iSR],_l->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etal2[iSR],_l->Eta(),_ww); 
+      _hh->H1FILL(_hh->ML_d0Sl2[iSR],_l->d0/_l->errD0,_ww); 
+      _hh->H1FILL(_hh->ML_z0sinthetal2[iSR],_l->z0*sin(_l->Theta()),_ww); 
     }
-    
-    //Dilepton mass
-    for(uint iL1=0; iL1<v_sigLep->size(); iL1++)
-      for(uint iL2=iL1+1; iL2<v_sigLep->size(); iL2++){
-	float mll = Mll(v_sigLep->at(iL1),v_sigLep->at(iL2));
-	_hh->H1FILL(_hh->ML_AllMll[iSR],mll,_ww); 
-	if(isSFOS(v_sigLep->at(iL1),v_sigLep->at(iL2)))
-	  _hh->H1FILL(_hh->ML_SFOSMll[iSR],mll,_ww); 
-      }
-    
-    int nBJets=0;
-    _hh->H1FILL(_hh->ML_nJets[iSR],v_sigJet->size(),_ww); 
-    for(uint ijet=0; ijet<v_sigJet->size(); ijet++){
-      const Susy::Jet* _j = v_sigJet->at(ijet);
-      if(isBJet(_j,MV1_85)){
-	nBJets++;
-	_hh->H1FILL(_hh->ML_ptbj[iSR],_j->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etabj[iSR],_j->Eta(),_ww); 
-      }
-      if(ijet==0){
-	_hh->H1FILL(_hh->ML_ptj1[iSR],_j->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etaj1[iSR],_j->Eta(),_ww); 
-      }
-      if(ijet==1){
-	_hh->H1FILL(_hh->ML_ptj2[iSR],_j->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etaj2[iSR],_j->Eta(),_ww); 
-      }
-      if(ijet==2){
-	_hh->H1FILL(_hh->ML_ptj3[iSR],_j->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etaj3[iSR],_j->Eta(),_ww); 
-      }
-      if(ijet==3){
-	_hh->H1FILL(_hh->ML_ptj4[iSR],_j->Pt(),_ww); 
-	_hh->H1FILL(_hh->ML_etaj4[iSR],_j->Eta(),_ww); 
-      }
+    else if(ilep==2){
+      _hh->H1FILL(_hh->ML_ptl3[iSR],_l->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etal3[iSR],_l->Eta(),_ww); 
+      _hh->H1FILL(_hh->ML_d0Sl3[iSR],_l->d0/_l->errD0,_ww); 
+      _hh->H1FILL(_hh->ML_z0sinthetal3[iSR],_l->z0*sin(_l->Theta()),_ww); 
     }
-    _hh->H1FILL(_hh->ML_nBJets[iSR],nBJets,_ww); 
+    else if(ilep==3){
+      _hh->H1FILL(_hh->ML_ptl4[iSR],_l->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etal4[iSR],_l->Eta(),_ww); 
+      _hh->H1FILL(_hh->ML_d0Sl4[iSR],_l->d0/_l->errD0,_ww); 
+      _hh->H1FILL(_hh->ML_z0sinthetal4[iSR],_l->z0*sin(_l->Theta()),_ww); 
+    }
+  }
+  
+  _hh->H1FILL(_hh->ML_AllMlll[iSR],_3l.M(),_ww); 
+  if(sfos){
+    _hh->H1FILL(_hh->ML_SFOSMlll[iSR],_3l.M(),_ww); 
     
-  }//loop SR's
-
+    //Compute MT
+    //Find the 2 SFOS leptons - closest to Z peak
+    //Use the 3rd one to reco MT
+    uint zl1, zl2;
+    float mT=0;
+    bestZ(zl1, zl2, *v_sigLep);
+    for(uint iL=0; iL<v_sigLep->size(); iL++)	{
+      if(iL!=zl1 && iL!=zl2)  mT= Mt(v_sigLep->at(iL),m_met);
+    }
+    _hh->H1FILL(_hh->ML_SFOSMT[iSR],mT,_ww); 
+  }
+  
+  //Dilepton mass
+  for(uint iL1=0; iL1<v_sigLep->size(); iL1++)
+    for(uint iL2=iL1+1; iL2<v_sigLep->size(); iL2++){
+      float mll = Mll(v_sigLep->at(iL1),v_sigLep->at(iL2));
+      _hh->H1FILL(_hh->ML_AllMll[iSR],mll,_ww); 
+      if(isSFOS(v_sigLep->at(iL1),v_sigLep->at(iL2)))
+	_hh->H1FILL(_hh->ML_SFOSMll[iSR],mll,_ww); 
+    }
+  
+  int nBJets=0;
+  _hh->H1FILL(_hh->ML_nJets[iSR],v_sigJet->size(),_ww); 
+  for(uint ijet=0; ijet<v_sigJet->size(); ijet++){
+    const Susy::Jet* _j = v_sigJet->at(ijet);
+    if(isBJet(_j,MV1_85)){
+      nBJets++;
+      _hh->H1FILL(_hh->ML_ptbj[iSR],_j->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etabj[iSR],_j->Eta(),_ww); 
+    }
+    if(ijet==0){
+      _hh->H1FILL(_hh->ML_ptj1[iSR],_j->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etaj1[iSR],_j->Eta(),_ww); 
+    }
+    if(ijet==1){
+      _hh->H1FILL(_hh->ML_ptj2[iSR],_j->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etaj2[iSR],_j->Eta(),_ww); 
+    }
+    if(ijet==2){
+      _hh->H1FILL(_hh->ML_ptj3[iSR],_j->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etaj3[iSR],_j->Eta(),_ww); 
+    }
+    if(ijet==3){
+      _hh->H1FILL(_hh->ML_ptj4[iSR],_j->Pt(),_ww); 
+      _hh->H1FILL(_hh->ML_etaj4[iSR],_j->Eta(),_ww); 
+    }
+  }
+  _hh->H1FILL(_hh->ML_nBJets[iSR],nBJets,_ww); 
+  
 }
 /*--------------------------------------------------------------------------------*/
 int Susy3LepAna::evtCatgUnOrd(const LeptonVector* leptons){

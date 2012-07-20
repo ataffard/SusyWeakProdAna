@@ -17,7 +17,6 @@
 
 // Root Packages
 #include "TTree.h"
-#include "TStopwatch.h"
 
 // Susy Common
 #include "SusyNtuple/SusyNtAna.h"
@@ -41,7 +40,6 @@ class SusyAnaLooper : public SusyNtAna
     virtual void    Begin(TTree *tree);
     // Terminate is called after looping is finished
     virtual void    Terminate();
-
     // Main event loop function
     virtual Bool_t  Process(Long64_t entry);
 
@@ -49,13 +47,12 @@ class SusyAnaLooper : public SusyNtAna
     void do3L(bool b){_do3LAna=b;}
     void doFake(bool b){_doFakeAna=b;}
 
-
+    //Dump event info for debugging
+    void dumpEvent();
+   
     ClassDef(SusyAnaLooper, 1);
 
   protected:
-
-    TStopwatch* _timer;
-
     TDirectory* _histoDir;
 
     SusyHistos*  _susyHistos;
@@ -66,7 +63,6 @@ class SusyAnaLooper : public SusyNtAna
     bool _do2LAna;
     bool _do3LAna;
     bool _doFakeAna;
-
 
 };
 

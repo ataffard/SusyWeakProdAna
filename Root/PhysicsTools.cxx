@@ -40,12 +40,14 @@ bool isHF(int org)
 bool isLF(int org)
 {
   if( org==0 ||
-      org==3 ||
+      org==4 ||
+      org==8 ||
       org==11 ||
       (org>=23 && org<=24) ||
       (org>=30 && org<=31) ||
       org==34 ||
-      org==35) return true;
+      org==35 ||
+      org==41 || org==42 ) return true;
   return false;
 }
 
@@ -54,7 +56,7 @@ bool isConv(int org)
 {
   if( org==3 ||
       (org>=5 && org<=7) ||
-      ( org>=36 && org<=42)) 
+      ( org>=36 && org<=40)) 
     return true;
   return false;
 }
@@ -222,6 +224,12 @@ float GetNVertexBsCorrected(float nRecoVtx){
   }
   
   //now return corresponding reconstructed vertices for bs=47mm
-  return g_nvtx_nreco_bs47mm->Eval(nRecon);
+
+  float val = g_nvtx_nreco_bs47mm->Eval(nRecon);
+
+  delete g_nvtx_nreco_bs47mm;
+  delete g_nvtx_nreco_bs66mm;
+
+  return val;
   
  }

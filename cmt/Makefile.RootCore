@@ -4,7 +4,7 @@
 
 PACKAGE          = SusyWeakProdAna
 PACKAGE_PRELOAD  = Tree
-PACKAGE_CXXFLAGS = 
+PACKAGE_CXXFLAGS = -DDEBUG -g
 PACKAGE_LDFLAGS  = $(shell root-config --libs)
 PACKAGE_BINFLAGS = -lCintex -lReflex -lPyROOT -lXMLParser -lEG 
 PACKAGE_DEP      = ReweightUtils Mt2 SusyNtuple

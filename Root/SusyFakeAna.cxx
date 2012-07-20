@@ -152,7 +152,7 @@ void SusyFakeAna::doElectronAnalysis()
     _method=1;
     for(uint i=0; i< v_baseEle->size(); i++){
       fillElectronHisto(v_baseEle->at(i),
-		    getType(v_baseEle->at(i)->mcOrigin),_method);
+			getType(v_baseEle->at(i)->mcOrigin),_method);
     }
   }
 }
@@ -184,12 +184,13 @@ void SusyFakeAna::end()
 /*--------------------------------------------------------------------------------*/
 void SusyFakeAna::setEventWeight(int mode)
 {
-  if(mode==0) _ww=nt->evt()->fullWeight();
-  if(mode==1){
-    _ww=nt->evt()->wPileup1fb 
-      * nt->evt()->xsec 
-      * nt->evt()->lumiSF;
+  if(mode==0){
+    _ww=getEventWeight(nt->evt());
   }
+  if(mode==1){
+    _ww=getEventWeight1fb(nt->evt());
+  }
+  if(mode==3) _ww=1;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -462,7 +463,7 @@ void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, co
 
   float PtIso20 = _e->ptcone20;
   float PtIso30 = _e->ptcone30;
-  float EtIso30 = eEtTopoConeCorr(_e, nt->evt()->nVtx, nt->evt()->isMC);
+  float EtIso30 = elEtTopoConeCorr(_e, nt->evt()->nVtx, nt->evt()->isMC);
 
   if(PtIso30/_e->Pt()>ELECTRON_PTCONE30_PT_CUT) passNI1=false;
   if(EtIso30/_e->Pt()>ELECTRON_TOPOCONE30_PT_CUT) passNI2=false;
@@ -479,6 +480,7 @@ void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, co
 
   //Pick Iso --- make some plots 
   _hh->PFILL(_hh->e_iso_mu[m][t],nt->evt()->avgMu,PtIso30,_ww);
+  //std::cout <<"Muon fill " << m << " " << t << " org " << _e->mcOrigin << " nvtx " << nt->evt()->nVtx << " iso " << PtIso30 <<endl;
   _hh->PFILL(_hh->e_iso_npv[m][t],nt->evt()->nVtx,PtIso30,_ww);
 
   //Isolation  -vs- pt - vs Npv/<mu>
@@ -523,40 +525,47 @@ void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, co
    _hh->H1FILL(_hh->e_loose_dPhijmet[m][t][iCR],mindPhiJMet,_ww);  
    _hh->H1FILL(_hh->e_loose_nJets[m][t][iCR],v_sigJet->size(),_ww); 
 
-    //Numerator default isolation 2011
-   if(passEleIso2011(_e)){
-     _hh->H1FILL(_hh->e_tight_pt[m][t][iCR],_e->Pt(),_ww);  
-     _hh->H1FILL(_hh->e_tight_eta[m][t][iCR],_e->Eta(),_ww);
-     _hh->H1FILL(_hh->e_tight_d0S[m][t][iCR],d0Sig,_ww); 
-     _hh->H1FILL(_hh->e_tight_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
-     _hh->H1FILL(_hh->e_tight_met[m][t][iCR],m_met->lv().Pt(),_ww); 
-     _hh->H1FILL(_hh->e_tight_metrel[m][t][iCR],_metRel,_ww); 
-     _hh->H1FILL(_hh->e_tight_dPhilmet[m][t][iCR],dPhilmet,_ww);  
-     _hh->H1FILL(_hh->e_tight_dPhijmet[m][t][iCR],mindPhiJMet,_ww);   
-     _hh->H1FILL(_hh->e_tight_nJets[m][t][iCR],v_sigJet->size(),_ww); 
-   }
-   
-   if(passNI1){ //ptCone30Corr
-     _hh->H1FILL(_hh->e_tightNI_pt[m][t][iCR],_e->Pt(),_ww);  
-     _hh->H1FILL(_hh->e_tightNI_eta[m][t][iCR],_e->Eta(),_ww);
-     _hh->H1FILL(_hh->e_tightNI_d0S[m][t][iCR],d0Sig,_ww); 
-     _hh->H1FILL(_hh->e_tightNI_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
-     _hh->H1FILL(_hh->e_tightNI_met[m][t][iCR],m_met->lv().Pt(),_ww); 
-     if(passIP){ //IP
-       _hh->H1FILL(_hh->e_tightNIIP_pt[m][t][iCR],_e->Pt(),_ww);  
-       _hh->H1FILL(_hh->e_tightNIIP_eta[m][t][iCR],_e->Eta(),_ww);
-       _hh->H1FILL(_hh->e_tightNIIP_d0S[m][t][iCR],d0Sig,_ww); 
-       _hh->H1FILL(_hh->e_tightNIIP_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
-       _hh->H1FILL(_hh->e_tightNIIP_met[m][t][iCR],m_met->lv().Pt(),_ww); 
-       if(passNI2){//ptCone + IP + Etcone
-	 _hh->H1FILL(_hh->e_tightNI2_pt[m][t][iCR],_e->Pt(),_ww);  
-	 _hh->H1FILL(_hh->e_tightNI2_eta[m][t][iCR],_e->Eta(),_ww);
-	 _hh->H1FILL(_hh->e_tightNI2_d0S[m][t][iCR],d0Sig,_ww); 
-	 _hh->H1FILL(_hh->e_tightNI2_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
-	 _hh->H1FILL(_hh->e_tightNI2_met[m][t][iCR],m_met->lv().Pt(),_ww); 
+   if(_e->tightPP){
+     _hh->H1FILL(_hh->e_tightPP_pt[m][t][iCR],_e->Pt(),_ww);  
+     _hh->H1FILL(_hh->e_tightPP_eta[m][t][iCR],_e->Eta(),_ww);
+     _hh->H1FILL(_hh->e_tightPP_d0S[m][t][iCR],d0Sig,_ww); 
+     _hh->H1FILL(_hh->e_tightPP_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
+     _hh->H1FILL(_hh->e_tightPP_met[m][t][iCR],m_met->lv().Pt(),_ww); 
+
+     //Numerator default isolation 2011
+     if(passEleIso2011(_e)){
+       _hh->H1FILL(_hh->e_tight_pt[m][t][iCR],_e->Pt(),_ww);  
+       _hh->H1FILL(_hh->e_tight_eta[m][t][iCR],_e->Eta(),_ww);
+       _hh->H1FILL(_hh->e_tight_d0S[m][t][iCR],d0Sig,_ww); 
+       _hh->H1FILL(_hh->e_tight_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
+       _hh->H1FILL(_hh->e_tight_met[m][t][iCR],m_met->lv().Pt(),_ww); 
+       _hh->H1FILL(_hh->e_tight_metrel[m][t][iCR],_metRel,_ww); 
+       _hh->H1FILL(_hh->e_tight_dPhilmet[m][t][iCR],dPhilmet,_ww);  
+       _hh->H1FILL(_hh->e_tight_dPhijmet[m][t][iCR],mindPhiJMet,_ww);   
+       _hh->H1FILL(_hh->e_tight_nJets[m][t][iCR],v_sigJet->size(),_ww); 
+     }//2011 iso
+     if(passNI1){ //ptCone30Corr
+       _hh->H1FILL(_hh->e_tightNI_pt[m][t][iCR],_e->Pt(),_ww);  
+       _hh->H1FILL(_hh->e_tightNI_eta[m][t][iCR],_e->Eta(),_ww);
+       _hh->H1FILL(_hh->e_tightNI_d0S[m][t][iCR],d0Sig,_ww); 
+       _hh->H1FILL(_hh->e_tightNI_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
+       _hh->H1FILL(_hh->e_tightNI_met[m][t][iCR],m_met->lv().Pt(),_ww); 
+       if(passIP){ //IP
+	 _hh->H1FILL(_hh->e_tightNIIP_pt[m][t][iCR],_e->Pt(),_ww);  
+	 _hh->H1FILL(_hh->e_tightNIIP_eta[m][t][iCR],_e->Eta(),_ww);
+	 _hh->H1FILL(_hh->e_tightNIIP_d0S[m][t][iCR],d0Sig,_ww); 
+	 _hh->H1FILL(_hh->e_tightNIIP_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
+	 _hh->H1FILL(_hh->e_tightNIIP_met[m][t][iCR],m_met->lv().Pt(),_ww); 
+	 if(passNI2){//ptCone + IP + Etcone
+	   _hh->H1FILL(_hh->e_tightNI2_pt[m][t][iCR],_e->Pt(),_ww);  
+	   _hh->H1FILL(_hh->e_tightNI2_eta[m][t][iCR],_e->Eta(),_ww);
+	   _hh->H1FILL(_hh->e_tightNI2_d0S[m][t][iCR],d0Sig,_ww); 
+	   _hh->H1FILL(_hh->e_tightNI2_z0sintheta[m][t][iCR],z0SinTheta,_ww);   
+	   _hh->H1FILL(_hh->e_tightNI2_met[m][t][iCR],m_met->lv().Pt(),_ww); 
+	 }
        }
-     }
-   }
+     }//2012 iso
+   }//tight PP
   }//CR's
 
   

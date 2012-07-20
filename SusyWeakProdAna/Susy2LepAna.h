@@ -10,8 +10,6 @@
 
 // Root Packages
 
-// Common Packages
-#include "Mt2/mt2_bisect.h" // I don't want to recode this..
 
 // Susy Common
 #include "SusyNtuple/SusyDefs.h"
@@ -43,47 +41,57 @@ class Susy2LepAna: public SusyNtTools
 			);
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
-    void doAnalysis();
-    void fillHistograms();
-    void end();
+    void setEventWeight(int mode=0);
 
+    void doAnalysis();
+    void fillHistograms(uint iSR);
+    void end();
+   
     // Full event selection. Specify which leptons to use.
-    bool selectEvent(const LeptonVector* leptons, const LeptonVector* baseLeptons);
+    bool selectEvent(const LeptonVector* leptons, 
+		     const LeptonVector* baseLeptons, 
+		     const JetVector* jets,
+		     const Met* met);
 	
     // Reset flags & var
     void reset();
-	     
-    // Signal regions
-    bool passSR1(const LeptonVector* leptons, const JetVector* jets, const Met* met);
-    bool passSR2(const LeptonVector* leptons, const JetVector* jets, const Met* met);
-    bool passSR3(const LeptonVector* leptons, const JetVector* jets, const Met* met);
-    bool passSR4(const LeptonVector* leptons, const JetVector* jets, const Met* met);
-    bool passSR5(const LeptonVector* leptons, const JetVector* jets, const Met* met);
+    
+    // Event Cleaning
+    bool passEventCleaning();
 
+    //Set cuts for a give SR, CR etc...
+    void setSelection(std::string s);
+    
     // Cut methods
-    bool passNLepCut(const LeptonVector* leptons);
-    bool passNBaseLepCut(const LeptonVector* baseLeptons);
     bool passTrigger(const LeptonVector* leptons);
-    bool sameFlavor(const LeptonVector* leptons);
-    bool oppositeFlavor(const LeptonVector* leptons);
-    bool sameSign(const LeptonVector* leptons);
-    bool oppositeSign(const LeptonVector* leptons);
-    bool passMll(const LeptonVector* leptons, float mll = 20);
-
-    // Signal Region Cuts
+    bool passNLepCut(const LeptonVector* leptons);
+    bool passFlavor(const LeptonVector* leptons);
+    bool passQQ(const LeptonVector* leptons);
     bool passJetVeto(const JetVector* jets);
-    bool passZVeto(const LeptonVector* leptons, float Zlow = 81.2, float Zhigh = 101.2);
-    bool passMETRel(const Met *met, const LeptonVector* leptons, 
-		    const JetVector* jets, float maxMet = 100);
-    bool passbJetVeto(const JetVector* jets);
+    bool passZVeto(const LeptonVector* leptons, float Zlow = MZ-10, float Zhigh = MZ+10);
+    bool passMETRel(const Met *met, const LeptonVector* leptons, const JetVector* jets);
+    bool passMET(const Met *met);
+    bool passbJet(const JetVector* jets, float cutVal=MV1_85);
     bool passge2Jet(const JetVector* jets);
+    bool passMT2(const LeptonVector* leptons, const Met* met);
+    bool passTopTagger(const LeptonVector* leptons, const JetVector* jets, const Met* met);
+    bool passLeadLepPt(const LeptonVector* leptons);
+    bool passSumLepPt(const LeptonVector* leptons);
+    bool passDPhiMetll(const LeptonVector* leptons, const Met* met);
+    bool passDPhiMetl1(const LeptonVector* leptons, const Met* met);
     bool passdPhi(TLorentzVector v0, TLorentzVector v1, float cut);
-    bool passMT2(const LeptonVector* leptons, const Met* met, float cut);
 
     //Other functions
-    void setEventWeight(int mode=0);
-
-
+    void print_SRjveto();
+    void print_SRSSjveto();
+    void print_SR2jets();
+    void print_SRmT2();
+    void print_SR5();
+    void print_CRZ();
+    void print_NTOP();
+    void print_NWW();
+    void print_line(string s, float a, float b, float c);
+    
     ClassDef(Susy2LepAna, 1);
 
   protected:
@@ -105,91 +113,84 @@ class Susy2LepAna: public SusyNtTools
 
     DilTrigLogic*       m_trigObj;      // My trigger logic class
     
-    //2L enum
-    enum DG2L_SR{DG2L_SR0_OS=0, DG2L_SR0_SS=1, 
-		 DG2L_SR1=2, DG2L_SR2=3, DG2L_SR3=4, DG2L_SR4=5, DG2L_SR5=6, 
-		 DG2L_NSR=7};
-    enum DIL_QPROD{OS=0, SS=1};
-
-
-    // Signal Region flags
-    bool isDG2L_SR0_OS;  //2lep OS
-    bool isDG2L_SR0_SS;  //2lep SS
-    bool isDG2L_SR1;     //SR1: OS-jet veto (no anaJet, Zveto, EtmissRel>100
-    bool isDG2L_SR2;     //SR2: SS-jet veto (no anaJet, EtmissRel>100)
-    bool isDG2L_SR3;     //SR3: OSSF- w/jet  (>=2 anaJet, bjet veto, Zveto, EtmissRel>100, mcT)
-    bool isDG2L_SR4;     //SR4: OS Jet Veto, Zveto MetRel, Mt2 (slepton)
-    bool isDG2L_SR5;     //SR5: OS Jet Veto, Zveto, metRel, lep pt, sumPt, dPhi 
-
-    //Control region flags
-    bool isDG2L_CR0;     //CR0: OS Z 
-    bool isDG2L_CR1;     //CR0 Etmiss<40
- 
-
     //Event variables
     float _ww;           //full event weight either full lumi or unblinded 
+    float _inc;          //To set counter inc to 1 or _ww.
+    uint   SR;
 
-    int DG2L_flavor;
-    int DG2L_qprod;
     float metRel;
     float mT2;
     float mCT;
-
 
     // Cut variables
     uint                m_nLepMin;      // min leptons
     uint                m_nLepMax;      // max leptons
     bool                m_cutNBaseLep;  // apply nLep cuts to baseline leptons as well as signal
-
+    bool                m_selOS;        // select OS 
+    bool                m_selSS;        // select SS 
+    bool                m_selSF;        // select SF (no flavor sel by default)
+    bool                m_vetoSF;       // veto SF
+    bool                m_selZ;         // select Z (SFOS applied)
+    bool                m_vetoZ;        // veto z
+    bool                m_selB;         // sel  b-jet using m_btagPtMin;
+    bool                m_vetoB;        // veto b-jet using m_btagPtMin
+    bool                m_vetoJ;        // veto jet using m_jetPtMin
+    float               m_btagPtMin;    // pt min b-jet
+    float               m_jetPtMin;     // pt min sig jet
+    bool                m_sel2J;        // select 2 jet using m_jetPtMin
+    float               m_metMin;       // min Met
+    float               m_metMax;       // max Met
+    float               m_metRelMin;    // min MetRel
+    float               m_metRelMax;    // max MetRel
+    bool                m_topTag;       // use top tagger
+    float               m_mt2Min;       // min MT2 
+    float               m_mtMin;        // min MT 
+    float               m_mtMax;        // max MT 
+    float               m_lepLeadPtMin; // lead lepton pt min 
+    float               m_pTllMin;      // min Ptll
+    float               m_dPhiMetll;    // dphi Met & ll
+    float               m_dPhiMetl1;    // dphi Met & l1
+    
     DiLepEvtType        m_ET;           // Dilepton event type to store cf
+    std::string         m_sel;          // event selection string
+    enum DIL_SR{DIL_SRjveto=0, DIL_SRSSjveto=1, DIL_SR2jets=2, DIL_SRmT2=3,
+		DIL_SR5=4,
+		DIL_CRZ=5, DIL_NTOP=6, DIL_NWW1=7, DIL_NWW2=8,
+		DIL_CR2LepOS=9, DIL_CR2LepSS=10,
+		DIL_NSR=11
+    };
+
 
     // Event counters
-    uint                n_readin;
-    uint                n_pass_LAr;
-    uint                n_pass_BadJet;
-    uint                n_pass_BadMuon;
-    uint                n_pass_Cosmic;
-    uint                n_pass_dil[ET_N];
-    uint                n_pass_flavor[ET_N];
-    uint                n_pass_nLep[ET_N];
-    uint                n_pass_mll[ET_N];    
-    uint                n_pass_os[ET_N];
-    uint                n_pass_ss[ET_N];
-    uint                n_pass_trig[ET_N];
+    float                n_readin;
+    float                n_pass_HotSpot;
+    float                n_pass_BadJet;
+    float                n_pass_BadMuon;
+    float                n_pass_Cosmic;
+    float                n_pass_atleast2BaseLep; //>=2 base lept
+    float                n_pass_exactly2BaseLep; //=2 base lept
 
-    // SR1 counts
-    uint                n_pass_SR1jv[ET_N];
-    uint                n_pass_SR1Zv[ET_N];
-    uint                n_pass_SR1MET[ET_N];
-
-    // SR2 counts
-    uint                n_pass_SR2jv[ET_N];
-    uint                n_pass_SR2MET[ET_N];
-
-    // SR3 counts
-    uint                n_pass_SR3ge2j[ET_N];
-    uint                n_pass_SR3Zv[ET_N];
-    uint                n_pass_SR3bjv[ET_N];
-    uint                n_pass_SR3mct[ET_N];
-    uint                n_pass_SR3MET[ET_N];
-
-    // SR4 counts
-    uint                n_pass_SR4jv[ET_N];
-    uint                n_pass_SR4Zv[ET_N];
-    uint                n_pass_SR4MET[ET_N];
-    uint                n_pass_SR4MT2[ET_N];
-    
-    // SR5 counts
-    uint                n_pass_SR5jv[ET_N];
-    uint                n_pass_SR5MET[ET_N];
-    uint                n_pass_SR5Zv[ET_N];
-    uint                n_pass_SR5L0pt[ET_N];
-    uint                n_pass_SR5SUMpt[ET_N];
-    uint                n_pass_SR5dPhiMETLL[ET_N];
-    uint                n_pass_SR5dPhiMETL1[ET_N];
-    
+    float                n_pass_trig[ET_N];
+    float                n_pass_signalLep[ET_N];
+    float                n_pass_dil[ET_N];   //Channel
 
 
+
+    float                n_pass_os[ET_N][DIL_NSR];
+    float                n_pass_ss[ET_N][DIL_NSR];
+    float                n_pass_flav[ET_N][DIL_NSR];
+    float                n_pass_Z[ET_N][DIL_NSR];
+    float                n_pass_Jveto[ET_N][DIL_NSR];
+    float                n_pass_2Jet[ET_N][DIL_NSR];
+    float                n_pass_bJet[ET_N][DIL_NSR];
+    float                n_pass_topTag[ET_N][DIL_NSR];
+    float                n_pass_metRel[ET_N][DIL_NSR];
+    float                n_pass_met[ET_N][DIL_NSR];
+    float                n_pass_mt2[ET_N][DIL_NSR];
+    float                n_pass_leadLepPt[ET_N][DIL_NSR];
+    float                n_pass_sumLepPt[ET_N][DIL_NSR];
+    float                n_pass_dPhiMetll[ET_N][DIL_NSR];
+    float                n_pass_dPhiMetl1[ET_N][DIL_NSR];
 
 };
 

@@ -28,13 +28,17 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
       if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
       else sx = 	string(xT);					\
       string stype;							\
-      if(j==0) stype="DG2L_SR0_OS_";						\
-      if(j==1) stype="DG2L_SR0_SS_";						\
-      if(j==2) stype="DG2L_SR1_";						\
-      if(j==3) stype="DG2L_SR2_";						\
-      if(j==4) stype="DG2L_SR3_";						\
-      if(j==5) stype="DG2L_SR4_";						\
-      if(j==6) stype="DG2L_SR5_";						\
+      if(j==0) stype="DG2L_SRjveto_";					\
+      if(j==1) stype="DG2L_SRSSjveto_";					\
+      if(j==2) stype="DG2L_SR2jet_";					\
+      if(j==3) stype="DG2L_SRmT2_";					\
+      if(j==4) stype="DG2L_SR5_";					\
+      if(j==5) stype="DG2L_CRZ_";					\
+      if(j==6) stype="DG2L_NTOP_";					\
+      if(j==7) stype="DG2L_NWW1_";					\
+      if(j==8) stype="DG2L_NWW2_";					\
+      if(j==9) stype="DG2L_CR2LepOS_";					\
+      if(j==10) stype="DG2L_CR2LepSS_";					\
       hN[j][i] = _utils->myTH1F((book_s1=stype + sFlav + #hN).c_str(),	\
 				(book_s2=stype + sFlav + #hN).c_str(),	\
 				__VA_ARGS__,sx.c_str() ,yT);		\
@@ -43,11 +47,11 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     }									\
   }
   
-  BOOK_SRDG2L(DG2L_cutflow,"","",syaxis,10,-0.5,9.5);
+  BOOK_SRDG2L(DG2L_cutflow,"","",syaxis,15,-0.5,14.5);
   BOOK_SRDG2L(DG2L_nJets,"NJets","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nBJets,"NBJets","",syaxis,5,-0.5,4.5);
   BOOK_SRDG2L(DG2L_qq,"","",syaxis,10,-0.5,1.5);
-  BOOK_SRDG2L(DG2L_mll,"M_{ll}","",syaxis,100,20,220);
+  BOOK_SRDG2L(DG2L_mll,"M_{ll}","",syaxis,105,10,220);
   BOOK_SRDG2L(DG2L_etmiss,"#slash{E}_{T}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_metrel,"#slash{E}_{T}^{Rel}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_mt2,"M_{T2}","GeV",syaxis,40,0,200);

@@ -19,13 +19,19 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
     if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
     else sx = 	string(xT);						\
     string stype;							\
-    if(j==0) stype="ML_SR1a_";						\
-    if(j==1) stype="ML_SR1b_";						\
-    if(j==2) stype="ML_SR2_";						\
-    if(j==3) stype="ML_4lep_";						\
-    if(j==4) stype="ML_4lepnoZ_";					\
-    if(j==5) stype="ML_StgProd_";					\
-    if(j==6) stype="ML_UED_";						\
+    if(j==0) stype="ML_SR3Lep_";					\
+    if(j==1) stype="ML_SRB_";						\
+    if(j==2) stype="ML_SR1a_";						\
+    if(j==3) stype="ML_SR1b_";						\
+    if(j==4) stype="ML_SR2_";						\
+    if(j==5) stype="ML_VR0_";						\
+    if(j==6) stype="ML_VR1_";						\
+    if(j==7) stype="ML_VR2_";						\
+    if(j==8) stype="ML_VR3_";						\
+    if(j==9) stype="ML_VRWZ_";						\
+    if(j==10) stype="ML_NRWZ_";						\
+    if(j==11) stype="ML_SR4lep_";					\
+    if(j==12) stype="ML_SR4lepNoZ_";					\
     hN[j] = _utils->myTH1F((book_s1=stype + #hN).c_str(),		\
 			   (book_s2=stype + #hN).c_str(),		\
 			   __VA_ARGS__,sx.c_str() ,yT);			\
@@ -39,10 +45,10 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   BOOK_SRML(ML_nLep,"NLeptons","",syaxis,10,-0.5,9.5);
   BOOK_SRML(ML_nJets,"NJets","",syaxis,10,-0.5,9.5);
   BOOK_SRML(ML_nBJets,"NBJets","",syaxis,5,-0.5,4.5);
-  BOOK_SRML(ML_SFOSMll,"M_{ll}^{SFOS}","",syaxis,100,20,220);
-  BOOK_SRML(ML_SFOSMlll,"M_{lll}^{SFOS}","",syaxis,100,20,220);
-  BOOK_SRML(ML_AllMll,"M_{ll}^{all}","",syaxis,100,20,220);
-  BOOK_SRML(ML_AllMlll,"M_{lll}^{all}","",syaxis,100,20,220);
+  BOOK_SRML(ML_SFOSMll,"M_{ll}^{SFOS}","",syaxis,105,10,220);
+  BOOK_SRML(ML_SFOSMlll,"M_{lll}^{SFOS}","",syaxis,105,10,220);
+  BOOK_SRML(ML_AllMll,"M_{ll}^{all}","",syaxis,105,10,220);
+  BOOK_SRML(ML_AllMlll,"M_{lll}^{all}","",syaxis,105,10,220);
   BOOK_SRML(ML_SFOSMT,"M_{T}^{SFOS}","",syaxis,100,20,220);
   BOOK_SRML(ML_ptl1,"P_{T}^{l1}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptl2,"P_{T}^{l2}","GeV",syaxis,40,0,200);

@@ -39,8 +39,8 @@ using namespace std;
 #define nTRIG 5
 #define nLEPTON 2
 
-#define nHSR_DG2L 7      // 4 SR for DG_2L split per dil flavor. SR0_OS + SR0_SS:==2lep
-#define nHSR_ML   7      // 6 SR for the multilep, SR0==3lep
+#define nHSR_DG2L 11     // Regions for DIL ana = DIL_NSR in Susy2LepAna
+#define nHSR_ML   13     // Regions for ML ana = ML_NSR in Susy3LepAna
 
 
 #endif
