@@ -182,7 +182,11 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 
   // Get Event Type to continue cutflow
   m_ET = getDiLepEvtType(*baseLeps);
+  if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME together
+  
   n_pass_dil[m_ET]+=_inc;
+
+  if(dbg() >10 ) cout << "Susy 2L dilType: " << m_ET << endl;
 
   if( !passNLepCut(leptons) )     return false;
   if( !passTrigger(leptons) )     return false;  
@@ -191,20 +195,14 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
   //CHANGE THIS LINE TO USE RAW OR WEIGHTED COUNTERS!
   //_inc=_ww;
 
-  //fudge!!!
-  /*
-  for(int ij=v_sigJet->size()-1; ij>=0; ij--){
-    const Jet* j = v_sigJet->at(ij);
-    if(j->Pt()<m_jetPtMin) 
-      v_sigJet->erase( v_sigJet->begin() + ij );
-  }
-  */
+  if(dbg() >10 ) cout << "Susy 2L passTrigger  " << _ww << endl;
 
   for(uint iSR=DIL_SRjveto; iSR<DIL_NSR; iSR++){
     string sSR=DIL_SRNAME[iSR];
     setSelection(sSR);
     SR=iSR;
     int icut =0;
+    if(dbg() >10 ) cout << "Signal region " << sSR << endl;
     
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
@@ -216,7 +214,8 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 
     if(!passZVeto(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
-    
+    if(dbg() >10 ) cout << "\t Pass Zveto " << sSR << endl;
+
     if(!passJetVeto(signalJets)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
@@ -228,9 +227,11 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
     
     if(!passTopTagger(leptons,signalJets,met) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
+    if(dbg() >10 ) cout << "\t Pass toptagger " << sSR << endl;
 
     if(!passMETRel(met,leptons,signalJets) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
+    if(dbg() >10 ) cout << "\t Pass MetRel " << sSR << endl;
 
     if(!passMT2(leptons, met) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
@@ -247,8 +248,10 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
     if(!passDPhiMetl1(leptons,met) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
+    if(dbg() >10 ) cout << "\t Pass All " << sSR << endl;
     fillHistograms(SR);
-  
+    if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
+
   }
 
   return true;
@@ -390,14 +393,15 @@ void Susy2LepAna::setSelection(std::string s)
     m_vetoJ = true;
     m_jetPtMin = 30;
     m_metRelMin=70;
-    m_metRelMin=100;
+    m_metRelMax=100;
   }
   else if(m_sel == "NWW2"){
+    m_selOS = true;
     m_vetoZ =true;
     m_vetoJ = true;
     m_jetPtMin = 30;
     m_metRelMin=70;
-    m_metRelMin=100;
+    m_metRelMax=100;
     m_vetoB=true;
     m_btagPtMin=20;
   }
@@ -673,6 +677,7 @@ void Susy2LepAna::print_NWW()
   j= DIL_NWW2;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
   print_line("pass bVeto  ",n_pass_bJet[0][j], n_pass_bJet[1][j], n_pass_bJet[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
 
 }
 /*--------------------------------------------------------------------------------*/
@@ -720,12 +725,12 @@ void Susy2LepAna::fillHistograms(uint iSR)
   _hh->H1FILL(_hh->DG2L_etmiss[iSR][m_ET],m_met->lv().Pt(),_ww); 
   _hh->H1FILL(_hh->DG2L_metrel[iSR][m_ET],metRel,_ww); 
   _hh->H1FILL(_hh->DG2L_mt2[iSR][m_ET],mT2,_ww); 
-  
+
   float corrNpv = nt->evt()->nVtx;
   if(nt->evt()->isMC) corrNpv = GetNVertexBsCorrected(nt->evt()->nVtx);
   _hh->H1FILL(_hh->DG2L_npv[iSR][m_ET],corrNpv,_ww); 
   _hh->H1FILL(_hh->DG2L_mu[iSR][m_ET],nt->evt()->avgMu,_ww); 
-  
+
   int nBJets=0;
   int nSigJet=0;
   for(uint ijet=0; ijet<v_sigJet->size(); ijet++){
@@ -756,5 +761,5 @@ void Susy2LepAna::fillHistograms(uint iSR)
   }
   _hh->H1FILL(_hh->DG2L_nBJets[iSR][m_ET],nBJets,_ww); 
   _hh->H1FILL(_hh->DG2L_nJets[iSR][m_ET],nSigJet,_ww); 
-  
+
 }

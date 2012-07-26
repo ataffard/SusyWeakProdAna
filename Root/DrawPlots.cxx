@@ -471,11 +471,14 @@ void DrawPlots::drawPlot(string name, bool logy)
     _pTop = new TPad("pTop","pTop",0,0.3,1,1);
     _pBot = new TPad("pBot","pBot",0,0,1,0.3);
   }
+
+  if(_stackH->Integral(0,-1)==0 || _dataH1->Integral(0,-1)==0) logy=false;
   TVirtualPad* _tv = _utils->myDrawRatio(_c0,_pTop, _pBot, 
 					_mcStack,_stackH,
 					_dataH1,_leg,logy);
-  float avgRatio = _dataH1->Integral(0,-1) / _stackH->Integral(0,-1);
-  std::cout << "Average ration data/MC " << avgRatio << std::endl;
+  float avgRatio = 0;
+  if(_stackH->Integral(0,-1)>0) avgRatio =_dataH1->Integral(0,-1) / _stackH->Integral(0,-1);
+  std::cout << "Average ratio data/MC " << avgRatio << std::endl;
   
   _c0->cd(1);
   _pTop->cd();

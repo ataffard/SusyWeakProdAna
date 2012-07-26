@@ -1,3 +1,4 @@
+case 
 #
 # Submit MajAna jobs 
 # view queue 

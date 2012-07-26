@@ -62,10 +62,10 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   BOOK_SRML(ML_d0Sl2,"d0/#sigma_{d0}^{l2}","",syaxis,100,-10,10);
   BOOK_SRML(ML_d0Sl3,"d0/#sigma_{d0}^{l3}","",syaxis,100,-10,10);
   BOOK_SRML(ML_d0Sl4,"d0/#sigma_{d0}^{l4}","",syaxis,100,-10,10);
-  BOOK_SRML(ML_z0sinthetal1,"z0 sin(#theta)^{l1}","cm",syaxis,100,-0.2,0.2);
-  BOOK_SRML(ML_z0sinthetal2,"z0 sin(#theta)^{l2}","cm",syaxis,100,-0.2,0.2);
-  BOOK_SRML(ML_z0sinthetal3,"z0 sin(#theta)^{l3}","cm",syaxis,100,-0.2,0.2);
-  BOOK_SRML(ML_z0sinthetal4,"z0 sin(#theta)^{l4}","cm",syaxis,100,-0.2,0.2);
+  BOOK_SRML(ML_z0sinthetal1,"z0 sin(#theta)^{l1}","cm",syaxis,200,-1,1);
+  BOOK_SRML(ML_z0sinthetal2,"z0 sin(#theta)^{l2}","cm",syaxis,200,-1,1);
+  BOOK_SRML(ML_z0sinthetal3,"z0 sin(#theta)^{l3}","cm",syaxis,200,-1,1);
+  BOOK_SRML(ML_z0sinthetal4,"z0 sin(#theta)^{l4}","cm",syaxis,200,-1,1);
   BOOK_SRML(ML_ptj1,"P_{T}^{j1}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptj2,"P_{T}^{j2}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptj3,"P_{T}^{j3}","GeV",syaxis,40,0,200);

@@ -104,71 +104,7 @@ void fr(string cr, string type, string lep, string var)
 void compFr(string cr,string type, string lep, string var)
 {
   /*
-    sel_CR0_hf_m_loose_pt
-    sel_CR0_hf_m_tightNI_pt
-    sel_CR0_hf_m_tightNI2_pt
-    sel_CR0_hf_m_tightNIIP_pt
-  */
-  
-  //string sel = "sel";
-  string sel = "trm";
-
-  //string sFile1 = "data12";
-  string sFile1 = "top";
-  //string sFile1 = "Zjets";
-      
-  string loose = sel + "_" + cr + "_" + type + "_" + lep + "_loose_" + var;
-  string tight = sel + "_" + cr + "_" + type + "_" + lep + "_tight_" + var; //winter 2011 cuts
-  string tightPP = sel + "_" + cr + "_" + type + "_" + lep + "_tightPP_" + var;
-  string tightNI = sel + "_" + cr + "_" + type + "_" + lep + "_tightNI_" + var;
-  string tightNIIP = sel + "_" + cr + "_" + type + "_" + lep + "_tightNIIP_" + var;
-  string tightNI2 = sel + "_" +  cr + "_" + type + "_" + lep + "_tightNI2_" + var;
- 
-
-  TH1F* _h_loose   = (TH1F*) _ana->getHisto(sFile1,loose);
-  TH1F* _h_tight   = (TH1F*) _ana->getHisto(sFile1,tight);
-  TH1F* _h_tightPP;
-  if(lep=="e") _h_tightPP = (TH1F*) _ana->getHisto(sFile1,tightPP);
-  TH1F* _h_tightNI   = (TH1F*) _ana->getHisto(sFile1,tightNI);
-  TH1F* _h_tightNIIP   = (TH1F*) _ana->getHisto(sFile1,tightNIIP);
-  TH1F* _h_tightNI2   = (TH1F*) _ana->getHisto(sFile1,tightNI2);
-
-  TH1F* _h_fr_2011 = (TH1F*)  _h_loose->Clone();
-  _h_fr_2011->Reset();
-  _h_fr_2011->GetYaxis()->SetTitle("Efficiency");
-  _h_fr_2011->Divide(_h_tight,_h_loose,1,1,"B");
-
-  TH1F* _h_fr_0 = (TH1F*)  _h_loose->Clone();
-  if(lep=="e"){
-    _h_fr_0->Reset();
-    _h_fr_0->GetYaxis()->SetTitle("Efficiency");
-    _h_fr_0->Divide(_h_tightPP,_h_loose,1,1,"B");
-  }
-
-  TH1F* _h_fr_1 = (TH1F*)  _h_loose->Clone();
-  _h_fr_1->Reset();
-  _h_fr_1->GetYaxis()->SetTitle("Efficiency");
-  _h_fr_1->Divide(_h_tightNI,_h_loose,1,1,"B");
-
-  TH1F* _h_fr_2 = (TH1F*)  _h_loose->Clone();
-  _h_fr_2->Reset();
-  _h_fr_2->GetYaxis()->SetTitle("Efficiency");
-  _h_fr_2->Divide(_h_tightNIIP,_h_loose,1,1,"B");
-
-  TH1F* _h_fr_3 = (TH1F*)  _h_loose->Clone();
-  _h_fr_3->Reset();
-  _h_fr_3->GetYaxis()->SetTitle("Efficiency");
-  _h_fr_3->Divide(_h_tightNI2,_h_loose,1,1,"B");
-
-
-  TLegend*  _leg1;
-  if(type=="pr") _leg1 = new TLegend(0.3,0.15,0.4,0.4);
-  if(type=="hf") _leg1 = new TLegend(0.3,0.6,0.7,0.8);
-  
-  _utils->legendSetting(_leg1); 
-  TCanvas* _c1  = _utils->myCanvas("FR");
-  
-  _utils->myDraw1d(_h_fr_2011,_c1,1,"e",false,kRed-6,false,20);
+    sel_CR0_hf_m_loose_pt,false,20);
   if(lep=="e")_utils->myDraw1d(_h_fr_0,_c1,1,"esame",false,kViolet,false,20);
   _utils->myDraw1d(_h_fr_1,_c1,1,"esame",false,kBlue,false,20);
   _utils->myDraw1d(_h_fr_2,_c1,1,"esame",false,kRed,false,20);
