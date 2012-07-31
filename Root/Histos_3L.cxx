@@ -39,9 +39,11 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
     									\
   }
   
+  BOOK_SRML(ML_pred,"","",syaxis,1,-0.5,0.5);
   BOOK_SRML(ML_cutflow,"","",syaxis,10,-0.5,9.5);
   BOOK_SRML(ML_evtCatgUnOrdered,"","",syaxis,4,-0.5,3.5); //eee, mmm, eem, mme
   BOOK_SRML(ML_evtCatgOSpair,"","",syaxis,6,-0.5,5.5); //(ee)e, (ee)m, (mm)e, (mm)m, (em/me)e, (em/me)m,  
+  BOOK_SRML(ML_evtCatgSSpair,"","",syaxis,6,-0.5,5.5); //(ee)e, (ee)m, (mm)e, (mm)m, (em/me)e, (em/me)m,  
   BOOK_SRML(ML_nLep,"NLeptons","",syaxis,10,-0.5,9.5);
   BOOK_SRML(ML_nJets,"NJets","",syaxis,10,-0.5,9.5);
   BOOK_SRML(ML_nBJets,"NBJets","",syaxis,5,-0.5,4.5);
@@ -50,6 +52,11 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   BOOK_SRML(ML_AllMll,"M_{ll}^{all}","",syaxis,105,10,220);
   BOOK_SRML(ML_AllMlll,"M_{lll}^{all}","",syaxis,105,10,220);
   BOOK_SRML(ML_SFOSMT,"M_{T}^{SFOS}","",syaxis,100,20,220);
+  BOOK_SRML(ML_etmiss,"#slash{E}_{T}","GeV",syaxis,40,0,200);
+  BOOK_SRML(ML_metRefEle,"#slash{E}_{T}^{RefEle}","GeV",syaxis,40,0,200);
+  BOOK_SRML(ML_metRefMuo,"#slash{E}_{T}^{RefMuo}","GeV",syaxis,40,0,200);
+  BOOK_SRML(ML_metRefJet,"#slash{E}_{T}^{RefJet}","GeV",syaxis,40,0,200);
+  BOOK_SRML(ML_metCellout,"#slash{E}_{T}^{Cellout}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptl1,"P_{T}^{l1}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptl2,"P_{T}^{l2}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptl3,"P_{T}^{l3}","GeV",syaxis,40,0,200);
@@ -66,6 +73,10 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   BOOK_SRML(ML_z0sinthetal2,"z0 sin(#theta)^{l2}","cm",syaxis,200,-1,1);
   BOOK_SRML(ML_z0sinthetal3,"z0 sin(#theta)^{l3}","cm",syaxis,200,-1,1);
   BOOK_SRML(ML_z0sinthetal4,"z0 sin(#theta)^{l4}","cm",syaxis,200,-1,1);
+  BOOK_SRML(ML_orgl1,"MC Origin","",syaxis,5,-0.5,4.5);
+  BOOK_SRML(ML_orgl2,"MC Origin","",syaxis,5,-0.5,4.5);
+  BOOK_SRML(ML_orgl3,"MC Origin","",syaxis,5,-0.5,4.5);
+  BOOK_SRML(ML_orgl4,"MC Origin","",syaxis,5,-0.5,4.5);
   BOOK_SRML(ML_ptj1,"P_{T}^{j1}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptj2,"P_{T}^{j2}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptj3,"P_{T}^{j3}","GeV",syaxis,40,0,200);
@@ -97,12 +108,31 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   v3LepOS.push_back("(e#mu/#mu e)e");   
   v3LepOS.push_back("(e#mu/#mu e)#mu");   
 
+  std::vector<TString> LepType;
+  LepType.clear();
+  LepType.push_back("PR");
+  LepType.push_back("HF");
+  LepType.push_back("LF");
+  LepType.push_back("CONV");
+  LepType.push_back("Unknown");
+
+
   for(uint i=0; i<nHSR_ML; i++){
     for(uint j=0; j<v3Lep.size(); j++)
       ML_evtCatgUnOrdered[i]->GetXaxis()->SetBinLabel(j+1,v3Lep.at(j).Data());
     for(uint j=0; j<v3LepOS.size(); j++)
       ML_evtCatgOSpair[i]->GetXaxis()->SetBinLabel(j+1,v3LepOS.at(j).Data());
+
+    for(uint j=0; j<LepType.size(); j++){
+	ML_orgl1[i]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	ML_orgl2[i]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	ML_orgl3[i]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	ML_orgl4[i]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+    }
+    
   }
+
+
 
 
 }

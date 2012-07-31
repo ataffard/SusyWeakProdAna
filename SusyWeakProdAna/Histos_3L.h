@@ -28,9 +28,11 @@ class Histos_3L
 
   typedef TH1F        *HML[nHSR_ML];
   
+  HML   ML_pred;
   HML   ML_cutflow;
   HML   ML_evtCatgUnOrdered;
   HML   ML_evtCatgOSpair;
+  HML   ML_evtCatgSSpair;
   HML   ML_nLep;
   HML   ML_nJets;
   HML   ML_nBJets;
@@ -39,6 +41,11 @@ class Histos_3L
   HML   ML_AllMll;
   HML   ML_AllMlll;
   HML   ML_SFOSMT;
+  HML   ML_etmiss;
+  HML   ML_metRefEle;
+  HML   ML_metRefMuo;
+  HML   ML_metRefJet;
+  HML   ML_metCellout;
   HML   ML_ptl1;
   HML   ML_ptl2;
   HML   ML_ptl3;
@@ -55,6 +62,10 @@ class Histos_3L
   HML   ML_z0sinthetal2;
   HML   ML_z0sinthetal3;
   HML   ML_z0sinthetal4;
+  HML   ML_orgl1;
+  HML   ML_orgl2;
+  HML   ML_orgl3;
+  HML   ML_orgl4;
   HML   ML_ptj1;
   HML   ML_ptj2;
   HML   ML_ptj3;

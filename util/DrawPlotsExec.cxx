@@ -30,6 +30,8 @@ int main(int argc, char *argv[]){
   bool cutflow = false;
   string ana = ""; //DG2L, ML
   string pName = "";
+  string sZJet = "histo_Zjets_Alpgen.root";
+  string sdiB  = "histo_diBoson_Sherpa.root";
   string sr    = "";
   string cr    = "";
   string type  = "";				
@@ -48,6 +50,10 @@ int main(int argc, char *argv[]){
       logY = true;
     if (strcmp(argv[i], "-p") == 0)
       pName = argv[++i];
+    if (strcmp(argv[i], "-ZJet") == 0)
+      sZJet = argv[++i];
+    if (strcmp(argv[i], "-diB") == 0)
+      sdiB = argv[++i];
     if (strcmp(argv[i], "-fakeComp") == 0){
       fakeComp = true;
       pName = argv[++i];
@@ -75,7 +81,7 @@ int main(int argc, char *argv[]){
    
   //histo files merging
   if(merge) _ana->mergeHistoFiles();
-  if(!cutflow)  _ana->openHistoFiles();
+  if(!cutflow)  _ana->openHistoFiles(sZJet,sdiB);
 
 
   if(comp) _ana->compareShape(pName,logY);

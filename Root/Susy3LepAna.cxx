@@ -1,6 +1,7 @@
 #include <iomanip>
 #include "SusyWeakProdAna/Susy3LepAna.h"
 #include "SusyWeakProdAna/SusyAnaCommon.h"
+#include "SusyWeakProdAna/PhysicsTools.h"
 
 using namespace std;
 using namespace Susy;
@@ -470,10 +471,12 @@ bool Susy3LepAna::passLepPtCut(const LeptonVector* leptons)
 /*--------------------------------------------------------------------------------*/
 void Susy3LepAna::fillHistograms(uint iSR)
 {
+  _hh->H1FILL(_hh->ML_pred[iSR],0,_ww); 
 
   _hh->H1FILL(_hh->ML_nLep[iSR], v_sigLep->size(), _ww); 
   _hh->H1FILL(_hh->ML_evtCatgUnOrdered[iSR], evtCatgUnOrd(v_sigLep), _ww);
-  _hh->H1FILL(_hh->ML_evtCatgOSpair[iSR], evtCatgOrd(v_sigLep), _ww);
+  _hh->H1FILL(_hh->ML_evtCatgOSpair[iSR], evtCatgOrd(v_sigLep,true), _ww);
+  _hh->H1FILL(_hh->ML_evtCatgSSpair[iSR], evtCatgOrd(v_sigLep,false), _ww);
   
   bool sfos = hasSFOS(*v_sigLep);
   TLorentzVector _3l;
@@ -488,24 +491,28 @@ void Susy3LepAna::fillHistograms(uint iSR)
       _hh->H1FILL(_hh->ML_etal1[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl1[iSR],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->ML_z0sinthetal1[iSR],_l->z0*sin(_l->Theta()),_ww); 
+      _hh->H1FILL(_hh->ML_orgl1[iSR],getType(_l->mcOrigin),_ww); 
     }
     else if(ilep==1){
       _hh->H1FILL(_hh->ML_ptl2[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal2[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl2[iSR],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->ML_z0sinthetal2[iSR],_l->z0*sin(_l->Theta()),_ww); 
+      _hh->H1FILL(_hh->ML_orgl2[iSR],getType(_l->mcOrigin),_ww); 
     }
     else if(ilep==2){
       _hh->H1FILL(_hh->ML_ptl3[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal3[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl3[iSR],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->ML_z0sinthetal3[iSR],_l->z0*sin(_l->Theta()),_ww); 
+      _hh->H1FILL(_hh->ML_orgl3[iSR],getType(_l->mcOrigin),_ww); 
     }
     else if(ilep==3){
       _hh->H1FILL(_hh->ML_ptl4[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal4[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl4[iSR],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->ML_z0sinthetal4[iSR],_l->z0*sin(_l->Theta()),_ww); 
+      _hh->H1FILL(_hh->ML_orgl4[iSR],getType(_l->mcOrigin),_ww); 
     }
   }
   
@@ -525,6 +532,13 @@ void Susy3LepAna::fillHistograms(uint iSR)
     _hh->H1FILL(_hh->ML_SFOSMT[iSR],mT,_ww); 
   }
   
+  //Etmiss
+  _hh->H1FILL(_hh->ML_etmiss[iSR],m_met->lv().Pt(),_ww); 
+  _hh->H1FILL(_hh->ML_metRefEle[iSR],m_met->refEle,_ww); 
+  _hh->H1FILL(_hh->ML_metRefMuo[iSR],m_met->refMuo,_ww); 
+  _hh->H1FILL(_hh->ML_metRefJet[iSR],m_met->refJet,_ww); 
+  _hh->H1FILL(_hh->ML_metCellout[iSR],m_met->refCell,_ww); 
+
   //Dilepton mass
   for(uint iL1=0; iL1<v_sigLep->size(); iL1++)
     for(uint iL2=iL1+1; iL2<v_sigLep->size(); iL2++){
@@ -583,18 +597,20 @@ int Susy3LepAna::evtCatgUnOrd(const LeptonVector* leptons){
 }
 
 /*--------------------------------------------------------------------------------*/
-int Susy3LepAna::evtCatgOrd(const LeptonVector* leptons){
+int Susy3LepAna::evtCatgOrd(const LeptonVector* leptons, bool useOS){
   int evtCatgOrd=99;
   if(leptons->size()<3) return evtCatgOrd;
+  if(leptons->size()>3) return evtCatgOrd;
   
   int lType[3];
   int qProdLeadPair=1;
   for(uint iL=0; iL<leptons->size(); iL++){
     lType[iL] = (leptons->at(iL)->isEle()) ? 0 : 1;
-    if(iL<2) qProdLeadPair = leptons->at(iL)->q;
+    if(iL<2) qProdLeadPair *= leptons->at(iL)->q;
   }
 
-  if(qProdLeadPair>0) return evtCatgOrd=99; //SS
+  if(useOS && qProdLeadPair>0) return evtCatgOrd=99; //SS
+  else if(!useOS && qProdLeadPair<0) return evtCatgOrd=99; //OS
 
   if(lType[0]==0 && lType[1]==0){ //eeX
     if(lType[2]==0) evtCatgOrd=0;
@@ -605,10 +621,9 @@ int Susy3LepAna::evtCatgOrd(const LeptonVector* leptons){
     if(lType[2]==1) evtCatgOrd=3;
   }
   else if((lType[0]==0 && lType[1]==1) || 
-	  (lType[1]==1 && lType[1]==0)){
+	  (lType[0]==1 && lType[1]==0)){
     if(lType[2]==0) evtCatgOrd=4;
     if(lType[2]==1) evtCatgOrd=5;
   }
-  
   return evtCatgOrd=99;
 }

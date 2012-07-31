@@ -177,7 +177,7 @@ void DrawPlots::mergeHistoFiles()
 //-------------------------------------------//
 // Open histo files
 //-------------------------------------------//
-void DrawPlots::openHistoFiles()
+void DrawPlots::openHistoFiles(string ZJets,string diB)
 {
   _dataFileName = _pathHisto + "/histo_data12.root";
   
@@ -187,9 +187,9 @@ void DrawPlots::openHistoFiles()
   _mcFileName.clear();
   _mcFile.clear();
   _mcFileName.push_back(string(_pathHisto +"/histo_top.root").c_str());
-  _mcFileName.push_back(string(_pathHisto +"/histo_diBoson.root").c_str());
+  _mcFileName.push_back(string(_pathHisto + diB).c_str());
   _mcFileName.push_back(string(_pathHisto +"/histo_Wjets.root").c_str());
-  _mcFileName.push_back(string(_pathHisto +"/histo_Zjets.root").c_str());
+  _mcFileName.push_back(string(_pathHisto + ZJets).c_str());
   _mcFileName.push_back(string(_pathHisto +"/histo_BB.root").c_str());
   // _mcFileName.push_back(string(_pathHisto +"/histo_QCD.root").c_str());
 
@@ -440,7 +440,7 @@ void DrawPlots::drawPlot(string name, bool logy)
     scale=maxScaleLog;
   }
 
-  _leg = new TLegend(0.6,0.6,0.90,0.93);
+  _leg = new TLegend(0.65,0.6,0.90,0.93);
   _utils->legendSetting(_leg); 
 
   //Grabs all histos
@@ -482,7 +482,7 @@ void DrawPlots::drawPlot(string name, bool logy)
   
   _c0->cd(1);
   _pTop->cd();
-  drawChannelText(name);
+  drawChannelText(name,0.65,0.5);
   drawLumi();
   drawATLAS();
   _c0->Update();
@@ -505,12 +505,17 @@ void DrawPlots::drawChannelText(string name, float x, float y)
   TString hName(name);
   if(hName.Contains("DG2L_")){
 
-    if(hName.Contains("SR0_OS")) _text = "SR0_OS ";
-    else if(hName.Contains("SR0_SS")) _text = "SR0_SS ";
-    else if(hName.Contains("SR1")) _text = "SR1 ";
-    else if(hName.Contains("SR2")) _text = "SR2 ";
-    else if(hName.Contains("SR3")) _text = "SR3 ";
-    else if(hName.Contains("SR4")) _text = "SR4 ";
+    if(hName.Contains("SRjveto"))        _text = "SRjveto ";
+    else if(hName.Contains("SRSSjveto")) _text = "SRSSjveto ";
+    else if(hName.Contains("SR2jet"))    _text = "SR2jet ";
+    else if(hName.Contains("SRmT2"))     _text = "SRmT2 ";
+    else if(hName.Contains("SR5"))       _text = "SR5 ";
+    else if(hName.Contains("CRZ"))       _text = "CRZ ";
+    else if(hName.Contains("NTOP"))      _text = "NTOP ";
+    else if(hName.Contains("NWW1"))      _text = "NWW1 ";
+    else if(hName.Contains("NWW2"))      _text = "NWW2 ";
+    else if(hName.Contains("CR2LepOS"))  _text = "CR2LepOS ";
+    else if(hName.Contains("CR2LepSS"))  _text = "CR2LepSS ";
     
     if(hName.Contains("EE")) _text += "ee";
     else if(hName.Contains("MM")) _text += "#mu#mu";
@@ -518,13 +523,19 @@ void DrawPlots::drawChannelText(string name, float x, float y)
   }
 
   else if(hName.Contains("ML_")){
-     if(hName.Contains("SR0")) _text = "SR0 ";
-     if(hName.Contains("SR1")) _text = "SR1 ";
-     if(hName.Contains("SR2")) _text = "SR2 ";
-     if(hName.Contains("4lep")) _text = "4-leptons "; 
-     if(hName.Contains("4lepnoZ")) _text = "4-leptons no Z ";
-     if(hName.Contains("StgProd")) _text = "Strong Production ";
-     if(hName.Contains("UED")) _text = "UED ";
+     if(hName.Contains("SR3Lep"))    _text = "SR3Lep ";
+     if(hName.Contains("SRB"))       _text = "SRB ";
+     if(hName.Contains("SR1a"))      _text = "SR1a ";
+     if(hName.Contains("SR1b"))      _text = "SR1b ";
+     if(hName.Contains("SR2"))       _text = "SR2 ";
+     if(hName.Contains("VR0"))       _text = "VR0 ";
+     if(hName.Contains("VR1"))       _text = "VR1 ";
+     if(hName.Contains("VR2"))       _text = "VR2 ";
+     if(hName.Contains("VR3"))       _text = "VR3 ";
+     if(hName.Contains("VRWZ"))      _text = "VRWZ ";
+     if(hName.Contains("NRWZ"))      _text = "NRWZ ";
+     if(hName.Contains("SR4lep"))    _text = "4-leptons "; 
+     if(hName.Contains("SR4lepNoZ")) _text = "4-leptons no Z ";
   }
   _utils->myText(x,y,kBlack,_text.c_str(),0.05);
 }

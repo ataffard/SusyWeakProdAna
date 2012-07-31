@@ -81,6 +81,9 @@ class Susy2LepAna: public SusyNtTools
     bool passDPhiMetl1(const LeptonVector* leptons, const Met* met);
     bool passdPhi(TLorentzVector v0, TLorentzVector v1, float cut);
 
+    float JZBJet(const JetVector* jets, const LeptonVector* leptons);
+    float JZBEtmiss(const Met *met, const LeptonVector* leptons);
+
     //Other functions
     void print_SRjveto();
     void print_SRSSjveto();

@@ -352,6 +352,7 @@ void Susy2LepAna::setSelection(std::string s)
     m_vetoZ = true;
     m_sel2J = true;
     m_vetoB = true;
+    m_jetPtMin = 30;
     m_btagPtMin=30;
     m_topTag = true;
     m_metRelMin=50;
@@ -383,8 +384,9 @@ void Susy2LepAna::setSelection(std::string s)
     m_selOS = true;
     m_vetoZ =true;
     m_sel2J=true;
+    m_jetPtMin = 30;
     m_selB=true;
-    m_btagPtMin=25;
+    m_btagPtMin=30;
     m_metRelMin=40;
   }
   else if(m_sel == "NWW1"){
@@ -581,6 +583,29 @@ bool Susy2LepAna::passMT2(const LeptonVector* leptons, const Met* met)
   return true;
 }
 /*--------------------------------------------------------------------------------*/
+float Susy2LepAna::JZBJet(const JetVector* jets, const LeptonVector* leptons)
+{
+  float sumPtJet=0;
+  float zPt=Mll(leptons->at(0),leptons->at(1));
+
+  for(uint i=0; i<jets->size(); ++i){
+   const Jet* jet = jets->at(i);
+   if( jet->Pt() < m_jetPtMin  ) continue;
+   sumPtJet+= jet->Pt();
+  }
+
+  return fabs(-sumPtJet)-fabs(zPt);
+}
+/*--------------------------------------------------------------------------------*/
+float Susy2LepAna::JZBEtmiss(const Met *met, const LeptonVector* leptons)
+{
+  float etmiss=met->lv().Pt();
+  float zPt=Mll(leptons->at(0),leptons->at(1));
+
+  return fabs(-etmiss-zPt)-fabs(zPt);
+
+}
+/*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_SRjveto()
 {
   int j= DIL_SRjveto;
@@ -688,10 +713,16 @@ void Susy2LepAna::print_line(string s, float a, float b, float c)
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::fillHistograms(uint iSR)
 {
+  _hh->H1FILL(_hh->DG2L_pred[iSR][m_ET],0,_ww); 
+
+
   int q1=0;
   int q2=0;
   int qqType=0;
   TLorentzVector _ll;
+  float dPhill=999;
+  dPhill=v_sigLep->at(0)->DeltaPhi(*v_sigLep->at(1));
+  dPhill=TVector2::Phi_mpi_pi(dPhill)*TMath::RadToDeg(); 
   for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
     const Susy::Lepton* _l = v_sigLep->at(ilep);
     _ll = _ll + (*_l);
@@ -700,6 +731,7 @@ void Susy2LepAna::fillHistograms(uint iSR)
       _hh->H1FILL(_hh->DG2L_etal1[iSR][m_ET],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->DG2L_d0Sl1[iSR][m_ET],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->DG2L_z0sinthetal1[iSR][m_ET],_l->z0*sin(_l->Theta()),_ww); 
+      _hh->H1FILL(_hh->DG2L_orgl1[iSR][m_ET],getType(_l->mcOrigin),_ww); 
       q1=_l->q;
     }
     else if(ilep==1){
@@ -707,6 +739,7 @@ void Susy2LepAna::fillHistograms(uint iSR)
       _hh->H1FILL(_hh->DG2L_etal2[iSR][m_ET],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->DG2L_d0Sl2[iSR][m_ET],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->DG2L_z0sinthetal2[iSR][m_ET],_l->z0*sin(_l->Theta()),_ww); 
+      _hh->H1FILL(_hh->DG2L_orgl2[iSR][m_ET],getType(_l->mcOrigin),_ww); 
       q2=_l->q;
     }
     
@@ -722,8 +755,16 @@ void Susy2LepAna::fillHistograms(uint iSR)
   
   
   _hh->H1FILL(_hh->DG2L_mll[iSR][m_ET],_ll.M(),_ww); 
+  _hh->H1FILL(_hh->DG2L_pTll[iSR][m_ET],_ll.Pt(),_ww); 
+  _hh->H1FILL(_hh->DG2L_dPhill[iSR][m_ET],dPhill,_ww); 
+  _hh->H1FILL(_hh->DG2L_JZBJet[iSR][m_ET],JZBJet(v_sigJet,v_sigLep),_ww); 
+  _hh->H1FILL(_hh->DG2L_JZBEtmiss[iSR][m_ET],JZBEtmiss(m_met,v_sigLep),_ww); 
   _hh->H1FILL(_hh->DG2L_etmiss[iSR][m_ET],m_met->lv().Pt(),_ww); 
   _hh->H1FILL(_hh->DG2L_metrel[iSR][m_ET],metRel,_ww); 
+  _hh->H1FILL(_hh->DG2L_metRefEle[iSR][m_ET],m_met->refEle,_ww); 
+  _hh->H1FILL(_hh->DG2L_metRefMuo[iSR][m_ET],m_met->refMuo,_ww); 
+  _hh->H1FILL(_hh->DG2L_metRefJet[iSR][m_ET],m_met->refJet,_ww); 
+  _hh->H1FILL(_hh->DG2L_metCellout[iSR][m_ET],m_met->refCell,_ww); 
   _hh->H1FILL(_hh->DG2L_mt2[iSR][m_ET],mT2,_ww); 
 
   float corrNpv = nt->evt()->nVtx;

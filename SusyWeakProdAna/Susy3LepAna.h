@@ -75,7 +75,7 @@ class Susy3LepAna: public SusyNtTools
     int evtCatgUnOrd(const LeptonVector* leptons);
     //categorize event using the ordered highest pt OS pair
     //eee/eem=0,  mmm/mme=1, eme/mee=2, emm/mem=3
-    int evtCatgOrd(const LeptonVector* leptons);
+    int evtCatgOrd(const LeptonVector* leptons, bool useOS);
  
       
     ClassDef(Susy3LepAna, 1);

@@ -29,13 +29,22 @@ class Histos_2L
   typedef TH1F        *HDG2L[nHSR_DG2L][3]; //3: EE, MM, EM
   
   //2lep DG
+  HDG2L DG2L_pred;
   HDG2L DG2L_cutflow;
   HDG2L DG2L_nJets;
   HDG2L DG2L_nBJets;
   HDG2L DG2L_qq; //SS: --/++; OS: -+/+-
   HDG2L DG2L_mll;
+  HDG2L DG2L_pTll;
+  HDG2L DG2L_dPhill;
+  HDG2L DG2L_JZBJet;
+  HDG2L DG2L_JZBEtmiss;
   HDG2L DG2L_etmiss;
   HDG2L DG2L_metrel;
+  HDG2L DG2L_metRefEle;
+  HDG2L DG2L_metRefMuo;
+  HDG2L DG2L_metRefJet;
+  HDG2L DG2L_metCellout;
   HDG2L DG2L_mt2;
   HDG2L DG2L_npv;
   HDG2L DG2L_mu;
@@ -47,6 +56,8 @@ class Histos_2L
   HDG2L DG2L_d0Sl2;
   HDG2L DG2L_z0sinthetal1;
   HDG2L DG2L_z0sinthetal2;
+  HDG2L DG2L_orgl1;
+  HDG2L DG2L_orgl2;
   HDG2L DG2L_ptj1;
   HDG2L DG2L_ptj2;
   HDG2L DG2L_ptj3;
