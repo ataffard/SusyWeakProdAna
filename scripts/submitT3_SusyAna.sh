@@ -58,7 +58,7 @@ while read line; do
 
     # run the job - submit with qsub
 	cd ${pathRun}
-	qsub -j oe -V -v ana=$ana,anaOpt=$anaOpt,nEvt=$nEvt,name=$sName,fileDir=$sDir -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
+	qsub -j oe -V -v ana=$ana,anaOpt=$anaOpt,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
 	echo ""
 	echo "qsub -j oe -V -v ana=$ana,anaOpt=$anaOpt,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
 	cd ${pathScript}
@@ -70,3 +70,7 @@ done <tmp.txt
 
 qstat |grep ataffard
 rm -f tmp.txt
+
+if [ "$type" == "susy" ]; then
+    ./run_dummy.sh
+fi

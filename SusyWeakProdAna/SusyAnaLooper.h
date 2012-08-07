@@ -63,6 +63,8 @@ class SusyAnaLooper : public SusyNtAna
     bool _do2LAna;
     bool _do3LAna;
     bool _doFakeAna;
+    
+    int nHFOR;
 
 };
 

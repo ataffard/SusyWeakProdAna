@@ -490,29 +490,29 @@ void Susy3LepAna::fillHistograms(uint iSR)
       _hh->H1FILL(_hh->ML_ptl1[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal1[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl1[iSR],_l->d0/_l->errD0,_ww); 
-      _hh->H1FILL(_hh->ML_z0sinthetal1[iSR],_l->z0*sin(_l->Theta()),_ww); 
-      _hh->H1FILL(_hh->ML_orgl1[iSR],getType(_l->mcOrigin),_ww); 
+      _hh->H1FILL(_hh->ML_z0sinthetal1[iSR],_l->z0SinTheta(),_ww); 
+      _hh->H1FILL(_hh->ML_orgl1[iSR],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
     }
     else if(ilep==1){
       _hh->H1FILL(_hh->ML_ptl2[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal2[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl2[iSR],_l->d0/_l->errD0,_ww); 
-      _hh->H1FILL(_hh->ML_z0sinthetal2[iSR],_l->z0*sin(_l->Theta()),_ww); 
-      _hh->H1FILL(_hh->ML_orgl2[iSR],getType(_l->mcOrigin),_ww); 
+      _hh->H1FILL(_hh->ML_z0sinthetal2[iSR],_l->z0SinTheta(),_ww); 
+      _hh->H1FILL(_hh->ML_orgl2[iSR],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
     }
     else if(ilep==2){
       _hh->H1FILL(_hh->ML_ptl3[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal3[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl3[iSR],_l->d0/_l->errD0,_ww); 
-      _hh->H1FILL(_hh->ML_z0sinthetal3[iSR],_l->z0*sin(_l->Theta()),_ww); 
-      _hh->H1FILL(_hh->ML_orgl3[iSR],getType(_l->mcOrigin),_ww); 
+      _hh->H1FILL(_hh->ML_z0sinthetal3[iSR],_l->z0SinTheta(),_ww); 
+      _hh->H1FILL(_hh->ML_orgl3[iSR],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
     }
     else if(ilep==3){
       _hh->H1FILL(_hh->ML_ptl4[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal4[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl4[iSR],_l->d0/_l->errD0,_ww); 
-      _hh->H1FILL(_hh->ML_z0sinthetal4[iSR],_l->z0*sin(_l->Theta()),_ww); 
-      _hh->H1FILL(_hh->ML_orgl4[iSR],getType(_l->mcOrigin),_ww); 
+      _hh->H1FILL(_hh->ML_z0sinthetal4[iSR],_l->z0SinTheta(),_ww); 
+      _hh->H1FILL(_hh->ML_orgl4[iSR],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
     }
   }
   
@@ -534,10 +534,12 @@ void Susy3LepAna::fillHistograms(uint iSR)
   
   //Etmiss
   _hh->H1FILL(_hh->ML_etmiss[iSR],m_met->lv().Pt(),_ww); 
-  _hh->H1FILL(_hh->ML_metRefEle[iSR],m_met->refEle,_ww); 
-  _hh->H1FILL(_hh->ML_metRefMuo[iSR],m_met->refMuo,_ww); 
-  _hh->H1FILL(_hh->ML_metRefJet[iSR],m_met->refJet,_ww); 
-  _hh->H1FILL(_hh->ML_metCellout[iSR],m_met->refCell,_ww); 
+  _hh->H1FILL(_hh->ML_metRefEle[iSR],m_met->refEle/1000,_ww); 
+  _hh->H1FILL(_hh->ML_metRefGam[iSR],m_met->refGamma/1000,_ww); 
+  _hh->H1FILL(_hh->ML_metRefMuo[iSR],m_met->refMuo/1000,_ww); 
+  _hh->H1FILL(_hh->ML_metRefJet[iSR],m_met->refJet/1000,_ww); 
+  _hh->H1FILL(_hh->ML_metRefSJet[iSR],m_met->softJet/1000,_ww); 
+  _hh->H1FILL(_hh->ML_metCellout[iSR],m_met->refCell/1000,_ww); 
 
   //Dilepton mass
   for(uint iL1=0; iL1<v_sigLep->size(); iL1++)

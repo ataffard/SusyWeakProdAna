@@ -194,7 +194,7 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_sumLepPt[ET_N][DIL_NSR];
     float                n_pass_dPhiMetll[ET_N][DIL_NSR];
     float                n_pass_dPhiMetl1[ET_N][DIL_NSR];
-
+    
 };
 
 #endif

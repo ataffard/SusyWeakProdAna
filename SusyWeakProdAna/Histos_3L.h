@@ -43,8 +43,10 @@ class Histos_3L
   HML   ML_SFOSMT;
   HML   ML_etmiss;
   HML   ML_metRefEle;
+  HML   ML_metRefGam;
   HML   ML_metRefMuo;
   HML   ML_metRefJet;
+  HML   ML_metRefSJet;
   HML   ML_metCellout;
   HML   ML_ptl1;
   HML   ML_ptl2;

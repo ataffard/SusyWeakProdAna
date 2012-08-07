@@ -171,6 +171,18 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 			      const JetVector* signalJets,
 			      const Met* met)
 {
+  //Inc modif to chech weighting
+  /*
+  float _lepSF=1;
+  for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
+      const Susy::Lepton* _l = v_sigLep->at(ilep);
+      _lepSF *= _l->effSF;
+    }
+  _inc = nt->evt()->w ;
+  */
+  //* nt->evt()->wPileup1fb
+  //* _lepSF;
+  
   n_readin+=_inc;
 
 
@@ -730,16 +742,16 @@ void Susy2LepAna::fillHistograms(uint iSR)
       _hh->H1FILL(_hh->DG2L_ptl1[iSR][m_ET],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->DG2L_etal1[iSR][m_ET],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->DG2L_d0Sl1[iSR][m_ET],_l->d0/_l->errD0,_ww); 
-      _hh->H1FILL(_hh->DG2L_z0sinthetal1[iSR][m_ET],_l->z0*sin(_l->Theta()),_ww); 
-      _hh->H1FILL(_hh->DG2L_orgl1[iSR][m_ET],getType(_l->mcOrigin),_ww); 
+      _hh->H1FILL(_hh->DG2L_z0sinthetal1[iSR][m_ET],_l->z0SinTheta(),_ww); 
+      _hh->H1FILL(_hh->DG2L_orgl1[iSR][m_ET],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
       q1=_l->q;
     }
     else if(ilep==1){
       _hh->H1FILL(_hh->DG2L_ptl2[iSR][m_ET],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->DG2L_etal2[iSR][m_ET],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->DG2L_d0Sl2[iSR][m_ET],_l->d0/_l->errD0,_ww); 
-      _hh->H1FILL(_hh->DG2L_z0sinthetal2[iSR][m_ET],_l->z0*sin(_l->Theta()),_ww); 
-      _hh->H1FILL(_hh->DG2L_orgl2[iSR][m_ET],getType(_l->mcOrigin),_ww); 
+      _hh->H1FILL(_hh->DG2L_z0sinthetal2[iSR][m_ET],_l->z0SinTheta(),_ww); 
+      _hh->H1FILL(_hh->DG2L_orgl2[iSR][m_ET],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
       q2=_l->q;
     }
     
@@ -761,10 +773,12 @@ void Susy2LepAna::fillHistograms(uint iSR)
   _hh->H1FILL(_hh->DG2L_JZBEtmiss[iSR][m_ET],JZBEtmiss(m_met,v_sigLep),_ww); 
   _hh->H1FILL(_hh->DG2L_etmiss[iSR][m_ET],m_met->lv().Pt(),_ww); 
   _hh->H1FILL(_hh->DG2L_metrel[iSR][m_ET],metRel,_ww); 
-  _hh->H1FILL(_hh->DG2L_metRefEle[iSR][m_ET],m_met->refEle,_ww); 
-  _hh->H1FILL(_hh->DG2L_metRefMuo[iSR][m_ET],m_met->refMuo,_ww); 
-  _hh->H1FILL(_hh->DG2L_metRefJet[iSR][m_ET],m_met->refJet,_ww); 
-  _hh->H1FILL(_hh->DG2L_metCellout[iSR][m_ET],m_met->refCell,_ww); 
+  _hh->H1FILL(_hh->DG2L_metRefEle[iSR][m_ET],m_met->refEle/1000,_ww); 
+  _hh->H1FILL(_hh->DG2L_metRefGam[iSR][m_ET],m_met->refGamma/1000,_ww); 
+  _hh->H1FILL(_hh->DG2L_metRefMuo[iSR][m_ET],m_met->refMuo/1000,_ww); 
+  _hh->H1FILL(_hh->DG2L_metRefJet[iSR][m_ET],m_met->refJet/1000,_ww); 
+  _hh->H1FILL(_hh->DG2L_metRefSJet[iSR][m_ET],m_met->softJet/1000,_ww); 
+  _hh->H1FILL(_hh->DG2L_metCellout[iSR][m_ET],m_met->refCell/1000,_ww); 
   _hh->H1FILL(_hh->DG2L_mt2[iSR][m_ET],mT2,_ww); 
 
   float corrNpv = nt->evt()->nVtx;

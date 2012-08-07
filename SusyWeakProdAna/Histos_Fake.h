@@ -35,7 +35,7 @@ class Histos_Fake
 
   TGuiUtils* _utils;
 
-#define DEF_HPROBE( name )       name[nHM][nHMC];                //TH1, TH3, TProfile
+#define DEF_HPROBE( name )       name[nHM][nHMC];                //TH1,TH2F, TH3, TProfile
 #define DEF_HPROBE_CR( name )    name[nHM][nHMC][nCR];           //TH1
 #define DEF_HPROBE_TRIG( name )  name[nHM][nHMC][nTRIG];         //TH2  
 #define DEF_DG2L_FK( name )      name[nHSR_DG2L][nLEPTON][nHMC]; //TH3
@@ -75,6 +75,11 @@ class Histos_Fake
   TH1F* DEF_HPROBE( m_etCone20Rel );
   TH1F* DEF_HPROBE( m_etCone30Rel );  
   TH1F* DEF_HPROBE( m_etCone40Rel );
+
+  TH2F* DEF_HPROBE( m_ptCone30Pt );
+  TH2F* DEF_HPROBE( m_ptCone30RelPt );
+  TH2F* DEF_HPROBE( m_etCone30Pt );
+  TH2F* DEF_HPROBE( m_etCone30RelPt );
   
   TH3F* DEF_HPROBE( m_ptCone20_npv );
   TH3F* DEF_HPROBE( m_ptCone30_npv );
@@ -227,6 +232,11 @@ class Histos_Fake
   TH1F* DEF_HPROBE( e_etConeTopoCorr30Rel );
   TH1F* DEF_HPROBE( e_etConeTopoCorr40Rel );
   
+  TH2F* DEF_HPROBE( e_ptCone30Pt );
+  TH2F* DEF_HPROBE( e_ptCone30RelPt );
+  TH2F* DEF_HPROBE( e_etCone30Pt );
+  TH2F* DEF_HPROBE( e_etCone30RelPt );
+
   TH3F* DEF_HPROBE( e_ptCone20_npv );
   TH3F* DEF_HPROBE( e_ptCone30_npv );
   TH3F* DEF_HPROBE( e_ptCone40_npv );

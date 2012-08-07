@@ -54,8 +54,10 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   BOOK_SRML(ML_SFOSMT,"M_{T}^{SFOS}","",syaxis,100,20,220);
   BOOK_SRML(ML_etmiss,"#slash{E}_{T}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metRefEle,"#slash{E}_{T}^{RefEle}","GeV",syaxis,40,0,200);
+  BOOK_SRML(ML_metRefGam,"#slash{E}_{T}^{RefGam}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metRefMuo,"#slash{E}_{T}^{RefMuo}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metRefJet,"#slash{E}_{T}^{RefJet}","GeV",syaxis,40,0,200);
+  BOOK_SRML(ML_metRefSJet,"#slash{E}_{T}^{RefSoftJet}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metCellout,"#slash{E}_{T}^{Cellout}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptl1,"P_{T}^{l1}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptl2,"P_{T}^{l2}","GeV",syaxis,40,0,200);

@@ -42,8 +42,10 @@ class Histos_2L
   HDG2L DG2L_etmiss;
   HDG2L DG2L_metrel;
   HDG2L DG2L_metRefEle;
+  HDG2L DG2L_metRefGam;
   HDG2L DG2L_metRefMuo;
   HDG2L DG2L_metRefJet;
+  HDG2L DG2L_metRefSJet;
   HDG2L DG2L_metCellout;
   HDG2L DG2L_mt2;
   HDG2L DG2L_npv;

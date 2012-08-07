@@ -25,156 +25,6 @@ DrawPlots::DrawPlots(){
 }
 
 //-------------------------------------------//
-// Merge histo files
-//-------------------------------------------//
-void DrawPlots::mergeHistoFiles()
-{
-  //top:            ttbar + Wt 
-  //                single top s/t channels  (these contribute 1 true lep only)
-  //                ttbarW, ttbarZ, ttbarG
-  //Diboson:        WW, WZ, ZZ, 
-  //                Wenug, Wmunug, Wtaunug, 
-  //                Zeeg, Zmumug, Ztautaug
-  //                W+W+jj
-  //Z+jets          ZeeNpX_highM_* ZeeNpX_lowM ZeebbNpX
-  //                ZmumuNpX_highM_* ZmumuNpX_lowM ZmumubbNpX
-  //                ZtautauNpX_highM_* ZtautauNpX_lowM ZmumubbNpX
-  //WJets           WenuNpX_* WmunuNpX_* WtaunuNpX_*
-  //                WbbNpX WccNpX
-  //BB              bbmu10mu10 bbe10e10 bbmu10e10
-  //QCD             JX
-
-  string cmd;
-
-  //
-  //DATA
-  //
-  //Electron stream
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_data11_Egamma.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_data11_Egamma.root " +
-    string("${HISTOAREA}/histo_Egamma.periodB_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodD_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodE_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodF_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodG_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodH_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodI_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodJ_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodK_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodL_*.root ") +
-    string("${HISTOAREA}/histo_Egamma.periodM_*.root ");
-  gSystem->Exec(cmd.c_str());
-
-  //Muon Stream
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_data11_Muons.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_data11_Muons.root " + 
-    string("${HISTOAREA}/histo_Muons.periodB_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodD_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodE_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodF_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodG_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodH_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodI_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodJ_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodK_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodL_*.root ") +
-    string("${HISTOAREA}/histo_Muons.periodM_*.root ");
-  gSystem->Exec(cmd.c_str());
-  
-  //Egamma + Muon streams
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_data11_All.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_data11_All.root " +
-    string("${HISTOAREA}/histo_data11_Egamma.root ") +
-    string("${HISTOAREA}/histo_data11_Muons.root "); 
-  gSystem->Exec(cmd.c_str());
-
-  //
-  //TOP
-  //
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_top.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_top.root " +
-    string("${HISTOAREA}/histo_ttbarPowHegPythia.root ") +
-    string("${HISTOAREA}/histo_st_Wt.root ") +
-    string("${HISTOAREA}/histo_st_schan.root ") +
-    string("${HISTOAREA}/histo_st_tchan.root ") +
-    string("${HISTOAREA}/histo_ttbarW.root ") +
-    string("${HISTOAREA}/histo_ttbarWW.root ") +
-    string("${HISTOAREA}/histo_ttbarZ.root ");
-  //ADD single top, ttbar+X
-  gSystem->Exec(cmd.c_str());
-  
-  //
-  //DIBOSON
-  //
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_diBoson.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_diBoson.root " +
-    string("${HISTOAREA}/histo_WW.root ") + 
-    string("${HISTOAREA}/histo_WZ.root ") +
-    string("${HISTOAREA}/histo_ZZ.root ") +
-    string("${HISTOAREA}/histo_WWjj.root ");
-  //ADD WWjj
-  gSystem->Exec(cmd.c_str());
-
-
-  //
-  //WJETS
-  //
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_Wjets.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_Wjets.root " +
-    string("${HISTOAREA}/histo_WevNpX.root ") + 
-    string("${HISTOAREA}/histo_WmvNpX.root ") +
-    string("${HISTOAREA}/histo_WtvNpX.root ") +
-    string("${HISTOAREA}/histo_Wbb.root ") +
-    string("${HISTOAREA}/histo_Wcc.root ");
-  gSystem->Exec(cmd.c_str());
-
-  //
-  //ZJETS
-  //
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_Zjets.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_Zjets.root " +
-    string("${HISTOAREA}/histo_ZeeNp*.root ") + 
-    string("${HISTOAREA}/histo_Zeebb.root ") +
-    string("${HISTOAREA}/histo_ZmumuNp*.root ") +
-    string("${HISTOAREA}/histo_Zmumubb*.root ") +
-    string("${HISTOAREA}/histo_ZtautauNp*.root ") +
-    string("${HISTOAREA}/histo_Ztautaubb*.root ") ;
-  gSystem->Exec(cmd.c_str());
-
-  //
-  //BB
-  //
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_BB.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_BB.root " +
-    string("${HISTOAREA}/histo_bbmu10mu10X.root ") + 
-    string("${HISTOAREA}/histo_bbe10e10X.root ") +
-    string("${HISTOAREA}/histo_bbmu10e10X.root ");
-  gSystem->Exec(cmd.c_str());  
-
-  //
-  //QCD - JX
-  //
-  /*
-  cout << "... " << endl;
-  gSystem->Exec("rm -f ${HISTOAREA}/histo_QCD.root");
-  cmd = "hadd -f ${HISTOAREA}/histo_QCD.root " +
-    string("${HISTOAREA}/histo_J0.root ") + 
-    string("${HISTOAREA}/histo_J1.root ") + 
-    string("${HISTOAREA}/histo_J2.root ");
-  gSystem->Exec(cmd.c_str());  
-  */
-
-
-}
-//-------------------------------------------//
 // Open histo files
 //-------------------------------------------//
 void DrawPlots::openHistoFiles(string ZJets,string diB)
@@ -187,9 +37,9 @@ void DrawPlots::openHistoFiles(string ZJets,string diB)
   _mcFileName.clear();
   _mcFile.clear();
   _mcFileName.push_back(string(_pathHisto +"/histo_top.root").c_str());
-  _mcFileName.push_back(string(_pathHisto + diB).c_str());
+  _mcFileName.push_back(string(_pathHisto + "/" + diB).c_str());
   _mcFileName.push_back(string(_pathHisto +"/histo_Wjets.root").c_str());
-  _mcFileName.push_back(string(_pathHisto + ZJets).c_str());
+  _mcFileName.push_back(string(_pathHisto + "/" + ZJets).c_str());
   _mcFileName.push_back(string(_pathHisto +"/histo_BB.root").c_str());
   // _mcFileName.push_back(string(_pathHisto +"/histo_QCD.root").c_str());
 
@@ -198,6 +48,20 @@ void DrawPlots::openHistoFiles(string ZJets,string diB)
     TFile* _f = new TFile(_mcFileName[i].c_str(),"READ",SFILE[i]);
     _mcFile.push_back(_f);
   }
+
+  _sigFileName.clear();
+  _sigFile.clear();
+  _sigFileName.push_back(string(_pathHisto +"/histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_10.144876.root").c_str());
+  _sigFileName.push_back(string(_pathHisto +"/histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_18.144884.root").c_str());
+  
+  //  _sigFileName.push_back(string(_pathHisto +"/histo_SimplifiedModel_wA_slep.root").c_str());
+  //  _sigFileName.push_back(string(_pathHisto +"/histo_SimplifiedModel_wC_slep.root").c_str());
+  for(uint i=0; i<_sigFileName.size(); i++){
+    std::cout << "Loading " << SIGFILE[i] << std::endl;
+    TFile* _f = new TFile(_sigFileName[i].c_str(),"READ",SIGFILE[i]);
+    _sigFile.push_back(_f);
+  }
+
 
 }
 //-------------------------------------------//
@@ -282,6 +146,37 @@ void DrawPlots::grabHisto(string name)
     nLoad++;
   }
    
+
+  for(uint i=0; i<_sigFile.size(); i++){
+    TFile* _f = _sigFile[i];
+    _f->cd();
+    _h = (TH1F*) _f->Get(name.c_str());
+    if(_h==NULL){ //put an empty histo
+      //cerr <<" Could not find histo " << name << " in MC file " << _f->GetName() << " using empty histo" << endl;
+      _h = (TH1F*) _tmp->Clone();
+    }
+    if(_moveUO) _utils->moveUnderOverFlow(_h);
+    switch (i){
+    case modeANoSlep_15:
+      _sigColor.push_back(C_SIG1);
+      _sigName.push_back(SIGFILE[i]);
+      title = "SIG_"+name;
+      break;
+    case modeANoSlep_18:
+      _sigColor.push_back(C_SIG2);
+      _sigName.push_back(SIGFILE[i]);
+      title = "SIG_"+name;
+      break;
+    }
+    _h->SetTitle(title.c_str());
+    _h->SetName(title.c_str());
+    _h->SetFillStyle(0);
+    _h->SetLineStyle(5);
+    std::cout << "SIG " << _h->GetName() << " entries " << _h->Integral(0,-1) <<std::endl;
+    _sigH1.push_back(_h);
+    nLoad++;
+  }
+
 }
 
 //-------------------------------------------//
@@ -440,13 +335,13 @@ void DrawPlots::drawPlot(string name, bool logy)
     scale=maxScaleLog;
   }
 
-  _leg = new TLegend(0.65,0.6,0.90,0.93);
+  _leg = new TLegend(0.55,0.45,0.85,0.93);
   _utils->legendSetting(_leg); 
 
-  //Grabs all histos
+  //Grabs all histos: data, MC, signal points
   grabHisto(name);
 
-  //Build the mc stack and retrieve histo of the total
+  //Build the mc stack and retrieve histo of the total. Add entry to legend
   buildStack(name);
 
   TH1F* _stackH = (TH1F*) _dataH1->Clone();
@@ -476,13 +371,21 @@ void DrawPlots::drawPlot(string name, bool logy)
   TVirtualPad* _tv = _utils->myDrawRatio(_c0,_pTop, _pBot, 
 					_mcStack,_stackH,
 					_dataH1,_leg,logy);
+  //Add signals template
+  for(uint i=0; i<_sigFile.size(); i++){
+    _utils->myDraw1d(_sigH1[i],_c0,1,"histsame",logy,_sigColor[i],false,20);
+    _leg->AddEntry(_sigH1[i],SIGFILE[i],"l");
+    _c0->Update();
+    _pTop->Update();
+  }
+
   float avgRatio = 0;
   if(_stackH->Integral(0,-1)>0) avgRatio =_dataH1->Integral(0,-1) / _stackH->Integral(0,-1);
   std::cout << "Average ratio data/MC " << avgRatio << std::endl;
   
   _c0->cd(1);
   _pTop->cd();
-  drawChannelText(name,0.65,0.5);
+  drawChannelText(name,0.75,0.85);
   drawLumi();
   drawATLAS();
   _c0->Update();
@@ -573,6 +476,7 @@ TH1F* DrawPlots::calcEff(TH1F* h, int opt)
 {
   TH1F* hh = (TH1F*) h->Clone(); hh->Reset();
   float den = h->Integral(0,-1);
+
   for(int ibin=1; ibin<=h->GetNbinsX(); ibin++){
     float num = h->Integral(0,ibin);
     float eff=0;
@@ -974,4 +878,28 @@ void DrawPlots::dumpCutflow_ML(string sample)
 
 }
 
+//-------------------------------------------//
+// DG2L cutflow Dump
+//-------------------------------------------// 
+void DrawPlots:: bkgEstimate_DG2L()
+{
 
+  std::vector<string> sLEP;
+  sLEP.clear();
+  sLEP.push_back("ee");   
+  sLEP.push_back("#mu#mu");   
+  sLEP.push_back("e#mu");   
+  sLEP.push_back("All");   
+
+  std::vector<string> sBKG;
+  sBKG.clear();
+  sBKG.push_back("Top");
+  sBKG.push_back("diBoson");
+  sBKG.push_back("Z+jets");
+  sBKG.push_back("W+jets");
+  sBKG.push_back("Total");
+  
+    
+
+
+}

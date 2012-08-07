@@ -11,7 +11,8 @@ using namespace Susy;
 SusyAnaLooper::SusyAnaLooper():
   _do2LAna(false),
   _do3LAna(false),
-  _doFakeAna(false)
+  _doFakeAna(false),
+  nHFOR(0)
 {
   _histoDir = new TDirectory("Ana","Ana");
   _susyHistos = new SusyHistos();
@@ -83,6 +84,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   //Debug this event - check if should be processed
   if(m_dbgEvt && !processThisEvent(nt.evt()->run, nt.evt()->event)) return kFALSE;
 
+  if(nt.evt()->hfor==4){
+    nHFOR++;
+    return kFALSE;
+  }
 
   if(dbg()>0){
     cout<<"-----------------------------------"<<endl;
@@ -123,6 +128,7 @@ void SusyAnaLooper::Terminate()
 
   SusyNtAna::Terminate();
   if(dbg()>0) cout << "SusyAnaLooper::Terminate" << endl;
+  cout << "Number of event rejected by HFOR " << nHFOR <<endl;
 
 }
 

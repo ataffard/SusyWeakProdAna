@@ -21,7 +21,6 @@ _ana->drawPlot("DG2L_SR5_EE_DG2L_mu",false);
 
 */
 int main(int argc, char *argv[]){
-  bool merge = false;
   bool comp  = false;
   bool pred  = false;
   bool fakeComp  = false;
@@ -40,8 +39,6 @@ int main(int argc, char *argv[]){
   string var   = "";
 
   for(int i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "-merge") == 0)
-      merge = true;
     if (strcmp(argv[i], "-comp") == 0)
       comp = true;
     if (strcmp(argv[i], "-pred") == 0)
@@ -80,7 +77,6 @@ int main(int argc, char *argv[]){
   DrawPlots* _ana = new DrawPlots();
    
   //histo files merging
-  if(merge) _ana->mergeHistoFiles();
   if(!cutflow)  _ana->openHistoFiles(sZJet,sdiB);
 
 

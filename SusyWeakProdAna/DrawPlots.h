@@ -31,6 +31,7 @@ using namespace std;
 const bool HIDEDATA=false;//true;
 
 enum MC { TOP=0,  DIB=1, WJETS=2, ZJETS=3,  BB=4, QCD=5, OTHER=6};
+enum SIG {modeANoSlep_15, modeANoSlep_18};
 /*My color scheme */
 /*
 enum MCCOL { C_TOP=kAzure-3, C_DIB=kYellow-7, C_WJETS = kMagenta+4, 
@@ -38,13 +39,17 @@ enum MCCOL { C_TOP=kAzure-3, C_DIB=kYellow-7, C_WJETS = kMagenta+4,
 */
 /*DG2L color scheme */
 enum MCCOL { C_TOP=kRed+1, C_DIB=kSpring+1, C_WJETS = kBlue-2, 
-	     C_ZJETS=kOrange-2, C_BB=kMagenta+2, C_QCD=kGreen+3};
+	     C_ZJETS=kOrange-2, C_BB=kMagenta+2, C_QCD=kGreen+3, 
+	     C_SIG1=kMagenta-7, C_SIG2=kRed-2};
 const int iMarker[9]={20,21,22,23,24,25,26,27,30};
 
 //skip ploting the MC
 const bool SKIPMC[] = {false,false,false,false,false,false};
 
 const char* const SFILE[] = {"Top", "Diboson","Wjets","Zjets", "b#bar b", "QCD", "Data"};
+const char* const SIGFILE[] = {"mAwSl_150_0", "mAwSl_250_100"};
+//const char* const SIGFILE[] = {"mAwSl", "mCwSl"};
+
 
 class DrawPlots {
 
@@ -52,7 +57,6 @@ class DrawPlots {
   DrawPlots();
   virtual ~DrawPlots(){};
 
-  void mergeHistoFiles();
   void openHistoFiles(string ZJets="histo_Zjets_Alpgen.root",string diB="histo_diBoson_Sherpa.root");
 
   TObject* getHisto(string sample, string name, bool moveUnderOver=false);
@@ -72,6 +76,9 @@ class DrawPlots {
   /* Dump the cutflow to txt file */
   void dumpCutflow_DG2L(string sample);
   void dumpCutflow_ML(string sample);
+
+  /* Dump bkg estimate and data */
+  void bkgEstimate_DG2L();
 
 
   /* Drawing function */
@@ -113,6 +120,9 @@ class DrawPlots {
 
   vector<TFile*> _sigFile;
   vector<string> _sigFileName;
+  vector<Color_t> _sigColor;
+  vector<string>  _sigName;
+  vector<TH1F*>   _sigH1;
 
   TLegend*       _leg;
   TH1F*          _dataH1;

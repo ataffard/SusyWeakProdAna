@@ -5,27 +5,31 @@
 #include "TGraph.h"
 
 //-----------------------------------------------------------------------------
-LEP_TYPE getType(int org)
+LEP_TYPE getType(int org, int type, std::string dataset)
 {
-  if(isPT(org)) return PR;
-  else if(isHF(org)) return HF;
-  else if(isLF(org)) return LF;
-  else if(isConv(org)) return CONV;
+  TString ss = dataset;
+  if(ss.Contains("simplifiedModel") && org==0 && type==0) return PR;
+
+  if(isPT(org, type)) return PR;
+  else if(isHF(org, type)) return HF;
+  else if(isLF(org, type)) return LF;
+  else if(isConv(org, type)) return CONV;
   return TYPE_Undef;
 }
 //-----------------------------------------------------------------------------
-bool isPT(int org)
+bool isPT(int org, int type)
 {
   if( org==1 ||
       org==2 ||
       org==9 ||
       org==10 ||
       (org>=12 && org<=22)) return true;  
+  if( org==0 && (type==1 || type==5))  return true;  //for Sherpa
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool isHF(int org)
+bool isHF(int org, int type)
 {
   if( (org>=25 && org<=27) ||
       org==28 ||
@@ -37,9 +41,9 @@ bool isHF(int org)
 }
 
 //-----------------------------------------------------------------------------
-bool isLF(int org)
+bool isLF(int org, int type)
 {
-  if( org==0 ||
+  if( //org==0 ||
       org==4 ||
       org==8 ||
       org==11 ||
@@ -48,11 +52,12 @@ bool isLF(int org)
       org==34 ||
       org==35 ||
       org==41 || org==42 ) return true;
+  if(org==0 && type==17) return true; //for Sherpa
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool isConv(int org)
+bool isConv(int org, int type)
 {
   if( org==3 ||
       (org>=5 && org<=7) ||

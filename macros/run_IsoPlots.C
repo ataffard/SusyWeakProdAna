@@ -345,9 +345,9 @@ void iso_Pileup2(string lep, string dep, string iso)
     //Signal lepton MC truth 
     //
     _h3_top       = (TH3F*) _ana->getHisto("top",_hName);
-    _h3_diBoson   = (TH3F*) _ana->getHisto("diBoson",_hName);
+    _h3_diBoson   = (TH3F*) _ana->getHisto("diBoson_Herwig",_hName);
     _h3_Wjets     = (TH3F*) _ana->getHisto("Wjets",_hName);
-    _h3_Zjets     = (TH3F*) _ana->getHisto("Zjets",_hName);
+    _h3_Zjets     = (TH3F*) _ana->getHisto("Zjets_Alpgen",_hName);
     
 
     _h_top     = _ana->getProfile3D(_h3_top,"x","y","z");
@@ -389,9 +389,9 @@ void iso_Pileup2(string lep, string dep, string iso)
     _hName = "trm_hf_" + lep + "_" + iso +  "_" + dep;
 
     _h3_top       = (TH3F*) _ana->getHisto("top",_hName);
-    _h3_diBoson   = (TH3F*) _ana->getHisto("diBoson",_hName);
+    _h3_diBoson   = (TH3F*) _ana->getHisto("diBoson_Herwig",_hName);
     _h3_Wjets     = (TH3F*) _ana->getHisto("Wjets",_hName);
-    _h3_Zjets     = (TH3F*) _ana->getHisto("Zjets",_hName);
+    _h3_Zjets     = (TH3F*) _ana->getHisto("Zjets_Alpgen",_hName);
     _h3_BB        = (TH3F*) _ana->getHisto("BB",_hName);
     
     _h_top     = _ana->getProfile3D(_h3_top,"x","y","z");
@@ -436,8 +436,8 @@ void iso_Pileup2(string lep, string dep, string iso)
 
   _hName = "sel_pr_" + lep + "_" + iso + "_" + dep;
   
-  _h3_data  = (TH3F*) _ana->getHisto("data12_All",_hName);
-  _h3_Zjets = (TH3F*) _ana->getHisto("Zjets",_hName);
+  _h3_data  = (TH3F*) _ana->getHisto("data12",_hName);
+  _h3_Zjets = (TH3F*) _ana->getHisto("Zjets_Alpgen",_hName);
 
   _h_data   = _ana->getProfile3D(_h3_data,"x","y","z");
   _h_data->SetTitle("data_pr");  _h_data->SetName("data_pr");  
@@ -488,7 +488,7 @@ void iso_Pileup2(string lep, string dep, string iso)
   //Data BB HF tag-probe
   //
   _hName = "sel_hf_" + lep + "_" + iso + "_" + dep;
-  _h3_data  = (TH3F*) _ana->getHisto("data12_All",_hName);
+  _h3_data  = (TH3F*) _ana->getHisto("data12",_hName);
   _h3_BB= (TH3F*) _ana->getHisto("BB",_hName);
 
   _h_data   = _ana->getProfile3D(_h3_data,"x","y","z");

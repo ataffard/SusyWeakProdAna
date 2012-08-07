@@ -23,7 +23,7 @@ if [[ $type == "mc12" ]]; then
 	
         #echo "Directory ${dir}"
 	DIS=( `echo $dir |cut -d'.' -f4-4`)
-	if [[ ${DIS} -ge 146830 && ${DIS} -le 146854 ]]; then
+	if [[ ${DIS} -ge 146830 && ${DIS} -le 146855 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-5`)
 	elif [[ ${DIS} -ge 126892 && ${DIS} -le 126895 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-4`)

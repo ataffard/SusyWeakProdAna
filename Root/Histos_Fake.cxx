@@ -177,6 +177,42 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
   }
 
 
+#define BOOK2(hN,xT,xU,yT,yU, ...)					\
+  for(int j=0; j<nHMC; j++){						\
+    if(string(xU).length()>0) sx = string(xT+string(" [")+xU+string("]")); \
+    else sx = 	string(xT);						\
+    if(string(yU).length()>0) sx = string(xT+string(" [")+yU+string("]")); \
+    else sy = 	string(yT);						\
+    string stype;							\
+    if(j==0) stype="pr_";						\
+    if(j==1) stype="hf_";						\
+    if(j==2) stype="lf_";						\
+    if(j==3) stype="cv_";						\
+    hN[0][j] = _utils->myTH2F((book_s1=string("sel_")+stype+ #hN).c_str(), \
+			      (book_s2=string("sel_")+stype+ #hN).c_str(), \
+			      __VA_ARGS__,sx.c_str() ,sy.c_str());	\
+    hN[0][j]->SetMarkerSize(0.01);					\
+									\
+    hN[1][j] = _utils->myTH2F((book_s1=string("trm_")+stype+ #hN).c_str(), \
+			      (book_s2=string("trm_")+stype+ #hN).c_str(), \
+			      __VA_ARGS__,sx.c_str() ,sy.c_str());	\
+    hN[1][j]->SetMarkerSize(0.01);					\
+  }
+
+
+  BOOK2(e_ptCone30Pt,"p_{T}","GeV","PtCone30","GeV",25,10,110,50,-1,49);
+  BOOK2(e_ptCone30RelPt,"p_{T}","GeV","PtCone30Rel","GeV",25,10,110,60,-0.5,5.5);
+  BOOK2(e_etCone30Pt,"p_{T}","GeV","EtCone30","GeV",25,10,60,250,-1,24);
+  BOOK2(e_etCone30RelPt,"p_{T}","GeV","EtCone30Rel","GeV",25,10,110,60,-0.5,5.5);
+
+  BOOK2(m_ptCone30Pt,"p_{T}","GeV","PtCone30","GeV",25,10,110,50,-1,49);
+  BOOK2(m_ptCone30RelPt,"GeV","p_{T}","PtCone30Rel","GeV",25,10,110,60,-0.5,5.5);
+  BOOK2(m_etCone30Pt,"p_{T}","GeV","EtCone30","GeV",25,10,110,250,-1,24);
+  BOOK2(m_etCone30RelPt,"p_{T}","GeV","EtCone30Rel","GeV",25,10,110,60,-0.5,5.5);
+
+
+#undef BOOK2
+
 
 #define BOOK3(hN,xT,xU,yT,yU,zT,zU, ...)				\
   for(int j=0; j<nHMC; j++){						\

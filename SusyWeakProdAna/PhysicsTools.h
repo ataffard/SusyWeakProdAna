@@ -9,11 +9,11 @@
 // Classify using MCTruthClassifier
 enum LEP_TYPE{PR=0, HF, LF, CONV, TYPE_Undef};
 
-bool isHF(int org);
-bool isPT(int org);
-bool isConv(int org);
-bool isLF(int org);
-LEP_TYPE  getType(int org);
+bool isHF(int org, int type);
+bool isPT(int org, int type);
+bool isConv(int org, int type);
+bool isLF(int org, int type);
+LEP_TYPE  getType(int org, int type, std::string dataset="");
 
 //Efficiency using binomial error
 void binomialError(float Num, float Den, float& Eff, float& EffErr);
