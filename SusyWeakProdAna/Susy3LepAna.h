@@ -19,7 +19,6 @@
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusyHistos.h"
 
-
 class Susy3LepAna: public SusyNtTools
 {
   public:
@@ -33,6 +32,10 @@ class Susy3LepAna: public SusyNtTools
     // Debug level
     void setDebug(int dbg) { m_dbg = dbg; }
     int dbg() { return m_dbg; }
+    void setUseLooseLep(bool b) {
+      cout << ">>> Using base leptons !!! "  << endl;
+      m_useLooseLep = b; 
+    }
 
     void hookContainers(Susy::SusyNtObject* _ntPtr,
 			ElectronVector* _baseEleA, ElectronVector* _sigEleA,
@@ -43,7 +46,10 @@ class Susy3LepAna: public SusyNtTools
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
     void doAnalysis();
-    void fillHistograms(uint iSR);
+    void fillHistograms(uint iSR,
+			const LeptonVector* leptons, 
+			const JetVector* jets,
+			const Met* met);
     void end();
 
     // Full event selection. Specify which leptons to use.
@@ -65,11 +71,14 @@ class Susy3LepAna: public SusyNtTools
     bool passMtCut  (const LeptonVector* leptons, const Susy::Met* met);
     bool passLepPtCut(const LeptonVector* leptons);
             
+    //btag weight
+    float getBTagSF(const Susy::Event*, const JetVector* jets);
+
     // Selection region 
     void setSelection(std::string s);
 
     //Other functions
-    void setEventWeight(int mode=0);
+    void setEventWeight( int mode=1);
 
     //categorize event as eee=0, eem=1, mmm=2,  mme=3;
     int evtCatgUnOrd(const LeptonVector* leptons);
@@ -85,6 +94,8 @@ class Susy3LepAna: public SusyNtTools
     SusyHistos*  _hh;
 
     Susy::SusyNtObject* nt;
+
+    bool m_useLooseLep;
 
     //containers
     ElectronVector*      v_baseEle;     // baseline electrons

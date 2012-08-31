@@ -52,6 +52,9 @@ void help()
   cout << "  -doFake                         "  << endl;
   cout << "     run Fake ana                  " << endl;
 
+  cout << "  -useLoose                       "  << endl;
+  cout << "     run 2L 3L using loose lepton " << endl;
+
   cout << "  -doAll                          "  << endl;
   cout << "     run All ana                   " << endl;
 
@@ -69,6 +72,7 @@ int main(int argc, char** argv)
   bool do2L   = false;
   bool do3L   = false;
   bool doFake = false;
+  bool useLoose = false;
   string sample;
   string file;
   string fileList;
@@ -101,6 +105,8 @@ int main(int argc, char** argv)
       do3L = true;
     else if (strcmp(argv[i], "-doFake") == 0)
       doFake = true;
+    else if (strcmp(argv[i], "-useLoose") == 0)
+      useLoose = true;
     else if (strcmp(argv[i], "-doAll") == 0){
       do2L = true;
       do3L = true;
@@ -148,7 +154,7 @@ int main(int argc, char** argv)
   susyAna->do2L(do2L);
   susyAna->do3L(do3L);
   susyAna->doFake(doFake);
-
+  susyAna->useLooseLep(useLoose);
 
   // Run the job
   if(nEvt<0) nEvt = nEntries;

@@ -679,7 +679,8 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
   TString LEP(lep);
   TString ISO(iso);
   TString DEP(dep);
-  string cone[3]={"20", "30", "40"};
+  //  string cone[3]={"20", "30", "40"};
+  string cone[3]={"30"};
   int hMarker[3]={20,24,27};
   string _hNameR, _hNameF;
 
@@ -711,7 +712,7 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
     if(k==0){ //MC
       std::cout << ">>>> MC <<<<" << std::endl;
       sSel = "trm";
-      sFile1 = "Zjets";
+      sFile1 = "Zjets_Alpgen";
       if(useBB) sFile2 = "BB";
       else      sFile2 = "top";
       sType="MC";
@@ -719,8 +720,8 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
     if(k==1){ //Data
       std::cout << "\n>>>> DATA <<<<" << std::endl;
       sSel = "sel";
-      sFile1 = "data12_All";
-      sFile2 = "data12_All";
+      sFile1 = "data12";
+      sFile2 = "data12";
       sType="Data";
     }
     
@@ -763,7 +764,7 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
       TMultiGraph *mg0 = new TMultiGraph();
       TLegend*  _leg0 = new TLegend(lx1,ly1,lx1+lxo,ly1+lyo); _utils->legendSetting(_leg0); 
       
-      for(uint i=0; i<3; i++){
+      for(uint i=0; i<1; i++){
 	string _iTitle = iso + cone[i];
 	_hNameR = sSel + "_pr_" + lep + "_" + iso + cone[i] + "_" + dep;
 	_hNameF = sSel + "_hf_" + lep + "_" + iso + cone[i] + "_" + dep;
@@ -811,9 +812,9 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
 	  
 	  //Operating isolation cut point 2011
 	  if(LEP.Contains("m") && (ISO.CompareTo("ptCone")==0 || ISO.CompareTo("etCone")==0 )
-	     && i==1){//i==0 cone20
+	     && i==0){//i==0 cone30
 	    float isoCut;
-	    if(relative==true) isoCut =0.16;
+	    if(relative==true) isoCut =0.2;//0.16;
 	    else               isoCut =1.8;
 	    int ibin = _h_PR->FindBin(isoCut);
 	    if(k==0 && j==0) std::cout <<"MC " << sPtBin << std::endl;
@@ -826,9 +827,9 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
 		      <<std::endl;
 	  }
 	  if(LEP.Contains("e") && (ISO.CompareTo("ptCone")==0 || ISO.CompareTo("etConeTopoCorr")==0)
-	     && i==1){//i==0 cone20
+	     && i==0){//i==0 cone30
 	    float isoCut;
-	    if(relative==true) isoCut =0.18;
+	    if(relative==true) isoCut =0.2;
 	    else               isoCut =2;
 	    int ibin = _h_PR->FindBin(isoCut);
 	    if(k==0 && j==0) std::cout <<"MC " << sPtBin << std::endl;
@@ -882,7 +883,7 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
 
 
   //Clean canvases
-  if(delCanvas) gROOT->GetListOfCanvases()->Delete();
+  //if(delCanvas) gROOT->GetListOfCanvases()->Delete();
   
 
 }

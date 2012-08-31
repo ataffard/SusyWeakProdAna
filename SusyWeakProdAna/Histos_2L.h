@@ -36,6 +36,7 @@ class Histos_2L
   HDG2L DG2L_qq; //SS: --/++; OS: -+/+-
   HDG2L DG2L_mll;
   HDG2L DG2L_pTll;
+  HDG2L DG2L_mWWT;
   HDG2L DG2L_dPhill;
   HDG2L DG2L_JZBJet;
   HDG2L DG2L_JZBEtmiss;

@@ -26,11 +26,7 @@ class SusyHistos: public Histos_Fake,
 
   void SaveHistograms(TDirectory* _hDir);
   
-  void H1FILL(TH1F* h, float x, float w) {
-    //std::cout << "Fill " << h->GetName() 
-    //<< " " << x << " w " << w << std::endl;
-    h->Fill(x,w);
-  }
+  void H1FILL(TH1F* h, float x, float w) { h->Fill(x,w); }
   void H2FILL(TH2F* h, float x, float y, float w) {h->Fill(x,y, w);}
   void H3FILL(TH3F* h, float x, float y, float z, float w) {h->Fill(x,y,z,w);}
   void PFILL(TProfile* h, float x, float y, float w) {h->Fill(x,y,w);}

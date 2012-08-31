@@ -137,7 +137,9 @@ class SusyFakeAna: public SusyNtTools
   
   //Event variables
   TRandom3* _random;
+
   float _ww;           //full event weight either full lumi or unblinded 
+  float _wwBck;  
 
   //Event flags
   /* CR fake for DG2L & ML */

@@ -19,7 +19,7 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
   char      syaxis[200];
   sprintf(syaxis,"Entries");
 
-  std::string MCTYPE[] = {"PR","HF","LF","CONV"};
+  std::string MCTYPE[] = {"PR","HF","LF","CONV","UK"};
  
 #define BOOK1(hN,xT,u,yT, ...)						\
   for(int j=0; j<nHMC; j++){						\
@@ -43,7 +43,7 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
 
   //Muons  
   BOOK1(m_org,"","",syaxis,43,-0.5,42.5);
-  BOOK1(m_type,"","",syaxis,4,-0.5,3.5);
+  BOOK1(m_type,"","",syaxis,5,-0.5,4.5);
   BOOK1(m_pt,"P_{T}","GeV",syaxis,50,0,100);
   BOOK1(m_eta,"#eta","",syaxis,10,-2.5,2.5);
   BOOK1(m_d0,"d0","mm",syaxis,100,-1,1);
@@ -88,7 +88,7 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
 
   //Electrons
   BOOK1(e_org,"","",syaxis,43,-0.5,42.5);
-  BOOK1(e_type,"","",syaxis,4,-0.5,3.5);
+  BOOK1(e_type,"","",syaxis,5,-0.5,3.5);
   BOOK1(e_pt,"P_{T}","GeV",syaxis,50,0,100);
   BOOK1(e_eta,"#eta","",syaxis,10,-2.5,2.5);
   BOOK1(e_d0,"d0","mm",syaxis,100,-1,1);
@@ -166,7 +166,7 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
       m_org[i][j]->GetXaxis()->LabelsOption("v");
       e_org[i][j]->GetXaxis()->LabelsOption("v");
 
-      for(uint p=0; p<4; p++){
+      for(uint p=0; p<5; p++){
 	m_type[i][j]->GetXaxis()->SetBinLabel(p+1,MCTYPE[p].c_str());
 	e_type[i][j]->GetXaxis()->SetBinLabel(p+1,MCTYPE[p].c_str());
       }

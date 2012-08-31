@@ -1,7 +1,8 @@
 #include <iomanip>
 #include "SusyWeakProdAna/Susy3LepAna.h"
-#include "SusyWeakProdAna/SusyAnaCommon.h"
 #include "SusyWeakProdAna/PhysicsTools.h"
+
+#include "SusyWeakProdAna/SusyAnaCommon.h"
 
 using namespace std;
 using namespace Susy;
@@ -18,6 +19,8 @@ const string ML_SRNAME[] = {"SR3Lep", "SRB",
 /*--------------------------------------------------------------------------------*/
 Susy3LepAna::Susy3LepAna(SusyHistos* _histos) :
   _hh(_histos),
+  m_dbg(0),
+  m_useLooseLep(false),
   m_cutNBaseLep(false),
   m_nLep3Min   (  3  ),
   m_nLep3Max   (  3  ),
@@ -89,7 +92,12 @@ void Susy3LepAna::doAnalysis()
 
   reset();
   // Check Event
-  if(!selectEvent(v_sigLep, v_sigJet, m_met)) return;
+  if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
+    if(!selectEvent(v_baseLep, v_sigJet, m_met)) return;
+  }
+  else{
+    if(!selectEvent(v_sigLep, v_sigJet, m_met)) return;
+  }
 
   return;
 }
@@ -143,7 +151,8 @@ void Susy3LepAna::reset()
 /*--------------------------------------------------------------------------------*/
 // Full event selection
 /*--------------------------------------------------------------------------------*/
-bool Susy3LepAna::selectEvent(const LeptonVector* leptons, const JetVector* jets, const Met* met)
+bool Susy3LepAna::selectEvent(const LeptonVector* leptons, 
+			      const JetVector* jets, const Met* met)
 {
   if(!passEventCleaning() ) return false;
   
@@ -157,6 +166,10 @@ bool Susy3LepAna::selectEvent(const LeptonVector* leptons, const JetVector* jets
        if(!passNLep4Cut(leptons)) continue;
        if(!passTrigger(leptons))  continue;
        setEventWeight(LUMIMODE); //set _ww to the appropriate weighting
+       float _wwBck= _ww;
+       float bWeight = getBTagSF(nt->evt(),v_sigJet);
+       if( LUMIMODE != NOLUMI ) _ww = _wwBck * bWeight;
+       
        _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww);
        
        if( !passMetCut (met))     continue;
@@ -171,6 +184,7 @@ bool Susy3LepAna::selectEvent(const LeptonVector* leptons, const JetVector* jets
       if(!passNLep3Cut(leptons)) continue;
       if(!passTrigger(leptons))  continue;
       setEventWeight(LUMIMODE); //set _ww to the appropriate weighting
+      float _wwBck= _ww;
       
       _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww);
 
@@ -182,7 +196,10 @@ bool Susy3LepAna::selectEvent(const LeptonVector* leptons, const JetVector* jets
 
       if(!passZCut(leptons))     continue;
       _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww); 
-
+      
+      float bWeight = getBTagSF(nt->evt(),v_sigJet);
+      if( LUMIMODE != NOLUMI ) _ww = _wwBck * bWeight;
+      
       if( !passBJetCut())        continue;
       _hh->H1FILL(_hh->ML_cutflow[SR],icut++,_ww);
 
@@ -211,7 +228,7 @@ bool Susy3LepAna::selectEvent(const LeptonVector* leptons, const JetVector* jets
     if(dbg()==-99) cout << "PASS " << ML_SRNAME[SR] 
 			<< " " << nt->evt()->run 
 			<< " " << nt->evt()->event <<endl;
-    fillHistograms(iSR);
+    fillHistograms(iSR, leptons, jets, met);
   }
 
   if( m_writeOut ) {
@@ -324,19 +341,22 @@ void Susy3LepAna::setSelection(std::string s)
 /*--------------------------------------------------------------------------------*/
 void Susy3LepAna::setEventWeight(int mode)
 {
-  if(mode==0){
-    _ww=getEventWeight(nt->evt());
-  }
-  if(mode==1){
+  _ww=1;
+  if(mode==NOLUMI) _ww= 1;
+  else if(mode==LUMI1FB){
     _ww=getEventWeight1fb(nt->evt());
   }
-  if(mode==0 || mode==1){
+  else if(mode==LUMI5FB){
+    _ww=getEventWeight(nt->evt());
+  }
+  
+  if(mode>0 && nt->evt()->isMC){
     for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
       const Susy::Lepton* _l = v_sigLep->at(ilep);
       _ww *= _l->effSF;
     }
   }
-  if(mode==3) _ww= 1;
+
   //TODO: Add trigger weighting 
 }
 /*--------------------------------------------------------------------------------*/
@@ -437,6 +457,23 @@ bool Susy3LepAna::passBJetCut( )
   return true;
 }
 /*--------------------------------------------------------------------------------*/
+float Susy3LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
+{
+  if(!(m_vetoB || m_selB)) return 1; //Not using btag
+  //Kepp just in case need to change pt threshold
+  JetVector  valJets;
+  valJets.clear();
+  for(uint i=0; i<jets->size(); ++i){
+    const Jet* jet = jets->at(i);
+    //    if(jet->Pt()>m_btagPtMin) 
+      valJets.push_back(jet);
+  }
+  
+  if(valJets.size()==0) return 1;//safety.
+  return bTagSF(nt->evt(),valJets);
+}
+
+/*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passMtCut(const LeptonVector* leptons, const Met* met)
 {
   // Find the best Z candidate pair, use remaining lepton to form Mt
@@ -469,20 +506,23 @@ bool Susy3LepAna::passLepPtCut(const LeptonVector* leptons)
   return true;
 }
 /*--------------------------------------------------------------------------------*/
-void Susy3LepAna::fillHistograms(uint iSR)
+void Susy3LepAna::fillHistograms(uint iSR,
+				 const LeptonVector* leptons, 
+				 const JetVector* jets,
+				 const Met* met)
 {
   _hh->H1FILL(_hh->ML_pred[iSR],0,_ww); 
 
-  _hh->H1FILL(_hh->ML_nLep[iSR], v_sigLep->size(), _ww); 
-  _hh->H1FILL(_hh->ML_evtCatgUnOrdered[iSR], evtCatgUnOrd(v_sigLep), _ww);
-  _hh->H1FILL(_hh->ML_evtCatgOSpair[iSR], evtCatgOrd(v_sigLep,true), _ww);
-  _hh->H1FILL(_hh->ML_evtCatgSSpair[iSR], evtCatgOrd(v_sigLep,false), _ww);
+  _hh->H1FILL(_hh->ML_nLep[iSR], leptons->size(), _ww); 
+  _hh->H1FILL(_hh->ML_evtCatgUnOrdered[iSR], evtCatgUnOrd(leptons), _ww);
+  _hh->H1FILL(_hh->ML_evtCatgOSpair[iSR], evtCatgOrd(leptons,true), _ww);
+  _hh->H1FILL(_hh->ML_evtCatgSSpair[iSR], evtCatgOrd(leptons,false), _ww);
   
-  bool sfos = hasSFOS(*v_sigLep);
+  bool sfos = hasSFOS(*leptons);
   TLorentzVector _3l;
   TLorentzVector _4l;
-  for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
-    const Susy::Lepton* _l = v_sigLep->at(ilep);
+  for(uint ilep=0; ilep<leptons->size(); ilep++){
+    const Susy::Lepton* _l = leptons->at(ilep);
     if(ilep>=4) continue;
     if(ilep<3) _3l += (*_l);
     if(ilep<4) _4l += (*_l);
@@ -525,35 +565,35 @@ void Susy3LepAna::fillHistograms(uint iSR)
     //Use the 3rd one to reco MT
     uint zl1, zl2;
     float mT=0;
-    bestZ(zl1, zl2, *v_sigLep);
-    for(uint iL=0; iL<v_sigLep->size(); iL++)	{
-      if(iL!=zl1 && iL!=zl2)  mT= Mt(v_sigLep->at(iL),m_met);
+    bestZ(zl1, zl2, *leptons);
+    for(uint iL=0; iL<leptons->size(); iL++)	{
+      if(iL!=zl1 && iL!=zl2)  mT= Mt(leptons->at(iL),met);
     }
     _hh->H1FILL(_hh->ML_SFOSMT[iSR],mT,_ww); 
   }
   
   //Etmiss
-  _hh->H1FILL(_hh->ML_etmiss[iSR],m_met->lv().Pt(),_ww); 
-  _hh->H1FILL(_hh->ML_metRefEle[iSR],m_met->refEle/1000,_ww); 
-  _hh->H1FILL(_hh->ML_metRefGam[iSR],m_met->refGamma/1000,_ww); 
-  _hh->H1FILL(_hh->ML_metRefMuo[iSR],m_met->refMuo/1000,_ww); 
-  _hh->H1FILL(_hh->ML_metRefJet[iSR],m_met->refJet/1000,_ww); 
-  _hh->H1FILL(_hh->ML_metRefSJet[iSR],m_met->softJet/1000,_ww); 
-  _hh->H1FILL(_hh->ML_metCellout[iSR],m_met->refCell/1000,_ww); 
+  _hh->H1FILL(_hh->ML_etmiss[iSR],met->lv().Pt(),_ww); 
+  _hh->H1FILL(_hh->ML_metRefEle[iSR],met->refEle,_ww); 
+  _hh->H1FILL(_hh->ML_metRefGam[iSR],met->refGamma,_ww); 
+  _hh->H1FILL(_hh->ML_metRefMuo[iSR],met->refMuo,_ww); 
+  _hh->H1FILL(_hh->ML_metRefJet[iSR],met->refJet,_ww); 
+  _hh->H1FILL(_hh->ML_metRefSJet[iSR],met->softJet,_ww); 
+  _hh->H1FILL(_hh->ML_metCellout[iSR],met->refCell,_ww); 
 
   //Dilepton mass
-  for(uint iL1=0; iL1<v_sigLep->size(); iL1++)
-    for(uint iL2=iL1+1; iL2<v_sigLep->size(); iL2++){
-      float mll = Mll(v_sigLep->at(iL1),v_sigLep->at(iL2));
+  for(uint iL1=0; iL1<leptons->size(); iL1++)
+    for(uint iL2=iL1+1; iL2<leptons->size(); iL2++){
+      float mll = Mll(leptons->at(iL1),leptons->at(iL2));
       _hh->H1FILL(_hh->ML_AllMll[iSR],mll,_ww); 
-      if(isSFOS(v_sigLep->at(iL1),v_sigLep->at(iL2)))
+      if(isSFOS(leptons->at(iL1),leptons->at(iL2)))
 	_hh->H1FILL(_hh->ML_SFOSMll[iSR],mll,_ww); 
     }
   
   int nBJets=0;
-  _hh->H1FILL(_hh->ML_nJets[iSR],v_sigJet->size(),_ww); 
-  for(uint ijet=0; ijet<v_sigJet->size(); ijet++){
-    const Susy::Jet* _j = v_sigJet->at(ijet);
+  _hh->H1FILL(_hh->ML_nJets[iSR],jets->size(),_ww); 
+  for(uint ijet=0; ijet<jets->size(); ijet++){
+    const Susy::Jet* _j = jets->at(ijet);
     if(isBJet(_j,MV1_85)){
       nBJets++;
       _hh->H1FILL(_hh->ML_ptbj[iSR],_j->Pt(),_ww); 

@@ -20,6 +20,7 @@
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusyHistos.h"
 
+
 class Susy2LepAna: public SusyNtTools
 {
   public:
@@ -32,6 +33,10 @@ class Susy2LepAna: public SusyNtTools
     // Debug level
     void setDebug(int dbg) { m_dbg = dbg; }
     int dbg() { return m_dbg; }
+    void setUseLooseLep(bool b) { 
+      cout << ">>> Using base leptons !!! "  << endl;
+      m_useLooseLep = b; 
+    }
 
     void hookContainers(Susy::SusyNtObject* _ntPtr,
 			ElectronVector* _baseEleA, ElectronVector* _sigEleA,
@@ -41,10 +46,13 @@ class Susy2LepAna: public SusyNtTools
 			);
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
-    void setEventWeight(int mode=0);
+    void setEventWeight(int mode=1);
 
     void doAnalysis();
-    void fillHistograms(uint iSR);
+    void fillHistograms(uint iSR,
+			const LeptonVector* leptons, 
+			const JetVector* jets,
+			const Met* met);
     void end();
    
     // Full event selection. Specify which leptons to use.
@@ -81,6 +89,8 @@ class Susy2LepAna: public SusyNtTools
     bool passDPhiMetl1(const LeptonVector* leptons, const Met* met);
     bool passdPhi(TLorentzVector v0, TLorentzVector v1, float cut);
 
+    float getBTagSF(const Susy::Event*, const JetVector* jets);
+
     float JZBJet(const JetVector* jets, const LeptonVector* leptons);
     float JZBEtmiss(const Met *met, const LeptonVector* leptons);
 
@@ -98,11 +108,13 @@ class Susy2LepAna: public SusyNtTools
     ClassDef(Susy2LepAna, 1);
 
   protected:
-    int m_dbg;                  // debug level
     SusyHistos*  _hh;
+    int m_dbg;                  // debug level
 
     Susy::SusyNtObject* nt;
     
+    bool m_useLooseLep;
+
     //containers
     ElectronVector*      v_baseEle;     // baseline electrons
     ElectronVector*      v_sigEle;      // signal electrons

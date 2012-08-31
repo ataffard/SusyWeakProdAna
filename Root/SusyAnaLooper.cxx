@@ -1,6 +1,6 @@
 #include <iomanip>
 #include "SusyWeakProdAna/SusyAnaLooper.h"
-
+#include "SusyWeakProdAna/SusyAnaCommon.h"
 
 
 using namespace Susy;
@@ -12,6 +12,7 @@ SusyAnaLooper::SusyAnaLooper():
   _do2LAna(false),
   _do3LAna(false),
   _doFakeAna(false),
+  _useLooseLep(false),
   nHFOR(0)
 {
   _histoDir = new TDirectory("Ana","Ana");
@@ -25,6 +26,14 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 {
   SusyNtAna::Begin(0);
   if(dbg()>0) cout << "SusyAnaLooper::Begin" << endl;
+
+#ifdef LUMI1FB
+  cout << ">>> Weighting MC to " << pLUMI << " fb^-1" << endl;
+  cout << " \t output dir " << DATE.c_str() << endl;
+#else
+  cout << ">>> Weighting MC to default lumi " << pLUMI << " fb^-1" << endl;
+  cout << " \t output dir " << DATE.c_str() << endl;
+#endif
   
   _susyHistos->setSample(sampleName());
 
@@ -37,12 +46,12 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 				 &m_baseLeptons, &m_signalLeptons,
 				 &m_baseJets, &m_signalJets);
     _susyHistos->BookFakeHistograms(_histoDir);
-
   }
 
   if(_do2LAna){
     _susy2LAna = new Susy2LepAna(_susyHistos);
     _susy2LAna->setDebug(dbg());
+    _susy2LAna->setUseLooseLep(_useLooseLep);
     _susy2LAna->hookContainers(&nt,
 			       &m_baseElectrons, &m_signalElectrons,
 			       &m_baseMuons, &m_signalMuons,
@@ -54,6 +63,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
   if(_do3LAna){
     _susy3LAna = new Susy3LepAna(_susyHistos);
     _susy3LAna->setDebug(dbg());
+    _susy3LAna->setUseLooseLep(_useLooseLep);
     _susy3LAna->hookContainers(&nt,
 			       &m_baseElectrons, &m_signalElectrons,
 			       &m_baseMuons, &m_signalMuons,
@@ -61,6 +71,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseJets, &m_signalJets);
     _susyHistos->Book3LHistograms(_histoDir);
   }
+
 
 }
 
@@ -74,7 +85,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   clearObjects();
 
   m_chainEntry++;
-  if(dbg()>0 || m_chainEntry%50000==0)
+  if(m_chainEntry%50000==0)
   {
     cout << "**** Processing entry " << setw(6) << m_chainEntry
          << " run " << setw(6) << nt.evt()->run
@@ -82,13 +93,13 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   }
 
   //Debug this event - check if should be processed
-  if(m_dbgEvt && !processThisEvent(nt.evt()->run, nt.evt()->event)) return kFALSE;
-
+  if(m_dbgEvt && !processThisEvent(nt.evt()->run, nt.evt()->event))  return kFALSE;
+  
   if(nt.evt()->hfor==4){
     nHFOR++;
     return kFALSE;
   }
-
+  
   if(dbg()>0){
     cout<<"-----------------------------------"<<endl;
     cout<<"Run: "<<nt.evt()->run<<" Event "<<nt.evt()->event<<endl;

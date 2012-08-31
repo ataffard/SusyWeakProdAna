@@ -1,22 +1,24 @@
 #!/bin/bash
 
-date="080712_1fb"
+date="083012_1fb_SRnoMet_n0041"
+#date="081312_5fb_SRnoMet_unbiasIP"
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
 histPath=${WORKAREA}/histoAna/SusyAna
 #histPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 outPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 
 
-doData=true
-doTop=true
-doDiBSherpa=true
-doDiBHerwig=true
-doDiBMCNLO=true
-doDiBPowHeg=true
-doZjetAlpgen=true
-doZjetSherpa=true
-doWjetAlpgen=true
-doSignal=true
+#doData=true
+#doTop=true
+#doDiBSherpa=true
+#doDiBSherpaWPho=true
+#doDiBHerwig=true
+#doDiBMCNLO=true
+#doDiBPowHeg=true
+#doZjetAlpgen=true
+#doZjetSherpa=true
+#doWjetAlpgen=true
+#doSignal=true
 doMove=true
 
 if [ $doData ]; then
@@ -24,12 +26,21 @@ if [ $doData ]; then
     cp ${histPath}/histo_Muons.periodA.root ${histPath}/histo_Muons.periodA_merge.root
     period=( B)
     for pp in ${period[@]}; do
-	hadd -f ${histPath}/histo_Egamma.period${pp}_merge.root ${histPath}/histo_Egamma.period${pp}?.root #${histPath}/histo_Egamma.period${pp}??.root
-	hadd -f ${histPath}/histo_Muons.period${pp}_merge.root ${histPath}/histo_Muons.period${pp}?.root #${histPath}/histo_Muons.period${pp}??.root
+	hadd -f ${histPath}/histo_Egamma.period${pp}_merge.root \
+	    ${histPath}/histo_Egamma.period${pp}?.root 
+#\
+#	    ${histPath}/histo_Egamma.period${pp}??.root
+	hadd -f ${histPath}/histo_Muons.period${pp}_merge.root \
+	    ${histPath}/histo_Muons.period${pp}?.root 
+#\
+#	    ${histPath}/histo_Muons.period${pp}??.root
     done
     
-    hadd -f ${histPath}/histo_data12.root ${histPath}/histo_Egamma.periodA_merge.root ${histPath}/histo_Muons.periodA_merge.root \
-	${histPath}/histo_Egamma.periodB_merge.root ${histPath}/histo_Muons.periodB_merge.root
+    hadd -f ${histPath}/histo_data12.root \
+	${histPath}/histo_Egamma.periodA_merge.root \
+	${histPath}/histo_Muons.periodA_merge.root \
+	${histPath}/histo_Egamma.periodB_merge.root \
+	${histPath}/histo_Muons.periodB_merge.root
 fi
 
 #
@@ -46,8 +57,23 @@ if [ $doTop ]; then
 	${histPath}/histo_SingleTopWtChanIncl.108346.root  \
 	${histPath}/histo_ttbarW.119353.root \
 	${histPath}/histo_ttbarWj.119354.root \
-	${histPath}/histo_ttbarZ.119355.root
+	${histPath}/histo_ttbarZ.119355.root 
+#\
+#	${histPath}/histo_ttbarZj.119356.root 
 fi
+
+if [ $doDiBSherpaWPho ]; then
+#Sherpa Diboson
+    echo "Merge diBoson Sherpa "
+    rm -f ${histPath}/histo_diBoson_Sherpa_wPho.root
+    hadd -f ${histPath}/histo_diBoson_Sherpa_wPho.root \
+	${histPath}/histo_llll_ZZ.126894.root \
+	${histPath}/histo_llnunu_ZZ.126895.root \
+	${histPath}/histo_lllnu_WZ.126893.root \
+	${histPath}/histo_llnunu_WW.126892.root \
+	${histPath}/histo_WpWm*.106*.root  \
+	${histPath}/histo_*Pt10.*.root  
+fi 
 
 if [ $doDiBSherpa ]; then
 #Sherpa Diboson
@@ -58,8 +84,8 @@ if [ $doDiBSherpa ]; then
 	${histPath}/histo_llnunu_ZZ.126895.root \
 	${histPath}/histo_lllnu_WZ.126893.root \
 	${histPath}/histo_llnunu_WW.126892.root \
-	${histPath}/histo_WpWm*.106*.root  \
-	${histPath}/histo_*Pt10.*.root  
+	${histPath}/histo_WpWm*.106*.root  
+
 fi 
 
 if [ $doDiBHerwig ]; then
@@ -70,8 +96,7 @@ if [ $doDiBHerwig ]; then
 	${histPath}/histo_WW.105985.root  \
 	${histPath}/histo_ZZ.105986.root  \
 	${histPath}/histo_WpWm*.106*.root  \
-	${histPath}/histo_WZ.105987.root  \
-	${histPath}/histo_*Pt10.*.root  
+	${histPath}/histo_WZ.105987.root  
 fi
 
 if [ $doDiBMCNLO ]; then
@@ -82,8 +107,7 @@ if [ $doDiBMCNLO ]; then
 	${histPath}/histo_WpWm*.105*.root \
 	${histPath}/histo_ZZ.105986.root  \
 	${histPath}/histo_WZ.105987.root  \
-	${histPath}/histo_WpWm*.106*.root  \
-	${histPath}/histo_*Pt10.*.root  
+	${histPath}/histo_WpWm*.106*.root  
 fi
 
 if [ $doDiBPowHeg ]; then
@@ -94,8 +118,7 @@ if [ $doDiBPowHeg ]; then
 	${histPath}/histo_WpWm*.126*.root \
 	${histPath}/histo_WZ.1294*.root \
 	${histPath}/histo_ZZ*.1269*.root \
-	${histPath}/histo_WpWm*.106*.root  \
-	${histPath}/histo_*Pt10.*.root  
+	${histPath}/histo_WpWm*.106*.root  
 fi 
 
 if [ $doZjetAlpgen ]; then
@@ -137,7 +160,8 @@ if [ $doWjetAlpgen ]; then
 	${histPath}/histo_WtaunuNp?.*.root \
 	${histPath}/histo_WbbNp?.*.root  \
 	${histPath}/histo_WccNp?.*.root  \
-	${histPath}/histo_WcNp?.*.root  
+	${histPath}/histo_WcNp?.*.root   \
+	${histPath}/histo_WgammaNp?.*.root
 fi
 
 if [ $doSignal ]; then

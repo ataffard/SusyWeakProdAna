@@ -1,4 +1,6 @@
 #include "SusyWeakProdAna/DrawPlots.h"
+#include "SusyWeakProdAna/SusyAnaCommon.h"
+
 
 #include "TMath.h"
 
@@ -6,11 +8,13 @@ typedef unsigned uint;
 //-----------------------------------------------------------------------------
 DrawPlots::DrawPlots(){
 
-  _pathHisto =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_" + DATE;
-  _pathPlots =  _pathHisto + "/Plots";
+  _pathHisto  =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_" + DATE;
+  _pathPlots  =  _pathHisto + "/Plots";
+  _pathTables =  _pathHisto + "/Tables";
 
   gSystem->Setenv("HISTOAREA",_pathHisto.c_str());
   gSystem->mkdir(_pathPlots.c_str(),kTRUE);
+  gSystem->mkdir(_pathTables.c_str(),kTRUE);
 
   _utils = new TGuiUtils();
   gROOT->SetStyle("ATLAS");
@@ -44,7 +48,7 @@ void DrawPlots::openHistoFiles(string ZJets,string diB)
   // _mcFileName.push_back(string(_pathHisto +"/histo_QCD.root").c_str());
 
   for(uint i=0; i<_mcFileName.size(); i++){
-    std::cout << "Loading " << SFILE[i] << std::endl;
+    std::cout << "Loading " << SFILE[i] << " " << _mcFileName[i].c_str() << std::endl;
     TFile* _f = new TFile(_mcFileName[i].c_str(),"READ",SFILE[i]);
     _mcFile.push_back(_f);
   }
@@ -67,7 +71,7 @@ void DrawPlots::openHistoFiles(string ZJets,string diB)
 //-------------------------------------------//
 // Grab TH1 histo from files
 //-------------------------------------------//
-void DrawPlots::grabHisto(string name)
+void DrawPlots::grabHisto(string name, bool quiet)
 {
   _mcH1.clear();
   _mcName.clear();
@@ -172,7 +176,9 @@ void DrawPlots::grabHisto(string name)
     _h->SetName(title.c_str());
     _h->SetFillStyle(0);
     _h->SetLineStyle(5);
-    std::cout << "SIG " << _h->GetName() << " entries " << _h->Integral(0,-1) <<std::endl;
+    if(!quiet)
+      std::cout << "SIG " << _h->GetName() 
+		<< " " << _h->Integral(0,-1) <<std::endl;
     _sigH1.push_back(_h);
     nLoad++;
   }
@@ -339,7 +345,7 @@ void DrawPlots::drawPlot(string name, bool logy)
   _utils->legendSetting(_leg); 
 
   //Grabs all histos: data, MC, signal points
-  grabHisto(name);
+  grabHisto(name,false);
 
   //Build the mc stack and retrieve histo of the total. Add entry to legend
   buildStack(name);
@@ -879,27 +885,329 @@ void DrawPlots::dumpCutflow_ML(string sample)
 }
 
 //-------------------------------------------//
-// DG2L cutflow Dump
+// DG2L Bkg estimate
 //-------------------------------------------// 
 void DrawPlots:: bkgEstimate_DG2L()
 {
+  //Column
+  std::vector<string> sLEPCOL;
+  sLEPCOL.clear();
+  sLEPCOL.push_back("$ee$");   
+  sLEPCOL.push_back("$\\mu\\mu$");   
+  sLEPCOL.push_back("$e\\mu$");   
+  sLEPCOL.push_back("All");   
 
   std::vector<string> sLEP;
   sLEP.clear();
-  sLEP.push_back("ee");   
-  sLEP.push_back("#mu#mu");   
-  sLEP.push_back("e#mu");   
-  sLEP.push_back("All");   
+  sLEP.push_back("EE");   
+  sLEP.push_back("MM");   
+  sLEP.push_back("EM");   
+  sLEP.push_back("ALL");   
+
+  //Raws
+  std::vector<string> sBKGCOL;
+  sBKGCOL.clear();
+  sBKGCOL.push_back("Top");
+  sBKGCOL.push_back("diBoson");
+  sBKGCOL.push_back("W+jets");
+  sBKGCOL.push_back("Z+jets");
+  sBKGCOL.push_back("Total");
 
   std::vector<string> sBKG;
   sBKG.clear();
-  sBKG.push_back("Top");
-  sBKG.push_back("diBoson");
-  sBKG.push_back("Z+jets");
-  sBKG.push_back("W+jets");
-  sBKG.push_back("Total");
-  
+  sBKG.push_back("TOP");
+  sBKG.push_back("DIB");
+  sBKG.push_back("WJETS");
+  sBKG.push_back("ZJETS");
+  sBKG.push_back("TOTAL");
+
+  std::vector<string> sDATA;
+  sDATA.clear();
+  sDATA.push_back("Data");
+
+  //SRs CRs NRs
+  std::vector<string> sSRCR;
+  sSRCR.clear();
+  sSRCR.push_back("CR2LepOS");
+  sSRCR.push_back("CR2LepSS");
+  sSRCR.push_back("CRZ");
+  sSRCR.push_back("NTOP");
+  sSRCR.push_back("NWW1");
+  sSRCR.push_back("NWW2");
+  sSRCR.push_back("SRjveto");
+  sSRCR.push_back("SR2jet");
+  sSRCR.push_back("SRSSjveto");
+  sSRCR.push_back("SRmT2");
+  sSRCR.push_back("SR5");
+
+
+  string fileName = _pathTables + "/BkgEst_DG2L.tex";
+  std::ofstream tex(fileName.c_str());
+  std::ostream & out = tex;
+  if (!tex.is_open()){
+    printf("Problem opening Acceptance table file .... bailing out \n %s \n",fileName.c_str());
+    return;
+  }
+  else printf("Acceptance Table file opened: %s \n",fileName.c_str());
+
+
+  //Loop over the SR  
+  for(uint iSR=0; iSR<sSRCR.size(); iSR++){
+    //    printf("DUMPING %s \n ",sSRCR[iSR].c_str());
+
+    out << "\\begin{table}[htbp] "<< std::endl;
+    out << "\\begin{center} "<< std::endl;
+
+    string sHist;
+    double val=0;
+    double err=0;   
+
+    //Martix hist 
+    const int NBKG=5;
+    const int NLEP=4;
+    TH1F* _hBkgLep[NBKG][NLEP];
+    TH1F* _hDataLep[NLEP];
+    for(uint ib=0; ib<sBKG.size(); ib++){
+      for(uint ilep=0; ilep<sLEP.size(); ilep++){
+	sHist = sBKG[ib] + "_DG2L_" + sSRCR[iSR] + "_" + sLEP[ilep] + "_DG2L_pred";
+	_hBkgLep[ib][ilep] = _utils->myTH1F(sHist.c_str(),sHist.c_str(),1,-0.5,0.5,"","");
+	if(ib==0){
+	  sHist = "DATA_DG2L_" + sSRCR[iSR] + "_" + sLEP[ilep] + "_DG2L_pred";
+	  _hDataLep[ilep] = _utils->myTH1F(sHist.c_str(),sHist.c_str(),1,-0.5,0.5,"","");
+	}
+      }
+    }
+    
+    //Do the sum over leptons & then bkgs
+    for(uint ilep=0; ilep<sLEP.size()-1; ilep++){
+      sHist = "DG2L_" + sSRCR[iSR] + "_" + sLEP[ilep] + "_DG2L_pred";
+      grabHisto(sHist);//get all the bkg for this lep type
+      _hDataLep[ilep]->Add(_dataH1);
+      _hDataLep[sLEP.size()-1]->Add(_dataH1);
+      for(uint ib=0; ib<sBKG.size()-1; ib++){
+	_hBkgLep[ib][ilep]->Add(_mcH1[ib]);
+	_hBkgLep[sBKG.size()-1][ilep]->Add(_mcH1[ib]);       //Sum over lep type
+	_hBkgLep[ib][sLEP.size()-1]->Add(_mcH1[ib]);         //Sum over bkg type
+	_hBkgLep[sBKG.size()-1][sLEP.size()-1]->Add(_mcH1[ib]);//Sum over all
+      }
+    }
+    
+    //Do the printout
+    out << "\\begin{tabular}{|l|" ;
+    for(uint ilep=0; ilep<sLEP.size(); ilep++) out << "r|";
+    out << "}"<< std::endl;
+    out << "\\hline "<< std::endl;
+    //header
+    out << std::setw(17) << " & ";
+    for(uint ilep=0; ilep<sLEP.size(); ilep++){
+      out << sLEPCOL[ilep];
+      if(ilep<sLEP.size()-1) out << " & ";
+    }
+    out << "\\\\ \\hline" << std::endl;
+    //bkg
+    for(uint ib=0; ib<sBKG.size(); ib++){
+      out << sBKGCOL[ib] << " & ";
+      for(uint ilep=0; ilep<sLEP.size(); ilep++){
+	val = _hBkgLep[ib][ilep]->IntegralAndError(0,-1,err);
+	out << std::setprecision(2) << std::fixed << val << " $\\pm$ " << err;
+	if(ilep<sLEP.size()-1) out << " & ";
+      }
+      if(ib<sBKG.size()-2) out << "\\\\" <<std::endl;
+      else out << "\\\\ \\hline" <<std::endl;
+    }
+    
+    //Data
+    out << "Data " << " & ";
+    for(uint ilep=0; ilep<sLEP.size(); ilep++){
+      val = _hDataLep[ilep]->Integral(0,-1);
+      out << val ;
+      if(ilep<sLEP.size()-1) out << " & ";
+    }
+    out << "\\\\ \\hline" <<std::endl;
+    out << "\\end{tabular} " << std::endl;
+
+    string caption = "\\caption{Background estimate for " + sSRCR[iSR] + " }";
+    out << caption << std::endl;
+
+    out << "\\end{center}" << std::endl;
+    out << "\\end{table}" << std::endl;
+    out << std::endl;
+    out << std::endl;
     
 
 
+  }//SR's 
+
+  tex.close();
+}
+//-------------------------------------------//
+// ML Bkg estimate
+//-------------------------------------------// 
+void DrawPlots:: bkgEstimate_ML()
+{
+  //Column
+  std::vector<string> sLEPCOL;
+  sLEPCOL.clear();
+
+  sLEPCOL.push_back("$eee$");   
+  sLEPCOL.push_back("$\\mu\\mu\\mu$");   
+  sLEPCOL.push_back("$ee\\mu$");   
+  sLEPCOL.push_back("$\\mu\\mu e$");   
+  sLEPCOL.push_back("All");   
+
+  /*
+  std::vector<string> sLEP;
+  sLEP.clear();
+  sLEP.push_back("EE");   
+  sLEP.push_back("MM");   
+  sLEP.push_back("EM");   
+  sLEP.push_back("ALL");   
+  */
+
+  //Raws
+  std::vector<string> sBKGCOL;
+  sBKGCOL.clear();
+  sBKGCOL.push_back("Top");
+  sBKGCOL.push_back("diBoson");
+  sBKGCOL.push_back("W+jets");
+  sBKGCOL.push_back("Z+jets");
+  sBKGCOL.push_back("Total");
+
+  std::vector<string> sBKG;
+  sBKG.clear();
+  sBKG.push_back("TOP");
+  sBKG.push_back("DIB");
+  sBKG.push_back("WJETS");
+  sBKG.push_back("ZJETS");
+  sBKG.push_back("TOTAL");
+
+  std::vector<string> sDATA;
+  sDATA.clear();
+  sDATA.push_back("Data");
+
+  //SRs CRs NRs
+  std::vector<string> sSRCR;
+  sSRCR.clear();
+  sSRCR.push_back("ML_SR3Lep");
+  sSRCR.push_back("ML_SRB");
+  sSRCR.push_back("ML_SR1a");
+  sSRCR.push_back("ML_SR1b");
+  sSRCR.push_back("ML_SR2");
+  sSRCR.push_back("ML_VR0");
+  sSRCR.push_back("ML_VR1");
+  sSRCR.push_back("ML_VR2");
+  sSRCR.push_back("ML_VR3");
+  sSRCR.push_back("ML_VRWZ");
+  sSRCR.push_back("ML_NRWZ");
+      
+  string fileName = _pathTables + "/BkgEst_ML.tex";
+  std::ofstream tex(fileName.c_str());
+  std::ostream & out = tex;
+  if (!tex.is_open()){
+    printf("Problem opening Acceptance table file .... bailing out \n %s \n",fileName.c_str());
+    return;
+  }
+  else printf("Acceptance Table file opened: %s \n",fileName.c_str());
+
+
+  //Loop over the SR  
+  for(uint iSR=0; iSR<sSRCR.size(); iSR++){
+    //    printf("DUMPING %s \n ",sSRCR[iSR].c_str());
+
+    out << "\\begin{table}[htbp] "<< std::endl;
+    out << "\\begin{center} "<< std::endl;
+
+    string sHist;
+    double val=0;
+    double err=0;   
+
+    //Martix hist 
+    const int NBKG=5;
+    const int NLEP=5;
+    TH1F* _hBkgLep[NBKG];//[NLEP];
+    TH1F* _hDataLep;
+    for(uint ib=0; ib<sBKG.size(); ib++){
+      sHist = sBKG[ib] + "_" + sSRCR[iSR] + "_ML_evtCatgUnOrdered";
+      _hBkgLep[ib] = _utils->myTH1F(sHist.c_str(),sHist.c_str(),4,-0.5,3.5,"","");
+      if(ib==0){
+	sHist = "DATA_ML_" + sSRCR[iSR] + "_ML_evtCatgUnOrdered";
+	_hDataLep = _utils->myTH1F(sHist.c_str(),sHist.c_str(),4,-0.5,3.5,"","");
+      }
+    }
+    
+    //Do the sum over leptons & then bkgs
+    sHist = sSRCR[iSR] + "_ML_evtCatgUnOrdered";
+    grabHisto(sHist);//get all the bkg for this lep type      
+    _hDataLep->Add(_dataH1);
+    for(uint ib=0; ib<sBKG.size()-1; ib++){
+      _hBkgLep[ib]->Add(_mcH1[ib]);
+      _hBkgLep[sBKG.size()-1]->Add(_mcH1[ib]);       //Sum over lep type
+    }
+    
+    //Sum the evt categories into overflow bin
+    for(uint ibin=0; ibin<sLEPCOL.size()-1; ibin++){
+      _hDataLep->AddBinContent(_hDataLep->GetNbinsX()+1,_hDataLep->GetBinContent(ibin+1));
+      for(uint ib=0; ib<sBKG.size(); ib++){
+      _hBkgLep[ib]->AddBinContent(_hBkgLep[ib]->GetNbinsX()+1,_hBkgLep[ib]->GetBinContent(ibin+1));
+      float err = _hBkgLep[ib]->GetBinError(_hBkgLep[ib]->GetNbinsX()+1) +
+	pow(_hBkgLep[ib]->GetBinError(ibin+1),2);
+      _hBkgLep[ib]->SetBinError(_hBkgLep[ib]->GetNbinsX()+1,err);
+      }
+    }
+    //sqrt error
+    for(uint ib=0; ib<sBKG.size(); ib++){
+      float err = _hBkgLep[ib]->GetBinError(_hBkgLep[ib]->GetNbinsX()+1);
+      _hBkgLep[ib]->SetBinError(_hBkgLep[ib]->GetNbinsX()+1,sqrt(err));
+    }
+    
+    
+    //Do the printout
+    out << "\\begin{tabular}{|l|" ;
+    for(uint ilep=0; ilep<sLEPCOL.size(); ilep++) out << "r|";
+    out << "}"<< std::endl;
+    out << "\\hline "<< std::endl;
+    //header
+    out << std::setw(17) << " & ";
+    for(uint ilep=0; ilep<sLEPCOL.size(); ilep++){
+      out << sLEPCOL[ilep];
+      if(ilep<sLEPCOL.size()-1) out << " & ";
+    }
+    out << "\\\\ \\hline" << std::endl;
+    //bkg
+    for(uint ib=0; ib<sBKG.size(); ib++){
+      out << sBKGCOL[ib] << " & ";
+      for(uint ilep=0; ilep<sLEPCOL.size(); ilep++){
+	val = _hBkgLep[ib]->GetBinContent(ilep+1);
+	err = _hBkgLep[ib]->GetBinError(ilep+1);
+	out << std::setprecision(2) << std::fixed << val << " $\\pm$ " << err;
+	if(ilep<sLEPCOL.size()-1) out << " & ";
+      }
+      if(ib<sBKG.size()-2) out << "\\\\" <<std::endl;
+      else out << "\\\\ \\hline" <<std::endl;
+    }
+    
+    //Data
+    out << "Data " << " & ";
+    for(uint ilep=0; ilep<sLEPCOL.size(); ilep++){
+      val = _hDataLep->GetBinContent(ilep+1);
+      //err = _hDataLep->GetBinError(ilep+1);
+      out << val ;
+      if(ilep<sLEPCOL.size()-1) out << " & ";
+    }
+    out << "\\\\ \\hline" <<std::endl;
+    out << "\\end{tabular} " << std::endl;
+
+    string caption = "\\caption{Background estimate for " + sSRCR[iSR] + " }";
+    out << caption << std::endl;
+
+    out << "\\end{center}" << std::endl;
+    out << "\\end{table}" << std::endl;
+    out << std::endl;
+    out << std::endl;
+    
+
+
+  }//SR's 
+
+  tex.close();
 }

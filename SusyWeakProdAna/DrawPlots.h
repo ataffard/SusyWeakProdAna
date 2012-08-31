@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <math.h>
 #include <vector>
@@ -19,8 +20,6 @@
 #include "TGraphErrors.h"
 
 #include "SusyNtuple/TGuiUtils.h"
-
-#include "SusyWeakProdAna/SusyAnaCommon.h"
 
 
 typedef unsigned uint;
@@ -79,6 +78,7 @@ class DrawPlots {
 
   /* Dump bkg estimate and data */
   void bkgEstimate_DG2L();
+  void bkgEstimate_ML();
 
 
   /* Drawing function */
@@ -108,6 +108,7 @@ class DrawPlots {
 
   string       _pathHisto;
   string       _pathPlots;
+  string       _pathTables;
   TGuiUtils*   _utils;
 
   bool _logy;
@@ -136,7 +137,7 @@ class DrawPlots {
 
   /* build histo stack */
   void buildStack(string name);
-  void grabHisto(string name);
+  void grabHisto(string name, bool quiet=true);
   void setMoveUnderOver(bool b){_moveUO=b;}
   void setLogy(bool b) {_logy=b;}
 

@@ -116,8 +116,8 @@ void compFr(string cr,string type, string lep, string var)
 
   //string sFile1 = "data12";
   //string sFile1 = "top";
-  string sFile1 = "Zjets_Alpgen";
-  //string sFile1 = "SimplifiedModel_wA_slep";
+  //string sFile1 = "Zjets_Alpgen";
+  string sFile1 = "SimplifiedModel_wA_slep";
       
   string loose = sel + "_" + cr + "_" + type + "_" + lep + "_loose_" + var;
   string tightPP = sel + "_" + cr + "_" + type + "_" + lep + "_tightPP_" + var; //e tight PP
@@ -203,9 +203,9 @@ void compIP(string cr,string type, string lep, string var)
   string sel = "trm";
 
   //string sFile1 = "data12";
-  string sFile1 = "top";
+  //string sFile1 = "top";
   //string sFile1 = "Zjets_Alpgen";
-  //string sFile1 = "SimplifiedModel_wA_slep";  //Use lf for signla - classification pb
+  string sFile1 = "SimplifiedModel_wA_slep";  //Use lf for signla - classification pb
       
   string PR = sel + "_" + cr + "_" + "pr" + "_" + lep + "_tightNI_" + var;
   string HF = sel + "_" + cr + "_" + "hf" + "_" + lep + "_tightNI_" + var;
@@ -264,13 +264,13 @@ void compIP(string cr,string type, string lep, string var)
   int lowB, highB;
   if(var=="d0S"){
     if(lep=="e") cut=5;
-    if(lep=="m") cut=3;
+    if(lep=="m") cut=3.5;
     lowB = _h_pr->FindBin(-cut);
     highB = _h_pr->FindBin(cut);
   }
   else{
     if(lep=="e") cut=0.4;
-    if(lep=="m") cut=0.2;
+    if(lep=="m") cut=0.4;
     lowB = _h_pr->FindBin(-cut);
     highB = _h_pr->FindBin(cut);
   }

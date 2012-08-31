@@ -42,8 +42,8 @@ void SusyFakeAna::doAnalysis()
   reset();
   if( !eventCleaning() ) return;
   setEventWeight();
-  if(dbg()>2) cout << "In SusyFakeAna " << endl;
- 
+  _wwBck = _ww;
+
   getCRInfo(v_baseLep, v_sigJet, m_met);
 
   doMuonAnalysis();
@@ -93,12 +93,17 @@ void SusyFakeAna::doMuonAnalysis()
   const Lepton* _probe = NULL;
   int   _catg   = 0;
   int   _method = 0;
+  
+  _ww = _wwBck; //restore weight before btag weight
 
   //Data driven selection
   ZTagProbe(_tag, _probe, _catg, _mode);
   if(_catg == 0){//Z not found - Try HF/LF tag-probe
     bool hasHF = HFTagProbe(_tag, _probe, _catg, _mode);
-    if(hasHF) fillMuonHisto(_probe,HF,_method); 
+    if(hasHF){
+      _ww *= bTagSF(nt->evt(),*v_sigJet);
+      fillMuonHisto(_probe,HF,_method); 
+    }
     else{
       bool hasLF = LFTagProbe(_tag, _probe, _catg, _mode);
       if(hasLF) fillMuonHisto(_probe,LF,_method); 
@@ -115,6 +120,7 @@ void SusyFakeAna::doMuonAnalysis()
     _method=1;
     for(uint i=0; i< v_baseMu->size(); i++){
       LEP_TYPE lType = getType(v_baseMu->at(i)->mcOrigin,v_baseMu->at(i)->mcType,_hh->sampleName());
+      //cout << "sample " <<_hh->sampleName() << " type " << lType << endl;
       //      TString ss = _hh->sampleName(); 
       //      if(ss.Contains("simplifiedModel")) lType=PR; //Simplified model - muon categorized at unknown 
       fillMuonHisto(v_baseMu->at(i),lType,_method);
@@ -137,7 +143,10 @@ void SusyFakeAna::doElectronAnalysis()
   ZTagProbe(_tag, _probe, _catg, _mode);
   if(_catg == 0){//Z not found - Try HF/LF tag-probe
     bool hasHF = HFTagProbe(_tag, _probe, _catg, _mode);
-    if(hasHF) fillElectronHisto(_probe,HF,_method); 
+    if(hasHF){
+      _ww *= bTagSF(nt->evt(),*v_sigJet);
+      fillElectronHisto(_probe,HF,_method); 
+    }
     else{
       bool hasLF = LFTagProbe(_tag, _probe, _catg, _mode);
       if(hasLF) fillElectronHisto(_probe,LF,_method); 
@@ -193,6 +202,7 @@ void SusyFakeAna::setEventWeight(int mode)
     _ww=getEventWeight1fb(nt->evt());
   }
   if(mode==3) _ww=1;
+
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -212,7 +222,7 @@ bool SusyFakeAna::eventCleaning()
 /*--------------------------------------------------------------------------------*/
 void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const Lepton* _mTag)
 {
-  static const bool useUnbiased=false;
+  static const bool useUnbiased=true;
   if(m==1 && t==4) return;//trm but unknown lepton
 
   const Muon* _m = (const Muon*) _mProbe;
@@ -248,7 +258,7 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   }
 
   if(nt->evt()->isMC){
-    _hh->H1FILL(_hh->m_type[m][t],getType(_m->mcOrigin, _m->mcType),_ww);
+    _hh->H1FILL(_hh->m_type[m][t],getType(_m->mcOrigin, _m->mcType,_hh->sampleName()),_ww);
     _hh->H1FILL(_hh->m_org[m][t],_m->mcOrigin,_ww);
   }
   _hh->H1FILL(_hh->m_pt[m][t],_m->Pt(),_ww);
@@ -287,22 +297,23 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   bool passIP=true;
   bool passNI2=true;
   
-  float PtIso20 = _m->ptcone20;
-  float PtIso30 = muPtConeCorr(_m, nt->evt()->nVtx, nt->evt()->isMC);
-  float EtIso30 = muEtConeCorr(_m, nt->evt()->nVtx, nt->evt()->isMC);
+  float PtCone20 = _m->ptcone20;
+  float PtCone30 = _m->ptcone30;
   float EtCone30 = _m->etcone30;
+  float PtIso30  = muPtConeCorr(_m, nt->evt()->nVtx, nt->evt()->isMC);
+  float EtIso30  = muEtConeCorr(_m, nt->evt()->nVtx, nt->evt()->isMC);
   
   if(PtIso30/_m->Pt()>MUON_PTCONE30_PT_CUT) passNI1=false;
-  if(EtIso30/_m->Pt()>MUON_PTCONE30_PT_CUT) passNI2=false;
+  if(EtIso30/_m->Pt()>MUON_ETCONE30_PT_CUT) passNI2=false;
   if(fabs(d0Sig)>MUON_D0SIG_CUT) passIP=false;
   if(fabs(z0SinTheta)>MUON_Z0_SINTHETA_CUT) passIP=false;
   
   //Isolation
-  _hh->H1FILL(_hh->m_ptCone20[m][t],PtIso20,_ww);
-  _hh->H1FILL(_hh->m_ptCone30[m][t],PtIso30,_ww);
+  _hh->H1FILL(_hh->m_ptCone20[m][t],PtCone20,_ww);
+  _hh->H1FILL(_hh->m_ptCone30[m][t],PtCone30,_ww);
   _hh->H1FILL(_hh->m_etCone30[m][t],EtCone30,_ww);
-  _hh->H1FILL(_hh->m_ptCone20Rel[m][t],PtIso20/_m->Pt(),_ww);
-  _hh->H1FILL(_hh->m_ptCone30Rel[m][t],PtIso30/_m->Pt(),_ww);
+  _hh->H1FILL(_hh->m_ptCone20Rel[m][t],PtCone20/_m->Pt(),_ww);
+  _hh->H1FILL(_hh->m_ptCone30Rel[m][t],PtCone30/_m->Pt(),_ww);
   _hh->H1FILL(_hh->m_etCone30Rel[m][t],EtCone30/_m->Pt(),_ww);
 
   if(passIP){
@@ -318,18 +329,18 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   _hh->PFILL(_hh->m_iso_npv[m][t],nt->evt()->nVtx,PtIso30,_ww);
   
   //Isolation  -vs- pt - vs Npv/<mu>
-  _hh->H3FILL(_hh->m_ptCone20_npv[m][t],PtIso20,_m->Pt(),nt->evt()->nVtx,_ww);
-  _hh->H3FILL(_hh->m_ptCone30_npv[m][t],PtIso30,_m->Pt(),nt->evt()->nVtx,_ww);
+  _hh->H3FILL(_hh->m_ptCone20_npv[m][t],PtCone20,_m->Pt(),nt->evt()->nVtx,_ww);
+  _hh->H3FILL(_hh->m_ptCone30_npv[m][t],PtCone30,_m->Pt(),nt->evt()->nVtx,_ww);
   _hh->H3FILL(_hh->m_etCone30_npv[m][t],EtCone30,_m->Pt(),nt->evt()->nVtx,_ww);
-  _hh->H3FILL(_hh->m_ptCone20Rel_npv[m][t],PtIso20/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
-  _hh->H3FILL(_hh->m_ptCone30Rel_npv[m][t],PtIso30/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
+  _hh->H3FILL(_hh->m_ptCone20Rel_npv[m][t],PtCone20/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
+  _hh->H3FILL(_hh->m_ptCone30Rel_npv[m][t],PtCone30/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
   _hh->H3FILL(_hh->m_etCone30Rel_npv[m][t],EtCone30/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
 
-  _hh->H3FILL(_hh->m_ptCone20_mu[m][t],PtIso20,_m->Pt(),nt->evt()->avgMu,_ww);
-  _hh->H3FILL(_hh->m_ptCone30_mu[m][t],PtIso30,_m->Pt(),nt->evt()->avgMu,_ww);
+  _hh->H3FILL(_hh->m_ptCone20_mu[m][t],PtCone20,_m->Pt(),nt->evt()->avgMu,_ww);
+  _hh->H3FILL(_hh->m_ptCone30_mu[m][t],PtCone30,_m->Pt(),nt->evt()->avgMu,_ww);
   _hh->H3FILL(_hh->m_etCone30_mu[m][t],EtCone30,_m->Pt(),nt->evt()->avgMu,_ww);
-  _hh->H3FILL(_hh->m_ptCone20Rel_mu[m][t],PtIso20/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
-  _hh->H3FILL(_hh->m_ptCone30Rel_mu[m][t],PtIso30/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
+  _hh->H3FILL(_hh->m_ptCone20Rel_mu[m][t],PtCone20/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
+  _hh->H3FILL(_hh->m_ptCone30Rel_mu[m][t],PtCone30/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
   _hh->H3FILL(_hh->m_etCone30Rel_mu[m][t],EtCone30/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
   
   //Fill histo to compute real_eff & fake
@@ -401,7 +412,7 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
 /*--------------------------------------------------------------------------------*/
 void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, const Lepton* _eTag)
 {
-  static const bool useUnbiased=false;
+  static const bool useUnbiased=true;
   if(m==1 && t==4) return;//trm but unknown lepton
   
   const Electron* _e = (const Electron*) _eProbe;
@@ -436,7 +447,7 @@ void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, co
   }
 
   if(nt->evt()->isMC){
-    _hh->H1FILL(_hh->e_type[m][t],getType(_e->mcOrigin,_e->mcType),_ww);
+    _hh->H1FILL(_hh->e_type[m][t],getType(_e->mcOrigin,_e->mcType,_hh->sampleName()),_ww);
     _hh->H1FILL(_hh->e_org[m][t],_e->mcOrigin,_ww);
   }
   _hh->H1FILL(_hh->e_pt[m][t],_e->Pt(),_ww);

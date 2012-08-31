@@ -23,6 +23,7 @@ _ana->drawPlot("DG2L_SR5_EE_DG2L_mu",false);
 int main(int argc, char *argv[]){
   bool comp  = false;
   bool pred  = false;
+  bool table = false;
   bool fakeComp  = false;
   bool FR      = false;
   bool logY    = false;
@@ -43,6 +44,8 @@ int main(int argc, char *argv[]){
       comp = true;
     if (strcmp(argv[i], "-pred") == 0)
       pred = true;
+    if (strcmp(argv[i], "-table") == 0)
+      table = true;
     if (strcmp(argv[i], "-logy") == 0)
       logY = true;
     if (strcmp(argv[i], "-p") == 0)
@@ -82,6 +85,10 @@ int main(int argc, char *argv[]){
 
   if(comp) _ana->compareShape(pName,logY);
   if(pred) _ana->drawPlot(pName,logY);
+  if(table){
+    _ana->bkgEstimate_DG2L();
+    _ana->bkgEstimate_ML();
+  }
   if(fakeComp){
     _ana->getFakeComposition(pName,sr,type);
   }

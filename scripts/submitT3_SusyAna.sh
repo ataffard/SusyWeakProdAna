@@ -13,6 +13,10 @@
 # ./submitT3_majAna mc12 ttbar             // submit all mc ttbar
 # ./submitT3_majAna data12 Egamma.periodB1 // submit all data: periodE muon Dil
 #
+# Quick way to check all run
+# grep "events processed"  jobLogs/*.log |wc -l
+# output # = number of submitted jobs 
+# 
 
 #!/bin/bash
 
@@ -63,7 +67,7 @@ while read line; do
 	echo "qsub -j oe -V -v ana=$ana,anaOpt=$anaOpt,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
 	cd ${pathScript}
 	echo ""
-	sleep 3
+	sleep 1
     fi
 
 done <tmp.txt
@@ -72,5 +76,6 @@ qstat |grep ataffard
 rm -f tmp.txt
 
 if [ "$type" == "susy" ]; then
-    ./run_dummy.sh
+    cd  ${pathRun}
+    ./run.sh dummy
 fi

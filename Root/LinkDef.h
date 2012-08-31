@@ -14,6 +14,7 @@
 
 #include "SusyWeakProdAna/PhysicsTools.h"
 
+#include "SusyWeakProdAna/SusyAnaCommon.h"
 #include "SusyWeakProdAna/SusyFakeAna.h"
 #include "SusyWeakProdAna/Susy2LepAna.h"
 #include "SusyWeakProdAna/Susy3LepAna.h"

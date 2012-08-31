@@ -46,6 +46,7 @@ class SusyAnaLooper : public SusyNtAna
     void do2L(bool b){_do2LAna=b;}
     void do3L(bool b){_do3LAna=b;}
     void doFake(bool b){_doFakeAna=b;}
+    void useLooseLep(bool b){_useLooseLep=b;}
 
     //Dump event info for debugging
     void dumpEvent();
@@ -63,7 +64,8 @@ class SusyAnaLooper : public SusyNtAna
     bool _do2LAna;
     bool _do3LAna;
     bool _doFakeAna;
-    
+    bool _useLooseLep;    
+
     int nHFOR;
 
 };

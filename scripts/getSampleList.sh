@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sub=_n0041
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutPath=$WORKAREA/SusyWeakProdAna/scripts
@@ -17,7 +18,7 @@ if [[ $type == "mc12" ]]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
 
-    list=(`ls -d ${InPath}/$type/user* |sort`)
+    list=(`ls -d ${InPath}/$type${sub}/user* |sort`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	
@@ -43,7 +44,7 @@ elif [ "$type" == "susy" ]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
 
-    list=(`ls -d ${InPath}/$type/user* |sort`)
+    list=(`ls -d ${InPath}/$type${sub}/user* |sort`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	
@@ -57,7 +58,7 @@ elif [ "$type" == "data12" ]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
 
-    list=(`ls -d ${InPath}/$type/user* |grep Egamma`)
+    list=(`ls -d ${InPath}/$type${sub}/user* |grep Egamma`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	name="Egamma"
@@ -65,7 +66,7 @@ elif [ "$type" == "data12" ]; then
 	printf "${name}.${DIS} \t ${dir}/ \n" >>${log}
     done
     
-    list=(`ls -d ${InPath}/$type/user* |grep Muons`)
+    list=(`ls -d ${InPath}/$type${sub}/user* |grep Muons`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	name="Muons"
