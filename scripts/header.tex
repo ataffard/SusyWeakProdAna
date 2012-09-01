@@ -1,0 +1,139 @@
+\NeedsTeXFormat{LaTeX2e}
+\documentclass[10pt,landscape,letterpaper,pstricks,fancybox,epsfig,colordvi,semcolor,semlayer,amstex,amssymb]{article}
+
+\usepackage[left=0.5in,top=1in,right=0.5in,nohead]{geometry}
+
+%\slidesmag{-1}
+%\slidewidth 15cm
+%\slideheight 25cm
+%\textheight{25cm}
+%\topmargin{1in}
+%\oddsidemargin{-0cm}
+%\evensidemargin{-0cm}
+%\headhigh{0in}
+%\headsep{0in}
+%\footskip{0in}
+%\slideframe{none}
+
+%\textheight 4in
+%\setlength{\slideframesep}{0.0in}
+%\setlength{\slideframewidth}{0.0in}
+%\altcolormode
+%\centerslidestrue
+%\extraslideheight{10in}
+\pagestyle{empty}
+
+%\renewcommand{\slidefuzz}{2.5cm}
+%\renewcommand{\slidestretch}{1.0}
+%\renewcommand{\slidetopmargin}{-4.0in}
+%\renewcommand{\slidebottommargin}{.8in}
+%\renewcommand{\slideparskip}{.8ex minus .4ex}
+%\renewcommand{\slideitemsep}{.8ex minus .4ex}
+
+%\input{color}
+\input{newcommand}
+
+\usepackage{epsfig,bezier}
+\usepackage{amsmath}
+\usepackage{hhline}
+\usepackage{amssymb}
+\usepackage{color}
+%\usepackage{times}
+\usepackage{rotating}
+
+%\newcommand{\header}[1]
+%{\begin{center}{\fcolorbox{black}{yellow}{\bfseries \boldmath \Large #1}}\end{center}}  
+
+\newcommand{\header}[1]
+  {\begin{center}{\bfseries \boldmath \LARGE \bf{#1}}\end{center}  
+   \vspace{-1ex}{\red \rule{\textwidth}{0.15\semcm}}}
+
+\newenvironment{headsty}[1]{\large{\textbf{\textsf{#1}}}}{}
+\newenvironment{headcen}[1]{\begin{center}\textbf{\textsf{#1}}}{\end{center}}
+\newenvironment{boxsty}[1]{\textsf{#1}}{}
+\newenvironment{itsty}[1]{\large\textit{#1}}{}
+
+
+
+\newcommand{\htab}{\rule[-1mm]{0mm}{6mm}}
+%\newcommand{\htab}{\rule[-3mm]{0mm}{10mm}}
+\newcommand{\hhtab}{\rule[-5mm]{0mm}{12mm}}
+
+
+% create a new 'if' command: ifpdf
+\newif\ifpdf
+ \ifx\pdfoutput\undefined
+ \pdffalse                  % we are not running PDFLaTeX 
+\else 
+ \pdfoutput=1               % we are running PDFLaTeX
+ \pdftrue
+\fi
+
+\ifpdf
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  include packages necessary for
+%  PDFLaTex ONLY 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ \pdfcompresslevel=0
+ \usepackage{url,boxedminipage}
+ \usepackage{graphicx,thumbpdf}
+ \definecolor{rltred}{rgb}{0.75,0,0}
+ \definecolor{rltgreen}{rgb}{0,0.5,0}
+ \definecolor{rltblue}{rgb}{0,0,0.75}
+ \usepackage[colorlinks% 
+  ,bookmarks%
+  ,urlcolor=rltblue%
+  ,filecolor=rltgreen% 
+  ,linkcolor=rltred%
+  ,pdftitle={pdftitLe}%
+  ,pdfsubject={pdfsubject}%
+  ,pdfkeywords={pdfkeywords}%
+  ,pdfauthor={Joe User <joeuser@fnal.gov>}%
+  ,pdfpagemode={UseOutlines}%
+  ,bookmarksopen=true%
+  ,bookmarksnumbered=true%
+  ,pdfstartview={Fit}%
+  ]{hyperref}
+ \pdfimageresolution=300                                
+ \DeclareGraphicsExtensions{.pdf,.jpg,.jpeg}            
+%
+\else
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  include packages necessary for
+%  latex ONLY (PS output file)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ \usepackage{graphicx}                                  
+ \DeclareGraphicsExtensions{.eps,.ps,.eps.gz,.ps.gz}    
+ \newcommand{\href}[2]{#2}                   % suppress URL's in PS files
+ \usepackage[dvips,pagebackref]{hyperref}    % also create Page-back-refrences
+                                             % in PS files
+
+\fi % end ifpdf
+
+
+
+%======================= My Definitions ==================================%
+\def\be{\begin{equation}}
+\def\ee{\end{equation}}
+\def\bi{\begin{itemize}}
+\def\ei{\end{itemize}}
+\def\bfi{\begin{figure}}
+\def\efi{\end{figure}}
+\def\bmi{\begin{minipage}}
+\def\emi{\end{minipage}}
+\def\bc{\begin{center}}
+\def\ec{\end{center}}
+\def\cn{\centering}
+
+\def\pb{\parbox}
+\def\tw{\textwidth}
+\def\bea{\begin{eqnarray}}
+\def\eea{\end{eqnarray}}
+\def\ftnmk{\footnotemark}
+
+%============================ BEGIN DOCUMENT ============================%
+
+\begin{document}
+
+

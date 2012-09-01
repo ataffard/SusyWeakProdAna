@@ -1,0 +1,479 @@
+%===================> ADD here your LATEX definitions
+% new commands added.
+%
+%=======================================================================
+%
+%  Useful macros for defining math-mode-dependent symbols
+%
+%     \inmath    := expands its argument always in math mode
+%     \definmath := defines new macro using \inmath
+%
+%  These macros ensure the symbols look always the same
+%  Note \definmath cannot be used to define macros with arguments
+%
+\newcommand{\inmath}[1] {\ifmmode#1\else$#1$\fi}
+\newcommand{\definmath}[2] {\def#1{\ifmmode#2\else$#2$\fi}}
+
+
+
+%% New stuff, imported from PN241.
+\newcommand{\newitem} {\par\hangindent 40\p@ \hspace*{20\p@}}
+\newcommand{\aWphi}{\mbox{$\alpha_{W\phi}$}}
+\newcommand{\aBphi}{\mbox{$\alpha_{B\phi}$}}
+\newcommand{\aW}{\mbox{$\alpha_{W}$}}
+\newcommand{\sq}{\tilde{\mathrm q}}
+\newcommand{\seff}{\tilde{\mathrm f}}
+\newcommand{\sele}{\tilde{\mathrm e}}
+\newcommand{\selm}{\tilde{\mu}}
+\newcommand{\selt}{\tilde{\tau}}
+\newcommand{\sell}{\tilde{\ell}}
+\newcommand{\snu}{\tilde{\nu}}
+\newcommand{\ch}{\tilde{\chi}^\pm}
+\newcommand{\chp}{\tilde{\chi}^+}
+\newcommand{\chm}{\tilde{\chi}^-}
+\newcommand{\chpm}{\tilde{\chi}^\pm}
+\newcommand{\nt}{\tilde{\chi}^0}
+\newcommand {\stopm}         {\tilde{\mathrm{t}}_{1}}
+\newcommand {\stops}         {\tilde{\mathrm{t}}_{2}}
+\newcommand {\stopbar}       {\bar{\tilde{\mathrm{t}}}_{1}}
+\newcommand {\stopx}         {\tilde{\mathrm{t}}}
+\newcommand {\sbottomm}         {\tilde{\mathrm{b}}_{1}}
+\newcommand {\sbottoms}         {\tilde{\mathrm{b}}_{2}}
+\newcommand {\sbottombar}       {\bar{\tilde{\mathrm{b}}}_{1}}
+\newcommand {\sbottomx}         {\tilde{\mathrm{b}}}
+\newcommand {\sneutrino}     {\tilde{\nu}}
+\newcommand {\slepton}       {\tilde{\ell}}
+\newcommand {\stopl}         {\tilde{\mathrm{t}}_{\mathrm L}}
+\newcommand {\stopr}         {\tilde{\mathrm{t}}_{\mathrm R}}
+\newcommand {\stoppair}      {\tilde{\mathrm{t}}_{1}\bar{\tilde{\mathrm{t}}}_{1}}
+
+\newcommand{\NHL}{\mbox{L$^0$}}
+\newcommand{\NHLbar}{\mbox{$\overline{\mathrm{L^0}}$}}
+\newcommand{\NHLpair}{\mbox{$\NHL\NHLbar$}}
+\newcommand{\CHLp}{\mbox{L$^+$}}
+\newcommand{\CHLm}{\mbox{L$^-$}}
+\newcommand{\CHLpm}{\mbox{L$^\pm$}}
+\newcommand{\CHLpair}{\mbox{$\CHLp\CHLm$}}
+\newcommand {\sbottompair}      {\tilde{\mathrm{b}}_{1}
+\bar{\tilde{\mathrm{b}}}_{1}}
+\newcommand {\gluino}        {\tilde{\mathrm g}}
+\newcommand{\nunu}{\nu \bar{\nu}}
+\newcommand {\neutralino}    {\tilde{\chi }^{0}_{1}}
+\newcommand {\neutrala}      {\tilde{\chi }^{0}_{2}}
+\newcommand {\neutralb}      {\tilde{\chi }^{0}_{3}}
+\newcommand {\neutralc}      {\tilde{\chi }^{0}_{4}}
+\newcommand {\bino}          {\tilde{\mathrm B}^{0}}
+\newcommand {\wino}          {\tilde{\mathrm W}^{0}}
+\newcommand {\higginoa}      {\tilde{\rm H_{1}}^{0}}
+\newcommand {\higginob}      {\tilde{\mathrm H_{1}}^{0}}
+\newcommand {\chargino}      {\tilde{\chi }^{\pm}_{1}}
+\newcommand {\charginop}     {\tilde{\chi }^{+}_{1}}
+\newcommand {\KK}            {{\mathrm K}^{0}-\bar{\mathrm K}^{0}}
+%% \newcommand {\ff}            {{\mathrm f} \bar{\mathrm f}}
+\newcommand {\bstopm} {\mbox{$\boldmath {\tilde{\mathrm{t}}_{1}} $}}
+\newcommand{\stoplnu} {\mbox{$\stopx\rightarrow\mathrm{b}\ell^+\snu$}}
+\newcommand{\stoptoc} {\mbox{$\stopx\rightarrow\mathrm{c}\neutrala$}}
+\newcommand{\sbottomtob}{\mbox{$\sbottomx\rightarrow\mathrm{b}\neutralino$}}
+\newcommand{\squarktoq}{\mbox{$\tilde{q}\rightarrow q'\neutralino$}}
+\newcommand{\squark}{\mbox{$\tilde{q}$}}
+\newcommand {\Mt}            {M_{\mathrm t}}
+\newcommand {\mscalar}       {m_{0}}
+\newcommand {\Mgaugino}      {M_{1/2}}
+\newcommand {\mgaugino}      {m_{1/2}}
+\newcommand {\rs}            {\sqrt{s}}
+%% \newcommand {\WW}            {{\mathrm W}^+{\mathrm W}^-}
+%*** \newcommand {\eetautau}      {\ee-\rightarrow {\tau^+}{\tau^-}}
+\newcommand {\MGUT}          {M_{\mathrm {GUT}}}
+\newcommand {\Zboson}        {{\mathrm Z}^{0}}
+\newcommand {\Wpm}           {{\mathrm W}^{\pm}}
+\newcommand {\allqq}         {\sum_{q \neq t} q \bar{q}}
+\newcommand {\mixang}        {\theta _{\mathrm {mix}}}
+\newcommand {\thacop}        {\theta _{\mathrm {Acop}}}
+\newcommand {\cosjet}        {\cos\thejet}
+\newcommand {\costhr}        {\cos\thethr}
+\newcommand {\djoin}         {d_{\mathrm{join}}}
+\newcommand {\mstop}         {m_{\stopm}}
+\newcommand {\msell}         {m_{\sell}}
+\newcommand {\mchi}          {m_{\neutralino}}
+\newcommand {\ppbar}      {p \bar{p}}
+\newcommand {\ttbar}      {t \bar t}
+\newcommand {\bbbar}      {b \bar b}
+\newcommand {\ccbar}      {c \bar c}
+\newcommand {\qqbar}      {q \bar q}
+
+%%
+%%%%%%% Imported from PN253
+\newcommand {\absct}   {\mbox{$|\cos \theta |$}}
+\newcommand {\ctem}    {\mbox{$\cos \theta_{e^-}$}}
+\newcommand {\absctem} {\mbox{$|\cos \theta_{e^-} |$}}
+\newcommand {\ctep}    {\mbox{$\cos \theta_{e^+}$}}
+\newcommand {\absctep} {\mbox{$|\cos \theta_{e^+} |$}}
+\newcommand{\thacol}{\theta_{\mathrm{acol}}}
+%
+%  Particles not found in pennames.sty (or not everywhere for PD)
+%
+\definmath{\PWpm} {\mathrm{W}^{\pm}}      % W+-
+\definmath{\Plp} {\ell^{+}}        % l+
+\definmath{\Plm} {\ell^{-}}        % l-
+\definmath{\Plpm}   {\ell^{\pm}}         % l+-
+\definmath{\Pgtp} {\tau^{+}}        % tau+
+\definmath{\Pgtm} {\tau^{-}}        % tau-
+\definmath{\Pgtpm}   {\tau^{\pm}}         % tau+-
+\definmath{\Pgn}  {\nu}          % neutrino
+\definmath{\Pagn} {\overline{\nu}}     % anti-neutrino
+\definmath{\Pq}      {\mathrm{q}}
+\definmath{\Paq}  {\overline{\mathrm{q}}}
+\definmath{\Pu}      {\mathrm{u}}
+\definmath{\Pau}  {\overline{\mathrm{u}}}
+\definmath{\Pd}      {\mathrm{d}}
+\definmath{\Pad}  {\overline{\mathrm{d}}}
+\definmath{\Ps}      {\mathrm{s}}
+\definmath{\Pas}  {\overline{\mathrm{s}}}
+\definmath{\Pc}      {\mathrm{c}}
+\definmath{\Pac}  {\overlibstre{\mathrm{c}}}
+\definmath{\Pb}      {\mathrm{b}}
+\definmath{\Pab}  {\overline{\mathrm{b}}}
+%\definmath{\Pt}      {\mathrm{t}}
+\definmath{\Pat}  {\overline{\mathrm{t}}}
+\definmath{\Pap}  {\overline{\mathrm{p}}}
+\definmath{\Pan}  {\overline{\mathrm{n}}}
+\definmath{\PaD}  {\overline{\mathrm{D}}}
+\definmath{\PaDz} {\overline{\mathrm{D}}^{0}}
+\definmath{\PaB}  {\overline{\mathrm{B}}}
+\definmath{\PaBz} {\overline{\mathrm{B}}^{0}}
+\definmath{\PsDpm}   {\mathrm{D}^{\pm}_{\mathrm{s}}}  % Ds+-
+\definmath{\PcgLpm}  {\Lambda^{\pm}_{\mathrm{c}}}  % Lambda_c+-
+\definmath{\PD} {\mathrm{D}}     % D
+\definmath{\PDst} {\mathrm{D}^{*}}     % D*
+\definmath{\PgLz} {\Lambda^{0}}        % Lambda0
+\newcommand {\lsp}      {{{\tilde{\chi}}^{0}}_{1}}
+\newcommand {\nln}      {{{\tilde{\chi}}^{0}}_{2}}
+%
+%       Take appropriate symbols from PN256
+%
+\newcommand{\epem}{\mbox{$\mathrm{e^+e^-}$}}
+\newcommand{\mpmm}{\mbox{$\mu^+\mu^-$}}
+\newcommand{\tptm}{\mbox{$\tau^+\tau^-$}}
+\newcommand{\lplm}{\mbox{$\ell^+\ell^-$}}
+\newcommand{\Zz}{\mbox{${\mathrm{Z}^0}$}}
+\newcommand{\WW}{\mbox{$\mathrm{W^+W^-}$}}
+\newcommand{\eeWW}{\mbox{\epem$\rightarrow$\WW}}
+\newcommand{\qq}{\mbox{$\mathrm{q\overline{q}}$}}
+\newcommand{\q}{\mbox{$\mathrm{q}$}}
+\newcommand{\qb}{\mbox{$\mathrm{\overline{q}}$}}
+\newcommand{\ff}{\mbox{$\mathrm{f\overline{f}}$}}
+\newcommand{\lnu}{\mbox{$\ell\overline{\nu}_{\ell}$}}
+\newcommand{\lmnu}{\mbox{$\ell^-\overline{\nu}_{\ell}$}}
+\newcommand{\lpnu}{\mbox{${\ell^{\prime}}^+ \nu_{\ell^{\prime}}$}}
+\newcommand{\enu}{\mbox{$\mathrm{e\overline{\nu}_{e}}$}}
+\newcommand{\mnu}{\mbox{$\mu\overline{\nu}_{\mu}$}}
+\newcommand{\tnu}{\mbox{$\tau\overline{\nu}_{\tau}$}}
+\newcommand{\WWqqqq}{\mbox{\WW$\rightarrow$\qq\qq}}
+\newcommand{\WWqqln}{\mbox{\WW$\rightarrow$\qq\lnu}}
+\newcommand{\WWqqen}{\mbox{\WW$\rightarrow$\qq\enu}}
+\newcommand{\WWqqmn}{\mbox{\WW$\rightarrow$\qq\mnu}}
+\newcommand{\WWqqtn}{\mbox{\WW$\rightarrow$\qq\tnu}}
+\newcommand{\WWlnln}{\mbox{\WW$\rightarrow$\lmnu\lpnu}}
+\newcommand{\Wenu}{\mbox{$\epem \rightarrow \mathrm{W}\enu$}}
+\newcommand{\Wmunu}{\mbox{$\epem \rightarrow \mathrm{W}\mnu$}}
+\newcommand{\ZZqqqq}{\mbox{$(\Zz/\gamma)(\Zz/\gamma)\rightarrow\qq\qq$}}
+\newcommand{\ZZggqqqq}{\mbox{$(\gamma^*\Zz)(\gamma^*\Zz)\rightarrow\qq\qq$}}
+\newcommand{\Zeeqq}{\mbox{$\Zz\epem\rightarrow\qq \epem$}}
+\newcommand{\Zee}{\mbox{$\epem\rightarrow\Zz\epem$}}
+% \newcommand{\Zee}{\mbox{$\Zz\epem\rightarrow\qq \epem$}}
+\newcommand{\Zqq}{\mbox{$\Zz/\gamma\rightarrow\qq$}}
+% \newcommand{\Zqq}{\mbox{\Zzero$\rightarrow$\qq}}
+\newcommand{\Mz}{\mbox{$M_{\mathrm{Z}^0}$}}
+\newcommand{\Mw}{\mbox{$M_{\mathrm{W }}$} }
+\newcommand{\Mjet}{\mbox{$M_{\mathrm{jet}}$}}
+\newcommand{\MGCE}{\mbox{$M_{\mathrm{GCE}}$}}
+\newcommand{\Ecm}{\mbox{$E_{\mathrm{cm}}$}}
+\newcommand{\Ebeam}{\mbox{$E_{\mathrm{beam}}$}}
+\newcommand{\GammaZ}{\mbox{$\Gamma_{\mathrm{Z}}$}}
+\newcommand{\Opal}{\mbox{O{\sc pal}}}
+\newcommand{\LepII}{\mbox{LEP 2}}
+\newcommand{\LepI}{\mbox{LEP 1}}
+\newcommand{\Isajet}{\mbox{I{\sc sajet}}}
+\newcommand{\Jetset}{\mbox{J{\sc etset}}}
+\newcommand{\Pythia}{\mbox{P{\sc ythia}}}
+\newcommand{\Koralz}{\mbox{K{\sc oralz}}}
+\newcommand{\Bhwide}{\mbox{B{\sc hwide}}}
+\newcommand{\Bdk}{\mbox{B{\sc dk}}}
+\newcommand{\Bdkrc}{\mbox{B{\sc dkrc}}}
+\newcommand{\Twogam}{\mbox{T{\sc wogam}}}
+\newcommand{\Cmpt}{\mbox{C{\sc mpt}}}
+\newcommand{\Excalibur}{\mbox{E{\sc xcalibur}}}
+\newcommand{\Susygen}{\mbox{S{\sc usygen}}}
+\newcommand{\Delsim}{\mbox{D{\sc elsim}}}
+\newcommand{\Herwig}{\mbox{H{\sc erwig}}}
+\newcommand{\Wopper}{\mbox{W{\sc opper}}}
+\newcommand{\half}{\mbox{$\textstyle\frac{1}{2}$}}
+\newcommand{\boldp}{\mbox{\boldmath$p$}}
+\newcommand{\costh}{\mbox{$\cos\theta$}}
+\newcommand{\MeV}{\mbox{$\mathrm{MeV}$}}
+\newcommand{\GeV}{\mbox{$\mathrm{GeV}$}}
+\newcommand{\TeV}{\mbox{$\mathrm{TeV}$}}
+\newcommand{\GeVc}{\mbox{$\mathrm{GeV}\!/\!c$}}
+\newcommand{\GeVcc}{\mbox{$\mathrm{GeV}\!/\!c^2$}}
+\newcommand{\Nctrk}{\mbox{$N_{\mathrm{tracks}}$}}
+\newcommand{\Necal}{\mbox{$N_{\mathrm{ecal}}$}}
+\newcommand{\dedx}{\mbox{$\mathrm{d}E/\mathrm{d}x$}}
+\newcommand{\Econe}{\mbox{$E_{\mathrm{cone}}$}}
+\newcommand{\Esub}{\mbox{$E_{\mathrm{sub}}$}}
+\newcommand{\Econep}{\mbox{$E_{\mathrm{cone}}/p$}}
+\newcommand{\Esubp}{\mbox{$E_{\mathrm{sub}}/p$}}
+\newcommand{\Eovp}{\mbox{$E/p$}}
+\newcommand{\Nblk}{\mbox{$N_{\mathrm{blk}}$}}
+\newcommand{\Ndx}{\mbox{$N_{\mathrm{d}E/\mathrm{d}x}$}}
+\newcommand{\Nsdx}{\mbox{$N^{\sigma}_{\mathrm{d}E/\mathrm{d}x}$}}
+\newcommand{\Evis}{\mbox{$E_{\mathrm{vis}}$}}
+\newcommand{\Rvis}{\mbox{$R_{\mathrm{vis}}$}}
+\newcommand{\pmis}{\mbox{$\vec{p}_{\mathrm{mis}}$}}
+\newcommand{\pvis}{\mbox{$\vec{p}_{\mathrm{vis}}$}}
+\newcommand{\Rmis}{\mbox{$R_{\mathrm{mis}}$}}
+\newcommand{\Rmax}{\mbox{$R_{\mathrm{max}}$}}
+\newcommand{\Yc}[1]{\mbox{$y_{\mathrm{#1}}$}}
+\newcommand{\Ephot}{\mbox{$E_{\mathrm{phot}}$}}
+\newcommand{\Egam}{\mbox{$E_{\gamma}$}}
+\newcommand{\roots}{\mbox{$\sqrt{s}$}}
+\newcommand{\rootsprime}{\mbox{$\sqrt{s^\prime}$}}
+\newcommand{\Ctmis}{\mbox{$|\cos\theta_{\mathrm{mis}}|$}}
+\newcommand{\Ptsum}{\mbox{$p^{jets}_T$}}
+\newcommand{\Zgamma}{\mbox{$\Zz/\gamma$}}
+\newcommand{\ACOP}{\mbox{$\phi_{\mathrm{acop}}$}}
+\newcommand{\XT}{\mbox{$x_T$}}
+\newcommand{\XONE}{\mbox{$x_1$}}
+\newcommand{\XTWO}{\mbox{$x_2$}}
+\newcommand{\MLL}{\mbox{$m_{\ell\ell}$}}
+\newcommand{\MRECOIL}{\mbox{$m_{\mathrm{recoil}}$}}
+\newcommand {\ee}         {\mathrm{e}^+ \mathrm{e}^-}
+\newcommand {\emu}         {\mathrm{e}^{\pm} \mu^{\mp}}
+\newcommand {\et}         {\mathrm{e}^{\pm} \tau^{\mp}}
+\newcommand {\mt}         {\mu^{\pm} \tau^{\mp}}
+\newcommand {\mm}       {\mu^+ \mu^-}
+\newcommand {\tautau}     {\tau^+ \tau^-}
+\newcommand {\ra}         {\rightarrow}
+\newcommand {\lemu}       {\ell=\mathrm{e},\mu}
+\newcommand{\lbnu}{\mbox{$\overline{\ell}\nu_{\ell}$}}
+\newcommand{\sigccthree}{\mbox{$\sigma_{\mathrm{WW}}$}}
+% define "greater than + approx eq."
+\def\gappeq{\mathrel{ \rlap{\raise.5ex\hbox{$>$}}
+                      {\lower.5ex\hbox{$\sim$}}  } }
+% define "less than + approx eq."
+\def\lappeq{\mathrel{ \rlap{\raise.5ex\hbox{$<$}}
+                      {\lower.5ex\hbox{$\sim$}}  } }
+\def\as{\alpha_{s}}
+% Peter's TGC stuff
+\newcommand{\xg}{\mbox{$x_\gamma$}}
+\newcommand{\xz}{\mbox{$x_z$}}
+\newcommand{\yg}{\mbox{$y_\gamma$}}
+\newcommand{\yz}{\mbox{$y_z$}}
+\newcommand{\zz}{\mbox{$z_z$}}
+\newcommand{\zop}{\mbox{$z'_1$}}
+\newcommand{\ztp}{\mbox{$z'_2$}}
+\newcommand{\zhp}{\mbox{$z'_3$}}
+\newcommand{\dz}{\mbox{$\delta_z$}}
+\newcommand{\sw}{\mbox{$\sin\theta_W$}}
+\newcommand{\cw}{\mbox{$\cos\theta_W$}}
+\newcommand{\abf}{\mbox{$\alpha_{B\phi}$}}
+\newcommand{\awf}{\mbox{$\alpha_{W\phi}$}}
+\newcommand{\aw}{\mbox{$\alpha_W$}}
+\newcommand{\XXcthw}{\mbox{$\cos \theta_{\mathrm{W}^-}$}}
+\newcommand{\XXcthst}{\mbox{$\cos \theta^{*}$}}
+\newcommand{\XXphist}{\mbox{$\phi^{*}$}}
+\newcommand{\XXsgtot}{\mbox{$\sigma_{\mathrm{WW}}$}}
+\newcommand{\XXWm}{\mbox{W$^-$}}
+\newcommand{\XXWp}{\mbox{W$^+$}}
+\newcommand{\wwg}{\mbox{$WW\gamma$}}
+\newcommand{\wwz}{\mbox{$WWZ^{0}$}}
+
+\newcommand{\gprime} {{g'}}
+\newcommand{\notEt}{$E\!\!\!/_T$}
+\newcommand{\notpt}{$p\!\!\!/_T$}
+
+\newcommand{\iti}{{$\bullet$ \hspace*{0.1cm}}}
+\newcommand{\itii}{{$\star$ \hspace*{0.1cm}}}
+\newcommand{\etmiss}{E\!\!\!/_T }
+\newcommand{\met}{E\!\!\!/_T }
+\newcommand{\Et}{E_T }
+\newcommand{\Ht}{H_T }
+\newcommand{\Pt}{P_T }
+
+\newcommand{\mco}{\multicolumn}
+\newcommand{\ie}{{\it i.e.,}}
+\newcommand{\eg}{{\it e.g.,}}
+\newcommand{\indentp}{\hspace*{\parindent}}
+\newcommand{\pcite}{\protect\cite}
+\newcommand{\smuon}{\widetilde{\mu}}
+\newcommand{\stau}{\widetilde{\tau}}
+
+\newcommand{\stat} {\mbox{$\mathrm{(stat.)}$}}
+\newcommand{\sys} {\mbox{$\mathrm{(sys.)}$}}
+\newcommand{\lum} {\mbox{$\mathrm{(lum.)}$}}
+
+\newcommand{\rd}{\rm d}
+\newfont{\sans}{cmr8 at 10pt}
+\newfont{\type}{cmtt8 at 12pt}
+
+
+
+%===================  Alias for journal title =============================%
+
+\def\NPB#1#2#3{{\rm Nucl.~Phys.} {\bf{B#1}} (19#2) #3}
+\def\NP#1#2#3{{\rm Nucl.~Phys.} {\bf{#1}} (19#2) #3}
+\def\PLB#1#2#3{{\rm Phys.~Lett.} {\bf{B#1}} (19#2) #3}
+\def\PRD#1#2#3{{\rm Phys.~Rev.} {\bf{D#1}} (19#2) #3}
+\def\PRL#1#2#3{{\rm Phys.~Rev.~Lett.} {\bf{#1}} (19#2) #3}
+\def\ZPC#1#2#3{{\rm Z.~Phys.} {\bf C#1} (19#2) #3}
+\def\PTP#1#2#3{{\rm Prog.~Theor.~Phys.} {\bf#1}  (19#2) #3}
+\def\MPL#1#2#3{{\rm Mod.~Phys.~Lett.} {\bf#1} (19#2) #3}
+\def\PR#1#2#3{{\rm Phys.~Rep.} {\bf#1} (19#2) #3}
+\def\RMP#1#2#3{{\rm Rev.~Mod.~Phys.} {\bf#1} (19#2) #3}
+\def\HPA#1#2#3{{\rm Helv.~Phys.~Acta} {\bf#1} (19#2) #3}
+\def\NIMA#1#2#3{{\rm Nucl.~Instr.~and~Meth.} {\bf{A#1}} (19#2) #3}
+\def\CPC#1#2#3{{\rm Comp.~Phys.~Comm.} {\bf#1} (19#2) #3}
+
+\newcommand{\SUSY}{\mbox{\scshape Susy}}
+\newcommand{\MSSM}{\mbox{\scshape Mssm}}
+\newcommand{\MSUGRA}{\mbox{\scshape MSugra}}
+\newcommand{\SUSYGEN}{\mbox{\scshape SusyGen 3.00}}
+
+\newcommand{\OPAL}{\mbox{\scshape{Opal}}}
+\newcommand{\ALEPH}{\mbox{\scshape{Aleph}}}
+\newcommand{\DELPHI}{\mbox{\scshape{Delphi}}}
+\newcommand{\CERN}{\mbox{\scshape{CERN}}}
+\newcommand{\LEP}{\mbox{\scshape Lep}}
+\newcommand{\LHC}{\mbox{\scshape Lhc}}
+\newcommand{\SLAC}{\mbox{\scshape Slac}}
+\newcommand{\CDF}{\mbox{\scshape{Cdf}}}
+\newcommand{\TEVATRON}{\mbox{\scshape Tevatron}}
+\newcommand{\FERMILAB}{\mbox{\scshape FermiLab}}
+\newcommand{\ATLAS}{\mbox{\scshape{Atlas}}}
+
+
+
+%======================= My Definitions ==================================%
+
+\def\be{\begin{equation}}
+\def\ee{\end{equation}}
+\def\bi{\begin{itemize}}
+\def\ei{\end{itemize}}
+\def\bfi{\begin{figure}}
+\def\efi{\end{figure}}
+\def\bmi{\begin{minipage}}
+\def\emi{\end{minipage}}
+\def\bc{\begin{center}}
+\def\ec{\end{center}}
+\def\cn{\centering}
+
+\def\pbox{\parbox}
+\def\tw{\textwidth}
+\def\bea{\begin{eqnarray}}
+\def\eea{\end{eqnarray}}
+\def\ftnmk{\footnotemark}
+
+%%Examples
+
+%\INPUT{./table/summary/summary_lsecvtxnnsel_0d0h_All.tex}{
+%Method2 backgrond estimate in $\geq2$ loose SECVTX tag + NN kinematic
+%selection w/ phoenix electron.}{tbl:Njets_lsecvtxnnsel_0d0h_All_wPEM}
+
+%\FIGS{./fig/summary/Njets_0d0h_secvtx_All.eps}
+%     {./fig/summary/Njets_0d0h_secvtx_All_wPEM.eps}
+%     {Number of events as a function of jet multiplicity w/o
+%       Phoenix electron(left) and w/Phoenix electron(right) in tight
+%       SECVTX double tagged events.}
+%     {fig:Njets_secvtx_0d0h}
+
+\newcommand{\fb}[1]{$#1~\rm{fb^{-1}}$}
+\newcommand{\pb}[1]{$#1~\rm{pb^{-1}}$}
+\newcommand{\Fig}[1]{{Fig.\ref{#1}}}
+\newcommand{\Table}[1]{{Table.\ref{#1}}}
+\newcommand{\INPUT}[3]{
+  \begin{table}
+    \begin{center}
+      \input{#1}
+      \caption{#2}
+      \label{#3}
+    \end{center}
+  \end{table}
+}
+
+\newcommand{\FIG}[3]{
+  \begin{figure}
+    \begin{center}
+%      \epsfig{file=#1,width=250pt,height=250pt}
+       \includegraphics[height=.25\textheight]{#1}  
+      \caption{#2}
+      \label{#3}
+    \end{center}
+  \end{figure}
+}
+
+
+\newcommand{\LFIG}[3]{
+  \begin{figure}[ht]
+    \begin{center}
+%      \epsfig{file=#1,width=400pt,height=400pt}
+       \includegraphics[height=.45\textheight]{#1}  
+      \caption{#2}
+      \label{#3}
+    \end{center}
+  \end{figure}
+}
+
+
+\newcommand{\FIGS}[4]{
+  \begin{figure}
+    \begin{center}
+      \epsfig{file=#1,width=250pt,height=250pt}
+      \epsfig{file=#2,width=250pt,height=250pt}
+
+      \caption{#3}
+      \label{#4}
+    \end{center}
+  \end{figure}
+}
+
+\newcommand{\FIGSS}[6]{
+  \begin{figure}
+    \begin{center}
+      \epsfig{file=#1,width=250pt,height=250pt}
+      \epsfig{file=#2,width=250pt,height=250pt}
+      \epsfig{file=#3,width=250pt,height=250pt}
+      \epsfig{file=#4,width=250pt,height=250pt}
+      \caption{#5}
+      \label{#6}
+    \end{center}
+  \end{figure}
+}
+
+
+\newcommand{\FIGSSS}[8]{
+  \begin{figure}
+    \begin{center}
+      \epsfig{file=#1,width=160pt,height=160pt}
+      \epsfig{file=#2,width=160pt,height=160pt}
+      \epsfig{file=#3,width=160pt,height=160pt}
+      \epsfig{file=#4,width=160pt,height=160pt}
+      \epsfig{file=#5,width=160pt,height=160pt}
+      \epsfig{file=#6,width=160pt,height=160pt}
+      \caption{#7}
+      \label{#8}
+    \end{center}
+  \end{figure}
+}
+
+
+
+\newcommand{\ET}{$E_{T}$ }
+\newcommand{\PT}{$p_{T}$ }
+\newcommand{\PL}{$P_{L}$}
+\newcommand{\pttext}{${\text{p}_{\text{T}}^{\text{parton}}}$}
+\newcommand{\Slash}[1]{\ooalign{\hfil/\hfil\crcr$#1$}}
+\newcommand{\mass}{$M^2 \equiv (\Sigma E_i)^2 - (\Sigma \bm{P}_i)^2$}
+\newcommand{\delR}{$\Delta R \equiv \sqrt{(\phi_{\text{parton}}-\phi_{\text{fcp}})^2 + (\eta_{\text{parton}}-\eta_{\text{fcp}})^2}$}
+\newcommand{\qbar}{$\bar{\text{q}}$ }
+\newcommand{\bbar}{$\bar{\text{b}}$ }
+\newcommand{\MET}{$/\!\!\!\!\!E_{T}$ }
+
