@@ -898,4 +898,14 @@ void Susy2LepAna::fillHistograms(uint iSR,
   _hh->H1FILL(_hh->DG2L_nBJets[iSR][m_ET],nBJets,_ww); 
   _hh->H1FILL(_hh->DG2L_nJets[iSR][m_ET],nSigJet,_ww); 
 
+
+  //Reco mW from jj in Z events w/o btag
+  if(hasZWindow(*leptons,MZ-10, MZ+10) && nSigJet==2 
+     &&nBJets==0){
+    TLorentzVector _jj = (*jets->at(0)) + (*jets->at(1));
+    _hh->H1FILL(_hh->DG2L_mjj[iSR][m_ET],_jj.M(),_ww); 
+  }
+
+
+
 }
