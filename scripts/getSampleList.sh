@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sub=_n0041
+sub=_n0049
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutPath=$WORKAREA/SusyWeakProdAna/scripts

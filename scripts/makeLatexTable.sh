@@ -1,7 +1,7 @@
 # ./makeLatexTable.sh  
 
-#date="082312_1fb_SRnoMet_n0041"
-date="082312_1fb_SRnoMet_remerge"
+date="091812_1fb"
+#date="082312_1fb_SRnoMet_remerge"
 #date="081312_5fb_SRnoMet_unbiasIP"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run

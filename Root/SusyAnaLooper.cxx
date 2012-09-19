@@ -95,6 +95,8 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   //Debug this event - check if should be processed
   if(m_dbgEvt && !processThisEvent(nt.evt()->run, nt.evt()->event))  return kFALSE;
   
+  if(!nt.evt()->isMC && nt.evt()->run > MAXRUN) return kFALSE;
+
   if(nt.evt()->hfor==4){
     nHFOR++;
     return kFALSE;

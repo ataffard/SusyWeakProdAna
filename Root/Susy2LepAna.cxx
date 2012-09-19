@@ -322,11 +322,14 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 void Susy2LepAna::setEventWeight(int mode)
 {
   _ww=1;
-  if(mode==NOLUMI) _ww= 1;
+  if(mode==NOLUMI) _ww= 1; //raw weight
   else if(mode==LUMI1FB){
-    _ww=getEventWeight1fb(nt->evt());
+    _ww=getEventWeightAB3(nt->evt());
   }
   else if(mode==LUMI5FB){
+    _ww=getEventWeightAB(nt->evt());
+  }
+  else if(mode==LUMI10FB){
     _ww=getEventWeight(nt->evt());
   }
   
@@ -337,7 +340,6 @@ void Susy2LepAna::setEventWeight(int mode)
     }
   }
 
-  
   //TODO: Add trigger weighting 
  
 

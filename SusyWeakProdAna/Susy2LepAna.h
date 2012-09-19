@@ -34,7 +34,7 @@ class Susy2LepAna: public SusyNtTools
     void setDebug(int dbg) { m_dbg = dbg; }
     int dbg() { return m_dbg; }
     void setUseLooseLep(bool b) { 
-      cout << ">>> Using base leptons !!! "  << endl;
+      if(b) cout << ">>> Using base leptons !!! "  << endl;
       m_useLooseLep = b; 
     }
 

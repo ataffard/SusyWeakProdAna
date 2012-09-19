@@ -1,47 +1,66 @@
 #!/bin/bash
 
-date="083012_1fb_SRnoMet_n0041"
-#date="081312_5fb_SRnoMet_unbiasIP"
+date="091812_10fb"
+
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
-histPath=${WORKAREA}/histoAna/SusyAna
-#histPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
+#histPath=${WORKAREA}/histoAna/SusyAna
+histPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 outPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 
 
-#doData=true
-#doTop=true
-#doDiBSherpa=true
-#doDiBSherpaWPho=true
-#doDiBHerwig=true
-#doDiBMCNLO=true
-#doDiBPowHeg=true
-#doZjetAlpgen=true
-#doZjetSherpa=true
-#doWjetAlpgen=true
-#doSignal=true
-doMove=true
+doData=true
+doTop=true
+doDiBSherpa=true
+doDiBSherpaWPho=true
+doDiBHerwig=true
+doDiBMCNLO=true
+doDiBPowHeg=true
+doZjetAlpgen=true
+doZjetSherpa=true
+doWjetAlpgen=true
+doSignal=true
+#doMove=true
 
 if [ $doData ]; then
-    cp ${histPath}/histo_Egamma.periodA.root ${histPath}/histo_Egamma.periodA_merge.root
-    cp ${histPath}/histo_Muons.periodA.root ${histPath}/histo_Muons.periodA_merge.root
-    period=( B)
-    for pp in ${period[@]}; do
-	hadd -f ${histPath}/histo_Egamma.period${pp}_merge.root \
-	    ${histPath}/histo_Egamma.period${pp}?.root 
+#    cp ${histPath}/histo_Egamma.periodA.root ${histPath}/histo_Egamma.periodA_merge.root
+#    cp ${histPath}/histo_Muons.periodA.root ${histPath}/histo_Muons.periodA_merge.root
+#    period=( B)
+#    for pp in ${period[@]}; do
+#	hadd -f ${histPath}/histo_Egamma.period${pp}_merge.root \
+#	    ${histPath}/histo_Egamma.period${pp}?.root 
 #\
 #	    ${histPath}/histo_Egamma.period${pp}??.root
-	hadd -f ${histPath}/histo_Muons.period${pp}_merge.root \
-	    ${histPath}/histo_Muons.period${pp}?.root 
+#	hadd -f ${histPath}/histo_Muons.period${pp}_merge.root \
+#	    ${histPath}/histo_Muons.period${pp}?.root 
 #\
 #	    ${histPath}/histo_Muons.period${pp}??.root
-    done
+#    done
     
     hadd -f ${histPath}/histo_data12.root \
-	${histPath}/histo_Egamma.periodA_merge.root \
-	${histPath}/histo_Muons.periodA_merge.root \
-	${histPath}/histo_Egamma.periodB_merge.root \
-	${histPath}/histo_Muons.periodB_merge.root
-fi
+	${histPath}/histo_Egamma.periodA.root \
+	${histPath}/histo_Muons.periodA.root \
+	${histPath}/histo_Egamma.periodB.root \
+	${histPath}/histo_Muons.periodB.root  \
+	${histPath}/histo_Egamma.periodC.root \
+	${histPath}/histo_Muons.periodC.root \
+	${histPath}/histo_Egamma.periodD1.root \
+	${histPath}/histo_Muons.periodD1.root \
+	${histPath}/histo_Egamma.periodD2.root \
+	${histPath}/histo_Muons.periodD2.root \
+	${histPath}/histo_Egamma.periodD3.root \
+	${histPath}/histo_Muons.periodD3.root \
+	${histPath}/histo_Egamma.periodD4.root \
+	${histPath}/histo_Muons.periodD4.root \
+	${histPath}/histo_Egamma.periodD5.root \
+	${histPath}/histo_Muons.periodD5.root \
+	${histPath}/histo_Egamma.periodD6.root \
+	${histPath}/histo_Muons.periodD6.root \
+	${histPath}/histo_Egamma.periodD7.root \
+	${histPath}/histo_Muons.periodD7.root \
+	${histPath}/histo_Egamma.periodD8.root \
+	${histPath}/histo_Muons.periodD8.root 
+
+fi 
 
 #
 # mc12a
@@ -83,9 +102,8 @@ if [ $doDiBSherpa ]; then
 	${histPath}/histo_llll_ZZ.126894.root \
 	${histPath}/histo_llnunu_ZZ.126895.root \
 	${histPath}/histo_lllnu_WZ.126893.root \
-	${histPath}/histo_llnunu_WW.126892.root \
+	${histPath}/histo_llnunu_WW.126892.root 
 	${histPath}/histo_WpWm*.106*.root  
-
 fi 
 
 if [ $doDiBHerwig ]; then
@@ -95,8 +113,9 @@ if [ $doDiBHerwig ]; then
     hadd -f ${histPath}/histo_diBoson_Herwig.root \
 	${histPath}/histo_WW.105985.root  \
 	${histPath}/histo_ZZ.105986.root  \
+	${histPath}/histo_WZ.105987.root  \
 	${histPath}/histo_WpWm*.106*.root  \
-	${histPath}/histo_WZ.105987.root  
+
 fi
 
 if [ $doDiBMCNLO ]; then
@@ -175,6 +194,29 @@ if [ $doSignal ]; then
     rm -f ${histPath}/histo_SimplifiedModel_wC_slep.root
     hadd -f ${histPath}/histo_SimplifiedModel_wC_slep.root \
 	${histPath}/histo_Herwigpp_simplifiedModel_wC_slep_noWcascade_*.*.root
+
+#Simplified Model ModeA no Slepton
+    echo "Merge ModeA no Slepton "
+    rm -f ${histPath}/histo_SimplifiedModel_wA_noslep_lepW.root
+    hadd -f ${histPath}/histo_SimplifiedModel_wA_noslep_lepW.root \
+	${histPath}/histo_Herwigpp_simplifiedModel_wA_noslep_lepW_*.*.root
+    
+#echo "Merge ModeC no Slepton "
+    rm -f ${histPath}/histo_SimplifiedModel_wC_noslep_lepW.root
+    hadd -f ${histPath}/histo_SimplifiedModel_wC_noslep_lepW.root \
+	${histPath}/histo_Herwigpp_simplifiedModel_wC_noslep_lepW_*.*.root
+
+#echo "Merge DGemtR50_TB6 "
+    rm -f ${histPath}/histo_pMSSM_DGemtR50_TB6.root
+    hadd -f ${histPath}/histo_pMSSM_DGemtR50_TB6.root \
+	${histPath}/histo_Herwigpp_UEEE3_CTEQ6L1_DGemtR50_TB6_M1M2MU_*.*.root
+
+#echo "Merge DGemtR50_TB6 "
+    rm -f ${histPath}/histo_pMSSM_DGstauR_TB50.root
+    hadd -f ${histPath}/histo_pMSSM_DGstauR_TB50.root \
+	${histPath}/histo_Herwigpp_DGstauR_TB50_M1M2MU_*.*.root
+
+
 fi
 
 

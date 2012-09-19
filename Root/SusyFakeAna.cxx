@@ -195,14 +195,18 @@ void SusyFakeAna::end()
 /*--------------------------------------------------------------------------------*/
 void SusyFakeAna::setEventWeight(int mode)
 {
-  if(mode==0){
+  _ww=1;
+  if(mode==NOLUMI) _ww= 1; //raw weight
+  else if(mode==LUMI1FB){
+    _ww=getEventWeightAB3(nt->evt());
+  }
+  else if(mode==LUMI5FB){
+    _ww=getEventWeightAB(nt->evt());
+  }
+  else if(mode==LUMI10FB){
     _ww=getEventWeight(nt->evt());
   }
-  if(mode==1){
-    _ww=getEventWeight1fb(nt->evt());
-  }
-  if(mode==3) _ww=1;
-
+  
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -232,8 +236,8 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   float mindPhiJMet=999;
   for(uint j=0; j<v_baseJet->size(); j++){
     const Jet* _j = v_baseJet->at(j);
-    if(_j->jvf<0.5) continue;
-    if(_j->Pt()<JET_PT_CUT_3L) continue;//pt20
+    if(_j->jvf<JET_JVF_CUT) continue;
+    //if(_j->Pt()<JET_PT_CUT_3L) continue;//pt20
     if(fabs(_j->Eta())>JET_ETA_CUT) continue;
     float dPhi = fabs(TVector2::Phi_mpi_pi(_j->Phi()-m_met->lv().Phi()))*TMath::RadToDeg();
     if(dPhi<mindPhiJMet) mindPhiJMet=dPhi;
@@ -422,8 +426,8 @@ void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, co
   float mindPhiJMet=999;
   for(uint j=0; j<v_baseJet->size(); j++){
     const Jet* _j = v_baseJet->at(j);
-    if(_j->jvf<0.5) continue;
-    if(_j->Pt()<JET_PT_CUT_3L) continue;//pt20
+    if(_j->jvf<JET_JVF_CUT) continue;
+    //    if(_j->Pt()<JET_PT_CUT_3L) continue;//pt20
     if(fabs(_j->Eta())>JET_ETA_CUT) continue;
     float dPhi = fabs(TVector2::Phi_mpi_pi(_j->Phi()-m_met->lv().Phi()))*TMath::RadToDeg();
     if(dPhi<mindPhiJMet) mindPhiJMet=dPhi;
@@ -705,8 +709,8 @@ bool SusyFakeAna::HFTagProbe(const Lepton* &_tag, const Lepton* &_probe, int &ca
   //Loop over the baseline Jets 
   for(uint j=0; j<v_baseJet->size(); j++){
     const Jet* _j = v_baseJet->at(j);
-    //if(_j->jvf<0.5) continue;
-    if(_j->Pt()<JET_PT_CUT_3L) continue;
+    //if(_j->jvf<JET_JVF_CUT) continue;
+    //    if(_j->Pt()<JET_PT_CUT_3L) continue;
     if(fabs(_j->Eta())>JET_ETA_CUT) continue;
     if(!isBJet(_j,MV1_85)) continue;
     bool hasMu=false;

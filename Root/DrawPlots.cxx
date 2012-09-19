@@ -729,8 +729,8 @@ TH1F* DrawPlots::getFakeRate(string sample, string sel, string cr,
   std::cout << "Using hist " << loose << std::endl;
   std::cout << "Using hist " << tight << std::endl;
 
-  TH1F* _h_loose;
-  TH1F* _h_tight;
+  TH1F* _h_loose = NULL;
+  TH1F* _h_tight = NULL;
   
   //Truth match FR
   if(SEL.Contains("trm") || (SEL.Contains("sel") && SAMPLE.Contains("BB"))){
@@ -748,7 +748,7 @@ TH1F* DrawPlots::getFakeRate(string sample, string sel, string cr,
     TFile* _f_zjets = new TFile((s=_pathHisto+string("/histo_Zjets.root")).c_str(),"READ","Zjets");
     TFile* _f_diB   = new TFile((s=_pathHisto+string("/histo_diBoson.root")).c_str(),"READ","diBoson");
     
-    TFile* _f_data;
+    TFile* _f_data = NULL;
     if(LEP.Contains("e")){
       _f_data = new TFile((s=_pathHisto+string("/histo_data12.root")).c_str(),"READ","Egamma");
       std::cout << "Retreiving Egamma file" <<std::endl;
@@ -1123,9 +1123,8 @@ void DrawPlots:: bkgEstimate_ML()
 
     //Martix hist 
     const int NBKG=5;
-    const int NLEP=5;
-    TH1F* _hBkgLep[NBKG];//[NLEP];
-    TH1F* _hDataLep;
+    TH1F* _hBkgLep[NBKG];
+    TH1F* _hDataLep = NULL;
     for(uint ib=0; ib<sBKG.size(); ib++){
       sHist = sBKG[ib] + "_" + sSRCR[iSR] + "_ML_evtCatgUnOrdered";
       _hBkgLep[ib] = _utils->myTH1F(sHist.c_str(),sHist.c_str(),4,-0.5,3.5,"","");

@@ -18,8 +18,8 @@ const string ML_SRNAME[] = {"SR3Lep", "SRB",
 // Susy3LepAna Constructor
 /*--------------------------------------------------------------------------------*/
 Susy3LepAna::Susy3LepAna(SusyHistos* _histos) :
-  _hh(_histos),
   m_dbg(0),
+  _hh(_histos),
   m_useLooseLep(false),
   m_cutNBaseLep(false),
   m_nLep3Min   (  3  ),
@@ -344,9 +344,12 @@ void Susy3LepAna::setEventWeight(int mode)
   _ww=1;
   if(mode==NOLUMI) _ww= 1;
   else if(mode==LUMI1FB){
-    _ww=getEventWeight1fb(nt->evt());
+    _ww=getEventWeightAB3(nt->evt());
   }
   else if(mode==LUMI5FB){
+    _ww=getEventWeightAB(nt->evt());
+  }
+  else if(mode==LUMI10FB){
     _ww=getEventWeight(nt->evt());
   }
   
