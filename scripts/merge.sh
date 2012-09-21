@@ -1,6 +1,6 @@
 #!/bin/bash
 
-date="091812_10fb"
+date="092012_n0050"
 
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
 #histPath=${WORKAREA}/histoAna/SusyAna
@@ -8,17 +8,17 @@ histPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 outPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 
 
-doData=true
-doTop=true
+#doData=true
+#doTop=true
 doDiBSherpa=true
-doDiBSherpaWPho=true
-doDiBHerwig=true
-doDiBMCNLO=true
-doDiBPowHeg=true
-doZjetAlpgen=true
-doZjetSherpa=true
-doWjetAlpgen=true
-doSignal=true
+#doDiBSherpaWPho=true
+#doDiBHerwig=true
+#doDiBMCNLO=true
+#doDiBPowHeg=true
+#doZjetAlpgen=true
+#doZjetSherpa=true
+#doWjetAlpgen=true
+#doSignal=true
 #doMove=true
 
 if [ $doData ]; then
@@ -43,22 +43,8 @@ if [ $doData ]; then
 	${histPath}/histo_Muons.periodB.root  \
 	${histPath}/histo_Egamma.periodC.root \
 	${histPath}/histo_Muons.periodC.root \
-	${histPath}/histo_Egamma.periodD1.root \
-	${histPath}/histo_Muons.periodD1.root \
-	${histPath}/histo_Egamma.periodD2.root \
-	${histPath}/histo_Muons.periodD2.root \
-	${histPath}/histo_Egamma.periodD3.root \
-	${histPath}/histo_Muons.periodD3.root \
-	${histPath}/histo_Egamma.periodD4.root \
-	${histPath}/histo_Muons.periodD4.root \
-	${histPath}/histo_Egamma.periodD5.root \
-	${histPath}/histo_Muons.periodD5.root \
-	${histPath}/histo_Egamma.periodD6.root \
-	${histPath}/histo_Muons.periodD6.root \
-	${histPath}/histo_Egamma.periodD7.root \
-	${histPath}/histo_Muons.periodD7.root \
-	${histPath}/histo_Egamma.periodD8.root \
-	${histPath}/histo_Muons.periodD8.root 
+	${histPath}/histo_Egamma.periodD.root \
+	${histPath}/histo_Muons.periodD.root 
 
 fi 
 
@@ -102,7 +88,7 @@ if [ $doDiBSherpa ]; then
 	${histPath}/histo_llll_ZZ.126894.root \
 	${histPath}/histo_llnunu_ZZ.126895.root \
 	${histPath}/histo_lllnu_WZ.126893.root \
-	${histPath}/histo_llnunu_WW.126892.root 
+	${histPath}/histo_llnunu_WW.126892.root \
 	${histPath}/histo_WpWm*.106*.root  
 fi 
 

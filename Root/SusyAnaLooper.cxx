@@ -44,7 +44,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 				 &m_baseElectrons, &m_signalElectrons,
 				 &m_baseMuons, &m_signalMuons,
 				 &m_baseLeptons, &m_signalLeptons,
-				 &m_baseJets, &m_signalJets);
+				 &m_baseJets, &m_signalJets2Lep);
     _susyHistos->BookFakeHistograms(_histoDir);
   }
 
@@ -56,7 +56,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseElectrons, &m_signalElectrons,
 			       &m_baseMuons, &m_signalMuons,
 			       &m_baseLeptons, &m_signalLeptons,
-			       &m_baseJets, &m_signalJets);
+			       &m_baseJets, &m_signalJets2Lep);
     _susyHistos->Book2LHistograms(_histoDir);
   }
 

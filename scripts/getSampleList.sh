@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sub=_n0049
+sub=_n0050
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutPath=$WORKAREA/SusyWeakProdAna/scripts
@@ -40,6 +40,8 @@ if [[ $type == "mc12" ]]; then
 	printf "${name}.${DIS} \t ${dir}/ \n" >>${log}
 	
     done
+    n=(`more mc12_sampleList.txt |wc -l `)
+    printf "Number of MC12 samples ${n} \n" 
 elif [ "$type" == "susy" ]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
@@ -53,7 +55,8 @@ elif [ "$type" == "susy" ]; then
 	name=( `echo $dir |cut -d'.' -f5-5`)
 	printf "${name}.${DIS} \t ${dir}/ \n" >>${log}
     done
-	
+    n=(`more susy_sampleList.txt |wc -l `)
+    printf "Number of SUSY samples ${n} \n" 
 elif [ "$type" == "data12" ]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
@@ -73,6 +76,8 @@ elif [ "$type" == "data12" ]; then
 	DIS=( `echo $dir |cut -d'.' -f6-6`)
 	printf "${name}.${DIS} \t ${dir}/ \n" >>${log}
     done
-    
+
+    n=(`more data12_sampleList.txt |wc -l `)
+    printf "Number of DATA12 samples ${n} \n" 
 
 fi

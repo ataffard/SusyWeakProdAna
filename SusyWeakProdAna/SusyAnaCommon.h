@@ -8,8 +8,8 @@
 //#define LUMI_5FB  //A->B14
 //#define LUMI_10FB  //A->D7
 
-const std::string TAG = "091812";
-const std::string SUFF = "";
+const std::string TAG = "092012";
+const std::string SUFF = "_n0050";
 
 //const std::string TAG = "081312";
 //const std::string SUFF = "_SRnoMet_unbiasIP";//"_IP2";
