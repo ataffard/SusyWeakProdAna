@@ -1,18 +1,21 @@
 # ./makeLatexTable.sh  
 
-date="091812_1fb"
-#date="082312_1fb_SRnoMet_remerge"
-#date="081312_5fb_SRnoMet_unbiasIP"
+date="092312_1fb_n0101"
+
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 path=${WORKAREA}/histoAna/SusyAna/histos_${date}
 dir=${path}/Tables
 
+#OPT=""
+#OPT="-ZJet histo_Zjets_Sherpa"
+OPT="-ZJet histo_Zjets_SherpaLFHF_wGam -Fake histo_mcFake_Sherpa_wGam"
+#OPT="-ZJet histo_Zjets_Alpgen -Fake histo_mcFake_Alpgen -Top histo_top_MCNLO"
+
+${pathRun}/DrawPlotsExec -table ${OPT}
+
 cp ${WORKAREA}/SusyWeakProdAna/scripts/*.tex ${dir}
-
 declare -a file=(BkgEst_DG2L BkgEst_ML)
-
-${pathRun}/DrawPlotsExec -table
 
 cd ${dir}
 for ifile in ${file[@]}; do
@@ -29,5 +32,4 @@ EOF
     rm -f *.log
     rm -f *.out
     rm -f ${ifile}_table.tex
-    
 done

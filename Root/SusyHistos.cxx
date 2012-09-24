@@ -17,14 +17,23 @@ SusyHistos::SusyHistos()
 /*--------------------------------------------------------------------------------*/
 // SusyHistos SaveHistograms
 /*--------------------------------------------------------------------------------*/
-void SusyHistos::SaveHistograms(TDirectory* _hDir)
+void SusyHistos::SaveHistograms(TDirectory* _hDir,
+				int method,
+				bool mcMll, bool isAlpgen)
 {
   _hDir->cd();
 
   string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna";
   gSystem->mkdir(dir.c_str(),kTRUE);
 
-  string fileName  = dir + "/" + "histo_" + _sample +  ".root";
+  string fileName  = dir + "/" + "histo_" + _sample;
+  if(isAlpgen){
+    if(mcMll) fileName = fileName + "_mll40";
+    else  fileName = fileName + "_mll60";
+  }
+  fileName = fileName + "_" + SMETHOD[method] + ".root";
+
+
   string title     = _sample + " histo file";
   TFile *histoFile = new TFile(fileName.c_str(),"RECREATE",title.c_str());
 

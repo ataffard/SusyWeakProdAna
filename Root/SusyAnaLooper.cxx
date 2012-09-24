@@ -10,9 +10,12 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 SusyAnaLooper::SusyAnaLooper():
   _do2LAna(false),
+  _doMll(false),
   _do3LAna(false),
   _doFakeAna(false),
   _useLooseLep(false),
+  _method(STD),
+  _isAlpgenLowMass(false),
   nHFOR(0)
 {
   _histoDir = new TDirectory("Ana","Ana");
@@ -27,14 +30,11 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
   SusyNtAna::Begin(0);
   if(dbg()>0) cout << "SusyAnaLooper::Begin" << endl;
 
-#ifdef LUMI1FB
-  cout << ">>> Weighting MC to " << pLUMI << " fb^-1" << endl;
+  cout << ">>> Weighting MC to " << pLUMI << " fb^-1 corresponding to " << LUMW << endl;
   cout << " \t output dir " << DATE.c_str() << endl;
-#else
-  cout << ">>> Weighting MC to default lumi " << pLUMI << " fb^-1" << endl;
-  cout << " \t output dir " << DATE.c_str() << endl;
-#endif
-  
+
+  if(_doMll) cout << " \t Mll40 toggled for lowMass Alpgen " << endl;
+
   _susyHistos->setSample(sampleName());
 
   if(_doFakeAna){
@@ -101,6 +101,14 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     nHFOR++;
     return kFALSE;
   }
+
+  if(nt.evt()->mcChannel>=146830 && nt.evt()->mcChannel<=146855){
+    _isAlpgenLowMass=true;
+    if(_doMll){ //Reject Alpgen low mass with Mll>40 - To patch w/ Sherpa
+      if(!nt.evt()->passMllForAlpgen) return kFALSE;
+    }
+  }
+
   
   if(dbg()>0){
     cout<<"-----------------------------------"<<endl;
@@ -137,7 +145,7 @@ void SusyAnaLooper::Terminate()
   if(_do2LAna) _susy2LAna->end();
   if(_do3LAna) _susy3LAna->end();
 
-  _susyHistos->SaveHistograms(_histoDir);
+  _susyHistos->SaveHistograms(_histoDir,_method,_doMll,_isAlpgenLowMass);
 
   SusyNtAna::Terminate();
   if(dbg()>0) cout << "SusyAnaLooper::Terminate" << endl;

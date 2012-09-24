@@ -17,6 +17,8 @@
 # grep "events processed"  jobLogs/*.log |wc -l
 # output # = number of submitted jobs 
 # 
+# Submit low mass alpge w/ Mll cut - change anaOpt2 to true !!!!
+#./submitT3_SusyAna.sh mc12 Mll10
 
 #!/bin/bash
 
@@ -34,7 +36,8 @@ fi
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 ana=SusyAnaLooperExec
-anaOpt=doAll
+anaOpt1=doAll
+anaOpt2=true #doMll 
 nEvt=-1
 
 
@@ -58,13 +61,14 @@ while read line; do
 	echo "  name:       $sName"
 	echo "  fileDir:    $sDir"
 	echo "  nEvt:       $nEvt"
-	echo "  anaOpt:     $anaOpt"
-
+	echo "  anaOpt1:    $anaOpt1"
+	echo "  doMll:      $anaOpt2"
+  
     # run the job - submit with qsub
 	cd ${pathRun}
-	qsub -j oe -V -v ana=$ana,anaOpt=$anaOpt,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
+	qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
 	echo ""
-	echo "qsub -j oe -V -v ana=$ana,anaOpt=$anaOpt,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
+	echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
 	cd ${pathScript}
 	echo ""
 	sleep 1

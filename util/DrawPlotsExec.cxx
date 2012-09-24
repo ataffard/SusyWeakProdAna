@@ -30,8 +30,12 @@ int main(int argc, char *argv[]){
   bool cutflow = false;
   string ana = ""; //DG2L, ML
   string pName = "";
-  string sZJet = "histo_Zjets_Alpgen.root";
-  string sdiB  = "histo_diBoson_Sherpa.root";
+  string method = "std";
+  string sTop = "histo_top_PowHeg";
+  string sWW = "histo_WW_Sherpa";
+  string sZX = "histo_ZX_Sherpa";
+  string sZJet = "histo_Zjets_SherpaLFHF";  
+  string sFake = "histo_mcFake_Sherpa";
   string sr    = "";
   string cr    = "";
   string type  = "";				
@@ -50,10 +54,16 @@ int main(int argc, char *argv[]){
       logY = true;
     if (strcmp(argv[i], "-p") == 0)
       pName = argv[++i];
+    if (strcmp(argv[i], "-Top") == 0)
+      sTop = argv[++i];
+    if (strcmp(argv[i], "-WW") == 0)
+      sWW = argv[++i];
+    if (strcmp(argv[i], "-ZX") == 0)
+      sZX = argv[++i];
     if (strcmp(argv[i], "-ZJet") == 0)
       sZJet = argv[++i];
-    if (strcmp(argv[i], "-diB") == 0)
-      sdiB = argv[++i];
+    if (strcmp(argv[i], "-Fake") == 0)
+      sFake = argv[++i];
     if (strcmp(argv[i], "-fakeComp") == 0){
       fakeComp = true;
       pName = argv[++i];
@@ -80,7 +90,7 @@ int main(int argc, char *argv[]){
   DrawPlots* _ana = new DrawPlots();
    
   //histo files merging
-  if(!cutflow)  _ana->openHistoFiles(sZJet,sdiB);
+  if(!cutflow)  _ana->openHistoFiles(method,sTop,sWW,sZX,sZJet,sFake);
 
 
   if(comp) _ana->compareShape(pName,logY);

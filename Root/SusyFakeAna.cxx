@@ -236,9 +236,10 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   float mindPhiJMet=999;
   for(uint j=0; j<v_baseJet->size(); j++){
     const Jet* _j = v_baseJet->at(j);
-    if(_j->jvf<JET_JVF_CUT) continue;
-    //if(_j->Pt()<JET_PT_CUT_3L) continue;//pt20
-    if(fabs(_j->Eta())>JET_ETA_CUT) continue;
+    if(! isCentralLightJet(_j)) continue;
+    if(! isCentralBJet(_j)) continue;
+    if(! isForwardJet(_j)) continue;
+
     float dPhi = fabs(TVector2::Phi_mpi_pi(_j->Phi()-m_met->lv().Phi()))*TMath::RadToDeg();
     if(dPhi<mindPhiJMet) mindPhiJMet=dPhi;
     if(_m->DeltaR(*_j)>mindR) continue;
@@ -709,8 +710,7 @@ bool SusyFakeAna::HFTagProbe(const Lepton* &_tag, const Lepton* &_probe, int &ca
   //Loop over the baseline Jets 
   for(uint j=0; j<v_baseJet->size(); j++){
     const Jet* _j = v_baseJet->at(j);
-    //if(_j->jvf<JET_JVF_CUT) continue;
-    //    if(_j->Pt()<JET_PT_CUT_3L) continue;
+    if(_j->Pt()<JET_PT_B20_CUT) continue;
     if(fabs(_j->Eta())>JET_ETA_CUT) continue;
     if(!isBJet(_j,MV1_85)) continue;
     bool hasMu=false;

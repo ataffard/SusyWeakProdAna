@@ -32,6 +32,8 @@ class Histos_2L
   HDG2L DG2L_pred;
   HDG2L DG2L_cutflow;
   HDG2L DG2L_nJets;
+  HDG2L DG2L_nCJets;
+  HDG2L DG2L_nFJets;
   HDG2L DG2L_nBJets;
   HDG2L DG2L_qq; //SS: --/++; OS: -+/+-
   HDG2L DG2L_mll;

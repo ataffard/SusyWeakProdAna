@@ -44,8 +44,10 @@ class SusyAnaLooper : public SusyNtAna
     virtual Bool_t  Process(Long64_t entry);
 
     void do2L(bool b){_do2LAna=b;}
+    void doMll(bool b){_doMll=b;}
     void do3L(bool b){_do3LAna=b;}
     void doFake(bool b){_doFakeAna=b;}
+    void setMethod(int m) {_method=m;}
     void useLooseLep(bool b){_useLooseLep=b;}
 
     //Dump event info for debugging
@@ -62,11 +64,16 @@ class SusyAnaLooper : public SusyNtAna
     SusyFakeAna* _susyFakeAna;
     
     bool _do2LAna;
+    bool _doMll;
     bool _do3LAna;
     bool _doFakeAna;
     bool _useLooseLep;    
 
+    int _method;
+
+    bool _isAlpgenLowMass;
     int nHFOR;
+
 
 };
 

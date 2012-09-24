@@ -58,6 +58,9 @@ void help()
   cout << "  -doAll                          "  << endl;
   cout << "     run All ana                   " << endl;
 
+  cout << "  -doMll                          "  << endl;
+  cout << "     run low mass alpgen - Mll<40 " << endl;
+
   cout << "  -h print this help"                << endl;
 }
 
@@ -72,6 +75,7 @@ int main(int argc, char** argv)
   bool do2L   = false;
   bool do3L   = false;
   bool doFake = false;
+  bool doMll  = false;
   bool useLoose = false;
   string sample;
   string file;
@@ -107,6 +111,11 @@ int main(int argc, char** argv)
       doFake = true;
     else if (strcmp(argv[i], "-useLoose") == 0)
       useLoose = true;
+    else if (strcmp(argv[i], "-doMll") == 0){
+      string tmp = argv[++i];
+      if(strcmp(tmp.c_str(),"false") ==0) doMll = false;
+      if(strcmp(tmp.c_str(),"true")  ==0) doMll = true;
+    }
     else if (strcmp(argv[i], "-doAll") == 0){
       do2L = true;
       do3L = true;
@@ -132,6 +141,7 @@ int main(int argc, char** argv)
   cout << "  do2L    " << do2L     << endl;
   cout << "  do3L    " << do3L     << endl;
   cout << "  doFake  " << doFake   << endl;
+  cout << "  doMll   " << doMll    << endl;
 
   if(!file.empty())     cout << "  input   " << file     << endl;
   if(!fileList.empty()) cout << "  input   " << fileList << endl;
@@ -152,6 +162,7 @@ int main(int argc, char** argv)
   susyAna->setSampleName(sample);
   if(dbgEvt) susyAna->setEvtDebug();
   susyAna->do2L(do2L);
+  susyAna->doMll(doMll);
   susyAna->do3L(do3L);
   susyAna->doFake(doFake);
   susyAna->useLooseLep(useLoose);

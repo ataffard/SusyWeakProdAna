@@ -22,7 +22,8 @@ echo "  Run dir:      $scratch"
 echo
 echo "analysis options"
 echo "  ana           $ana"
-echo "  AnaOpt        $anaOpt"
+echo "  AnaOpt1       $anaOpt1"
+echo "  AnaOpt2       $anaOpt2"
 echo "  Name:         $name"
 echo "  FileDir:      $fileDir"
 echo "  nEvt:         $nEvt"
@@ -33,7 +34,7 @@ echo "Starting: "
 echo ${PWD} 
 date +"%F__%T"
 
-./${ana}  -${anaOpt} -s ${name} -n ${nEvt} -D ${fileDir} >& jobLogs/${name}.log
+./${ana}  -${anaOpt1} -doMll ${anaOpt2} -s ${name} -n ${nEvt} -D ${fileDir} >& jobLogs/${name}.log
 
 echo "Ending: " 
 date +"%F__%T" 

@@ -10,15 +10,17 @@ if [[ $# = 1 ]]; then
     mode=$1
 fi
 
-OPT="-logy"
+#OPT="-logy"
+OPT="-logy -ZJet histo_Zjets_Sherpa"
+#OPT="-logy -ZJet histo_Zjets_Alpgen -Fake histo_mcFake_Alpgen -Top histo_top_MCNLO"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 
 if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
     
-    SR=(CR2LepOS CR2LepSS CRZ  NTOP NWW1 NWW2 SRjveto SRSSjveto SR2jet SRmT2 SR5 )
+    SR=(CR2LepOS CR2LepSS CRZ  NTOP NWW1 NWW2 NWW3 SRjveto SRSSjveto SR2jets SRmT2 SRmT2b ZXCR1 ZXCR3 ZXCR4)
     DIL=(EE MM EM)
-    PLOTS=(mll pTll dPhill etmiss metrel mt2 nJets nBJets npv mu \
+    PLOTS=(mll pTll mjj dPhill etmiss metrel mt2 nJets nCJets nFJets nBJets npv mu \
 	ptl1 ptl2 etal1 etal2 d0Sl1 d0Sl2 z0sinthetal1 z0sinthetal2 \
 	ptj1 ptj2 ptj3 ptj4 etaj1 etaj3 etaj4 ptbj etabj \
 	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)

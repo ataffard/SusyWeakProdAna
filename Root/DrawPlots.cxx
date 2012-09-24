@@ -31,21 +31,24 @@ DrawPlots::DrawPlots(){
 //-------------------------------------------//
 // Open histo files
 //-------------------------------------------//
-void DrawPlots::openHistoFiles(string ZJets,string diB)
+void DrawPlots::openHistoFiles(string method, 
+			       string Top, string WW, string ZX,
+			       string ZJets, string Fake)
 {
-  _dataFileName = _pathHisto + "/histo_data12.root";
+  std::cout << "loading histo from method " << method << endl;
+
+  _dataFileName = _pathHisto + "/histo_data12_" + method + ".root";
   
   std::cout << "Loading data " << std::endl;
-  _dataFile = new TFile(_dataFileName.c_str(),"READ",SFILE[4]);
+  _dataFile = new TFile(_dataFileName.c_str(),"READ",SFILE[5]);
 
   _mcFileName.clear();
   _mcFile.clear();
-  _mcFileName.push_back(string(_pathHisto +"/histo_top.root").c_str());
-  _mcFileName.push_back(string(_pathHisto + "/" + diB).c_str());
-  _mcFileName.push_back(string(_pathHisto +"/histo_Wjets.root").c_str());
-  _mcFileName.push_back(string(_pathHisto + "/" + ZJets).c_str());
-  _mcFileName.push_back(string(_pathHisto +"/histo_BB.root").c_str());
-  // _mcFileName.push_back(string(_pathHisto +"/histo_QCD.root").c_str());
+  _mcFileName.push_back(string(_pathHisto +"/" + Top + "_" + method + ".root").c_str());
+  _mcFileName.push_back(string(_pathHisto +"/" + WW + "_" + method + ".root").c_str());
+  _mcFileName.push_back(string(_pathHisto +"/" + ZX + "_" + method + ".root").c_str());
+  _mcFileName.push_back(string(_pathHisto +"/" + ZJets + "_" + method + ".root").c_str());
+  _mcFileName.push_back(string(_pathHisto +"/" + Fake + "_" + method + ".root").c_str());
 
   for(uint i=0; i<_mcFileName.size(); i++){
     std::cout << "Loading " << SFILE[i] << " " << _mcFileName[i].c_str() << std::endl;
@@ -108,41 +111,25 @@ void DrawPlots::grabHisto(string name, bool quiet)
     switch (i){
     case TOP:
       _mcColor.push_back(C_TOP);
-      _mcName.push_back("Top");
-      _mcMarker.push_back(iMarker[i+1]);
-      title = "TOP_"+name;
       break;
-    case DIB:
-      _mcColor.push_back(C_DIB);
-      _mcName.push_back("Diboson");
-      _mcMarker.push_back(iMarker[i+1]);
-      title = "DIB_"+name;
+    case WW:
+      _mcColor.push_back(C_WW);
       break;
-    case WJETS:
-      _mcColor.push_back(C_WJETS);
-      _mcName.push_back("W+jets");
-      _mcMarker.push_back(iMarker[i+1]);
-      title = "WJETS_"+name;
+    case ZX:
+      _mcColor.push_back(C_ZX);
       break;
     case ZJETS:
       _mcColor.push_back(C_ZJETS);
-      _mcName.push_back("Z+jets");
-      _mcMarker.push_back(iMarker[i+1]);
-      title = "ZJETS_"+name;
       break;
-    case BB:
-      _mcColor.push_back(C_BB);
-      _mcName.push_back("b#bar b");
-      _mcMarker.push_back(iMarker[i+1]);
-      title = "BB_"+name;
-      break;
-    case QCD:
-      _mcColor.push_back(C_QCD);
-      _mcName.push_back("QCD-multijets");
-      _mcMarker.push_back(iMarker[i+1]);
-      title = "QCD_"+name;
+    case FAKE:
+      _mcColor.push_back(C_FAKE);
       break;
     }
+    
+    _mcName.push_back(SFILE[i]);
+    _mcMarker.push_back(iMarker[i+1]);
+    title = string(SFILE[i]) + "_" + name;
+    
     _h->SetTitle(title.c_str());
     _h->SetName(title.c_str());
     //std::cout << "MC " << _h->GetName() << " entries " << _h->Integral(0,-1) <<std::endl;
@@ -305,7 +292,6 @@ void DrawPlots::compareShape(string name, bool logy){
     noData=false;
   }
   for(uint i=0; i<_mcH1.size(); i++){
-    if(SKIPMC[i]) continue;
     _tmp_mcH1[i]->SetMaximum(yMax*scale);
     if(noData && i==0)
       _utils->myDraw1d(_tmp_mcH1[i],_c0,1,"e",_logy,_mcColor[i],false,_mcMarker[i]);
@@ -416,13 +402,17 @@ void DrawPlots::drawChannelText(string name, float x, float y)
 
     if(hName.Contains("SRjveto"))        _text = "SRjveto ";
     else if(hName.Contains("SRSSjveto")) _text = "SRSSjveto ";
-    else if(hName.Contains("SR2jet"))    _text = "SR2jet ";
+    else if(hName.Contains("SR2jets"))   _text = "SR2jets ";
+    else if(hName.Contains("SRmT2b"))    _text = "SRmT2b ";
     else if(hName.Contains("SRmT2"))     _text = "SRmT2 ";
-    else if(hName.Contains("SR5"))       _text = "SR5 ";
     else if(hName.Contains("CRZ"))       _text = "CRZ ";
     else if(hName.Contains("NTOP"))      _text = "NTOP ";
     else if(hName.Contains("NWW1"))      _text = "NWW1 ";
     else if(hName.Contains("NWW2"))      _text = "NWW2 ";
+    else if(hName.Contains("NWW3"))      _text = "NWW3 ";
+    else if(hName.Contains("ZXCR1"))     _text = "ZXCR1 ";
+    else if(hName.Contains("ZXCR3"))     _text = "ZXCR3 ";
+    else if(hName.Contains("ZXCR4"))     _text = "ZXCR4 ";
     else if(hName.Contains("CR2LepOS"))  _text = "CR2LepOS ";
     else if(hName.Contains("CR2LepSS"))  _text = "CR2LepSS ";
     
@@ -908,17 +898,19 @@ void DrawPlots:: bkgEstimate_DG2L()
   std::vector<string> sBKGCOL;
   sBKGCOL.clear();
   sBKGCOL.push_back("Top");
-  sBKGCOL.push_back("diBoson");
-  sBKGCOL.push_back("W+jets");
+  sBKGCOL.push_back("WW");
+  sBKGCOL.push_back("ZX");
   sBKGCOL.push_back("Z+jets");
+  sBKGCOL.push_back("Fake");
   sBKGCOL.push_back("Total");
 
   std::vector<string> sBKG;
   sBKG.clear();
   sBKG.push_back("TOP");
-  sBKG.push_back("DIB");
-  sBKG.push_back("WJETS");
+  sBKG.push_back("WW");
+  sBKG.push_back("ZX");
   sBKG.push_back("ZJETS");
+  sBKG.push_back("FAKE");
   sBKG.push_back("TOTAL");
 
   std::vector<string> sDATA;
@@ -934,11 +926,15 @@ void DrawPlots:: bkgEstimate_DG2L()
   sSRCR.push_back("NTOP");
   sSRCR.push_back("NWW1");
   sSRCR.push_back("NWW2");
+  sSRCR.push_back("NWW3");
   sSRCR.push_back("SRjveto");
-  sSRCR.push_back("SR2jet");
+  sSRCR.push_back("SR2jets");
   sSRCR.push_back("SRSSjveto");
   sSRCR.push_back("SRmT2");
-  sSRCR.push_back("SR5");
+  sSRCR.push_back("SRmT2b");
+  sSRCR.push_back("ZXCR1");
+  sSRCR.push_back("ZXCR3");
+  sSRCR.push_back("ZXCR4");
 
 
   string fileName = _pathTables + "/BkgEst_DG2L.tex";
@@ -962,17 +958,19 @@ void DrawPlots:: bkgEstimate_DG2L()
     double val=0;
     double err=0;   
 
-    //Martix hist 
-    const int NBKG=5;
+    //Matrix hist 
+    const int NBKG=7; //MUST mathc sBKG size
     const int NLEP=4;
     TH1F* _hBkgLep[NBKG][NLEP];
     TH1F* _hDataLep[NLEP];
     for(uint ib=0; ib<sBKG.size(); ib++){
       for(uint ilep=0; ilep<sLEP.size(); ilep++){
 	sHist = sBKG[ib] + "_DG2L_" + sSRCR[iSR] + "_" + sLEP[ilep] + "_DG2L_pred";
+	//cout << "Bkg Hist name "  << sHist << endl;
 	_hBkgLep[ib][ilep] = _utils->myTH1F(sHist.c_str(),sHist.c_str(),1,-0.5,0.5,"","");
 	if(ib==0){
 	  sHist = "DATA_DG2L_" + sSRCR[iSR] + "_" + sLEP[ilep] + "_DG2L_pred";
+	  //cout << "Data Hist name "  << sHist << endl;
 	  _hDataLep[ilep] = _utils->myTH1F(sHist.c_str(),sHist.c_str(),1,-0.5,0.5,"","");
 	}
       }
