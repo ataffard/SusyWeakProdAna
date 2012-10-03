@@ -9,11 +9,27 @@
 // Classify using MCTruthClassifier
 enum LEP_TYPE{PR=0, HF, LF, CONV, TYPE_Undef};
 
-bool isHF(int org, int type);
-bool isPT(int org, int type);
-bool isConv(int org, int type);
-bool isLF(int org, int type);
-LEP_TYPE  getType(int org, int type, std::string dataset="");
+bool isHF(int org, int type,int truthMatchType);
+bool isPT(int org, int type,
+	  int mcId,
+	  int truthMatchType,
+	  bool isEle);
+bool isConv(int org, int type,
+	    int truthMatchType,
+	    bool isEle,
+	    bool isChargeFlip);
+bool isLF(int org, int type,
+	  int mcId,
+	  int truthMatchType,
+	  bool isEle,
+	  bool isChargeFlip);
+
+LEP_TYPE  getType(int org, int type, 
+		  std::string dataset="",
+		  int DSId=0,
+		  int truthMatchType=PR,
+		  bool isEle=false,
+		  bool isChargeFlip=false);
 
 //Efficiency using binomial error
 void binomialError(float Num, float Den, float& Eff, float& EffErr);

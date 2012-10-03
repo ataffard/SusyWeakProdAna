@@ -349,7 +349,7 @@ void Susy3LepAna::setEventWeight(int mode)
   else if(mode==LUMI5FB){
     _ww=getEventWeightAB(nt->evt());
   }
-  else if(mode==LUMI10FB){
+  else if(mode==LUMI13FB){
     _ww=getEventWeight(nt->evt());
   }
   
@@ -367,7 +367,8 @@ void Susy3LepAna::setEventWeight(int mode)
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passEventCleaning()
 {
-  int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
+  //  int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
+  int cutFlag = nt->evt()->cutFlags[NtSys_NOM];
 
   if(!passHotSpot(cutFlag)) return false;
   n_pass_HotSpot++;
@@ -529,33 +530,41 @@ void Susy3LepAna::fillHistograms(uint iSR,
     if(ilep>=4) continue;
     if(ilep<3) _3l += (*_l);
     if(ilep<4) _4l += (*_l);
+    bool isChargeFlip =  _l->isEle() ? ((Electron*) _l)->isChargeFlip : false; 
+    LEP_TYPE lType = getType(_l->mcOrigin,
+			     _l->mcType,
+			     _hh->sampleName(),
+			     nt->evt()->mcChannel,
+			     _l->truthMatchType,
+			     _l->isEle(),
+			     isChargeFlip);
     if(ilep==0){
       _hh->H1FILL(_hh->ML_ptl1[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal1[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl1[iSR],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->ML_z0sinthetal1[iSR],_l->z0SinTheta(),_ww); 
-      _hh->H1FILL(_hh->ML_orgl1[iSR],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
+      _hh->H1FILL(_hh->ML_orgl1[iSR],lType,_ww); 
     }
     else if(ilep==1){
       _hh->H1FILL(_hh->ML_ptl2[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal2[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl2[iSR],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->ML_z0sinthetal2[iSR],_l->z0SinTheta(),_ww); 
-      _hh->H1FILL(_hh->ML_orgl2[iSR],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
+      _hh->H1FILL(_hh->ML_orgl2[iSR],lType,_ww); 
     }
     else if(ilep==2){
       _hh->H1FILL(_hh->ML_ptl3[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal3[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl3[iSR],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->ML_z0sinthetal3[iSR],_l->z0SinTheta(),_ww); 
-      _hh->H1FILL(_hh->ML_orgl3[iSR],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
+      _hh->H1FILL(_hh->ML_orgl3[iSR],lType,_ww); 
     }
     else if(ilep==3){
       _hh->H1FILL(_hh->ML_ptl4[iSR],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal4[iSR],_l->Eta(),_ww); 
       _hh->H1FILL(_hh->ML_d0Sl4[iSR],_l->d0/_l->errD0,_ww); 
       _hh->H1FILL(_hh->ML_z0sinthetal4[iSR],_l->z0SinTheta(),_ww); 
-      _hh->H1FILL(_hh->ML_orgl4[iSR],getType(_l->mcOrigin,_l->mcType,_hh->sampleName()),_ww); 
+      _hh->H1FILL(_hh->ML_orgl4[iSR],lType,_ww); 
     }
   }
   

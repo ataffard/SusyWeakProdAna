@@ -30,12 +30,18 @@ int main(int argc, char *argv[]){
   bool cutflow = false;
   string ana = ""; //DG2L, ML
   string pName = "";
-  string method = "std";
-  string sTop = "histo_top_PowHeg";
+  string mode = "STD";
+  string sTop = "histo_top_Sherpa";
+  string sFake = "histo_mcfake_Sherpa";
+
   string sWW = "histo_WW_Sherpa";
   string sZX = "histo_ZX_Sherpa";
-  string sZJet = "histo_Zjets_SherpaLFHF";  
-  string sFake = "histo_mcFake_Sherpa";
+  string sZtt = "histo_ZTauTaujets_Sherpa";  
+
+  //  string mode = "DD";
+  //  string sTop = "histo_topDil_Sherpa";
+  //  string sFake = "histo_data12_fake";
+
   string sr    = "";
   string cr    = "";
   string type  = "";				
@@ -60,8 +66,8 @@ int main(int argc, char *argv[]){
       sWW = argv[++i];
     if (strcmp(argv[i], "-ZX") == 0)
       sZX = argv[++i];
-    if (strcmp(argv[i], "-ZJet") == 0)
-      sZJet = argv[++i];
+    if (strcmp(argv[i], "-Ztt") == 0)
+      sZtt = argv[++i];
     if (strcmp(argv[i], "-Fake") == 0)
       sFake = argv[++i];
     if (strcmp(argv[i], "-fakeComp") == 0){
@@ -84,13 +90,15 @@ int main(int argc, char *argv[]){
       ana = argv[++i];
       pName = argv[++i];
     }
+    if (strcmp(argv[i], "-mode") == 0)
+      mode = argv[++i];
   }
   
 
   DrawPlots* _ana = new DrawPlots();
    
   //histo files merging
-  if(!cutflow)  _ana->openHistoFiles(method,sTop,sWW,sZX,sZJet,sFake);
+  if(!cutflow)  _ana->openHistoFiles(mode,sTop,sWW,sZX,sZtt,sFake);
 
 
   if(comp) _ana->compareShape(pName,logY);

@@ -14,6 +14,10 @@ using namespace std;
 
 SusyAnaLooper - run analyses
 
+To run data/MC as is use -method std
+To run fake prediction use -method flep -useLoose
+To run MC on prompt lep to combine w/ DD use -method rlep
+
 */
 
 void help()
@@ -61,6 +65,10 @@ void help()
   cout << "  -doMll                          "  << endl;
   cout << "     run low mass alpgen - Mll<40 " << endl;
 
+  cout << "  -method                          "  << endl;
+  cout << "     ana method: std: rlep, flep   " << endl;
+  
+
   cout << "  -h print this help"                << endl;
 }
 
@@ -77,6 +85,7 @@ int main(int argc, char** argv)
   bool doFake = false;
   bool doMll  = false;
   bool useLoose = false;
+  int method    = 0; //see SusyHisto.h 0:std; 1:RLEP, 2:FLEP
   string sample;
   string file;
   string fileList;
@@ -121,6 +130,12 @@ int main(int argc, char** argv)
       do3L = true;
       doFake = true;
     }
+    else if (strcmp(argv[i], "-method") == 0){
+      string tmp = argv[++i];
+      if(strcmp(tmp.c_str(),"std")==0) method = 0;
+      if(strcmp(tmp.c_str(),"rlep")==0) method = 1;
+      if(strcmp(tmp.c_str(),"flep")==0) {method = 2; useLoose=true;}
+    }
     else
     {
       help();
@@ -133,15 +148,17 @@ int main(int argc, char** argv)
     fileList = "files/" + sample + ".txt";
 
   cout << "flags:" << endl;
-  cout << "  sample  " << sample   << endl;
-  cout << "  nEvt    " << nEvt     << endl;
-  cout << "  nSkip   " << nSkip    << endl;
-  cout << "  dbg     " << dbg      << endl;
-  cout << "  dbgEvt  " << dbgEvt   << endl;
-  cout << "  do2L    " << do2L     << endl;
-  cout << "  do3L    " << do3L     << endl;
-  cout << "  doFake  " << doFake   << endl;
-  cout << "  doMll   " << doMll    << endl;
+  cout << "  sample    " << sample   << endl;
+  cout << "  nEvt      " << nEvt     << endl;
+  cout << "  nSkip     " << nSkip    << endl;
+  cout << "  dbg       " << dbg      << endl;
+  cout << "  dbgEvt    " << dbgEvt   << endl;
+  cout << "  do2L      " << do2L     << endl;
+  cout << "  do3L      " << do3L     << endl;
+  cout << "  doFake    " << doFake   << endl;
+  cout << "  doMll     " << doMll    << endl;
+  cout << "  useLoose  " << useLoose << endl;
+  cout << "  method    " << method   << endl;
 
   if(!file.empty())     cout << "  input   " << file     << endl;
   if(!fileList.empty()) cout << "  input   " << fileList << endl;
@@ -166,6 +183,7 @@ int main(int argc, char** argv)
   susyAna->do3L(do3L);
   susyAna->doFake(doFake);
   susyAna->useLooseLep(useLoose);
+  susyAna->setMethod(method);
 
   // Run the job
   if(nEvt<0) nEvt = nEntries;

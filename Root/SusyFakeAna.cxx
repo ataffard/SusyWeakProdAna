@@ -119,7 +119,13 @@ void SusyFakeAna::doMuonAnalysis()
   if(nt->evt()->isMC){
     _method=1;
     for(uint i=0; i< v_baseMu->size(); i++){
-      LEP_TYPE lType = getType(v_baseMu->at(i)->mcOrigin,v_baseMu->at(i)->mcType,_hh->sampleName());
+      LEP_TYPE lType = getType(v_baseMu->at(i)->mcOrigin,
+			       v_baseMu->at(i)->mcType,
+			       _hh->sampleName(),
+			       nt->evt()->mcChannel,
+			       v_baseMu->at(i)->truthMatchType,
+			       false,
+			       false);
       //cout << "sample " <<_hh->sampleName() << " type " << lType << endl;
       //      TString ss = _hh->sampleName(); 
       //      if(ss.Contains("simplifiedModel")) lType=PR; //Simplified model - muon categorized at unknown 
@@ -162,8 +168,14 @@ void SusyFakeAna::doElectronAnalysis()
   if(nt->evt()->isMC){
     _method=1;
     for(uint i=0; i< v_baseEle->size(); i++){
-      fillElectronHisto(v_baseEle->at(i),
-			getType(v_baseEle->at(i)->mcOrigin,v_baseEle->at(i)->mcType),_method);
+      LEP_TYPE lType = getType(v_baseEle->at(i)->mcOrigin,
+			       v_baseEle->at(i)->mcType,
+			       _hh->sampleName(),
+			       nt->evt()->mcChannel,
+			       v_baseEle->at(i)->truthMatchType,
+			       v_baseEle->at(i)->isEle(),
+			       v_baseEle->at(i)->isChargeFlip);
+      fillElectronHisto(v_baseEle->at(i),lType,_method);
     }
   }
 }
@@ -203,7 +215,7 @@ void SusyFakeAna::setEventWeight(int mode)
   else if(mode==LUMI5FB){
     _ww=getEventWeightAB(nt->evt());
   }
-  else if(mode==LUMI10FB){
+  else if(mode==LUMI13FB){
     _ww=getEventWeight(nt->evt());
   }
   
@@ -214,7 +226,8 @@ void SusyFakeAna::setEventWeight(int mode)
 /*--------------------------------------------------------------------------------*/
 bool SusyFakeAna::eventCleaning()
 {
-  int flag = nt->evt()->evtFlag[NtSys_NOM];
+  //  int flag = nt->evt()->evtFlag[NtSys_NOM];
+  int flag = nt->evt()->cutFlags[NtSys_NOM];
   if( !passLAr(flag) )              return false;
   if( !passBadJet(flag) )           return false;
   if( !passBadMuon(flag) )          return false;
@@ -263,7 +276,14 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   }
 
   if(nt->evt()->isMC){
-    _hh->H1FILL(_hh->m_type[m][t],getType(_m->mcOrigin, _m->mcType,_hh->sampleName()),_ww);
+    LEP_TYPE lType = getType(_m->mcOrigin,
+			     _m->mcType,
+			     _hh->sampleName(),
+			     nt->evt()->mcChannel,
+			     _m->truthMatchType,
+			     false,
+			     false);
+    _hh->H1FILL(_hh->m_type[m][t],lType,_ww);
     _hh->H1FILL(_hh->m_org[m][t],_m->mcOrigin,_ww);
   }
   _hh->H1FILL(_hh->m_pt[m][t],_m->Pt(),_ww);
@@ -452,7 +472,14 @@ void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, co
   }
 
   if(nt->evt()->isMC){
-    _hh->H1FILL(_hh->e_type[m][t],getType(_e->mcOrigin,_e->mcType,_hh->sampleName()),_ww);
+    LEP_TYPE lType = getType(_e->mcOrigin,
+			     _e->mcType,
+			     _hh->sampleName(),
+			     nt->evt()->mcChannel,
+			     _e->truthMatchType,
+			     _e->isEle(),
+			     _e->isChargeFlip);
+    _hh->H1FILL(_hh->e_type[m][t],lType,_ww);
     _hh->H1FILL(_hh->e_org[m][t],_e->mcOrigin,_ww);
   }
   _hh->H1FILL(_hh->e_pt[m][t],_e->Pt(),_ww);

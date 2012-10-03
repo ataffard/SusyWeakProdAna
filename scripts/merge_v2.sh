@@ -2,10 +2,15 @@
 
 #Match dir name constructed in SusyAnaCommon.h
 
-date="092312_1fb_n0101"
-#date="092312_1fb_n0101_noDGTrig"
-
+date="100212_13fb_n0102_std"
 mth="std"
+
+#date="100212_1fb_n0102_std"
+#mth="std"
+
+#date="100212_1fb_n0102_DD"
+#mth="rlep"
+#mth="std"
 
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
 #histPath=${WORKAREA}/histoAna/SusyAna
@@ -14,8 +19,12 @@ outPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 
 
 #doData=true
+#doDataFake=true
+
 #doTopPowHeg=true
 #doTopMCNLO=true
+#doTopSherpa=true
+#doTopDilSherpa=true
 
 #doWWSherpa=true;
 #doWWPowHeg=true;
@@ -23,33 +32,61 @@ outPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 ##doDiBHerwig=false
 ##doDiBMCNLO=false
 
-#doZXSherpa=true
-#doZXPowHeg=true
+#dodiBZSherpa=true
+#dodiBXPowHeg=true
 
 #doZjetAlpgen=true
-#doZjetSherpaIncl=true
-#doZjetSherpaLFHF=true
+#doZTauTaujetAlpgen=true
 
-doWjetSherpa=true
+doZjetSherpaIncl=true
+doZTauTaujetSherpaIncl=true
+
+#doZjetSherpaLFHF=true
+#doZTauTaujetSherpaLFHF=true
+
+doZXSherpa=true
+#doZXSherpaLFHF=true
+
+#doWjetSherpa=true
 #doWjetAlpgen=true
 
-#doMergeWjetBB=true
+##doMergeWjetBB=true
 
 #doSignal=true
 
 #doMove=true
 
+
+#######################################################################
+
 if [ $doData ]; then
-    hadd -f ${histPath}/histo_data12_${mth}.root \
-	${histPath}/histo_Egamma.periodA_${mth}.root \
-	${histPath}/histo_Muons.periodA_${mth}.root \
-	${histPath}/histo_Egamma.periodB_${mth}.root \
-	${histPath}/histo_Muons.periodB_${mth}.root  \
-	${histPath}/histo_Egamma.periodC_${mth}.root \
-	${histPath}/histo_Muons.periodC_${mth}.root \
-	${histPath}/histo_Egamma.periodD_${mth}.root \
-	${histPath}/histo_Muons.periodD_${mth}.root 
+    echo "Merge data STD"
+    rm -f ${histPath}/histo_data12_std.root
+    hadd -f ${histPath}/histo_data12_std.root \
+	${histPath}/histo_Egamma.periodA_std.root \
+	${histPath}/histo_Muons.periodA_std.root \
+	${histPath}/histo_Egamma.periodB_std.root \
+	${histPath}/histo_Muons.periodB_std.root  \
+	${histPath}/histo_Egamma.periodC_std.root \
+	${histPath}/histo_Muons.periodC_std.root \
+	${histPath}/histo_Egamma.periodD_std.root \
+	${histPath}/histo_Muons.periodD_std.root 
 fi 
+
+if [ $doDataFake ]; then
+    echo "Merge data DD"
+    rm -f ${histPath}/histo_data12_fake.root
+    hadd -f ${histPath}/histo_data12_fake.root \
+	${histPath}/histo_Egamma.periodA_flep.root \
+	${histPath}/histo_Muons.periodA_flep.root \
+	${histPath}/histo_Egamma.periodB_flep.root \
+	${histPath}/histo_Muons.periodB_flep.root  \
+	${histPath}/histo_Egamma.periodC_flep.root \
+	${histPath}/histo_Muons.periodC_flep.root \
+	${histPath}/histo_Egamma.periodD_flep.root \
+	${histPath}/histo_Muons.periodD_flep.root 
+fi 
+
 
 #
 # mc12a
@@ -83,14 +120,39 @@ if [ $doTopPowHeg ]; then
 	${histPath}/histo_ttbarZj.119356_${mth}.root 
 fi
 
+if [ $doTopDilSherpa ]; then
+    echo "Merge Top Dil Sherpa"
+    rm -f ${histPath}/histo_topDil_Sherpa_${mth}.root
+    hadd -f ${histPath}/histo_topDil_Sherpa_${mth}.root   \
+	${histPath}/histo_Ttbar*.117800_${mth}.root \
+	${histPath}/histo_Ttbar*.117801_${mth}.root \
+	${histPath}/histo_Ttbar*.117802_${mth}.root \
+	${histPath}/histo_Ttbar*.117804_${mth}.root \
+	${histPath}/histo_Ttbar*.117805_${mth}.root \
+	${histPath}/histo_Ttbar*.117806_${mth}.root \
+	${histPath}/histo_Ttbar*.117808_${mth}.root \
+	${histPath}/histo_Ttbar*.117809_${mth}.root \
+	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root  
+fi
+
+if [ $doTopSherpa ]; then
+    echo "Merge Top Sherpa"
+    rm -f ${histPath}/histo_top_Sherpa_${mth}.root
+    hadd -f ${histPath}/histo_top_Sherpa_${mth}.root   \
+	${histPath}/histo_Ttbar*.11780?_${mth}.root 
+
+fi
+
+
 if [ $doWWSherpa ]; then
 #Sherpa Diboson
     echo "Merge WW Sherpa "
     rm -f ${histPath}/histo_WW_Sherpa_${mth}.root
     hadd -f ${histPath}/histo_WW_Sherpa_${mth}.root \
 	${histPath}/histo_llnunu_WW.126892_${mth}.root \
-	${histPath}/histo_WpWm*.106*_${mth}.root  
-    #TODO add 126988+126989
+	${histPath}/histo_WpWm*.106*_${mth}.root  \
+	${histPath}/histo_llnunujj.126989_${mth}.root
+    #TODO add 126988
 fi
 
 if [ $doWWPowHeg ]; then
@@ -99,8 +161,9 @@ if [ $doWWPowHeg ]; then
     rm -f ${histPath}/histo_WW_Powheg_${mth}.root
     hadd -f ${histPath}/histo_WW_Powheg_${mth}.root \
 	${histPath}/histo_WpWm*.126*_${mth}.root \
-	${histPath}/histo_WpWm*.106*_${mth}.root  
-    #TODO add 126988+126989
+	${histPath}/histo_WpWm*.106*_${mth}.root  \
+	${histPath}/histo_llnunujj.126989_${mth}.root
+    #TODO add 126988
 fi 
 
 ##BUGGY
@@ -127,25 +190,25 @@ fi
 #	${histPath}/histo_WpWm*.106*_${mth}.root  
 #fi
 
-if [ $doZXSherpa ]; then
+if [ $dodiBZSherpa ]; then
 #Sherpa Diboson
-    echo "Merge Z+X Sherpa "
-    rm -f ${histPath}/histo_ZX_Sherpa_${mth}.root
-    hadd -f ${histPath}/histo_ZX_Sherpa_${mth}.root \
+    echo "Merge diBoson ZX Sherpa "
+    rm -f ${histPath}/histo_diBZX_Sherpa_${mth}.root
+    hadd -f ${histPath}/histo_diBZX_Sherpa_${mth}.root \
 	${histPath}/histo_llll_ZZ.126894_${mth}.root \
 	${histPath}/histo_llnunu_ZZ.126895_${mth}.root \
-	${histPath}/histo_lllnu_WZ.126893_${mth}.root 
-    #TODO add gg2ZZ 11660*
+	${histPath}/histo_lllnu_WZ.126893_${mth}.root \
+	${histPath}/histo_ZZ*.11660?_${mth}.root 
 fi
 
-if [ $doZXPowHeg ]; then
+if [ $dodiBZPowHeg ]; then
 #Diboson PowHegPythia and Wg AlpgenJimmy + Zg Sherpa
-    echo "Merge Z+X Powheg "
-    rm -f ${histPath}/histo_ZX_Powheg_${mth}.root
-    hadd -f ${histPath}/histo_ZX_Powheg_${mth}.root \
+    echo "Merge diBoson ZX Powheg "
+    rm -f ${histPath}/histo_diBZX_Powheg_${mth}.root
+    hadd -f ${histPath}/histo_diBZX_Powheg_${mth}.root \
 	${histPath}/histo_WZ.1294*_${mth}.root \
-	${histPath}/histo_ZZ*.1269*_${mth}.root 
-    #TODO add gg2ZZ 11660*
+	${histPath}/histo_ZZ*.1269*_${mth}.root \
+	${histPath}/histo_ZZ*.11660?_${mth}.root 
 fi 
 
 #Buggy
@@ -157,33 +220,47 @@ if [ $doZjetAlpgen ]; then
 	${histPath}/histo_ZeeNp?.*_${mth}.root  \
 	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZeebbNp?.*_${mth}.root \
-	${histPath}/histo_ZmumuNp?.*_${mth}.root  \
+	${histPath}/histo_ZeeccNp?.*_${mth}.root \
+	${histPath}/histo_ZmumuNp?.*_${mth}.root \ 
 	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZmumubbNp?.*_${mth}.root  \
+	${histPath}/histo_ZmumuccNp?.*_${mth}.root  
+fi
+
+if [ $doZTauTaujetAlpgen ]; then
+#Z+jets Alpgen
+    echo "Merge Ztautau+jets Alpgen "
+    rm -f ${histPath}/histo_ZTauTaujets_Alpgen_${mth}.root
+    hadd -f ${histPath}/histo_ZTauTaujets_Alpgen_${mth}.root  \
 	${histPath}/histo_ZtautauNp?.*_${mth}.root  \
 	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZtautaubbNp?.*_${mth}.root  \
-	${histPath}/histo_ZmumuccNp?.*_${mth}.root  \
-	${histPath}/histo_ZeeccNp?.*_${mth}.root \
 	${histPath}/histo_ZtautauccNp?.*_${mth}.root  
 fi
 
+##
+## Sherpa samples path with low mass mll<40 Alpgen (buggy)
+##
 if [ $doZjetSherpaIncl ]; then
 #Z+jets Sherpa
-    echo "Merge Z+jets Sherpa Inclusive"
+    echo "Merge Z+jets Sherpa Inclusive + low mass Alpgen"
     rm -f ${histPath}/histo_Zjets_Sherpa_${mth}.root
     hadd -f ${histPath}/histo_Zjets_Sherpa_${mth}.root  \
 	${histPath}/histo_Zee.147770_${mth}.root \
 	${histPath}/histo_Zmumu.147771_${mth}.root \
-	${histPath}/histo_Ztautau.147772_${mth}.root \
 	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll40_${mth}.root  \
-	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll40_${mth}.root  \
-	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll40_${mth}.root 
-#\
-#	${histPath}/histo_eegammaPt10.145161_${mth}.root \
-#	${histPath}/histo_mumugammaPt10.145162_${mth}.root \
-#	${histPath}/histo_tautaugammaPt10.126854_${mth}.root 
+	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll40_${mth}.root  
 fi    
+
+if [ $doZTauTaujetSherpaIncl ]; then
+#Z+jets Sherpa
+    echo "Merge ZTauTau+jets Sherpa Inclusive + low mass Alpgen "
+    rm -f ${histPath}/histo_ZTauTaujets_Sherpa_${mth}.root
+    hadd -f ${histPath}/histo_ZTauTaujets_Sherpa_${mth}.root  \
+	${histPath}/histo_Ztautau.147772_${mth}.root \
+	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll40_${mth}.root 
+fi 
+
 
 if [ $doZjetSherpaLFHF ]; then
 #Z+jets Sherpa
@@ -194,16 +271,44 @@ if [ $doZjetSherpaLFHF ]; then
 	${histPath}/histo_ZeeHeavyJets.128975_${mth}.root \
 	${histPath}/histo_ZmumuLightJets.146821_${mth}.root \
 	${histPath}/histo_ZmumuHeavyJets.128976_${mth}.root \
+	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll40_${mth}.root  \
+	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll40_${mth}.root  
+fi 
+
+if [ $doZTauTaujetSherpaLFHF ]; then
+#Z+jets Sherpa
+    echo "Merge ZTauTau+jets Sherpa LF+HF + low mass Alpgen"
+    rm -f ${histPath}/histo_ZTauTaujets_SherpaLFHF_${mth}.root
+    hadd -f ${histPath}/histo_ZTauTaujets_SherpaLFHF_${mth}.root  \
 	${histPath}/histo_ZtautauLightJets.146822_${mth}.root \
 	${histPath}/histo_ZtautauHeavyJets.128977_${mth}.root \
-	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll40_${mth}.root  \
-	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll40_${mth}.root  \
 	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll40_${mth}.root 
-#\
-#	${histPath}/histo_eegammaPt10.145161_${mth}.root \
-#	${histPath}/histo_mumugammaPt10.145162_${mth}.root \
-#	${histPath}/histo_tautaugammaPt10.126854_${mth}.root 
 fi 
+
+#
+# Merge diBZ & ZJets (ee/mm)
+#
+
+if [ $doZXSherpa ]; then
+    echo "Merge ZX+jets Sherpa "
+    rm -f ${histPath}/histo_ZX_Sherpa_${mth}.root
+    hadd -f ${histPath}/histo_ZX_Sherpa_${mth}.root \
+	${histPath}/histo_diBZX_Sherpa_${mth}.root   \
+	${histPath}/histo_Zjets_Sherpa_${mth}.root 
+fi
+
+if [ $doZXSherpaLFHF ]; then
+    echo "Merge ZX+jets SherpaLFHF "
+    rm -f ${histPath}/histo_ZX_SherpaLFHF_${mth}.root
+    hadd -f ${histPath}/histo_ZX_SherpaLFHF_${mth}.root \
+	${histPath}/histo_diBZX_Sherpa_${mth}.root   \
+	${histPath}/histo_Zjets_SherpaLFHF_${mth}.root  
+fi
+
+
+### TO Do add alpgen buggy full mll
+
+
 
 if [ $doWjetSherpa ]; then
 #W+jets Sherpa
@@ -212,12 +317,10 @@ if [ $doWjetSherpa ]; then
     hadd -f ${histPath}/histo_Wjets_Sherpa_${mth}.root   \
 	${histPath}/histo_Wenu*.147774*_${mth}.root  \
 	${histPath}/histo_Wmunu*.147775*_${mth}.root  \
-	${histPath}/histo_Wtaunu*.147776*_${mth}.root  
-#\
-#	${histPath}/histo_enugammaPt10.126739*_${mth}.root  \
-#	${histPath}/histo_munugammaPt10.126742*_${mth}.root  \
-#	${histPath}/histo_taunugammaPt10.126856*_${mth}.root  
-
+	${histPath}/histo_Wtaunu*.147776*_${mth}.root  \
+	${histPath}/histo_enugammaPt10.126739*_${mth}.root  \
+	${histPath}/histo_munugammaPt10.126742*_${mth}.root  \
+	${histPath}/histo_taunugammaPt10.126856*_${mth}.root  
 fi
 
 if [ $doWjetAlpgen ]; then

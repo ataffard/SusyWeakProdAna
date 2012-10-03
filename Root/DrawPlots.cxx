@@ -26,46 +26,77 @@ DrawPlots::DrawPlots(){
 
   _mcStack = new THStack("tmpStack","tmpStack");
 
+  SFILE.clear();
+  SFILE.push_back("Wjets + b#bar{b} + c#bar{c}");
+  SFILE.push_back("Z#rightarrow #tau#tau");
+  SFILE.push_back("WW");
+  SFILE.push_back("Top");
+  SFILE.push_back("Z(ee,#mu#mu)+jets + ZV");
+  SFILE.push_back("Data");
+
+
+  SIGFILE.clear();
+  SIGFILE.push_back("mAwSl_150_0");
+  SIGFILE.push_back("mAwSl_250_100");
 }
 
 //-------------------------------------------//
 // Open histo files
 //-------------------------------------------//
-void DrawPlots::openHistoFiles(string method, 
-			       string Top, string WW, string ZX,
-			       string ZJets, string Fake)
+void DrawPlots::openHistoFiles(string mode, 
+			       string Top, string WW, 
+			       string ZX,  string Ztt, 
+			       string Fake)
 {
-  std::cout << "loading histo from method " << method << endl;
+  std::cout << "loading histo from method " << mode << endl;
 
-  _dataFileName = _pathHisto + "/histo_data12_" + method + ".root";
-  
+  _dataFileName = _pathHisto + "/histo_data12_std.root";
   std::cout << "Loading data " << std::endl;
-  _dataFile = new TFile(_dataFileName.c_str(),"READ",SFILE[5]);
+  _dataFile = new TFile(_dataFileName.c_str(),"READ",SFILE[5].c_str());
 
   _mcFileName.clear();
   _mcFile.clear();
-  _mcFileName.push_back(string(_pathHisto +"/" + Top + "_" + method + ".root").c_str());
-  _mcFileName.push_back(string(_pathHisto +"/" + WW + "_" + method + ".root").c_str());
-  _mcFileName.push_back(string(_pathHisto +"/" + ZX + "_" + method + ".root").c_str());
-  _mcFileName.push_back(string(_pathHisto +"/" + ZJets + "_" + method + ".root").c_str());
-  _mcFileName.push_back(string(_pathHisto +"/" + Fake + "_" + method + ".root").c_str());
+  
+  string method;
+  if(strcmp(mode.c_str(),"STD")==0){
+    cout << "Loading STD MC mode " << endl;
+    method="std";
+    _mcFileName.push_back(string(_pathHisto +"/" + Fake + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(_pathHisto +"/" + Ztt + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(_pathHisto +"/" + WW + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(_pathHisto +"/" + Top + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(_pathHisto +"/" + ZX + "_" + method + ".root").c_str());
+  }
+  else if(strcmp(mode.c_str(),"DD")==0){
+    cout << "Loading rlep MC & DD fake " << endl;
+    //real match on
+    //method="rlep";
+    //Some overlap but - top ->semi lep not included 
+    method="std";
+    _mcFileName.push_back(string(_pathHisto + "/histo_data12_fake.root").c_str());
+    _mcFileName.push_back(string(_pathHisto +"/" + Ztt + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(_pathHisto +"/" + WW + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(_pathHisto +"/" + Top + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(_pathHisto +"/" + ZX + "_" + method + ".root").c_str());
+    SFILE[0]="Fake-leptons MM";
+  }
 
   for(uint i=0; i<_mcFileName.size(); i++){
     std::cout << "Loading " << SFILE[i] << " " << _mcFileName[i].c_str() << std::endl;
-    TFile* _f = new TFile(_mcFileName[i].c_str(),"READ",SFILE[i]);
+    TFile* _f = new TFile(_mcFileName[i].c_str(),"READ",SFILE[i].c_str());
     _mcFile.push_back(_f);
   }
 
   _sigFileName.clear();
   _sigFile.clear();
-  _sigFileName.push_back(string(_pathHisto +"/histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_10.144876.root").c_str());
-  _sigFileName.push_back(string(_pathHisto +"/histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_18.144884.root").c_str());
+  _sigFileName.push_back(string(_pathHisto +"/histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_10.144876_" + method + ".root").c_str());
+  _sigFileName.push_back(string(_pathHisto +"/histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_18.144884_" + method + ".root").c_str());
   
   //  _sigFileName.push_back(string(_pathHisto +"/histo_SimplifiedModel_wA_slep.root").c_str());
   //  _sigFileName.push_back(string(_pathHisto +"/histo_SimplifiedModel_wC_slep.root").c_str());
   for(uint i=0; i<_sigFileName.size(); i++){
     std::cout << "Loading " << SIGFILE[i] << std::endl;
-    TFile* _f = new TFile(_sigFileName[i].c_str(),"READ",SIGFILE[i]);
+    TFile* _f = new TFile(_sigFileName[i].c_str(),"READ",SIGFILE[i].c_str());
     _sigFile.push_back(_f);
   }
 
@@ -109,26 +140,26 @@ void DrawPlots::grabHisto(string name, bool quiet)
     }
     if(_moveUO) _utils->moveUnderOverFlow(_h);
     switch (i){
-    case TOP:
-      _mcColor.push_back(C_TOP);
+    case FAKE:
+      _mcColor.push_back(C_FAKE);
+      break;
+    case Ztt:
+      _mcColor.push_back(C_Ztt);
       break;
     case WW:
       _mcColor.push_back(C_WW);
       break;
+    case TOP:
+      _mcColor.push_back(C_TOP);
+      break;
     case ZX:
       _mcColor.push_back(C_ZX);
-      break;
-    case ZJETS:
-      _mcColor.push_back(C_ZJETS);
-      break;
-    case FAKE:
-      _mcColor.push_back(C_FAKE);
       break;
     }
     
     _mcName.push_back(SFILE[i]);
     _mcMarker.push_back(iMarker[i+1]);
-    title = string(SFILE[i]) + "_" + name;
+    title =SFILE[i] + "_" + name;
     
     _h->SetTitle(title.c_str());
     _h->SetName(title.c_str());
@@ -366,7 +397,7 @@ void DrawPlots::drawPlot(string name, bool logy)
   //Add signals template
   for(uint i=0; i<_sigFile.size(); i++){
     _utils->myDraw1d(_sigH1[i],_c0,1,"histsame",logy,_sigColor[i],false,20);
-    _leg->AddEntry(_sigH1[i],SIGFILE[i],"l");
+    _leg->AddEntry(_sigH1[i],SIGFILE[i].c_str(),"l");
     _c0->Update();
     _pTop->Update();
   }
@@ -377,7 +408,7 @@ void DrawPlots::drawPlot(string name, bool logy)
   
   _c0->cd(1);
   _pTop->cd();
-  drawChannelText(name,0.75,0.85);
+  drawChannelText(name,0.7,0.40);
   drawLumi();
   drawATLAS();
   _c0->Update();
@@ -650,7 +681,7 @@ void DrawPlots::getFakeComposition(string sAna, string sSR, string lep)
       _hSum->AddBinContent(iFk+1,_hFake[iFk][imc]->Integral(0,-1));
 
       if(iFk==0){
-	string ss = string(SFILE[imc]) + "_fkFrac";
+	string ss = SFILE[imc] + "_fkFrac";
 	TH1F* _tmpH1 = (TH1F*) _h1->Clone();
 	_tmpH1->SetTitle(ss.c_str());
 	_tmpH1->SetName(ss.c_str());
@@ -897,20 +928,20 @@ void DrawPlots:: bkgEstimate_DG2L()
   //Raws
   std::vector<string> sBKGCOL;
   sBKGCOL.clear();
-  sBKGCOL.push_back("Top");
+  sBKGCOL.push_back("Fake leptons");
+  sBKGCOL.push_back("$Z \\to \\tau\\tau$");
   sBKGCOL.push_back("WW");
-  sBKGCOL.push_back("ZX");
-  sBKGCOL.push_back("Z+jets");
-  sBKGCOL.push_back("Fake");
+  sBKGCOL.push_back("Top");
+  sBKGCOL.push_back("$Z(ee,\\mu\\mu)$+jets + ZV)");
   sBKGCOL.push_back("Total");
 
   std::vector<string> sBKG;
   sBKG.clear();
-  sBKG.push_back("TOP");
-  sBKG.push_back("WW");
-  sBKG.push_back("ZX");
-  sBKG.push_back("ZJETS");
   sBKG.push_back("FAKE");
+  sBKG.push_back("Ztt");
+  sBKG.push_back("WW");
+  sBKG.push_back("TOP");
+  sBKG.push_back("ZX");
   sBKG.push_back("TOTAL");
 
   std::vector<string> sDATA;
@@ -1040,6 +1071,7 @@ void DrawPlots:: bkgEstimate_DG2L()
 }
 //-------------------------------------------//
 // ML Bkg estimate
+// TO UPDATE !!!!
 //-------------------------------------------// 
 void DrawPlots:: bkgEstimate_ML()
 {

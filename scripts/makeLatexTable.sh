@@ -1,15 +1,17 @@
 # ./makeLatexTable.sh  
 
-date="092312_1fb_n0101"
+date="100212_13fb_n0102_std"
 
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 path=${WORKAREA}/histoAna/SusyAna/histos_${date}
 dir=${path}/Tables
 
-#OPT=""
-#OPT="-ZJet histo_Zjets_Sherpa"
-OPT="-ZJet histo_Zjets_SherpaLFHF_wGam -Fake histo_mcFake_Sherpa_wGam"
+#OPT="-ZX histo_ZX_SherpaLFHF -Top histo_top_PowHeg"
+#OPT="-mode DD"
+OPT="-mode STD "
+#-ZX histo_ZX_SherpaLFHF -Fake histo_mcfake_Sherpa"
+#OPT="-ZJet histo_Zjets_SherpaLFHF_wGam -Fake histo_mcFake_Sherpa_wGam"
 #OPT="-ZJet histo_Zjets_Alpgen -Fake histo_mcFake_Alpgen -Top histo_top_MCNLO"
 
 ${pathRun}/DrawPlotsExec -table ${OPT}

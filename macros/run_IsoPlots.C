@@ -42,7 +42,16 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
 
   _ana = new DrawPlots(); 
-  _ana->openHistoFiles();  
+
+  string mode = "DD";
+  string sTop = "histo_top_Sherpa";
+  string sWW = "histo_WW_Sherpa";
+  string sZX = "histo_ZX_Sherpa";
+  string sZJet = "histo_ZTauTaujets_SherpaLFHF";  
+  string sFake = "histo_mcFake_Sherpa";
+
+  _ana->openHistoFiles(mode,sTop,sWW, sZX, sZJet, sFake);
+
 }
 
 //-----------------------------------------------------------

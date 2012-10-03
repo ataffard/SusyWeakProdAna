@@ -24,6 +24,7 @@ echo "analysis options"
 echo "  ana           $ana"
 echo "  AnaOpt1       $anaOpt1"
 echo "  AnaOpt2       $anaOpt2"
+echo "  Method        $method"
 echo "  Name:         $name"
 echo "  FileDir:      $fileDir"
 echo "  nEvt:         $nEvt"
@@ -34,7 +35,7 @@ echo "Starting: "
 echo ${PWD} 
 date +"%F__%T"
 
-./${ana}  -${anaOpt1} -doMll ${anaOpt2} -s ${name} -n ${nEvt} -D ${fileDir} >& jobLogs/${name}.log
+./${ana}  -${anaOpt1} -doMll ${anaOpt2} -method ${method} -s ${name} -n ${nEvt} -D ${fileDir} >& jobLogs/${name}_${method}.log
 
 echo "Ending: " 
 date +"%F__%T" 

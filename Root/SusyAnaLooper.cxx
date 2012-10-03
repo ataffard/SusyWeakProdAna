@@ -52,6 +52,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
     _susy2LAna = new Susy2LepAna(_susyHistos);
     _susy2LAna->setDebug(dbg());
     _susy2LAna->setUseLooseLep(_useLooseLep);
+    _susy2LAna->setMethod(_method);
     _susy2LAna->hookContainers(&nt,
 			       &m_baseElectrons, &m_signalElectrons,
 			       &m_baseMuons, &m_signalMuons,

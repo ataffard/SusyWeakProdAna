@@ -10,21 +10,30 @@ if [[ $# = 1 ]]; then
     mode=$1
 fi
 
-#OPT="-logy"
-OPT="-logy -ZJet histo_Zjets_Sherpa"
+#Update SusyAnaCommon.h to pick correct path for .root files
+
+OPT="-logy -mode STD"
+#OPT="-logy -mode DD"
+#OPT="-logy -mode STD -ZX histo_ZX_SherpaLFHF -Top histo_top_PowHeg  "
+#OPT="-logy -mode DD -Top histo_topDil_Sherpa -WW histo_WW_Sherpa -ZX histo_ZX_Sherpa -Ztt histo_ZTauTaujets_Sherpa "
+#OPT="-logy -mode STD -ZX histo_ZX_SherpaLFHF -Fake histo_mcfake_Sherpa"
 #OPT="-logy -ZJet histo_Zjets_Alpgen -Fake histo_mcFake_Alpgen -Top histo_top_MCNLO"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 
 if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
-    
-    SR=(CR2LepOS CR2LepSS CRZ  NTOP NWW1 NWW2 NWW3 SRjveto SRSSjveto SR2jets SRmT2 SRmT2b ZXCR1 ZXCR3 ZXCR4)
+
+#for testing
+    SR=(CR2LepOS )
     DIL=(EE MM EM)
-    PLOTS=(mll pTll mjj dPhill etmiss metrel mt2 nJets nCJets nFJets nBJets npv mu \
-	ptl1 ptl2 etal1 etal2 d0Sl1 d0Sl2 z0sinthetal1 z0sinthetal2 \
-	ptj1 ptj2 ptj3 ptj4 etaj1 etaj3 etaj4 ptbj etabj \
-	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)
-       
+    PLOTS=(mll metrel)
+    
+#    SR=(CR2LepOS CR2LepSS CRZ  NTOP NWW1 NWW2 NWW3 SRjveto SRSSjveto SR2jets SRmT2 SRmT2b ZXCR1 ZXCR3 ZXCR4)
+#    DIL=(EE MM EM)
+#    PLOTS=(mll pTll mjj dPhill etmiss metrel mt2 nJets nCJets nFJets nBJets npv mu \
+#	ptl1 ptl2 etal1 etal2 d0Sl1 d0Sl2 z0sinthetal1 z0sinthetal2 \
+#	ptj1 ptj2 ptj3 ptj4 etaj1 etaj3 etaj4 ptbj etabj \
+#	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)      
 
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do

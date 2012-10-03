@@ -1,40 +1,54 @@
 #!/bin/bash
 
 #Usage 
-# ./run.sh 105922
-# ./run.sh Egamma.periodB3 data12
-# ./run.sh 144874 susy
+# ./run.sh mc12 105200 STD
+# ./run.sh data12 Egamma.periodB3 STD
+# ./run.sh susy 144874 STD
+
+#
+
 
 Opt1=do2L
-Opt2=false
+#mll40 cut on low mass alpgen
+Opt2=true
 
-
-if [[ $# -eq 2 ]]; then
-    DS=$1
-    type=$2
-elif [[ $# -eq 3 ]]; then
-    DS=$1
-    type=$2
-    Opt2=$3
+if [[ $# -eq 3 ]]; then
+    type=$1
+    DS=$2
+    mode=$3
+elif [[ $# -eq 4 ]]; then
+    type=$1
+    DS=$2
+    mode=$3
+    Opt2=$4
 fi
+
+methodMC=std
+methodData=std
+if [ "$mode" == "DD" ]; then
+    methodMC=rlep
+    methodData=flep
+fi
+
+
 
 if [ "$type" == "mc12" ]; then
     if [ "${DS}" == "dummy" ] ; then
 	sample=(`more ../scripts/mc12_sampleList.txt |grep 105200 |cut -d" " -f 3-4`)
-	./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -s  dummy -n 1 -D ${sample} |tee jobLogs/dummy.log
+	./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  dummy -n 1 -D ${sample} |tee jobLogs/dummy_${methodMC}.log
     else
 	name=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
 	sample=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-	./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -s  ${name}  -D ${sample} |tee jobLogs/${name}.log
+	./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
     fi
 elif [ "$type" == "data12" ]; then
     name=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -s  ${name}  -D ${sample} |tee jobLogs/${name}.log
+    ./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodData}.log
 elif [ "$type" == "susy" ]; then
     name=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -s ${name}  -D ${sample} |tee jobLogs/${name}.log
+    ./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
 fi
 
 

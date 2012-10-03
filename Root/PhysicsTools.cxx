@@ -5,44 +5,109 @@
 #include "TGraph.h"
 
 //-----------------------------------------------------------------------------
-LEP_TYPE getType(int org, int type, std::string dataset)
+LEP_TYPE getType(int org, int type, 
+		 std::string dataset,
+		 int DSId,
+		 int truthMatchType,
+		 bool isEle,
+		 bool isChargeFlip)
 {
   TString ss = dataset;
   if(ss.Contains("simplifiedModel") && org==0 && type==0) return PR;
 
-  if(isPT(org, type)) return PR;
-  else if(isHF(org, type)) return HF;
-  else if(isLF(org, type)) return LF;
-  else if(isConv(org, type)) return CONV;
+  if(isPT(org, type,DSId,truthMatchType,isEle)) return PR;
+  else if(isHF(org, type,truthMatchType)) return HF;
+  else if(isLF(org, type,DSId,truthMatchType, isEle,isChargeFlip)) return LF;
+  else if(isConv(org, type,truthMatchType, isEle,isChargeFlip)) return CONV;
   return TYPE_Undef;
 }
 //-----------------------------------------------------------------------------
-bool isPT(int org, int type)
+bool isPT(int org, int type,
+	  int mcId,
+	  int truthMatchType,
+	  bool isEle)
 {
+  // Updated way of handling real and fake leptons using LeptonTruthTools
+  //return (truthMatchType == PR);
+  
+  // Code taken from Steve.  There seems to be an issue with Sherpa samples, so 
+  // need to handle those separately. Also just for clarification:
+  // * mcOrigin = 9 -- Tau Lepton
+  // * mcType   = 1 -- Unknown Electron
+  // * mcType   = 2 -- Iso Electron
+  // * mcType   = 5 -- Unknown Muon
+  // * mcType   = 6 -- Iso Muon
+
+  // Cut is sample dependent due to Sherpa classifications broken
+
+  // All tau leptons are classified as non-iso
+  // I'm not sure why, yet, but for now I will treat them as real leptons.
+  if(org == 9) return true;
+  
+  // Sherpa diboson, assume all unknowns are real leptons
+  // This is an approximation, but probably ok.
+  // *** I will prob need to add run numbers here ***
+  if( (mcId>=126892 && mcId<=126895) || (mcId>=147770 && mcId<=147772) ||
+      (mcId>=147774 && mcId<=147776)){
+    if(isEle) return type == 1 || type == 2;
+    else      return type == 5 || type == 6;
+  }
+  else{
+    // 2-lep classifies everything as real if it 
+    // is from W, Z, tau, or top..
+    //uint origin = lep->mcOrigin;
+    //return origin == 9 || origin == 12 || origin == 13 || origin == 10;
+    
+    if(isEle) return type == 2;
+    else      return type == 6;
+  }
+
+  /*
   if( org==1 ||
       org==2 ||
       org==9 ||
       org==10 ||
       (org>=12 && org<=22)) return true;  
   if( org==0 && (type==1 || type==5))  return true;  //for Sherpa
+  */
+  return false;
+}
+/*--------------------------------------------------------------------------------*/
+bool isFake(int org, int type,int mcId,
+	    int truthMatchType,
+	    bool isEle)
+{
+  return !isPT(org,type, mcId,truthMatchType,isEle);
+}
+//-----------------------------------------------------------------------------
+bool isHF(int org, int type,int truthMatchType)
+{
+  //return (truthMatchType == HF);
+
+  return org == 25 || org == 26 || org == 27 || org == 28 ||
+    org == 29 || org == 32 || org == 33;
+
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool isHF(int org, int type)
+bool isLF(int org, int type, 
+	  int mcId,
+	  int truthMatchType,
+	  bool isEle,
+	  bool isChargeFlip)
 {
-  if( (org>=25 && org<=27) ||
-      org==28 ||
-      org==29 || 
-      (org>=32 && org<=33)
-      )
-    return true;
-  return false;
-}
+  //return (truthMatchType == LF);
 
-//-----------------------------------------------------------------------------
-bool isLF(int org, int type)
-{
+  // Steve's way:
+  bool isqFlip = isEle ? isChargeFlip : false;
+  return isFake(org,type,mcId,truthMatchType,isEle) && 
+    !isConv(org,type,mcId,truthMatchType,isEle) &&
+    !isHF(org,type,truthMatchType) && 
+    !isqFlip;
+
+
+  /*
   if( //org==0 ||
       org==4 ||
       org==8 ||
@@ -53,16 +118,30 @@ bool isLF(int org, int type)
       org==35 ||
       org==41 || org==42 ) return true;
   if(org==0 && type==17) return true; //for Sherpa
+  */
   return false;
 }
 
 //-----------------------------------------------------------------------------
-bool isConv(int org, int type)
+bool isConv(int org, int type,
+	    int truthMatchType,
+	    bool isEle,
+	    bool isChargeFlip)
 {
+  //return lep->mcOrigin == 5;
+  //bool isConv       = lep->truthMatchType == RecoTruthMatch::CONV;
+ 
+  bool isConv       = org == 5;
+  bool isqFlip =  isEle ? isChargeFlip : false; 
+
+  return isConv && !isqFlip;
+
+  /*
   if( org==3 ||
       (org>=5 && org<=7) ||
       ( org>=36 && org<=40)) 
     return true;
+  */
   return false;
 }
 

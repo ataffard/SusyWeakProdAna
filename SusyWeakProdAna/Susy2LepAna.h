@@ -9,6 +9,7 @@
 #include <fstream>
 
 // Root Packages
+#include "TRandom3.h"
 
 
 // Susy Common
@@ -16,6 +17,9 @@
 #include "SusyNtuple/SusyNtObject.h"
 #include "SusyNtuple/SusyNtTools.h"
 #include "SusyNtuple/DilTrigLogic.h"
+
+#include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
+#include "ChargeFlip/chargeFlip.h"
 
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusyHistos.h"
@@ -37,6 +41,11 @@ class Susy2LepAna: public SusyNtTools
       if(b) cout << ">>> Using base leptons !!! "  << endl;
       m_useLooseLep = b; 
     }
+    void setMethod(int m){
+      m_method = m;
+      cout << ">>> Using method " << SMETHOD[m_method] << endl;
+    }
+
 
     void hookContainers(Susy::SusyNtObject* _ntPtr,
 			ElectronVector* _baseEleA, ElectronVector* _sigEleA,
@@ -66,6 +75,7 @@ class Susy2LepAna: public SusyNtTools
     
     // Event Cleaning
     bool passEventCleaning();
+    bool passBadFCAL(const JetVector* jets, int run, bool isMC=false);
 
     //Set cuts for a give SR, CR etc...
     void setSelection(std::string s);
@@ -73,6 +83,7 @@ class Susy2LepAna: public SusyNtTools
     // Cut methods
     bool passTrigger(const LeptonVector* leptons);
     bool passNLepCut(const LeptonVector* leptons);
+    bool passIsPromptLepton(const LeptonVector* leptons, bool isMC=false);
     bool passFlavor(const LeptonVector* leptons);
     bool passQQ(const LeptonVector* leptons);
     bool passJetVeto(const JetVector* jets);
@@ -91,7 +102,13 @@ class Susy2LepAna: public SusyNtTools
     bool passDPhiMetl1(const LeptonVector* leptons, const Met* met);
     bool passdPhi(TLorentzVector v0, TLorentzVector v1, float cut);
 
+    bool passBlindData(bool isMC, int iSR, float metRel, float mt2);
+
     float getBTagSF(const Susy::Event*, const JetVector* jets);
+    float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, int iSR, float metrel);
+
+    bool isTrueOS(const LeptonVector* leptons);
+
 
     float JZBJet(const JetVector* jets, const LeptonVector* leptons);
     float JZBEtmiss(const Met *met, const LeptonVector* leptons);
@@ -110,12 +127,20 @@ class Susy2LepAna: public SusyNtTools
     ClassDef(Susy2LepAna, 1);
 
   protected:
+    TRandom3* _random;
+
     SusyHistos*  _hh;
     int m_dbg;                  // debug level
 
     Susy::SusyNtObject* nt;
     
+    //External packages
+    DilTrigLogic*       m_trigObj;      // My trigger logic class
+    SusyMatrixMethod::DiLeptonMatrixMethod m_matrix_method;
+    chargeFlip*         m_chargeFlip;
+
     bool m_useLooseLep;
+    int m_method;
 
     //containers
     ElectronVector*      v_baseEle;     // baseline electrons
@@ -127,8 +152,6 @@ class Susy2LepAna: public SusyNtTools
     JetVector*           v_baseJet ;    // signal jets
     JetVector*           v_sigJet;      // signal jets
     const Susy::Met*     m_met;         // Met
-
-    DilTrigLogic*       m_trigObj;      // My trigger logic class
     
     //Event variables
     float _ww;           //full event weight either full lumi or unblinded 
@@ -185,11 +208,13 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_BadJet;
     float                n_pass_BadMuon;
     float                n_pass_Cosmic;
+    float                n_pass_BadFCAL;
     float                n_pass_atleast2BaseLep; //>=2 base lept
     float                n_pass_exactly2BaseLep; //=2 base lept
 
     float                n_pass_trig[ET_N];
     float                n_pass_signalLep[ET_N];
+    float                n_pass_truth[ET_N];
     float                n_pass_dil[ET_N];   //Channel
 
 
