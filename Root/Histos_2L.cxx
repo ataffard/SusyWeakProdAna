@@ -43,7 +43,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
       if(j==12) stype="DG2L_ZXCR4_";					\
       if(j==13) stype="DG2L_CR2LepOS_";					\
       if(j==14) stype="DG2L_CR2LepSS_";					\
-      hN[j][i] = _utils->myTH1F((book_s1=stype + sFlav + #hN).c_str(),	\
+      hN[j][i] = (TH1F*) _utils->myTH1F((book_s1=stype + sFlav + #hN).c_str(), \
 				(book_s2=stype + sFlav + #hN).c_str(),	\
 				__VA_ARGS__,sx.c_str() ,yT);		\
       _utils->yAxis(hN[j][i],u);					\
@@ -51,7 +51,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   }
   
   BOOK_SRDG2L(DG2L_pred,"","",syaxis,1,-0.5,0.5);
-  BOOK_SRDG2L(DG2L_cutflow,"","",syaxis,15,-0.5,14.5);
+  BOOK_SRDG2L(DG2L_cutflow,"","",syaxis,20,-0.5,19.5);
   BOOK_SRDG2L(DG2L_nJets,"NJets","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nCJets,"NJets - central","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nFJets,"NJets - forward ","",syaxis,10,-0.5,9.5);

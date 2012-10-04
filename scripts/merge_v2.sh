@@ -5,7 +5,7 @@
 #date="100212_13fb_n0102_std"
 #mth="std"
 
-date="100312_1fb_n0102_std"
+date="100412_1fb_n0102_std"
 mth="std"
 
 #date="100212_1fb_n0102_DD"
@@ -18,41 +18,41 @@ histPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 outPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 
 
-#doData=true
-#doDataFake=true
+doData=true
+doDataFake=true
 
 doTopPowHeg=true
-#doTopMCNLO=true
+doTopMCNLO=true
 doTopSherpa=true
-#doTopDilSherpa=true
+doTopDilSherpa=true
 
 doWWSherpa=true;
-#doWWPowHeg=true;
+doWWPowHeg=true;
 
 ##doDiBHerwig=false
 ##doDiBMCNLO=false
 
 dodiBZSherpa=true
-#dodiBXPowHeg=true
+dodiBXPowHeg=true
 
-#doZjetAlpgen=true
-#doZTauTaujetAlpgen=true
+doZjetAlpgen=true
+doZTauTaujetAlpgen=true
 
-#doZjetSherpaIncl=true
-#doZTauTaujetSherpaIncl=true
+doZjetSherpaIncl=true
+doZTauTaujetSherpaIncl=true
 
 doZjetSherpaLFHF=true
 doZTauTaujetSherpaLFHF=true
 
-#doZXSherpa=true
+doZXSherpa=true
 doZXSherpaLFHF=true
 
 doWjetSherpa=true
-#doWjetAlpgen=true
+doWjetAlpgen=true
 
 doMergeWjetBB=true
 
-#doSignal=true
+doSignal=true
 
 #doMove=true
 

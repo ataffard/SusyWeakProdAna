@@ -37,9 +37,9 @@ class SusyHistos: public Histos_Fake,
 		      int method=STD, 
 		      bool mcMll=false, bool isAlpgen=false);
   
-  void H1FILL(TH1F* h, float x, float w) { h->Fill(x,w); }
-  void H2FILL(TH2F* h, float x, float y, float w) {h->Fill(x,y, w);}
-  void H3FILL(TH3F* h, float x, float y, float z, float w) {h->Fill(x,y,z,w);}
+  void H1FILL(TH1* h, float x, float w) { h->Fill(x,w); }
+  void H2FILL(TH2* h, float x, float y, float w) {h->Fill(x,y, w);}
+  void H3FILL(TH3* h, float x, float y, float z, float w) {h->Fill(x,y,z,w);}
   void PFILL(TProfile* h, float x, float y, float w) {h->Fill(x,y,w);}
 
   ClassDef(SusyHistos, 1);

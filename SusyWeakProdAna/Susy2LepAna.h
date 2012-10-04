@@ -55,13 +55,14 @@ class Susy2LepAna: public SusyNtTools
 			);
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
-    void setEventWeight(int mode=1);
+    float eventWeight(int mode=1);
 
     void doAnalysis();
     void fillHistograms(uint iSR,
 			const LeptonVector* leptons, 
 			const JetVector* jets,
-			const Met* met);
+			const Met* met,
+			float _ww);
     void end();
    
     // Full event selection. Specify which leptons to use.
@@ -154,7 +155,7 @@ class Susy2LepAna: public SusyNtTools
     const Susy::Met*     m_met;         // Met
     
     //Event variables
-    float _ww;           //full event weight either full lumi or unblinded 
+    //float _ww;           //full event weight either full lumi or unblinded 
     float _inc;          //To set counter inc to 1 or _ww.
     uint   SR;
 
@@ -216,9 +217,6 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_signalLep[ET_N];
     float                n_pass_truth[ET_N];
     float                n_pass_dil[ET_N];   //Channel
-
-
-
     float                n_pass_os[ET_N][DIL_NSR];
     float                n_pass_ss[ET_N][DIL_NSR];
     float                n_pass_flav[ET_N][DIL_NSR];
@@ -238,6 +236,9 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_dPhiMetll[ET_N][DIL_NSR];
     float                n_pass_dPhiMetl1[ET_N][DIL_NSR];
     
+
+    float _tmp;
+
 };
 
 #endif

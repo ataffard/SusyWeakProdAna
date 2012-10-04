@@ -112,6 +112,9 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   
 
   m_ET = ET_Unknown;
+
+
+  _tmp=0;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -185,6 +188,9 @@ void Susy2LepAna::end()
   print_NTOP();
   print_NWW();
   print_NZX();
+
+
+  cout << "CHECK INTEGRAL " << _tmp << endl;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -192,8 +198,9 @@ void Susy2LepAna::end()
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::reset()
 {
-  _ww  = 0;
+  //_ww  = 0;
   _inc = 1;
+  SR=DIL_NSR;
   m_ET = ET_Unknown;
   metRel = 0;
   mT2    = 0;
@@ -381,10 +388,13 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
   //
   //set _ww to the appropriate weighting
   //
-  setEventWeight(LUMIMODE); 
+  float _ww = eventWeight(LUMIMODE); 
   if(WEIGHT_COUNT) _inc = _ww;
   else _inc = nt->evt()->w;
   
+  float bTagWeight =  getBTagSF(nt->evt(),v_baseJet);
+  float _wwSave = _ww;
+
   //
   //Loop over SR's & CR's
   //
@@ -393,6 +403,7 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
     setSelection(sSR);
     SR=iSR;
     int icut =0;
+    _ww=_wwSave; //Reset weight in case used btagWeight in previous SR
     if(dbg() >10 ) cout << "Signal region " << sSR << endl;
     
     if(iSR==0 && dbg()>2){
@@ -404,16 +415,19 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 	   << " " << v_sigLep->at(1)->effSF << endl;
     }
 
+    // Apply bweight only to SR where we use jet count/veto
+    if(USE_BWEIGHT && nt->evt()->isMC) {
+      if( ! ( iSR ==DIL_CR2LepOS || iSR==DIL_CR2LepSS) )
+	_ww = _wwSave * bTagWeight;
+    }
+
     //For data - fake estimate
-    //TODO: update adding the SR's
     if( !nt->evt()->isMC && m_useLooseLep){
       float _metRel = getMetRel(met,*leptons,*signalJets);
       _ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel);
       //std::cout << " SR " << sSR << " Fake weight " << _ww << endl;
     }
     
-
-
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
     /*
@@ -427,6 +441,8 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 
     if(!passQQ(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
+
+    if(iSR==DIL_CR2LepOS && m_ET==ET_ee) _tmp += _ww;
 
     if(!passFlavor(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
@@ -477,7 +493,7 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 
     if(!passBlindData(nt->evt()->isMC,iSR, metRel,mT2)) continue;
 
-    if(DO_FILL_HISTO ) fillHistograms(SR,leptons, signalJets,met);
+    if(DO_FILL_HISTO ) fillHistograms(SR,leptons, signalJets,met,_ww);
     if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
 
   }
@@ -487,43 +503,40 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 /*--------------------------------------------------------------------------------*/
 // Event weight
 /*--------------------------------------------------------------------------------*/
-void Susy2LepAna::setEventWeight(int mode)
+float Susy2LepAna::eventWeight(int mode)
 {
-  _ww=nt->evt()->w;
-  if(mode==NOLUMI) _ww= nt->evt()->w; //raw weight - generator included!
+  float _evtW=nt->evt()->w;
+
+  if(mode==NOLUMI) _evtW= nt->evt()->w; //raw weight - generator included!
   else if(mode==LUMI1FB){
-    _ww=getEventWeightAB3(nt->evt());
-    //_ww=  nt->evt()->w 
+    _evtW=getEventWeightAB3(nt->evt());
+    //_evtW=  nt->evt()->w ;
     //*  nt->evt()->wPileupAB3;
     //  *  nt->evt()->xsec 
     //  * LUMI_A_B3 
     //  / nt->evt()->sumw;
-
-    /*
-    cout << " run " << nt->evt()->run << " event " << nt->evt()->event
-	 << " PileupAB3 " << nt->evt()->wPileupAB3
-	 << " sumw " << nt->evt()->sumw <<endl;
-    */
   }
   else if(mode==LUMI5FB){
-    _ww=getEventWeightAB(nt->evt());
+    _evtW=getEventWeightAB(nt->evt());
   }
   else if(mode==LUMI13FB){
-    _ww=getEventWeight(nt->evt());
+    _evtW=getEventWeight(nt->evt());
   }
   
   if(USE_LEPSF && nt->evt()->isMC){
     for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
       const Susy::Lepton* _l = v_sigLep->at(ilep);
-      _ww *= _l->effSF;
+      _evtW *= _l->effSF;
     }
   }
 
   if(USE_DGWEIGHT && nt->evt()->isMC) 
-    _ww *= m_trigObj->getTriggerWeight(*v_sigLep,  nt->evt()->isMC, NtSys_NOM);
+    _evtW *= m_trigObj->getTriggerWeight(*v_sigLep,  nt->evt()->isMC, NtSys_NOM);
 
-  if(USE_BWEIGHT) _ww *= getBTagSF(nt->evt(),v_baseJet);
+  //move this out of here so not to apply to Inc OS/SS
+  //if(USE_BWEIGHT) _ww *= getBTagSF(nt->evt(),v_baseJet);
 
+  return _evtW;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -1062,7 +1075,8 @@ void Susy2LepAna::print_line(string s, float a, float b, float c)
 void Susy2LepAna::fillHistograms(uint iSR,
 				 const LeptonVector* leptons, 
 				 const JetVector* jets,
-				 const Met* met)
+				 const Met* met,
+				 float _ww)
 {
   _hh->H1FILL(_hh->DG2L_pred[iSR][m_ET],0.,_ww); 
 
