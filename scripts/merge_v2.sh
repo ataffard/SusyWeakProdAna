@@ -2,11 +2,11 @@
 
 #Match dir name constructed in SusyAnaCommon.h
 
-date="100212_13fb_n0102_std"
-mth="std"
-
-#date="100212_1fb_n0102_std"
+#date="100212_13fb_n0102_std"
 #mth="std"
+
+date="100312_1fb_n0102_std"
+mth="std"
 
 #date="100212_1fb_n0102_DD"
 #mth="rlep"
@@ -21,36 +21,36 @@ outPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 #doData=true
 #doDataFake=true
 
-#doTopPowHeg=true
+doTopPowHeg=true
 #doTopMCNLO=true
-#doTopSherpa=true
+doTopSherpa=true
 #doTopDilSherpa=true
 
-#doWWSherpa=true;
+doWWSherpa=true;
 #doWWPowHeg=true;
 
 ##doDiBHerwig=false
 ##doDiBMCNLO=false
 
-#dodiBZSherpa=true
+dodiBZSherpa=true
 #dodiBXPowHeg=true
 
 #doZjetAlpgen=true
 #doZTauTaujetAlpgen=true
 
-doZjetSherpaIncl=true
-doZTauTaujetSherpaIncl=true
+#doZjetSherpaIncl=true
+#doZTauTaujetSherpaIncl=true
 
-#doZjetSherpaLFHF=true
-#doZTauTaujetSherpaLFHF=true
+doZjetSherpaLFHF=true
+doZTauTaujetSherpaLFHF=true
 
-doZXSherpa=true
-#doZXSherpaLFHF=true
+#doZXSherpa=true
+doZXSherpaLFHF=true
 
-#doWjetSherpa=true
+doWjetSherpa=true
 #doWjetAlpgen=true
 
-##doMergeWjetBB=true
+doMergeWjetBB=true
 
 #doSignal=true
 
@@ -120,6 +120,20 @@ if [ $doTopPowHeg ]; then
 	${histPath}/histo_ttbarZj.119356_${mth}.root 
 fi
 
+if [ $doTopSherpa ]; then
+    echo "Merge Top Sherpa"
+    rm -f ${histPath}/histo_top_Sherpa_${mth}.root
+    hadd -f ${histPath}/histo_top_Sherpa_${mth}.root   \
+	${histPath}/histo_Ttbar*.11780?_${mth}.root \
+	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
+	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
+	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root  \
+	${histPath}/histo_ttbarW.119353_${mth}.root \
+	${histPath}/histo_ttbarWj.119354_${mth}.root \
+	${histPath}/histo_ttbarZ.119355_${mth}.root \
+	${histPath}/histo_ttbarZj.119356_${mth}.root 
+fi
+
 if [ $doTopDilSherpa ]; then
     echo "Merge Top Dil Sherpa"
     rm -f ${histPath}/histo_topDil_Sherpa_${mth}.root
@@ -128,20 +142,20 @@ if [ $doTopDilSherpa ]; then
 	${histPath}/histo_Ttbar*.117801_${mth}.root \
 	${histPath}/histo_Ttbar*.117802_${mth}.root \
 	${histPath}/histo_Ttbar*.117804_${mth}.root \
-	${histPath}/histo_Ttbar*.117805_${mth}.root \
 	${histPath}/histo_Ttbar*.117806_${mth}.root \
-	${histPath}/histo_Ttbar*.117808_${mth}.root \
 	${histPath}/histo_Ttbar*.117809_${mth}.root \
-	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root  
+	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root \
+	${histPath}/histo_ttbarW.119353_${mth}.root \
+	${histPath}/histo_ttbarWj.119354_${mth}.root \
+	${histPath}/histo_ttbarZ.119355_${mth}.root \
+	${histPath}/histo_ttbarZj.119356_${mth}.root 
+
+#	${histPath}/histo_Ttbar*.117805_${mth}.root \
+#	${histPath}/histo_Ttbar*.117808_${mth}.root \
+
 fi
 
-if [ $doTopSherpa ]; then
-    echo "Merge Top Sherpa"
-    rm -f ${histPath}/histo_top_Sherpa_${mth}.root
-    hadd -f ${histPath}/histo_top_Sherpa_${mth}.root   \
-	${histPath}/histo_Ttbar*.11780?_${mth}.root 
 
-fi
 
 
 if [ $doWWSherpa ]; then

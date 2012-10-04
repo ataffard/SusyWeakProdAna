@@ -10,18 +10,22 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //#define LUMI_5FB  //A->B14
 //#define LUMI_13FB  //A->E5
 
-const std::string TAG = "100212";
+const std::string TAG = "100312";
 const std::string SUFF = "_n0102_std";
 
-const bool WEIGHT_COUNT=true; //false //Apply weight to dump count table - NLO weight always applied
-
-const bool SKIP_METCUT_SR = false;//true;
-const bool DO_FILL_HISTO =false;
-
+//
 //Normal mode - all these are true
+//
+
+//Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_COUNT=true;//false; 
+const bool SKIP_METCUT_SR = true;
+const bool DO_FILL_HISTO = true;
+
+
 const bool USE_DGWEIGHT=true;
-const bool USE_BWEIGHT=true;//true; 
-const bool USE_LEPSF=true; //true;
+const bool USE_BWEIGHT=true;
+const bool USE_LEPSF=true; 
 
 const bool USE_QFLIP=false; //Toggled charge flip prob
 

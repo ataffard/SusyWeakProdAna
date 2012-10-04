@@ -493,12 +493,17 @@ void Susy2LepAna::setEventWeight(int mode)
   if(mode==NOLUMI) _ww= nt->evt()->w; //raw weight - generator included!
   else if(mode==LUMI1FB){
     _ww=getEventWeightAB3(nt->evt());
-    
-    //_ww=  nt->evt()->w ;
-    //      *  nt->evt()->wPileupAB3
+    //_ww=  nt->evt()->w 
+    //*  nt->evt()->wPileupAB3;
     //  *  nt->evt()->xsec 
     //  * LUMI_A_B3 
     //  / nt->evt()->sumw;
+
+    /*
+    cout << " run " << nt->evt()->run << " event " << nt->evt()->event
+	 << " PileupAB3 " << nt->evt()->wPileupAB3
+	 << " sumw " << nt->evt()->sumw <<endl;
+    */
   }
   else if(mode==LUMI5FB){
     _ww=getEventWeightAB(nt->evt());
@@ -615,8 +620,8 @@ bool Susy2LepAna::isTrueOS(const LeptonVector* leptons){
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passEventCleaning()
 {
-  //  int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
-  int cutFlag = nt->evt()->cutFlags[NtSys_NOM];
+  int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
+  //  int cutFlag = nt->evt()->cutFlags[NtSys_NOM];
 
   if(!passHotSpot(cutFlag)) return false;
   n_pass_HotSpot+=_inc;

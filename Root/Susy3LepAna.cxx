@@ -367,8 +367,8 @@ void Susy3LepAna::setEventWeight(int mode)
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passEventCleaning()
 {
-  //  int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
-  int cutFlag = nt->evt()->cutFlags[NtSys_NOM];
+  int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
+  //int cutFlag = nt->evt()->cutFlags[NtSys_NOM];
 
   if(!passHotSpot(cutFlag)) return false;
   n_pass_HotSpot++;

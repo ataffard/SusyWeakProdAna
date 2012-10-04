@@ -18,7 +18,8 @@
 # output # = number of submitted jobs 
 # 
 # Submit low mass alpge w/ Mll cut - change anaOpt2 to true !!!!
-#./submitT3_SusyAna.sh mc12 Mll10
+#./submitT3_SusyAna.sh mc12 STD
+#./submitT3_SusyAna.sh mc12 105200 STD
 
 #!/bin/bash
 
@@ -46,8 +47,6 @@ nEvt=-1
 ##
 ## Ana mode STD or DD
 ##
-#mode=STD
-#$mode=DD
 if [ "$mode" == "DD" ]; then
 #    methodMC=rlep
     methodMC=std
