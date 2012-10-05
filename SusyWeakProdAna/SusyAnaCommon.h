@@ -6,11 +6,11 @@
 enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 
 //#define LUMI_RAW  //Raw count
-#define LUMI_1FB  //A->B3
+//#define LUMI_1FB  //A->B3
 //#define LUMI_5FB  //A->B14
-//#define LUMI_13FB  //A->E5
+#define LUMI_13FB  //A->E5
 
-const std::string TAG = "100412";
+const std::string TAG = "100512";
 const std::string SUFF = "_n0102_std";
 
 //
@@ -21,7 +21,6 @@ const std::string SUFF = "_n0102_std";
 const bool WEIGHT_COUNT=true;//false; 
 const bool SKIP_METCUT_SR = true;
 const bool DO_FILL_HISTO = true;
-
 
 const bool USE_DGWEIGHT=true;
 const bool USE_BWEIGHT=true;
@@ -62,7 +61,7 @@ const bool BLIND_DATA=true;
 
 #ifdef LUMI_13FB  //HCP dataset
 const int LUMIMODE =LUMI13FB;
-const string LUMW  = "A-X";
+const string LUMW  = "HCP";
 const std::string DATE=TAG+"_13fb" + SUFF;
 const float pLUMI = 13; //A->E5
 const unsigned int   MAXRUN = 210308;

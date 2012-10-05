@@ -1,22 +1,25 @@
 #!/bin/bash
-
 #Match dir name constructed in SusyAnaCommon.h
 
-#date="100212_13fb_n0102_std"
-#mth="std"
-
-date="100412_1fb_n0102_std"
+date="100412_13fb_n0102_std"
 mth="std"
+
+#date="100412_1fb_n0102_std"
+#mth="std"
 
 #date="100212_1fb_n0102_DD"
 #mth="rlep"
 #mth="std"
 
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
-#histPath=${WORKAREA}/histoAna/SusyAna
-histPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
+histPathBase=${WORKAREA}/histoAna/SusyAna
 outPath=${WORKAREA}/histoAna/SusyAna/histos_${date}
 
+histPath=${outPath}
+
+#################
+
+doMove=true
 
 doData=true
 doDataFake=true
@@ -54,7 +57,17 @@ doMergeWjetBB=true
 
 doSignal=true
 
-#doMove=true
+#######################################################################
+
+if [ $doMove ]; then
+#move all the histos to new area:
+    if [ ! -d "${outPath}" ]; then
+	mkdir ${outPath}
+	mkdir ${outPath}/logs
+    fi
+    mv ${histPathBase}/*.root ${outPath}
+    mv ${logPath}/*.log ${outPath}/logs
+fi
 
 
 #######################################################################
@@ -401,13 +414,3 @@ if [ $doSignal ]; then
 
 fi
 
-
-if [ $doMove ]; then
-#move all the histos to new area:
-    if [ ! -d "${outPath}" ]; then
-	mkdir ${outPath}
-	mkdir ${outPath}/logs
-    fi
-    mv ${histPath}/*.root ${outPath}
-    mv ${logPath}/*.log ${outPath}/logs
-fi
