@@ -18,7 +18,7 @@ const std::string SUFF = "_n0102_std";
 //
 
 //Apply weight to dump count table - NLO weight always applied
-const bool WEIGHT_COUNT=true;//false; 
+const bool WEIGHT_COUNT=true; 
 const bool SKIP_METCUT_SR = true;
 const bool DO_FILL_HISTO = true;
 
@@ -26,7 +26,7 @@ const bool USE_DGWEIGHT=true;
 const bool USE_BWEIGHT=true;
 const bool USE_LEPSF=true; 
 
-const bool USE_QFLIP=false; //Toggled charge flip prob
+const bool USE_QFLIP=true;//false; //Toggled charge flip prob
 
 //
 // Should not need to change anything below

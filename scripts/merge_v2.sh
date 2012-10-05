@@ -1,7 +1,7 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-date="100412_13fb_n0102_std"
+date="100512_13fb_n0102_std"
 mth="std"
 
 #date="100412_1fb_n0102_std"
@@ -19,43 +19,43 @@ histPath=${outPath}
 
 #################
 
-doMove=true
+#doMove=true
 
 doData=true
-doDataFake=true
+#doDataFake=true
 
-doTopPowHeg=true
-doTopMCNLO=true
-doTopSherpa=true
-doTopDilSherpa=true
+#doTopPowHeg=true
+#doTopMCNLO=true
+#doTopSherpa=true
+#doTopDilSherpa=true
 
-doWWSherpa=true;
-doWWPowHeg=true;
+#doWWSherpa=true;
+#doWWPowHeg=true;
 
 ##doDiBHerwig=false
 ##doDiBMCNLO=false
 
-dodiBZSherpa=true
-dodiBXPowHeg=true
+#dodiBZSherpa=true
+#dodiBXPowHeg=true
 
-doZjetAlpgen=true
-doZTauTaujetAlpgen=true
+#doZjetAlpgen=true
+#doZTauTaujetAlpgen=true
 
-doZjetSherpaIncl=true
-doZTauTaujetSherpaIncl=true
+#doZjetSherpaIncl=true
+#doZTauTaujetSherpaIncl=true
 
-doZjetSherpaLFHF=true
-doZTauTaujetSherpaLFHF=true
+#doZjetSherpaLFHF=true
+#doZTauTaujetSherpaLFHF=true
 
-doZXSherpa=true
-doZXSherpaLFHF=true
+#doZXSherpa=true
+#doZXSherpaLFHF=true
 
-doWjetSherpa=true
-doWjetAlpgen=true
+#doWjetSherpa=true
+#doWjetAlpgen=true
 
-doMergeWjetBB=true
+#doMergeWjetBB=true
 
-doSignal=true
+#doSignal=true
 
 #######################################################################
 
@@ -83,7 +83,9 @@ if [ $doData ]; then
 	${histPath}/histo_Egamma.periodC_std.root \
 	${histPath}/histo_Muons.periodC_std.root \
 	${histPath}/histo_Egamma.periodD_std.root \
-	${histPath}/histo_Muons.periodD_std.root 
+	${histPath}/histo_Muons.periodD_std.root \
+	${histPath}/histo_Egamma.periodE?_std.root \
+	${histPath}/histo_Muons.periodE?_std.root 
 fi 
 
 if [ $doDataFake ]; then
@@ -97,7 +99,9 @@ if [ $doDataFake ]; then
 	${histPath}/histo_Egamma.periodC_flep.root \
 	${histPath}/histo_Muons.periodC_flep.root \
 	${histPath}/histo_Egamma.periodD_flep.root \
-	${histPath}/histo_Muons.periodD_flep.root 
+	${histPath}/histo_Muons.periodD_flep.root \
+	${histPath}/histo_Egamma.periodE?_flep.root \
+	${histPath}/histo_Muons.periodE?_flep.root 
 fi 
 
 

@@ -314,7 +314,7 @@ void Susy2LepAna::setSelection(std::string s)
     m_vetoJ = true;
     m_metRelMin=70;
     m_metRelMax=100;
-    m_mllMin=40;
+    m_mllMin=20;
   }
   else if(m_sel == "NWW3"){
     m_selOS = true;
@@ -322,9 +322,9 @@ void Susy2LepAna::setSelection(std::string s)
     m_vetoJ = true;
     m_metRelMin=70;
     m_metRelMax=100;
-    m_mllMin=40;
-    m_pTllMin=40;
-    m_pTllMax=150;
+    m_mllMin=30;
+    //    m_pTllMin=40;
+    //    m_pTllMax=150;
   }
   else if(m_sel == "ZXCR1"){
     m_selOS = true;
@@ -430,18 +430,29 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
     
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
-    /*
+    
     if(!USE_QFLIP && !passQQ(leptons)) continue;
-    if(USE_QFLIP && 
-       (iSR==DIL_SRSSjveto || iSR==DIL_CR2LepSS) &&
-       !m_ET==ET_mm){
-      //Use OS event & charge flip prob fro EE & EM events
+    if(USE_QFLIP){
+      if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
+	  (iSR==DIL_SRSSjveto || iSR==DIL_CR2LepSS) ){
+	// 2 options:
+	// - True SS. neither leptons is qFlip -> ok count
+	// - ee/em, one electron has qFlip
+	if(passQQ(leptons) && !hasQFlip(leptons)){
+	  cout << "Genuine SS event. is reco SS " << passQQ(leptons) << endl;
+	} //genuine SS - ok
+	else if(!passQQ(leptons)){ //OS event - get the qFlip prob
+	  //cout << " QFLIP SR: " << sSR << endl;
+	  float _ww_qFlip = getQFlipProb(leptons,met);
+	  _ww *= _ww_qFlip;
+	}
+      }
+      else
+	if(!passQQ(leptons)) continue;
     }
-    */
-
-    if(!passQQ(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
+    //For debug only !!
     if(iSR==DIL_CR2LepOS && m_ET==ET_ee) _tmp += _ww;
 
     if(!passFlavor(leptons)) continue;
@@ -619,14 +630,6 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   return _fw;
 }
 
-/*--------------------------------------------------------------------------------*/
-// To determine is have true OS event
-/*--------------------------------------------------------------------------------*/
-bool Susy2LepAna::isTrueOS(const LeptonVector* leptons){
-  //TO implement for charge flip estimate
-  //leptons are Prompt and opposite sign and !chargeFlip
-  return true;
-}
 
 /*--------------------------------------------------------------------------------*/
 // Event cleaning
@@ -723,6 +726,55 @@ bool Susy2LepAna::passIsPromptLepton(const LeptonVector* leptons, bool isMC)
   n_pass_truth[m_ET]+=_inc;
   return true;
 }
+
+/*--------------------------------------------------------------------------------*/
+// To determine if have true OS event - ie neither e has qFlip
+/*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::hasQFlip(const LeptonVector* leptons){
+  //TO implement for charge flip estimate
+  //leptons are Prompt and opposite sign and !chargeFlip
+
+  if(leptons->size() < 1) return false;
+
+  const Susy::Lepton* _l1 = leptons->at(0);
+  const Susy::Lepton* _l2 = leptons->at(1);
+  bool l1_isQFlip = _l1->isEle() ? ((Electron*) _l1)->isChargeFlip : false;
+  bool l2_isQFlip = _l2->isEle() ? ((Electron*) _l2)->isChargeFlip : false;
+  
+  if(l1_isQFlip || l2_isQFlip) return true;
+
+  return false;
+}
+
+/*--------------------------------------------------------------------------------*/
+float Susy2LepAna::getQFlipProb(const LeptonVector* leptons, const Met* met)
+{
+  if(leptons->size() < 1) return 1;
+  const Susy::Lepton* _l1 = leptons->at(0);
+  const Susy::Lepton* _l2 = leptons->at(1);
+  
+  TVector2 _new_met(met->lv().Px(),met->lv().Py());
+  TLorentzVector _l1_tlv(*_l1);
+  TLorentzVector _l2_tlv(*_l2);
+  int _pdg1 = _l1->isEle() ? 11 : 13; _pdg1 *= _l1->q; //right convention???
+  int _pdg2 = _l2->isEle() ? 11 : 13; _pdg2 *= _l2->q;
+  
+  int _sys = 0;
+  float cfP = m_chargeFlip->OS2SS(_pdg1, &_l1_tlv, 
+				  _pdg2, &_l2_tlv, 
+				  &_new_met, _sys);
+  /*
+  float _new_met_Et = sqrt(pow(_new_met.Px(),2) + pow(_new_met.Py(),2)); 
+  cout << "\t l1 org_pt " << _l1->Pt() << " fp_pt " << _l1_tlv.Pt() 
+       << "\t l2 org_pt " << _l2->Pt() << " fp_pt " << _l2_tlv.Pt() 
+       << "\t org met   " << met->lv().Pt() << " fp_met " << _new_met_Et 
+       << "\t qFlipProb " << cfP
+       << endl;
+  */
+  return cfP;
+    
+}
+
 
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passFlavor(const LeptonVector* leptons)
@@ -1035,10 +1087,10 @@ void Susy2LepAna::print_NWW()
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
   j= DIL_NWW2;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass Mll ",n_pass_mll[0][j], n_pass_mll[1][j], n_pass_mll[2][j]);
+  print_line("pass Mll20 ",n_pass_mll[0][j], n_pass_mll[1][j], n_pass_mll[2][j]);
   j= DIL_NWW3;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass pTll ",n_pass_pTll[0][j], n_pass_pTll[1][j], n_pass_pTll[2][j]);
+  print_line("pass Mll30 ",n_pass_pTll[0][j], n_pass_pTll[1][j], n_pass_pTll[2][j]);
 
 
 }

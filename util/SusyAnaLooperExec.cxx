@@ -85,7 +85,7 @@ int main(int argc, char** argv)
   bool doFake = false;
   bool doMll  = false;
   bool useLoose = false;
-  int method    = 0; //see SusyHisto.h 0:std; 1:RLEP, 2:FLEP
+  int method    = 0; //see SusyHisto.h 0:STD; 1:RLEP, 2:FLEP
   string sample;
   string file;
   string fileList;

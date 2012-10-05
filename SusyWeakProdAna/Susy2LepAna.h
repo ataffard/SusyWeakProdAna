@@ -108,8 +108,8 @@ class Susy2LepAna: public SusyNtTools
     float getBTagSF(const Susy::Event*, const JetVector* jets);
     float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, int iSR, float metrel);
 
-    bool isTrueOS(const LeptonVector* leptons);
-
+    bool  hasQFlip(const LeptonVector* leptons);
+    float getQFlipProb(const LeptonVector* leptons, const Met* met);
 
     float JZBJet(const JetVector* jets, const LeptonVector* leptons);
     float JZBEtmiss(const Met *met, const LeptonVector* leptons);
@@ -153,9 +153,11 @@ class Susy2LepAna: public SusyNtTools
     JetVector*           v_baseJet ;    // signal jets
     JetVector*           v_sigJet;      // signal jets
     const Susy::Met*     m_met;         // Met
-    
+   
+    const Susy::Met*     qFlip_met;     //Met for event w/ qFlip ele
+    const Susy::Met*     org_met;     //Met for event w/ qFlip ele
+
     //Event variables
-    //float _ww;           //full event weight either full lumi or unblinded 
     float _inc;          //To set counter inc to 1 or _ww.
     uint   SR;
 
