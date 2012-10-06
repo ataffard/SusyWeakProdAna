@@ -438,11 +438,13 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 	// 2 options:
 	// - True SS. neither leptons is qFlip -> ok count
 	// - ee/em, one electron has qFlip
-	if(passQQ(leptons) && !hasQFlip(leptons)){
+	/*if(passQQ(leptons) && !hasQFlip(leptons)){
 	  cout << "Genuine SS event. is reco SS " << passQQ(leptons) << endl;
 	} //genuine SS - ok
-	else if(!passQQ(leptons)){ //OS event - get the qFlip prob
-	  //cout << " QFLIP SR: " << sSR << endl;
+	else
+	*/ 
+	if(!passQQ(leptons)){ //OS event - get the qFlip prob
+	  cout << " QFLIP SR: " << sSR << endl;
 	  float _ww_qFlip = getQFlipProb(leptons,met);
 	  _ww *= _ww_qFlip;
 	}
