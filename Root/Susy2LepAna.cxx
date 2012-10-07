@@ -62,6 +62,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   n_pass_BadFCAL = 0;
   n_pass_atleast2BaseLep = 0;
   n_pass_exactly2BaseLep = 0;
+  n_pass_mll20   = 0;
 
   // The rest are channel specific.
   for(int i=0; i<ET_N; ++i){
@@ -100,7 +101,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/fakeRate_trial6_Oct2.root"; //e SF=1
+    "/SusyMatrixMethod/data/fakeRate_trial6_Oct1.root"; //e SF=1
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT);
 
@@ -173,6 +174,7 @@ void Susy2LepAna::end()
   cout << "pass Bad FCAL:      " << n_pass_BadFCAL << endl;
   cout << "pass atleast 2 base " << n_pass_atleast2BaseLep << endl;
   cout << "pass exactly 2 base " << n_pass_exactly2BaseLep << endl;
+  cout << "pass mll20          " << n_pass_mll20   << endl;
   
   string v_ET[ET_N] = {"ee","mm","em"};
   cout << "Channels        " << v_ET[0] << "\t " << v_ET[1] << "\t " << v_ET[2] <<endl;
@@ -374,6 +376,8 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
   n_pass_atleast2BaseLep+=_inc;
   if( v_baseLep->size() != 2 )      return false;
   n_pass_exactly2BaseLep+=_inc;
+  if(! passMll20(baseLeps))         return false;
+  n_pass_mll20+=_inc;
 
   // Get Event Type to continue cutflow
   m_ET = getDiLepEvtType(*baseLeps);
@@ -438,16 +442,16 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 	// 2 options:
 	// - True SS. neither leptons is qFlip -> ok count
 	// - ee/em, one electron has qFlip
-	/*if(passQQ(leptons) && !hasQFlip(leptons)){
+	if(passQQ(leptons) && !hasQFlip(leptons)){
 	  cout << "Genuine SS event. is reco SS " << passQQ(leptons) << endl;
 	} //genuine SS - ok
-	else
-	*/ 
-	if(!passQQ(leptons)){ //OS event - get the qFlip prob
-	  cout << " QFLIP SR: " << sSR << endl;
+	else if(!passQQ(leptons)){ //OS event - get the qFlip prob
 	  float _ww_qFlip = getQFlipProb(leptons,met);
+	  cout << " QFLIP SR: " << sSR << " " << _ww_qFlip << endl;
 	  _ww *= _ww_qFlip;
+	  if(iSR==DIL_CR2LepSS ) _tmp += _ww;
 	}
+	else continue;
       }
       else
 	if(!passQQ(leptons)) continue;
@@ -455,11 +459,12 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
     //For debug only !!
-    if(iSR==DIL_CR2LepOS && m_ET==ET_ee) _tmp += _ww;
+    //if(iSR==DIL_CR2LepOS && m_ET==ET_ee) _tmp += _ww;
 
     if(!passFlavor(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
+    //TODO add special opt of QFLIP case
     if(!passZVeto(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass Zveto " << sSR << endl;
@@ -522,7 +527,8 @@ float Susy2LepAna::eventWeight(int mode)
 
   if(mode==NOLUMI) _evtW= nt->evt()->w; //raw weight - generator included!
   else if(mode==LUMI1FB){
-    _evtW=getEventWeightAB3(nt->evt());
+    //    _evtW=getEventWeightAB3(nt->evt());
+    _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_B3);
     //_evtW=  nt->evt()->w ;
     //*  nt->evt()->wPileupAB3;
     //  *  nt->evt()->xsec 
@@ -530,10 +536,13 @@ float Susy2LepAna::eventWeight(int mode)
     //  / nt->evt()->sumw;
   }
   else if(mode==LUMI5FB){
-    _evtW=getEventWeightAB(nt->evt());
+    //    _evtW=getEventWeightAB(nt->evt());
+    _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_B14);
   }
   else if(mode==LUMI13FB){
-    _evtW=getEventWeight(nt->evt());
+    //    _evtW=getEventWeight(nt->evt());
+    //Fixes Sherpa Zmumu weight 
+    _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
   }
   
   if(USE_LEPSF && nt->evt()->isMC){
@@ -543,8 +552,14 @@ float Susy2LepAna::eventWeight(int mode)
     }
   }
 
-  if(USE_DGWEIGHT && nt->evt()->isMC) 
-    _evtW *= m_trigObj->getTriggerWeight(*v_sigLep,  nt->evt()->isMC, NtSys_NOM);
+  if(USE_DGWEIGHT && nt->evt()->isMC) {
+   float _wtrig =  m_trigObj->getTriggerWeight(*v_sigLep,  nt->evt()->isMC, NtSys_NOM);
+   if(_wtrig<0) {
+     cout << "WARNING NEG Trigger weight - set to zero " << _wtrig << endl;
+     _wtrig=0;
+   }
+   _evtW *= _wtrig;
+  }
 
   //move this out of here so not to apply to Inc OS/SS
   //if(USE_BWEIGHT) _ww *= getBTagSF(nt->evt(),v_baseJet);
@@ -638,8 +653,8 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passEventCleaning()
 {
-  int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
-  //  int cutFlag = nt->evt()->cutFlags[NtSys_NOM];
+  //int cutFlag = nt->evt()->evtFlag[NtSys_NOM];
+  int cutFlag = nt->evt()->cutFlags[NtSys_NOM];
 
   if(!passHotSpot(cutFlag)) return false;
   n_pass_HotSpot+=_inc;
@@ -765,6 +780,7 @@ float Susy2LepAna::getQFlipProb(const LeptonVector* leptons, const Met* met)
   float cfP = m_chargeFlip->OS2SS(_pdg1, &_l1_tlv, 
 				  _pdg2, &_l2_tlv, 
 				  &_new_met, _sys);
+
   /*
   float _new_met_Et = sqrt(pow(_new_met.Px(),2) + pow(_new_met.Py(),2)); 
   cout << "\t l1 org_pt " << _l1->Pt() << " fp_pt " << _l1_tlv.Pt() 
@@ -942,7 +958,8 @@ bool Susy2LepAna::passdPhi(TLorentzVector v0, TLorentzVector v1, float cut)
 
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passBlindData(bool isMC, int iSR, float metRel, float mt2){
-  if(!isMC && BLIND_DATA){
+  //  if(!isMC && BLIND_DATA){
+  if(BLIND_DATA){
     if( (iSR==DIL_SRjveto || iSR==DIL_SRSSjveto) && metRel>=m_metRelMin) return false;
     if( iSR==DIL_SR2jets && metRel>=m_metRelMin) return false;
     if( (iSR==DIL_SRmT2 ||iSR==DIL_SRmT2b) && mt2>m_mt2Min ) return false;
@@ -958,6 +975,15 @@ bool Susy2LepAna::passMT2(const LeptonVector* leptons, const Met* met)
   n_pass_mt2[m_ET][SR]+=_inc;
   return true;
 }
+/*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::passMll20(const LeptonVector* leptons)
+{
+  float mll=Mll(leptons->at(0),leptons->at(1));
+  if(mll<20) return false;
+  return true;
+}
+
+
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passMll(const LeptonVector* leptons)
 {

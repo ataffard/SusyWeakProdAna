@@ -86,11 +86,14 @@ int main(int argc, char** argv)
   bool doMll  = false;
   bool useLoose = false;
   int method    = 0; //see SusyHisto.h 0:STD; 1:RLEP, 2:FLEP
+  string smethod;
   string sample;
   string file;
   string fileList;
   string fileDir;
+  bool eos=true;
   
+
   cout << "SusyAnaLooperExec" << endl;
   cout << endl;
 
@@ -131,10 +134,10 @@ int main(int argc, char** argv)
       doFake = true;
     }
     else if (strcmp(argv[i], "-method") == 0){
-      string tmp = argv[++i];
-      if(strcmp(tmp.c_str(),"std")==0) method = 0;
-      if(strcmp(tmp.c_str(),"rlep")==0) method = 1;
-      if(strcmp(tmp.c_str(),"flep")==0) {method = 2; useLoose=true;}
+      smethod = argv[++i];
+      if(strcmp(smethod.c_str(),"std")==0) method = 0;
+      if(strcmp(smethod.c_str(),"rlep")==0) method = 1;
+      if(strcmp(smethod.c_str(),"flep")==0) {method = 2; useLoose=true;}
     }
     else
     {
@@ -142,6 +145,13 @@ int main(int argc, char** argv)
       return 0;
     }
   }
+
+  if(eos){
+    string cmd =  string(getenv("WORKAREA")) + "/SusyWeakProdAna" + "/scripts/getInputFileListEOS.sh " 
+      + sample + " " + fileDir + " " + smethod;
+    gSystem->Exec(cmd.c_str());
+  }
+
 
   // If no input specified except sample name, use a standard fileList
   if(file.empty() && fileList.empty() && fileDir.empty() && !sample.empty())
@@ -167,9 +177,18 @@ int main(int argc, char** argv)
 
   // Build the input chain
   TChain* chain = new TChain("susyNt");
-  ChainHelper::addFile(chain, file);
-  ChainHelper::addFileList(chain, fileList);
-  ChainHelper::addFileDir(chain, fileDir);
+  if(!eos){
+    ChainHelper::addFile(chain, file);
+    ChainHelper::addFileList(chain, fileList);
+    ChainHelper::addFileDir(chain, fileDir);
+  }
+  else{
+    string eosFileList =  string(getenv("WORKAREA")) + "/SusyWeakProdAna" + "/scripts/EOSFiles/" 
+      + sample + "_" + smethod + ".txt";
+    cout << "Using EOS inputFileList " << eosFileList << endl; 
+    ChainHelper::addFileList(chain, eosFileList);
+  }
+
   Long64_t nEntries = chain->GetEntries();
   chain->ls();
 

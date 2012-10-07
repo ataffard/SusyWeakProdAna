@@ -28,7 +28,7 @@ bool isPT(int org, int type,
 	  bool isEle)
 {
   // Updated way of handling real and fake leptons using LeptonTruthTools
-  //return (truthMatchType == PR);
+  return (truthMatchType == PR);
   
   // Code taken from Steve.  There seems to be an issue with Sherpa samples, so 
   // need to handle those separately. Also just for clarification:
@@ -40,27 +40,29 @@ bool isPT(int org, int type,
 
   // Cut is sample dependent due to Sherpa classifications broken
 
-  // All tau leptons are classified as non-iso
-  // I'm not sure why, yet, but for now I will treat them as real leptons.
-  if(org == 9) return true;
+
+//   // All tau leptons are classified as non-iso
+//   // I'm not sure why, yet, but for now I will treat them as real leptons.
+//   if(org == 9) return true;
   
-  // Sherpa diboson, assume all unknowns are real leptons
-  // This is an approximation, but probably ok.
-  // *** I will prob need to add run numbers here ***
-  if( (mcId>=126892 && mcId<=126895) || (mcId>=147770 && mcId<=147772) ||
-      (mcId>=147774 && mcId<=147776)){
-    if(isEle) return type == 1 || type == 2;
-    else      return type == 5 || type == 6;
-  }
-  else{
-    // 2-lep classifies everything as real if it 
-    // is from W, Z, tau, or top..
-    //uint origin = lep->mcOrigin;
-    //return origin == 9 || origin == 12 || origin == 13 || origin == 10;
+//   // Sherpa diboson, assume all unknowns are real leptons
+//   // This is an approximation, but probably ok.
+//   // *** I will prob need to add run numbers here ***
+//   if( (mcId>=126892 && mcId<=126895) || (mcId>=147770 && mcId<=147772) ||
+//       (mcId>=147774 && mcId<=147776)){
+//     if(isEle) return type == 1 || type == 2;
+//     else      return type == 5 || type == 6;
+//   }
+//   else{
+//     // 2-lep classifies everything as real if it 
+//     // is from W, Z, tau, or top..
+//     //uint origin = lep->mcOrigin;
+//     //return origin == 9 || origin == 12 || origin == 13 || origin == 10;
     
-    if(isEle) return type == 2;
-    else      return type == 6;
-  }
+//     if(isEle) return type == 2;
+//     else      return type == 6;
+//   }
+
 
   /*
   if( org==1 ||
@@ -82,10 +84,10 @@ bool isFake(int org, int type,int mcId,
 //-----------------------------------------------------------------------------
 bool isHF(int org, int type,int truthMatchType)
 {
-  //return (truthMatchType == HF);
+  return (truthMatchType == HF);
 
-  return org == 25 || org == 26 || org == 27 || org == 28 ||
-    org == 29 || org == 32 || org == 33;
+//   return org == 25 || org == 26 || org == 27 || org == 28 ||
+//     org == 29 || org == 32 || org == 33;
 
   return false;
 }
@@ -97,14 +99,14 @@ bool isLF(int org, int type,
 	  bool isEle,
 	  bool isChargeFlip)
 {
-  //return (truthMatchType == LF);
+  return (truthMatchType == LF);
 
   // Steve's way:
-  bool isqFlip = isEle ? isChargeFlip : false;
-  return isFake(org,type,mcId,truthMatchType,isEle) && 
-    !isConv(org,type,mcId,truthMatchType,isEle) &&
-    !isHF(org,type,truthMatchType) && 
-    !isqFlip;
+ //  bool isqFlip = isEle ? isChargeFlip : false;
+//   return isFake(org,type,mcId,truthMatchType,isEle) && 
+//     !isConv(org,type,mcId,truthMatchType,isEle) &&
+//     !isHF(org,type,truthMatchType) && 
+//     !isqFlip;
 
 
   /*
@@ -129,9 +131,9 @@ bool isConv(int org, int type,
 	    bool isChargeFlip)
 {
   //return lep->mcOrigin == 5;
-  //bool isConv       = lep->truthMatchType == RecoTruthMatch::CONV;
+  bool isConv       = truthMatchType == CONV;
  
-  bool isConv       = org == 5;
+  //  bool isConv       = org == 5;
   bool isqFlip =  isEle ? isChargeFlip : false; 
 
   return isConv && !isqFlip;

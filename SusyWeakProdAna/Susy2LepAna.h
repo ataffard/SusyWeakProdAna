@@ -82,6 +82,7 @@ class Susy2LepAna: public SusyNtTools
     void setSelection(std::string s);
     
     // Cut methods
+    bool passMll20(const LeptonVector* leptons);
     bool passTrigger(const LeptonVector* leptons);
     bool passNLepCut(const LeptonVector* leptons);
     bool passIsPromptLepton(const LeptonVector* leptons, bool isMC=false);
@@ -214,6 +215,7 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_BadFCAL;
     float                n_pass_atleast2BaseLep; //>=2 base lept
     float                n_pass_exactly2BaseLep; //=2 base lept
+    float                n_pass_mll20;           //mll>20 SS/OS all flavors
 
     float                n_pass_trig[ET_N];
     float                n_pass_signalLep[ET_N];

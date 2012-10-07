@@ -1,5 +1,5 @@
 #
-# Submit MajAna jobs 
+# Submit SusyAna jobs 
 # view queue 
 #  qstat -r atlas -n
 #  qstat |grep ataffard

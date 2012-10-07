@@ -226,8 +226,8 @@ void SusyFakeAna::setEventWeight(int mode)
 /*--------------------------------------------------------------------------------*/
 bool SusyFakeAna::eventCleaning()
 {
-  int flag = nt->evt()->evtFlag[NtSys_NOM];
-  //  int flag = nt->evt()->cutFlags[NtSys_NOM];
+  //int flag = nt->evt()->evtFlag[NtSys_NOM];
+  int flag = nt->evt()->cutFlags[NtSys_NOM];
   if( !passLAr(flag) )              return false;
   if( !passBadJet(flag) )           return false;
   if( !passBadMuon(flag) )          return false;

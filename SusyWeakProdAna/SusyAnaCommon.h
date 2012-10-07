@@ -6,12 +6,12 @@
 enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 
 //#define LUMI_RAW  //Raw count
-#define LUMI_1FB  //A->B3
+//#define LUMI_1FB  //A->B3
 //#define LUMI_5FB  //A->B14
-//#define LUMI_13FB  //A->E5
+#define LUMI_13FB  //A->E5
 
-const std::string TAG = "100512";
-const std::string SUFF = "_n0102_std";
+const std::string TAG = "100612";
+const std::string SUFF = "_n0105_std";
 
 //
 //Normal mode - all these are true
@@ -22,11 +22,11 @@ const bool WEIGHT_COUNT=true;
 const bool SKIP_METCUT_SR = true;
 const bool DO_FILL_HISTO = true;
 
-const bool USE_DGWEIGHT=false;//true;
-const bool USE_BWEIGHT=false;//true;
-const bool USE_LEPSF=false;//true; 
+const bool USE_DGWEIGHT=true;
+const bool USE_BWEIGHT=true;
+const bool USE_LEPSF=true; 
 
-const bool USE_QFLIP=true;//false; //Toggled charge flip prob
+const bool USE_QFLIP=false;//true; //Toggled charge flip prob
 
 //
 // Should not need to change anything below
