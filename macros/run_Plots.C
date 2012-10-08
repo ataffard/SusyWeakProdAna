@@ -23,11 +23,11 @@ DrawPlots* _ana;
 
 
 void openHist(string mode="STD",
-	      string Top="histo_topDil_Sherpa",
+	      string Top="histo_top_Sherpa",
 	      string WW="histo_WW_Sherpa",
 	      string ZX="histo_ZX_Sherpa",		      
 	      string Ztt="histo_ZTauTaujets_Sherpa",
-	      string Fake="histo_mcfake_Sherpa");
+	      string Fake="histo_mcFake_Sherpa");
 		      
 void draw(string name, bool logy);
 
