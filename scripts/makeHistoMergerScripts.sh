@@ -1,8 +1,8 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-date="100612_13fb_n0105_std"
-mth="std"
+date="100812_13fb_n0105_DD"
+mth="rlep"
 
 #date="100412_1fb_n0102_std"
 #mth="std"
@@ -22,7 +22,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-#doMove=true
+doMove=true
 
 doData=true
 doDataFake=true
@@ -373,7 +373,8 @@ if [ $doZjetSherpaIncl ]; then
     rm -f ${histPath}/histo_Zjets_Sherpa_${mth}.root
     SCRIPT=${mergeJobDir}/Zjets_Sherpa_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
-    
+
+##TO DO Add ee/mm PT10 145* - are these overlapping    
     cat > $SCRIPT << "EOF"
 #!/bin/bash
     hadd -f ${histPath}/histo_Zjets_Sherpa_${mth}.root  \

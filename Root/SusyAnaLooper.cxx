@@ -104,10 +104,11 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   }
 
   //TO DO Add HF bb/cc w/ mll cut!!!
-  if((nt.evt()->mcChannel>=146830 && nt.evt()->mcChannel<=146855) || //low mass
-     (nt.evt()->mcChannel>=109300 && nt.evt()->mcChannel<=109313) || //Zeebb Zmmbb Zttbb
-     (nt.evt()->mcChannel>=126414 && nt.evt()->mcChannel<=126421) || //Zeecc Zmmcc
-     (nt.evt()->mcChannel>=117706 && nt.evt()->mcChannel<=117709)    //Zttcc 
+  if((nt.evt()->mcChannel>=146830 && nt.evt()->mcChannel<=146855) 
+    //|| //low mass
+    //     (nt.evt()->mcChannel>=109300 && nt.evt()->mcChannel<=109313) || //Zeebb Zmmbb Zttbb
+    //(nt.evt()->mcChannel>=126414 && nt.evt()->mcChannel<=126421) || //Zeecc Zmmcc
+    //     (nt.evt()->mcChannel>=117706 && nt.evt()->mcChannel<=117709)    //Zttcc 
      ){
     _isAlpgenLowMass=true;
     if(_doMll){ //Reject Alpgen low mass with Mll>40 - To patch w/ Sherpa

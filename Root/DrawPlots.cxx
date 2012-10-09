@@ -70,9 +70,9 @@ void DrawPlots::openHistoFiles(string mode,
   else if(strcmp(mode.c_str(),"DD")==0){
     cout << "Loading rlep MC & DD fake " << endl;
     //real match on
-    //method="rlep";
+    method="rlep";
     //Some overlap but - top ->semi lep not included 
-    method="std";
+    //method="std";
     _mcFileName.push_back(string(_pathHisto + "/histo_data12_fake.root").c_str());
     _mcFileName.push_back(string(_pathHisto +"/" + Ztt + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(_pathHisto +"/" + WW + "_" + method + ".root").c_str());

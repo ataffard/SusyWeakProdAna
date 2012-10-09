@@ -332,20 +332,23 @@ void Susy2LepAna::setSelection(std::string s)
     m_selOS = true;
     m_selZ  = true;
     m_vetoJ = true;
-    m_metRelMin=100;
+    if(SKIP_METCUT_SR) m_metRelMin=0;
+    else m_metRelMin=100;
   }
   else if(m_sel == "ZXCR3"){
     m_selOS = true;
     m_selZ  = true;
     m_topTag = true;
-    m_metRelMin=50;
+    if(SKIP_METCUT_SR) m_metRelMin=0;
+    else m_metRelMin=50;
     m_sel2J = true;
     m_vetoB = true;
   }
   else if(m_sel == "ZXCR4"){
     m_selOS = true;
     m_selZ  = true;
-    m_metRelMin=40;
+    if(SKIP_METCUT_SR) m_metRelMin=0;
+    else m_metRelMin=40;
     m_sel2J = true;
     m_vetoB = true;
   }
@@ -438,8 +441,8 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
     if(!USE_QFLIP && !passQQ(leptons)) continue;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
-	  (iSR==DIL_SRSSjveto || iSR==DIL_CR2LepSS) ){
-	// 2 options:
+	  (iSR==DIL_SRSSjveto /*|| iSR==DIL_CR2LepSS*/) ){
+	// 2 options :
 	// - True SS. neither leptons is qFlip -> ok count
 	// - ee/em, one electron has qFlip
 	if(passQQ(leptons) && !hasQFlip(leptons)){
@@ -447,9 +450,13 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
 	} //genuine SS - ok
 	else if(!passQQ(leptons)){ //OS event - get the qFlip prob
 	  float _ww_qFlip = getQFlipProb(leptons,met);
-	  cout << " QFLIP SR: " << sSR << " " << _ww_qFlip << endl;
-	  _ww *= _ww_qFlip;
-	  if(iSR==DIL_CR2LepSS ) _tmp += _ww;
+	  if(iSR==DIL_SRSSjveto){
+	    //cout << " QFLIP SR: " << sSR << " " << passQQ(leptons) << " " << _ww_qFlip << endl;
+	    _ww *= _ww_qFlip;
+	    _inc = _ww;
+	    if(!hasQFlip(leptons)) _tmp += _ww;
+
+	  }
 	}
 	else continue;
       }

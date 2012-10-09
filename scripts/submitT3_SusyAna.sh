@@ -48,8 +48,8 @@ nEvt=-1
 ## Ana mode STD or DD
 ##
 if [ "$mode" == "DD" ]; then
-#    methodMC=rlep
-    methodMC=std
+    methodMC=rlep
+#    methodMC=std
 fi
 
 

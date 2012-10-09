@@ -12,8 +12,8 @@ fi
 
 #Update SusyAnaCommon.h to pick correct path for .root files
 
-OPT="-logy -mode STD"
-#OPT="-logy -mode DD"
+#OPT="-logy -mode STD"
+OPT="-logy -mode DD"
 #OPT="-logy -mode STD -ZX histo_ZX_SherpaLFHF -Top histo_top_PowHeg  "
 #OPT="-logy -mode DD -Top histo_topDil_Sherpa -WW histo_WW_Sherpa -ZX histo_ZX_Sherpa -Ztt histo_ZTauTaujets_Sherpa "
 #OPT="-logy -mode STD -ZX histo_ZX_SherpaLFHF -Fake histo_mcfake_Sherpa"
@@ -24,7 +24,7 @@ pathRun=${WORKAREA}/SusyWeakProdAna/run
 if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #for testing
-#    SR=(CR2LepOS )
+#    SR=(CR2LepSS )
 #    DIL=(EE MM EM)
 #    PLOTS=(mll metrel etmiss)
  

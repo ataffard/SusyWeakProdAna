@@ -91,7 +91,7 @@ int main(int argc, char** argv)
   string file;
   string fileList;
   string fileDir;
-  bool eos=true;
+  bool eos=false;//true;
   
 
   cout << "SusyAnaLooperExec" << endl;
