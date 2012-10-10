@@ -27,7 +27,10 @@
   cout<<"\t libXmlParser = "<<gSystem->Load("libXMLParser")<<endl;
 
   //Load all the libs 
-  gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f10-10 >libs.list");
+  ///T3
+  gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f6-7 >libs.list");
+  //EOS CERN
+  //gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f10-10 >libs.list");
   FILE* fInput;
   if ((fInput = fopen("libs.list","r")) == NULL) {
     printf("File libs.list could not be opened. Exit\n");

@@ -1,7 +1,7 @@
 # ./makeLatexTable.sh  
 
 #date="100612_13fb_n0105_std"
-date="100812_13fb_n0105_DD"
+date="101012_13fb_n0105_DD_test"
 
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run

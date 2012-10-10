@@ -22,7 +22,7 @@ TGuiUtils* _utils;
 DrawPlots* _ana;
 
 
-void openHist(string mode="STD",
+void openHist(string mode="DD",
 	      string Top="histo_top_Sherpa",
 	      string WW="histo_WW_Sherpa",
 	      string ZX="histo_ZX_Sherpa",		      

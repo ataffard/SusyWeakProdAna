@@ -1,14 +1,14 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-date="100812_13fb_n0105_DD"
-mth="rlep"
+#date="100812_13fb_n0105_DD"
+#mth="rlep"
 
 #date="100412_1fb_n0102_std"
 #mth="std"
 
-#date="100212_1fb_n0102_DD"
-#mth="rlep"
+date="101012_13fb_n0105_DD_test"
+mth="rlep"
 #mth="std"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
