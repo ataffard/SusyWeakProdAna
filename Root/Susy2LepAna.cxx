@@ -438,41 +438,30 @@ bool Susy2LepAna::selectEvent(const LeptonVector* leptons,
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
     
+    bool allowZVeto=true; //To prevent applying ZVeto to OS events used for SS estimate
     if(!USE_QFLIP && !passQQ(leptons)) continue;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
-	  (iSR==DIL_SRSSjveto /*|| iSR==DIL_CR2LepSS*/) ){
-	// 2 options :
-	// - True SS. neither leptons is qFlip -> ok count
-	// - ee/em, one electron has qFlip
-	if(passQQ(leptons) && !hasQFlip(leptons)){
-	  cout << "Genuine SS event. is reco SS " << passQQ(leptons) << endl;
-	} //genuine SS - ok
-	else if(!passQQ(leptons)){ //OS event - get the qFlip prob
+	  (iSR==DIL_SRSSjveto || iSR==DIL_CR2LepSS) ){
+	if(isGenuineSS(leptons) )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
+	else{ //OS ee/em event - get the qFlip prob
 	  float _ww_qFlip = getQFlipProb(leptons,met);
-	  if(iSR==DIL_SRSSjveto){
-	    //cout << " QFLIP SR: " << sSR << " " << passQQ(leptons) << " " << _ww_qFlip << endl;
-	    _ww *= _ww_qFlip;
-	    _inc = _ww;
-	    if(!hasQFlip(leptons)) _tmp += _ww;
-
-	  }
+	  _ww *= _ww_qFlip;
+	  _inc = _ww;
+	  n_pass_ss[m_ET][SR]+=_inc;
+	  allowZVeto=false;
 	}
-	else continue;
       }
       else
 	if(!passQQ(leptons)) continue;
     }
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
-    //For debug only !!
-    //if(iSR==DIL_CR2LepOS && m_ET==ET_ee) _tmp += _ww;
-
     if(!passFlavor(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
     //TODO add special opt of QFLIP case
-    if(!passZVeto(leptons)) continue;
+    if(!passZVeto(leptons) && allowZVeto ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass Zveto " << sSR << endl;
 
@@ -821,6 +810,17 @@ bool Susy2LepAna::passQQ(const LeptonVector* leptons)
   if(m_selSS) n_pass_ss[m_ET][SR]+=_inc;
   return true;
 }
+
+/*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::isGenuineSS(const LeptonVector* leptons)
+{
+  if( leptons->size() < 2 ) return false;  
+  float qq = leptons->at(0)->q * leptons->at(1)->q;
+  if(hasQFlip(leptons)) return false;
+  if(qq <0 ) return false;
+  return true;
+}
+
 /*--------------------------------------------------------------------------------*/
 // Signal region cuts  - use all signal jets L25+B20+F30
 /*--------------------------------------------------------------------------------*/

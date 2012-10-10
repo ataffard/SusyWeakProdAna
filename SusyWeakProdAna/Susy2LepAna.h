@@ -109,6 +109,8 @@ class Susy2LepAna: public SusyNtTools
     float getBTagSF(const Susy::Event*, const JetVector* jets);
     float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, int iSR, float metrel);
 
+    
+    bool  isGenuineSS(const LeptonVector* leptons);
     bool  hasQFlip(const LeptonVector* leptons);
     float getQFlipProb(const LeptonVector* leptons, const Met* met);
 

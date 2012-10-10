@@ -209,9 +209,6 @@ if [ $doTopDilSherpa ]; then
 	${histPath}/histo_Ttbar*.117800_${mth}.root \
 	${histPath}/histo_Ttbar*.117801_${mth}.root \
 	${histPath}/histo_Ttbar*.117802_${mth}.root \
-	${histPath}/histo_Ttbar*.117804_${mth}.root \
-	${histPath}/histo_Ttbar*.117806_${mth}.root \
-	${histPath}/histo_Ttbar*.117809_${mth}.root \
 	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root \
 	${histPath}/histo_ttbarW.119353_${mth}.root \
 	${histPath}/histo_ttbarWj.119354_${mth}.root \
@@ -547,8 +544,12 @@ EOF
 #!/bin/bash
     hadd -f ${histPath}/histo_mcFake_Sherpa_${mth}.root   \
 	${histPath}/histo_Wjets_Sherpa_${mth}.root \
+	${histPath}/histo_Ttbar*.117803_${mth}.root \
+	${histPath}/histo_Ttbar*.117804_${mth}.root \
 	${histPath}/histo_Ttbar*.117805_${mth}.root \
+	${histPath}/histo_Ttbar*.117806_${mth}.root \
 	${histPath}/histo_Ttbar*.117808_${mth}.root \
+	${histPath}/histo_Ttbar*.117809_${mth}.root \
 	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
 	${histPath}/histo_singletop_tchan*.*_${mth}.root  
     #TODO add BB/CC
