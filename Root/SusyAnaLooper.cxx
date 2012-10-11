@@ -123,7 +123,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   }
 
   // grab base object and select signal objects
-  int iSys=NtSys_NOM;
+  SusyNtSys iSys=NtSys_NOM;
   //SusyNtSys iSys=NtSys_RESOST;
   selectObjects(iSys);
   

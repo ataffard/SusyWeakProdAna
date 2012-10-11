@@ -146,7 +146,7 @@ class Susy2LepAna: public SusyNtTools
     bool m_useLooseLep;
     int m_method;
 
-    //containers
+    //containers - from SusyNt
     ElectronVector*      v_baseEle;     // baseline electrons
     ElectronVector*      v_sigEle;      // signal electrons
     MuonVector*          v_baseMu;      // baseline muons
@@ -157,8 +157,11 @@ class Susy2LepAna: public SusyNtTools
     JetVector*           v_sigJet;      // signal jets
     const Susy::Met*     m_met;         // Met
    
-    const Susy::Met*     qFlip_met;     //Met for event w/ qFlip ele
-    const Susy::Met*     org_met;     //Met for event w/ qFlip ele
+    //These are used to modify the original electron fro qFlip - pt smear
+    ElectronVector*      v_org_sigEle;  // signal electrons - pt smeared
+    LeptonVector*        v_org_sigLep;  // baseline leptons - ele pt smear
+    Susy::Met*           org_met;       // met after ele pt smear
+
 
     //Event variables
     float _inc;          //To set counter inc to 1 or _ww.

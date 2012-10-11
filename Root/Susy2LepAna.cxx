@@ -777,6 +777,7 @@ float Susy2LepAna::getQFlipProb(const LeptonVector* leptons, const Met* met)
 				  _pdg2, &_l2_tlv, 
 				  &_new_met, _sys);
 
+  cfP*= QFLIP_RESCLALE;
   /*
   float _new_met_Et = sqrt(pow(_new_met.Px(),2) + pow(_new_met.Py(),2)); 
   cout << "\t l1 org_pt " << _l1->Pt() << " fp_pt " << _l1_tlv.Pt() 

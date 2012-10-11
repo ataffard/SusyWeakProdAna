@@ -71,7 +71,7 @@ const bool BLIND_DATA=true;
 
 const bool USE_NOJVF_bSF=true;
 
-
+const float QFLIP_RESCLALE= 0.5537; //+/- 0.0081
 
 
 #endif
