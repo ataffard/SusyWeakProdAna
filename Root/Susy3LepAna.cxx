@@ -468,9 +468,9 @@ float Susy3LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
   JetVector  valJets;
   valJets.clear();
   for(uint i=0; i<jets->size(); ++i){
-    const Jet* jet = jets->at(i);
+    Jet* jet = jets->at(i);
     //    if(jet->Pt()>m_btagPtMin) 
-      valJets.push_back(jet);
+    valJets.push_back(jet);
   }
   
   if(valJets.size()==0) return 1;//safety.

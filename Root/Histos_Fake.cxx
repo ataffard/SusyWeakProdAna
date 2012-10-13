@@ -19,7 +19,7 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
   char      syaxis[200];
   sprintf(syaxis,"Entries");
 
-  std::string MCTYPE[] = {"PR","HF","LF","CONV","UK"};
+  std::string MCTYPE[] = {"PR","CONV", "HF","LF","UK"};
  
 #define BOOK1(hN,xT,u,yT, ...)						\
   for(int j=0; j<nHMC; j++){						\
@@ -27,9 +27,9 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
     else sx = 	string(xT);						\
     string stype;							\
     if(j==0) stype="pr_";						\
-    if(j==1) stype="hf_";						\
-    if(j==2) stype="lf_";						\
-    if(j==3) stype="cv_";						\
+    if(j==1) stype="cv_";						\
+    if(j==2) stype="hf_";						\
+    if(j==3) stype="lf_";						\
     hN[0][j] = _utils->myTH1F((book_s1=string("sel_")+stype+ #hN).c_str(), \
 			      (book_s2=string("sel_")+stype+ #hN).c_str(), \
 			      __VA_ARGS__,sx.c_str() ,yT);		\
@@ -185,9 +185,9 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
     else sy = 	string(yT);						\
     string stype;							\
     if(j==0) stype="pr_";						\
-    if(j==1) stype="hf_";						\
-    if(j==2) stype="lf_";						\
-    if(j==3) stype="cv_";						\
+    if(j==1) stype="cv_";						\
+    if(j==2) stype="hf_";						\
+    if(j==3) stype="lf_";						\
     hN[0][j] = _utils->myTH2F((book_s1=string("sel_")+stype+ #hN).c_str(), \
 			      (book_s2=string("sel_")+stype+ #hN).c_str(), \
 			      __VA_ARGS__,sx.c_str() ,sy.c_str());	\
@@ -224,9 +224,9 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
     else sz = 	string(zT);						\
     string stype;							\
     if(j==0) stype="pr_";						\
-    if(j==1) stype="hf_";						\
-    if(j==2) stype="lf_";						\
-    if(j==3) stype="cv_";						\
+    if(j==1) stype="cv_";						\
+    if(j==2) stype="hf_";						\
+    if(j==3) stype="lf_";						\
     hN[0][j] = _utils->myTH3F((book_s1=string("sel_")+stype+ #hN).c_str(), \
 			      (book_s2=string("sel_")+stype+ #hN).c_str(), \
 			      __VA_ARGS__,				\
@@ -339,9 +339,9 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
       else sy = 	string(yT);					\
       string stype;							\
       if(j==0) stype="pr_";						\
-      if(j==1) stype="hf_";						\
-      if(j==2) stype="lf_";						\
-      if(j==3) stype="cv_";						\
+      if(j==1) stype="cv_";						\
+      if(j==2) stype="hf_";						\
+      if(j==3) stype="lf_";						\
       hN[0][j][k] = _utils->myTH2F((book_s1=string("sel_")+stype+ #hN + sTrig).c_str(), \
 				(book_s2=string("sel_")+stype+ #hN + sTrig).c_str(), \
 				__VA_ARGS__,				\
@@ -408,9 +408,9 @@ for(int j=0; j<nHMC; j++){						\
       else sx = 	string(xT);					\
       string stype;							\
       if(j==0) stype="pr_";						\
-      if(j==1) stype="hf_";						\
-      if(j==2) stype="lf_";						\
-      if(j==3) stype="cv_";						\
+      if(j==1) stype="cv_";						\
+      if(j==2) stype="hf_";						\
+      if(j==3) stype="lf_";						\
       hN[0][j][k] = _utils->myTH1F((book_s1=string("sel_")+scr+stype+ #hN).c_str(), \
 				   (book_s2=string("sel_")+scr+stype+ #hN).c_str(), \
 				   __VA_ARGS__,sx.c_str() ,yT);		\
@@ -536,9 +536,9 @@ for(int j=0; j<nHMC; j++){						\
     else sx = 	string(xT);						\
     string stype;							\
     if(j==0) stype="pr_";						\
-    if(j==1) stype="hf_";						\
-    if(j==2) stype="lf_";						\
-    if(j==3) stype="cv_";						\
+    if(j==1) stype="cv_";						\
+    if(j==2) stype="hf_";						\
+    if(j==3) stype="lf_";						\
     hN[0][j] = _utils->myTProfile((book_s1=string("sel_")+stype+ #hN).c_str(), \
 				  (book_s2=string("sel_")+stype+ #hN).c_str(), \
 				  __VA_ARGS__,sx.c_str() ,yT);		\
@@ -584,9 +584,9 @@ for(int j=0; j<nHMC; j++){						\
       for(int k=0; k<nHMC; k++){					\
 	string stype;							\
 	if(k==0) stype="pr_";						\
-	if(k==1) stype="hf_";						\
-	if(k==2) stype="lf_";						\
-	if(k==3) stype="cv_";						\
+	if(k==1) stype="cv_";						\
+	if(k==2) stype="hf_";						\
+	if(k==3) stype="lf_";						\
 									\
 	hN[i][j][k] = new TH3F((book_s1=sr+sFlav+stype+ #hN).c_str(),	\
 			       (book_s2=sr+sFlav+stype+ #hN).c_str(),	\
@@ -623,9 +623,9 @@ for(int j=0; j<nHMC; j++){						\
       for(int k=0; k<nHMC; k++){					\
 	string stype;							\
 	if(k==0) stype="pr_";						\
-	if(k==1) stype="hf_";						\
-	if(k==2) stype="lf_";						\
-	if(k==3) stype="cv_";						\
+	if(k==1) stype="cv_";						\
+	if(k==2) stype="hf_";						\
+	if(k==3) stype="lf_";						\
 									\
 	hN[i][j][k] = new TH3F((book_s1=sr+sFlav+stype+ #hN).c_str(),	\
 			       (book_s2=sr+sFlav+stype+ #hN).c_str(),	\

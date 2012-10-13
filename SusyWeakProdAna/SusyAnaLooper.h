@@ -50,6 +50,8 @@ class SusyAnaLooper : public SusyNtAna
     void setMethod(int m) {_method=m;}
     void useLooseLep(bool b){_useLooseLep=b;}
 
+    void printSettings();
+
     //Dump event info for debugging
     void dumpEvent();
    

@@ -122,7 +122,7 @@ done <tmp.txt
 qstat |grep ataffard
 rm -f tmp.txt
 
-if [ "$type" == "susy" ]; then
+if [ "$type" == "mc12" ]; then
     cd  ${pathRun}
-    ./run.sh dummy
+    ./run.sh mc12 dummy ${mode}
 fi

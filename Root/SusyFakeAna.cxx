@@ -736,13 +736,13 @@ bool SusyFakeAna::HFTagProbe(const Lepton* &_tag, const Lepton* &_probe, int &ca
   MuonVector bMuons;
   //Loop over the baseline Jets 
   for(uint j=0; j<v_baseJet->size(); j++){
-    const Jet* _j = v_baseJet->at(j);
+    Jet* _j = v_baseJet->at(j);
     if(_j->Pt()<JET_PT_B20_CUT) continue;
     if(fabs(_j->Eta())>JET_ETA_CUT) continue;
     if(!isBJet(_j,MV1_85)) continue;
     bool hasMu=false;
     for(uint i=0; i<muons.size(); i++){
-      const Muon* _m = muons.at(i);
+      Muon* _m = muons.at(i);
       if(_m->DeltaR(*_j)>mdR) continue;
       bMuons.push_back(_m);
       hasMu=true;

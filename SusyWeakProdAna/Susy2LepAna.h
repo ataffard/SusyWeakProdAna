@@ -66,8 +66,8 @@ class Susy2LepAna: public SusyNtTools
     void end();
    
     // Full event selection. Specify which leptons to use.
-    bool selectEvent(const LeptonVector* leptons, 
-		     const LeptonVector* baseLeptons, 
+    bool selectEvent(LeptonVector* leptons, 
+		     LeptonVector* baseLeptons, 
 		     const JetVector* jets,
 		     const Met* met);
 	
@@ -112,10 +112,14 @@ class Susy2LepAna: public SusyNtTools
     
     bool  isGenuineSS(const LeptonVector* leptons);
     bool  hasQFlip(const LeptonVector* leptons);
-    float getQFlipProb(const LeptonVector* leptons, const Met* met);
+    float getQFlipProb(const LeptonVector* leptons, Met* met);
 
     float JZBJet(const JetVector* jets, const LeptonVector* leptons);
     float JZBEtmiss(const Met *met, const LeptonVector* leptons);
+
+    void saveOriginal();
+    void restoreOriginal(LeptonVector& leptons, const Met *met);
+
 
     //Other functions
     void print_SRjveto();
@@ -157,10 +161,13 @@ class Susy2LepAna: public SusyNtTools
     JetVector*           v_sigJet;      // signal jets
     const Susy::Met*     m_met;         // Met
    
-    //These are used to modify the original electron fro qFlip - pt smear
-    ElectronVector*      v_org_sigEle;  // signal electrons - pt smeared
-    LeptonVector*        v_org_sigLep;  // baseline leptons - ele pt smear
-    Susy::Met*           org_met;       // met after ele pt smear
+    //These are save copy of the original values from SusyNt
+    //Use to restore to original within the SR's loop
+    //Since fro SS region, Ele pt, met are modified
+    ElectronVector       v_save_sigEle;  // signal electrons 
+    MuonVector           v_save_sigMu;   // signal muon 
+    LeptonVector         v_save_sigLep;  // baseline leptons 
+    Susy::Met            new_met;       // original met
 
 
     //Event variables

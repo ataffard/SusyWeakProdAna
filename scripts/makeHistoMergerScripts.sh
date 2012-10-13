@@ -1,15 +1,22 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-#date="100812_13fb_n0105_DD"
+
+#date="101112_13fb_n0105_DD_blind_MCData"
 #mth="rlep"
 
-#date="100412_1fb_n0102_std"
+#date="101112_13fb_n0105_STD_blind_MCData"
 #mth="std"
 
-date="101012_13fb_n0105_DD_test"
-mth="rlep"
+#date="101212_13fb_n0105_STD_blindData_noMetRel"
 #mth="std"
+
+#date="101212_13fb_n0105_DD_blindData_noMetRel"
+#mth="rlep"
+
+date="101212_13fb_n0105_DD_unblindData_noMetRel"
+mth="rlep"
+
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
@@ -37,6 +44,8 @@ doWWPowHeg=true;
 
 ##doDiBHerwig=false
 ##doDiBMCNLO=false
+
+dodiBosonSherpa=true
 
 dodiBZSherpa=true
 dodiBXPowHeg=true
@@ -150,7 +159,8 @@ if [ $doTopMCNLO ]; then
 	${histPath}/histo_ttbarW.119353_${mth}.root \
 	${histPath}/histo_ttbarWj.119354_${mth}.root \
 	${histPath}/histo_ttbarZ.119355_${mth}.root \
-	${histPath}/histo_ttbarZj.119356_${mth}.root 
+	${histPath}/histo_ttbarZj.119356_${mth}.root \
+	${histPath}/histo_ttbarWW.119583_${mth}.root 
 EOF
     chmod 755 $SCRIPT
 fi
@@ -171,7 +181,8 @@ if [ $doTopPowHeg ]; then
 	${histPath}/histo_ttbarW.119353_${mth}.root \
 	${histPath}/histo_ttbarWj.119354_${mth}.root \
 	${histPath}/histo_ttbarZ.119355_${mth}.root \
-	${histPath}/histo_ttbarZj.119356_${mth}.root 
+	${histPath}/histo_ttbarZj.119356_${mth}.root \
+	${histPath}/histo_ttbarWW.119583_${mth}.root 
 EOF
     chmod 755 $SCRIPT
 fi
@@ -192,7 +203,8 @@ if [ $doTopSherpa ]; then
 	${histPath}/histo_ttbarW.119353_${mth}.root \
 	${histPath}/histo_ttbarWj.119354_${mth}.root \
 	${histPath}/histo_ttbarZ.119355_${mth}.root \
-	${histPath}/histo_ttbarZj.119356_${mth}.root 
+	${histPath}/histo_ttbarZj.119356_${mth}.root \
+	${histPath}/histo_ttbarWW.119583_${mth}.root 
 EOF
     chmod 755 $SCRIPT
 fi
@@ -213,7 +225,8 @@ if [ $doTopDilSherpa ]; then
 	${histPath}/histo_ttbarW.119353_${mth}.root \
 	${histPath}/histo_ttbarWj.119354_${mth}.root \
 	${histPath}/histo_ttbarZ.119355_${mth}.root \
-	${histPath}/histo_ttbarZj.119356_${mth}.root 
+	${histPath}/histo_ttbarZj.119356_${mth}.root \
+	${histPath}/histo_ttbarWW.119583_${mth}.root 
 EOF
     chmod 755 $SCRIPT
 
@@ -234,8 +247,8 @@ if [ $doWWSherpa ]; then
     hadd -f ${histPath}/histo_WW_Sherpa_${mth}.root \
 	${histPath}/histo_llnunu_WW.126892_${mth}.root \
 	${histPath}/histo_WpWm*.106*_${mth}.root  \
+	${histPath}/histo_llnunu.126988_${mth}.root\
 	${histPath}/histo_llnunujj.126989_${mth}.root
-    #TODO add 126988
 EOF
     chmod 755 $SCRIPT
 fi
@@ -252,8 +265,8 @@ if [ $doWWPowHeg ]; then
     hadd -f ${histPath}/histo_WW_Powheg_${mth}.root \
 	${histPath}/histo_WpWm*.126*_${mth}.root \
 	${histPath}/histo_WpWm*.106*_${mth}.root  \
+	${histPath}/histo_llnunu.126988_${mth}.root \
 	${histPath}/histo_llnunujj.126989_${mth}.root
-    #TODO add 126988
 EOF
     chmod 755 $SCRIPT
 fi 
@@ -281,6 +294,29 @@ fi
 #	${histPath}/histo_WZ.105987_${mth}.root  \
 #	${histPath}/histo_WpWm*.106*_${mth}.root  
 #fi
+
+if [ $dodiBosonSherpa ]; then
+#Sherpa Diboson
+    echo "Merge diBoson Sherpa "
+    rm -f ${histPath}/histo_diBoson_Sherpa_${mth}.root
+    SCRIPT=${mergeJobDir}/diBoson_Sherpa_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_diBoson_Sherpa_${mth}.root \
+	${histPath}/histo_llnunu_WW.126892_${mth}.root \
+	${histPath}/histo_WpWm*.106*_${mth}.root  \
+	${histPath}/histo_llnunu.126988_${mth}.root\
+	${histPath}/histo_llnunujj.126989_${mth}.root \
+	${histPath}/histo_llll_ZZ.126894_${mth}.root \
+	${histPath}/histo_llnunu_ZZ.126895_${mth}.root \
+	${histPath}/histo_lllnu_WZ.126893_${mth}.root \
+	${histPath}/histo_ZZ*.11660?_${mth}.root 
+EOF
+    chmod 755 $SCRIPT
+fi
+
 
 if [ $dodiBZSherpa ]; then
 #Sherpa Diboson

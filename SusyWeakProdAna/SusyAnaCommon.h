@@ -10,23 +10,37 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //#define LUMI_5FB  //A->B14
 #define LUMI_13FB  //A->E5
 
-const std::string TAG = "101012";
-const std::string SUFF = "_n0105_DD_test";
+//const std::string TAG = "101012";
+//const std::string SUFF = "_n0105_DD_test";
+
+//const std::string TAG = "101112";
+//const std::string SUFF = "_n0105_DD_blind_MCData";
+//const std::string SUFF = "_n0105_STD_blind_MCData";
+//const std::string SUFF = "_n0105_DD_unblind";
+
+//const std::string TAG = "101212";
+//const std::string SUFF = "_n0105_STD_blindData_noMetRel";
+
+const std::string TAG = "10132";
+const std::string SUFF = "_n0105_DD_blindData_noMetRel";
 
 //
 //Normal mode - all these are true
 //
 
 //Apply weight to dump count table - NLO weight always applied
-const bool WEIGHT_COUNT=true; 
 const bool SKIP_METCUT_SR = true;
-const bool DO_FILL_HISTO = true;
+const bool METREL40       = false; //true;  //Apply min MetRel40 to CR2LepOS and CR2LepSS
 
-const bool USE_DGWEIGHT=true;
-const bool USE_BWEIGHT=true;
-const bool USE_LEPSF=true; 
+const bool BLIND_MC       = false;
 
-const bool USE_QFLIP=true; //Toggled charge flip prob
+const bool WEIGHT_COUNT   = true; 
+const bool DO_FILL_HISTO  = true;
+
+const bool USE_DGWEIGHT   = true;
+const bool USE_BWEIGHT    = true;
+const bool USE_LEPSF      = true; 
+const bool USE_QFLIP      = true; //Toggled charge flip prob
 
 //
 // Should not need to change anything below
@@ -71,7 +85,11 @@ const bool BLIND_DATA=true;
 
 const bool USE_NOJVF_bSF=true;
 
-const float QFLIP_RESCLALE= 0.5537; //+/- 0.0081
+
+//PICK VALUE FROM QFLIP PACKAGE - TEMPORARY
+//const float QFLIP_RESCLALE= 0.5537; //+/- 0.0081  //Alpgen Zee
+//const float QFLIP_RESCLALE= 0.5820;// +/- 0.0084 (stat.) //Sherpa Zee
+const float QFLIP_RESCLALE=0.5966;// +/- 0.0011 (stat.) //Sherpa Zee - fix mcTruthMatch
 
 
 #endif

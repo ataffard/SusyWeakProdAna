@@ -1,8 +1,14 @@
 # ./makeLatexTable.sh  
 
 #date="100612_13fb_n0105_std"
-date="101012_13fb_n0105_DD_test"
+#date="101112_13fb_n0105_DD_blind_MCData"
+#date="101112_13fb_n0105_STD_blind_MCData"
 
+#date="101112_13fb_n0105_DD_unblind"
+
+#date="101212_13fb_n0105_STD_blindData_noMetRel"
+#date="101212_13fb_n0105_DD_blindData_noMetRel"
+date="101212_13fb_n0105_DD_unblindData_noMetRel"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 path=${WORKAREA}/histoAna/SusyAna/histos_${date}

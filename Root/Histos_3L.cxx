@@ -113,9 +113,9 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   std::vector<TString> LepType;
   LepType.clear();
   LepType.push_back("PR");
+  LepType.push_back("CONV");
   LepType.push_back("HF");
   LepType.push_back("LF");
-  LepType.push_back("CONV");
   LepType.push_back("Unknown");
 
 

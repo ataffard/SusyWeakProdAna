@@ -32,6 +32,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 
   cout << ">>> Weighting MC to " << pLUMI << " fb^-1 corresponding to " << LUMW << endl;
   cout << " \t output dir " << DATE.c_str() << endl;
+  printSettings();
 
   if(_doMll) cout << " \t Mll40 toggled for lowMass Alpgen " << endl;
 
@@ -73,6 +74,39 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
     _susyHistos->Book3LHistograms(_histoDir);
   }
 
+
+}
+
+/*--------------------------------------------------------------------------------*/
+// Analysis settings/flags
+/*--------------------------------------------------------------------------------*/
+void SusyAnaLooper::printSettings()
+{
+  string _path =  "/histos_" + DATE;
+
+  cout << " ================================"       <<endl;
+  cout << " SusyAnaCommon Flags " << endl;
+  cout << "   Destination       " << _path          << endl;
+  cout << "   LUMIMODE          " << LUMIMODE       << endl;
+  cout << "   LUMI              " << LUMW           << endl;
+  cout << "   pLUMI             " << pLUMI          << endl;
+  cout << endl;
+  cout << " 2L Settings " << endl;
+  cout << "   SKIP_METCUT_SR    " << SKIP_METCUT_SR << endl;
+  cout << "   METREL40          " << METREL40       << endl;
+  cout << endl;
+  cout << "   BLIND_DATA        " << BLIND_DATA     << endl;
+  cout << "   BLIND_MC          " << BLIND_MC       << endl;
+  cout << endl;
+  cout << "   WEIGHT_COUNT      " << WEIGHT_COUNT   << endl;
+  cout << "   DO_FILL_HISTO     " << DO_FILL_HISTO  << endl;
+  cout << "   USE_DGWEIGHT      " << USE_DGWEIGHT   << endl;
+  cout << "   USE_BWEIGHT       " << USE_BWEIGHT    << endl;
+  cout << "   USE_LEPSF         " << USE_LEPSF      << endl;
+  cout << "   USE_QFLIP         " << USE_QFLIP      << endl;
+  cout << endl;
+  cout << " ================================"       <<endl;
+  cout << endl;
 
 }
 

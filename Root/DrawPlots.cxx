@@ -27,10 +27,11 @@ DrawPlots::DrawPlots(){
   _mcStack = new THStack("tmpStack","tmpStack");
 
   SFILE.clear();
-  SFILE.push_back("Wjets + b#bar{b} + c#bar{c}");
+  //  SFILE.push_back("Wjets + b#bar{b} + c#bar{c}");
+  SFILE.push_back("Fake-leptons MC");
   SFILE.push_back("Z#rightarrow #tau#tau");
   SFILE.push_back("WW");
-  SFILE.push_back("Top");
+  SFILE.push_back("t#bar{t} + Wt");
   SFILE.push_back("Z(ee,#mu#mu)+jets + ZV");
   SFILE.push_back("Data");
 
@@ -49,8 +50,10 @@ void DrawPlots::openHistoFiles(string mode,
 			       string Fake)
 {
   std::cout << "loading histo from method " << mode << endl;
+  std::cout << "Using histo path " << _pathHisto <<endl;
 
-  _dataFileName = _pathHisto + "/histo_data12_std.root";
+  //  _dataFileName = _pathHisto + "/histo_data12_std.root";
+  _dataFileName = _pathHisto + "/histo_dummy_rlep.root";
   std::cout << "Loading data " << std::endl;
   _dataFile = new TFile(_dataFileName.c_str(),"READ",SFILE[5].c_str());
 
@@ -475,7 +478,7 @@ void DrawPlots::drawChannelText(string name, float x, float y)
 void DrawPlots::drawLumi(float x, float y)
 {
   char s[20] ="";
-  sprintf(s,"%4.2f",pLUMI);
+  sprintf(s,"%4.0f",pLUMI);
   string _text = "#int L dt=" + string(s) + "fb^{-1}  #sqrt{s}=8 TeV";
   _utils->myText(x,y,kBlack,_text.c_str(),0.05);
 }

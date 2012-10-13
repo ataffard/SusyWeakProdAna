@@ -101,11 +101,11 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   std::vector<TString> LepType;
   LepType.clear();
   LepType.push_back("PR");
+  LepType.push_back("CONV");
   LepType.push_back("HF");
   LepType.push_back("LF");
-  LepType.push_back("CONV");
   LepType.push_back("Unknown");
-  
+ 
   for(uint i=0; i<nHSR_DG2L; i++){
     for(int ilep=0; ilep<3; ilep++){			
       for(uint j=0; j<LepType.size(); j++){

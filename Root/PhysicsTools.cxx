@@ -13,9 +13,15 @@ LEP_TYPE getType(int org, int type,
 		 bool isChargeFlip)
 {
   TString ss = dataset;
-  if(ss.Contains("simplifiedModel") && org==0 && type==0) return PR;
+  /*
+  if(ss.Contains("simplifiedModel")){
+    std::cout << " org " << org << " type " <<  type <<std::endl; 
+    return PR;
+  }
+  */
+  if(org==22) return PR;
 
-  if(isPT(org, type,DSId,truthMatchType,isEle)) return PR;
+  if(isPT(org, type,DSId,truthMatchType,isEle,dataset)) return PR;
   else if(isHF(org, type,truthMatchType)) return HF;
   else if(isLF(org, type,DSId,truthMatchType, isEle,isChargeFlip)) return LF;
   else if(isConv(org, type,truthMatchType, isEle,isChargeFlip)) return CONV;
@@ -25,8 +31,17 @@ LEP_TYPE getType(int org, int type,
 bool isPT(int org, int type,
 	  int mcId,
 	  int truthMatchType,
-	  bool isEle)
+	  bool isEle,
+	  std::string dataset)
 {
+  TString ss = dataset;
+  if(org==22) return true;
+  /*
+  if(ss.Contains("simplifiedModel")){
+   
+    return PR;
+  }
+  */
   // Updated way of handling real and fake leptons using LeptonTruthTools
   return (truthMatchType == PR);
   
@@ -77,9 +92,9 @@ bool isPT(int org, int type,
 /*--------------------------------------------------------------------------------*/
 bool isFake(int org, int type,int mcId,
 	    int truthMatchType,
-	    bool isEle)
+	    bool isEle,std::string dataset)
 {
-  return !isPT(org,type, mcId,truthMatchType,isEle);
+  return !isPT(org,type, mcId,truthMatchType,isEle,dataset);
 }
 //-----------------------------------------------------------------------------
 bool isHF(int org, int type,int truthMatchType)
@@ -131,11 +146,17 @@ bool isConv(int org, int type,
 	    bool isChargeFlip)
 {
   //return lep->mcOrigin == 5;
+  //CONV flag not working on SUSY samples !!
   bool isConv       = truthMatchType == CONV;
  
   //  bool isConv       = org == 5;
   bool isqFlip =  isEle ? isChargeFlip : false; 
 
+  /*
+  std:: cout << "truth " << truthMatchType 
+	     << " isEle " << isEle 
+	     << " qFlip " << isChargeFlip << std:: endl;
+  */
   return isConv && !isqFlip;
 
   /*

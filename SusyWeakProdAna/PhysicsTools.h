@@ -7,13 +7,14 @@
 #include "TLorentzVector.h"
 
 // Classify using MCTruthClassifier
-enum LEP_TYPE{PR=0, HF, LF, CONV, TYPE_Undef};
+enum LEP_TYPE{PR=0, CONV, HF, LF, TYPE_Undef};
 
 bool isHF(int org, int type,int truthMatchType);
 bool isPT(int org, int type,
 	  int mcId,
 	  int truthMatchType,
-	  bool isEle);
+	  bool isEle,
+	  std::string dataset="");
 bool isConv(int org, int type,
 	    int truthMatchType,
 	    bool isEle,
@@ -24,6 +25,11 @@ bool isLF(int org, int type,
 	  bool isEle,
 	  bool isChargeFlip);
 
+bool isFake(int org, int type,int mcId,
+	    int truthMatchType,
+	    bool isEle,
+	    std::string dataset="");
+  
 LEP_TYPE  getType(int org, int type, 
 		  std::string dataset="",
 		  int DSId=0,

@@ -16,9 +16,17 @@ typedef unsigned uint;
 TGuiUtils* _utils;
 DrawPlots* _ana;
 
+string mode  = "STD";
+string sData = "histo_data12_std";
+string sTop  = "histo_top_Sherpa";
+string sZjet = "histo_Zjets_Sherpa";  
+string sWjet = "histo_Wjets_Sherpa";  
+string sdiB  = "histo_diBoson_Sherpa";
+string sFake = "histo_mcFake_Sherpa";
+string sBB   = "histo_dummy";   //TO UPDATE TO BB/CC
+
 
 bool delCanvas=false;
-
 
 //Iso use in analysis: ie m:ptCone20  e:ptCone20/pt
 void iso_Pileup(string lep, string dep, string iso="ptCone20");
@@ -43,13 +51,16 @@ int main(int argc, char *argv[]){
 
   _ana = new DrawPlots(); 
 
-  string mode = "DD";
-  string sTop = "histo_top_Sherpa";
-  string sWW = "histo_WW_Sherpa";
-  string sZX = "histo_ZX_Sherpa";
-  string sZJet = "histo_ZTauTaujets_SherpaLFHF";  
-  string sFake = "histo_mcFake_Sherpa";
-
+  TString MODE = mode;
+  string mth = "_std";
+  if(MODE.Contains("DD")) mth = "_rlep";
+  sTop  = sTop + "_" + mth;
+  sZjet = sZjet + "_" + mth;
+  sWjet = sWjet + "_" + mth;
+  sdiB  = sdiB + "_" + mth;
+  sFake = sFake + "_" + mth;
+  sBB   = sBB + "_" + mth;
+    
   _ana->openHistoFiles(mode,sTop,sWW, sZX, sZJet, sFake);
 
 }
@@ -195,10 +206,10 @@ void iso_Pileup(string lep, string dep, string iso)
     //
     //Signal lepton MC truth 
     //
-    _h_top       = (TH1F*) _ana->getHisto("top",_hName);
-    _h_diBoson   = (TH1F*) _ana->getHisto("diBoson",_hName);
-    _h_Wjets     = (TH1F*) _ana->getHisto("Wjets",_hName);
-    _h_Zjets     = (TH1F*) _ana->getHisto("Zjets",_hName);
+    _h_top       = (TH1F*) _ana->getHisto(sTop,_hName);
+    _h_diBoson   = (TH1F*) _ana->getHisto(sdiB,_hName);
+    _h_Wjets     = (TH1F*) _ana->getHisto(sWjets,_hName);
+    _h_Zjets     = (TH1F*) _ana->getHisto(sZjets,_hName);
     
     TLegend*  _leg0 = new TLegend(0.65,0.65,0.8,0.85); _utils->legendSetting(_leg0); 
     TCanvas* _c0  = _utils->myCanvas(string("Truth match Real: Iso -vs- "+dep).c_str());
@@ -226,11 +237,11 @@ void iso_Pileup(string lep, string dep, string iso)
     //Fake lepton MC truth  (BB) & HF tag probe 
     //
     _hName = "trm_hf_" + lep + "_iso_" + dep;
-    _h_top       = (TH1F*) _ana->getHisto("top",_hName);
-    _h_diBoson   = (TH1F*) _ana->getHisto("diBoson",_hName);
-    _h_Wjets     = (TH1F*) _ana->getHisto("Wjets",_hName);
-    _h_Zjets     = (TH1F*) _ana->getHisto("Zjets",_hName);
-    _h_BB        = (TH1F*) _ana->getHisto("BB",_hName);
+    _h_top       = (TH1F*) _ana->getHisto(sTop,_hName);
+    _h_diBoson   = (TH1F*) _ana->getHisto(sdiB,_hName);
+    _h_Wjets     = (TH1F*) _ana->getHisto(sWjets,_hName);
+    _h_Zjets     = (TH1F*) _ana->getHisto(sZjets,_hName);
+    _h_BB        = (TH1F*) _ana->getHisto(sBB,_hName);
     
     TLegend*  _leg2 = new TLegend(0.65,0.65,0.8,0.85); _utils->legendSetting(_leg2); 
     TCanvas* _c2  = _utils->myCanvas(string("Truth match Fake: Iso -vs- "+dep).c_str());
@@ -260,8 +271,8 @@ void iso_Pileup(string lep, string dep, string iso)
   //Data Z tag probe
   //
   _hName = "sel_pr_" + lep + "_iso_" + dep;
-  _h_data  = (TH1F*) _ana->getHisto("data12_All",_hName);
-  _h_Zjets = (TH1F*) _ana->getHisto("Zjets",_hName);
+  _h_data  = (TH1F*) _ana->getHisto(sData,_hName);
+  _h_Zjets = (TH1F*) _ana->getHisto(sZjets,_hName);
   
   TLegend*  _leg1 = new TLegend(0.65,0.65,0.8,0.85); _utils->legendSetting(_leg1); 
   TCanvas* _c1  = _utils->myCanvas(string("Data Z tag-probe: Iso -vs- "+dep).c_str());
@@ -286,8 +297,8 @@ void iso_Pileup(string lep, string dep, string iso)
   //Data BB HF tag-probe
   //
   _hName = "sel_hf_" + lep + "_iso_" + dep;
-  _h_data  = (TH1F*) _ana->getHisto("data12_All",_hName);
-  _h_BB= (TH1F*) _ana->getHisto("BB",_hName);
+  _h_data  = (TH1F*) _ana->getHisto(sData,_hName);
+  _h_BB= (TH1F*) _ana->getHisto(sBB,_hName);
   
   TLegend*  _leg3 = new TLegend(0.65,0.65,0.8,0.85); _utils->legendSetting(_leg3); 
   TCanvas* _c3  = _utils->myCanvas(string("Data HF tag-probe: Iso -vs- "+dep).c_str());
@@ -353,10 +364,10 @@ void iso_Pileup2(string lep, string dep, string iso)
     //
     //Signal lepton MC truth 
     //
-    _h3_top       = (TH3F*) _ana->getHisto("top",_hName);
-    _h3_diBoson   = (TH3F*) _ana->getHisto("diBoson_Herwig",_hName);
-    _h3_Wjets     = (TH3F*) _ana->getHisto("Wjets",_hName);
-    _h3_Zjets     = (TH3F*) _ana->getHisto("Zjets_Alpgen",_hName);
+    _h3_top       = (TH3F*) _ana->getHisto(sTop,_hName);
+    _h3_diBoson   = (TH3F*) _ana->getHisto(sdiBoson,_hName);
+    _h3_Wjets     = (TH3F*) _ana->getHisto(sWjets,_hName);
+    _h3_Zjets     = (TH3F*) _ana->getHisto(sZjets,_hName);
     
 
     _h_top     = _ana->getProfile3D(_h3_top,"x","y","z");
@@ -379,7 +390,7 @@ void iso_Pileup2(string lep, string dep, string iso)
     _h_top->GetYaxis()->SetTitle(iso.c_str());
     _h_top->SetMaximum(max_mc_pr*scale);
     _leg0->AddEntry(_h_top,"Top","p");
-    _leg0->AddEntry(_h_diBoson,"diBoson","p");
+    _leg0->AddEntry(_h_diBoson,"siBoson","p");
     _leg0->AddEntry(_h_Wjets,"Wjets","p");
     _leg0->AddEntry(_h_Zjets,"Zjets","p");
     _leg0->Draw();
@@ -397,11 +408,11 @@ void iso_Pileup2(string lep, string dep, string iso)
     //
     _hName = "trm_hf_" + lep + "_" + iso +  "_" + dep;
 
-    _h3_top       = (TH3F*) _ana->getHisto("top",_hName);
-    _h3_diBoson   = (TH3F*) _ana->getHisto("diBoson_Herwig",_hName);
-    _h3_Wjets     = (TH3F*) _ana->getHisto("Wjets",_hName);
-    _h3_Zjets     = (TH3F*) _ana->getHisto("Zjets_Alpgen",_hName);
-    _h3_BB        = (TH3F*) _ana->getHisto("BB",_hName);
+    _h3_top       = (TH3F*) _ana->getHisto(sTop,_hName);
+    _h3_diBoson   = (TH3F*) _ana->getHisto(sdiB,_hName);
+    _h3_Wjets     = (TH3F*) _ana->getHisto(sWjets,_hName);
+    _h3_Zjets     = (TH3F*) _ana->getHisto(sZjets,_hName);
+    _h3_BB        = (TH3F*) _ana->getHisto(sBB,_hName);
     
     _h_top     = _ana->getProfile3D(_h3_top,"x","y","z");
     _h_top->SetTitle("top_hf");    _h_top->SetName("top_hf");
@@ -445,8 +456,8 @@ void iso_Pileup2(string lep, string dep, string iso)
 
   _hName = "sel_pr_" + lep + "_" + iso + "_" + dep;
   
-  _h3_data  = (TH3F*) _ana->getHisto("data12",_hName);
-  _h3_Zjets = (TH3F*) _ana->getHisto("Zjets_Alpgen",_hName);
+  _h3_data  = (TH3F*) _ana->getHisto(sData,_hName);
+  _h3_Zjets = (TH3F*) _ana->getHisto(sZjets,_hName);
 
   _h_data   = _ana->getProfile3D(_h3_data,"x","y","z");
   _h_data->SetTitle("data_pr");  _h_data->SetName("data_pr");  
@@ -470,7 +481,7 @@ void iso_Pileup2(string lep, string dep, string iso)
   _h_data->GetYaxis()->SetTitle(iso.c_str());
   _h_data->SetMaximum(max_mc_pr*scale);
   _leg1->AddEntry(_h_data,"Data","p");
-  _leg1->AddEntry(_h_Zjets,"Zjets","p");
+  _leg1->AddEntry(_h_Zjets,"Zjets_Sherpa","p");
   _leg1->Draw();
   _utils->myText(0.15,0.9,kBlack,"Data MC comparison. Z TP",0.03);
   gPad->Modified();
@@ -497,8 +508,8 @@ void iso_Pileup2(string lep, string dep, string iso)
   //Data BB HF tag-probe
   //
   _hName = "sel_hf_" + lep + "_" + iso + "_" + dep;
-  _h3_data  = (TH3F*) _ana->getHisto("data12",_hName);
-  _h3_BB= (TH3F*) _ana->getHisto("BB",_hName);
+  _h3_data  = (TH3F*) _ana->getHisto(sData,_hName);
+  _h3_BB= (TH3F*) _ana->getHisto(sBB,_hName);
 
   _h_data   = _ana->getProfile3D(_h3_data,"x","y","z");
   _h_data->SetTitle("data_hf");  _h_data->SetName("data_hf");  
@@ -581,10 +592,10 @@ void perf_IsoCut(string lep, string iso, bool relative)
       _sTitle = iso + cone[i];
     }
 
-    TH1F* _h_PR     = (TH1F*) _ana->getHisto("Zjets",_hNameR);
+    TH1F* _h_PR     = (TH1F*) _ana->getHisto(sZjets,_hNameR);
     TH1F* _h_HF;
-    if(useBB) _h_HF = (TH1F*) _ana->getHisto("BB",_hNameF);
-    else      _h_HF = (TH1F*) _ana->getHisto("top",_hNameF);
+    if(useBB) _h_HF = (TH1F*) _ana->getHisto(sBB,_hNameF);
+    else      _h_HF = (TH1F*) _ana->getHisto(sTop,_hNameF);
     TH1F* _eff_PR   = _ana->calcEff(_h_PR);
     TH1F* _rej_HF   = _ana->calcEff(_h_HF,1); //rejection
     
@@ -640,8 +651,8 @@ void perf_IsoCut(string lep, string iso, bool relative)
       _hNameF = "sel_hf_" + lep + "_" + iso + cone[i];
       _sTitle = iso + cone[i];
     }
-    TH1F* _h_BB   = (TH1F*) _ana->getHisto("data12_All",_hNameF);
-    TH1F* _h_data = (TH1F*) _ana->getHisto("data12_All",_hNameR);
+    TH1F* _h_BB   = (TH1F*) _ana->getHisto(sData,_hNameF);
+    TH1F* _h_data = (TH1F*) _ana->getHisto(sData,_hNameR);
 
     TH1F* _eff_data = _ana->calcEff(_h_data);
     TH1F* _rej_BB   = _ana->calcEff(_h_BB,1); //rejection
@@ -721,16 +732,16 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
     if(k==0){ //MC
       std::cout << ">>>> MC <<<<" << std::endl;
       sSel = "trm";
-      sFile1 = "Zjets_Alpgen";
-      if(useBB) sFile2 = "BB";
-      else      sFile2 = "top";
+      sFile1 = sZjets;
+      if(useBB) sFile2 = sBB;
+      else      sFile2 = sTop;
       sType="MC";
     }
     if(k==1){ //Data
       std::cout << "\n>>>> DATA <<<<" << std::endl;
       sSel = "sel";
-      sFile1 = "data12";
-      sFile2 = "data12";
+      sFile1 = sData;
+      sFile2 = sData;
       sType="Data";
     }
     
@@ -937,13 +948,13 @@ void compIso(string lep, string iso, bool relative){
       
       
       if(k==0){//MC
-	_h_pr_iso[0]     = (TH1F*) _ana->getHisto("Zjets",pr_iso);
-	_h_hf_bb_iso[0]  = (TH1F*) _ana->getHisto("BB",hf_iso);
-	_h_hf_top_iso[0] = (TH1F*) _ana->getHisto("top",hf_iso);
+	_h_pr_iso[0]     = (TH1F*) _ana->getHisto(sZjets,pr_iso);
+	_h_hf_bb_iso[0]  = (TH1F*) _ana->getHisto(sBB,hf_iso);
+	_h_hf_top_iso[0] = (TH1F*) _ana->getHisto(sTop,hf_iso);
       }
       else if(k==1){//Data
 	string dFile;
-	dFile = "data12_All";
+	dFile = sData;
 	_h_pr_iso[1]    = (TH1F*) _ana->getHisto(dFile,pr_iso);
 	_h_hf_bb_iso[1] = (TH1F*) _ana->getHisto(dFile,hf_iso);
       }
