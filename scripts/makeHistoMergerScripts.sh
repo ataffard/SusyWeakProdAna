@@ -14,8 +14,14 @@
 #date="101212_13fb_n0105_DD_blindData_noMetRel"
 #mth="rlep"
 
-date="101212_13fb_n0105_DD_unblindData_noMetRel"
-mth="rlep"
+#date="101312_13fb_n0105_DD_blindData_noMetRel"
+#mth="rlep"
+
+#date="101312_13fb_n0105_DD_unblindData_wMetRel"
+#mth="rlep"
+
+date="101312_13fb_n0105_STD_unblindData_wMetRel"
+mth="std"
 
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts

@@ -8,6 +8,7 @@
 #include "SusyNtuple/TGuiUtils.h"
 
 #include "SusyWeakProdAna/Histos_Common.h"
+#include <map>
 
 class Histos_2L
 {
@@ -30,6 +31,7 @@ class Histos_2L
   
   //2lep DG
   HDG2L DG2L_pred;
+  HDG2L DG2L_Zcount;
   HDG2L DG2L_cutflow;
   HDG2L DG2L_nJets;
   HDG2L DG2L_nCJets;
@@ -79,6 +81,8 @@ class Histos_2L
   void H1sDG_Fill(HDG2L &h, int idx1, int idx2,  float x, float w){
     h[idx1][idx2]->Fill(x,w);
   };
+
+  std::map<int,int> runBins;
 
   ClassDef(Histos_2L,1);
 

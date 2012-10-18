@@ -1,5 +1,10 @@
 #include "SusyWeakProdAna/Histos_2L.h"
-
+#include "TSystem.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
 /*--------------------------------------------------------------------------------*/
 // SusyHistos Book2LHistograms
 /*--------------------------------------------------------------------------------*/
@@ -51,6 +56,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   }
   
   BOOK_SRDG2L(DG2L_pred,"","",syaxis,1,-0.5,0.5);
+  BOOK_SRDG2L(DG2L_Zcount,"","",syaxis,183,1,183);
   BOOK_SRDG2L(DG2L_cutflow,"","",syaxis,20,-0.5,19.5);
   BOOK_SRDG2L(DG2L_nJets,"NJets","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nCJets,"NJets - central","",syaxis,10,-0.5,9.5);
@@ -115,4 +121,48 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     }
   }
   
+  string dir =  string(getenv("WORKAREA")) + "/SusyWeakProdAna/data";
+  string fileName  = dir + "/" + "HCP_lumi_GRL_v53.txt";
+
+  ifstream _file;
+  _file.open(fileName.c_str());
+  if (!_file.is_open()){
+    cerr << "Failed opening " << fileName << endl;
+    exit(1);
+  }
+  
+  uint nbins = DG2L_Zcount[0][0]->GetXaxis()->GetNbins();
+  int run;
+  float lumi;
+
+  int ibin=1;
+  runBins.clear();
+  while( _file >> run >> lumi){
+    //cout << "Read " << run << " " << lumi << endl;
+    string sRun;
+    ostringstream convert;
+    convert << run;  
+    sRun = convert.str();
+    runBins.insert(runBins.end(),make_pair(run,ibin));
+    for(uint i=0; i<nHSR_DG2L; i++){
+      for(int ilep=0; ilep<3; ilep++){	
+	DG2L_Zcount[i][ilep]->GetXaxis()->SetBinLabel(ibin,sRun.c_str());
+      }
+    }
+    ibin++;
+  }
+
+  
+  /*
+  for(uint j=0; j<nbins; j++){
+    
+    DG2L_Zcount[0][0]->GetXaxis()->SetBinLabel(j+1,sRun);
+  }
+  */
+
+  _file.close();
+  
+
+
+
 }

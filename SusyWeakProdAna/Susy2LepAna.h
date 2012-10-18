@@ -255,6 +255,8 @@ class Susy2LepAna: public SusyNtTools
 
     float _tmp;
 
+    ofstream evtDump;
+
 };
 
 #endif

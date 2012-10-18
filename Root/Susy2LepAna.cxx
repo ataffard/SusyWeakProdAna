@@ -140,6 +140,12 @@ void Susy2LepAna::hookContainers(Susy::SusyNtObject* _ntPtr,
   v_sigLep   = _sigLepA;
   v_baseJet  = _baseJetA;
   v_sigJet   = _sigJetA;
+
+  if(DUMP_RUNEVT){
+    string dumpName = _hh->sampleName()+ "_dump.txt";
+    evtDump.open (dumpName.c_str());
+  }
+
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -195,8 +201,12 @@ void Susy2LepAna::end()
   print_NWW();
   print_NZX();
 
-
   cout << "CHECK INTEGRAL " << _tmp << endl;
+
+  if(DUMP_RUNEVT){
+    evtDump.close ();
+  }
+  
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -251,17 +261,19 @@ void Susy2LepAna::setSelection(std::string s)
     m_selOS = true;
     m_vetoZ = true;
     m_vetoJ = true;
-    if(SKIP_METCUT_SR) m_metRelMin=0;
-    else m_metRelMin=100;
+    if(METRELCUT_SR) m_metRelMin=100;
+    else m_metRelMin=0;
   }
   else if(m_sel == "SRSSjveto"){
     m_selSS=true;
     m_vetoJ = true;
-    if(SKIP_METCUT_SR){ //Validation region MetRel 40-100
+    if(METRELCUT_SR){ 
+      m_metRelMin=100;
+    }
+    else{ //Validation region MetRel 40-100
       m_metRelMin=40;
       m_metRelMax=100;
     }
-    else m_metRelMin=100;
   }
   else if(m_sel == "SR2jets"){
     m_selOS = true;
@@ -270,28 +282,28 @@ void Susy2LepAna::setSelection(std::string s)
     m_sel2J = true;
     m_vetoB = true;
     m_topTag = true;
-    if(SKIP_METCUT_SR) m_metRelMin=0;
-    else m_metRelMin=50;
+    if(METRELCUT_SR) m_metRelMin=50;
+    else m_metRelMin=0;
   }
   else if(m_sel == "SRmT2"){
     m_selOS = true;
     m_vetoZ = true;
     m_vetoJ = true;
     m_metRelMin=40;
-    if(SKIP_METCUT_SR) m_mt2Min=0;
-    else  m_mt2Min=90;
+    if(METRELCUT_SR) m_mt2Min=90;
+    else  m_mt2Min=0;
   }
   else if(m_sel == "SRmT2b"){
     m_selOS = true;
     m_vetoZ = true;
     m_vetoJ = true;
     m_metRelMin=40;
-    if(SKIP_METCUT_SR) m_mt2Min=0;
-    else  m_mt2Min=110;
+    if(METRELCUT_SR) m_mt2Min=110;
+    else  m_mt2Min=0;
     /*    m_selOS = true;
 	  m_vetoZ = true;
 	  m_vetoJ = true;
-	  if(SKIP_METCUT_SR) m_metRelMin=0;
+	  if(METRELCUT_SR) m_metRelMin=0;
 	  else m_metRelMin=40;
 	  m_lepLeadPtMin=50;
 	  m_pTllMin =100;
@@ -339,23 +351,23 @@ void Susy2LepAna::setSelection(std::string s)
     m_selOS = true;
     m_selZ  = true;
     m_vetoJ = true;
-    if(SKIP_METCUT_SR) m_metRelMin=0;
-    else m_metRelMin=100;
+    if(METRELCUT_SR) m_metRelMin=100;
+    else m_metRelMin=0;
   }
   else if(m_sel == "ZXCR3"){
     m_selOS = true;
     m_selZ  = true;
     m_topTag = true;
-    if(SKIP_METCUT_SR) m_metRelMin=0;
-    else m_metRelMin=50;
+    if(METRELCUT_SR) m_metRelMin=50;
+    else m_metRelMin=0;
     m_sel2J = true;
     m_vetoB = true;
   }
   else if(m_sel == "ZXCR4"){
     m_selOS = true;
     m_selZ  = true;
-    if(SKIP_METCUT_SR) m_metRelMin=0;
-    else m_metRelMin=40;
+    if(METRELCUT_SR) m_metRelMin=40;
+    else m_metRelMin=0;
     m_sel2J = true;
     m_vetoB = true;
   }
@@ -412,7 +424,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   float _wwSave = _ww;
 
   //Backup Met & leptons
-  if(dbg()>2) cout << "\n >>> run " << nt->evt()->run  << " event " << nt->evt()->event << endl;
+  if(dbg()>2) cout << "\n >>> run " << nt->evt()->run  
+		   << " event " << nt->evt()->event << endl;
   saveOriginal();
 
   //
@@ -463,8 +476,15 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     }
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
 
+
     if(!passFlavor(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET],icut++,_ww);
+
+    //Dump run event
+    if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
+      evtDump << nt->evt()->run << " " << nt->evt()->event 
+	      << " " << sSR << " " << DIL_FLAV[m_ET]  << endl;
+    }
 
     //TODO add special opt of QFLIP case
     if(!passZVeto(leptons) && allowZVeto ) continue;
@@ -627,7 +647,7 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SRNONE; //FR_SRNONE
     break;
   case DIL_CR2LepSS:
-    frSR = SusyMatrixMethod::FR_VR1;
+    frSR = SusyMatrixMethod::FR_SRNONE; //FR_VR1;
     break;
   }
 
@@ -1235,6 +1255,15 @@ void Susy2LepAna::fillHistograms(uint iSR,
 {
   _hh->H1FILL(_hh->DG2L_pred[iSR][m_ET],0.,_ww); 
 
+  if(!nt->evt()->isMC){
+    int run = nt->evt()->run;
+    int ibin=0;
+    if(!_hh->runBins.empty()){
+      map<int,int>::const_iterator it = _hh->runBins.find(run);
+      if(it !=  _hh->runBins.end()) ibin = it->second;
+    }
+    _hh->DG2L_Zcount[iSR][m_ET]->AddBinContent(ibin); 
+  }
 
   int q1=0;
   int q2=0;

@@ -31,11 +31,11 @@ int main(int argc, char *argv[]){
   string ana = ""; //DG2L, ML
   string pName = "";
 
-  /*  
+
   string mode = "STD";
   string sTop = "histo_top_Sherpa";
   string sFake = "histo_mcFake_Sherpa";
-  */
+
 
   //  string sTop = "histo_top_PowHeg";
  
@@ -45,11 +45,11 @@ int main(int argc, char *argv[]){
   //string sZtt = "histo_ZTauTaujets_SherpaLFHF";  
   string sZX = "histo_ZX_Sherpa";
   string sZtt = "histo_ZTauTaujets_Sherpa";  
-  
+  /*  
   string mode = "DD";
   string sTop = "histo_topDil_Sherpa";
   string sFake = "histo_data12_fake";
-
+  */
 
   string sr    = "";
   string cr    = "";

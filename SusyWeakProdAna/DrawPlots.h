@@ -29,7 +29,7 @@ using namespace std;
 
 const bool HIDEDATA=false;//true;
 
-enum MC { FAKE=0, Ztt=1, WW=2, TOP=3, ZX=4,  OTHER=6};
+enum MC { FAKE=0, Ztt=1, WW=2, TOP=3, ZX=4,  OTHER=5};
 enum SIG {modeANoSlep_15, modeANoSlep_18};
 /*My color scheme */
 /*
@@ -63,6 +63,7 @@ class DrawPlots {
 		      );
 
   TObject* getHisto(string sample, string name, bool moveUnderOver=false);
+  TObject* retreiveHisto(int iSample, string name, bool moveUnderOver=false);
 
 
   /* To compare shape - histo normalysed to 1 */
@@ -106,6 +107,12 @@ class DrawPlots {
   /* Make Profile give axes to profile onto, the one to intergral and the one to loop over */
   TH1F* getProfile3D(TH3* _h, string axis="x", string afix="y", string aloop="z");
   
+  vector<string> SFILE;
+  vector<TFile*> _mcFile;
+  vector<string> _mcFileName;
+  string         _dataFileName;
+  TFile*         _dataFile;
+
   ClassDef(DrawPlots,1);
 
  private:
@@ -118,15 +125,8 @@ class DrawPlots {
   bool _logy;
   bool _moveUO;
   
-  vector<string> SFILE;
   vector<string> SIGFILE;
-
-
-  vector<TFile*> _mcFile;
-  vector<string> _mcFileName;
-  string         _dataFileName;
-  TFile*         _dataFile;
-
+ 
   vector<TFile*> _sigFile;
   vector<string> _sigFileName;
   vector<Color_t> _sigColor;

@@ -255,7 +255,27 @@ TObject* DrawPlots::getHisto(string sample, string name, bool moveUnderOver)
 
   if(moveUnderOver) _utils->moveUnderOverFlow((TH1F*) h);
   return h;
+} 
+
+//-------------------------------------------//
+// Retrieve TH1 histo from files
+//-------------------------------------------//
+TObject* DrawPlots::retreiveHisto(int iSample, string name, bool moveUnderOver)
+{
+  _mcFile[iSample]->cd();
+  TObject* _h = (TH1F*) _mcFile[iSample]->Get(name.c_str());
+  
+  if(_h==NULL){
+    std::cout << "ERROR cannot find histo " << name.c_str() << " - using empty histo "  << endl;
+    string _fileName = _pathHisto + "/histo_dummy.root";
+    TFile* _f = new TFile(_fileName.c_str(),"READ",SFILE[iSample].c_str());
+    _h = _f->Get(name.c_str())->Clone();
+  }
+  
+  if(moveUnderOver) _utils->moveUnderOverFlow((TH1F*) _h);
+  return _h;
 }
+
 
 //-------------------------------------------//
 // Compare shape for a given histo
@@ -527,6 +547,7 @@ TH1F* DrawPlots::calcRatio(TH1F* hnum, TH1F* hden, string name)
   //Compute FR
   TH1F* _h_R = (TH1F*) hnum->Clone();
   _h_R->Reset();
+  _h_R->Sumw2();
   _h_R->SetName(name.c_str()); 
   _h_R->SetTitle(name.c_str());
   _h_R->GetYaxis()->SetTitle("Efficiency");

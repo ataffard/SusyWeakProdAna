@@ -195,6 +195,7 @@ int main(int argc, char** argv)
   // Build the TSelector
   SusyAnaLooper* susyAna = new SusyAnaLooper();
   susyAna->setDebug(dbg);
+  susyAna->toggleCheckDuplicates();
   susyAna->setSampleName(sample);
   if(dbgEvt) susyAna->setEvtDebug();
   susyAna->do2L(do2L);
