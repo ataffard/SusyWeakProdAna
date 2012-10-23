@@ -48,6 +48,26 @@ class SusyAnaLooper : public SusyNtAna
     void do3L(bool b){_do3LAna=b;}
     void doFake(bool b){_doFakeAna=b;}
     void setMethod(int m) {_method=m;}
+    void setSystematic(string sys) {
+      _systematic1=sys; 
+      _runOneSys=true;
+      cout << "Processing one systematic " << _systematic1 << endl;
+    }
+    void doSysRange(string sys1, string sys2) {
+      _systematic1=sys1; 
+      _systematic2=sys2; 
+      _runSysRange=true;
+      cout << "Processing systematic range" 
+	   << _systematic1 << " --> " << _systematic2 << endl;
+    }
+    int getSysIndex(string sys){
+      for(uint iiSyst=DGSys_NOM; iiSyst<DGSys_N; iiSyst++){
+	if(DG2LSystNames[iiSyst]==sys) return iiSyst;
+      }
+      cout << "ERROR Sys requested not found " << sys << endl; 
+      abort();
+    }
+
     void useLooseLep(bool b){_useLooseLep=b;}
 
     void printSettings();
@@ -72,6 +92,10 @@ class SusyAnaLooper : public SusyNtAna
     bool _useLooseLep;    
 
     int _method;
+    string _systematic1;
+    string _systematic2;
+    bool   _runOneSys;
+    bool   _runSysRange;
 
     bool _isAlpgenLowMass;
     int nHFOR;

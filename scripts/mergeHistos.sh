@@ -19,7 +19,7 @@ elif [ "$job" == "TOP" -a  "$mode" ==  "ALL" ] ; then
 
 elif [ "$job" == "WW"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/WW_Powheg_${mth}_job.sh
-    MergeJobsScripts/WW_Sherpa_${mth}_job.sh
+#    MergeJobsScripts/WW_Sherpa_${mth}_job.sh
 
 elif [ "$job" == "DIB"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/diBZX_Sherpa_${mth}_job.sh

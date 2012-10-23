@@ -39,7 +39,8 @@ fi
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 ana=SusyAnaLooperExec
-anaOpt1=doAll
+#anaOpt1=doAll
+anaOpt1=do2L
 anaOpt2=true #doMll 
 methodMC=std
 nEvt=-1

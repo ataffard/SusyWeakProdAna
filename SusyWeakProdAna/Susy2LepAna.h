@@ -11,7 +11,6 @@
 // Root Packages
 #include "TRandom3.h"
 
-
 // Susy Common
 #include "SusyNtuple/SusyDefs.h"
 #include "SusyNtuple/SusyNtObject.h"
@@ -20,6 +19,8 @@
 
 #include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
 #include "ChargeFlip/chargeFlip.h"
+
+#include "HistFitterTree/HistFitterTree.h"
 
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusyHistos.h"
@@ -46,7 +47,6 @@ class Susy2LepAna: public SusyNtTools
       cout << ">>> Using method " << SMETHOD[m_method] << endl;
     }
 
-
     void hookContainers(Susy::SusyNtObject* _ntPtr,
 			ElectronVector* _baseEleA, ElectronVector* _sigEleA,
 			MuonVector*     _baseMuoA, MuonVector*     _sigMuoA,
@@ -55,10 +55,12 @@ class Susy2LepAna: public SusyNtTools
 			);
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
+    //MC weight
     float eventWeight(int mode=1);
 
-    void doAnalysis();
+    void doAnalysis(unsigned int isys=DGSys_NOM);
     void fillHistograms(uint iSR,
+			uint iSYS,
 			const LeptonVector* leptons, 
 			const JetVector* jets,
 			const Met* met,
@@ -73,7 +75,8 @@ class Susy2LepAna: public SusyNtTools
 	
     // Reset flags & var
     void reset();
-    
+    void resetCounter();
+
     // Event Cleaning
     bool passEventCleaning();
     bool passBadFCAL(const JetVector* jets, int run, bool isMC=false);
@@ -93,7 +96,7 @@ class Susy2LepAna: public SusyNtTools
     bool passMETRel(const Met *met, const LeptonVector* leptons, const JetVector* jets);
     bool passMET(const Met *met);
     bool passbJet(const JetVector* jets, float cutVal=MV1_85);
-    bool passge2CJet(const JetVector* jets);
+    bool passge2Jet(const JetVector* jets, int iSR);
     bool passMT2(const LeptonVector* leptons, const Met* met);
     bool passMll(const LeptonVector* leptons);
     bool passTopTagger(const LeptonVector* leptons, const JetVector* jets, const Met* met);
@@ -117,10 +120,27 @@ class Susy2LepAna: public SusyNtTools
     float JZBJet(const JetVector* jets, const LeptonVector* leptons);
     float JZBEtmiss(const Met *met, const LeptonVector* leptons);
 
+    int findSRCR(bool isOS, bool isEE, bool isMM, bool isEM, bool topTag,
+		 int nC25, int nB20, int nF30, 
+		 float ptl1, float ptl2, float Zpt,
+		 float met, float metrel, float mll, float mt2);
+
     void saveOriginal();
     void restoreOriginal(LeptonVector& leptons, const Met *met);
+    void clearVectors();
 
-
+    void setMcSysMinMax(int sys1=DGSys_NOM, int sys2=DGSys_BKGMETHOD_DN){
+      _sys1 = sys1;
+      _sys2 = sys2;
+      cout << "Setting Sys range from HFT to " << sys1 << " " << sys2 << endl;
+    }; 
+    void initializeHistFitterTree();
+    void writeIntoHistFitterTree( const LeptonVector* leptons, 
+				  const LeptonVector* baseLeptons, 
+				  const JetVector* signalJets, 
+				  const JetVector* baseJets,
+				  const Met* met );
+    
     //Other functions
     void print_SRjveto();
     void print_SRSSjveto();
@@ -131,6 +151,9 @@ class Susy2LepAna: public SusyNtTools
     void print_NWW();
     void print_NZX();
     void print_line(string s, float a, float b, float c);
+
+    void moveHFTOutput();
+    
     
     ClassDef(Susy2LepAna, 1);
 
@@ -147,8 +170,12 @@ class Susy2LepAna: public SusyNtTools
     SusyMatrixMethod::DiLeptonMatrixMethod m_matrix_method;
     chargeFlip*         m_chargeFlip;
 
+    HistFitterTree*  m_histFitterTrees[ DGSys_GEN ];
+
     bool m_useLooseLep;
-    int m_method;
+    int  m_method;
+    bool m_writeHFT;
+    string  HFTName;
 
     //containers - from SusyNt
     ElectronVector*      v_baseEle;     // baseline electrons
@@ -172,7 +199,11 @@ class Susy2LepAna: public SusyNtTools
 
     //Event variables
     float _inc;          //To set counter inc to 1 or _ww.
-    uint   SR;
+    uint   SR;           //Signal region
+    uint   SYST;         //Current Syst being handled
+    int    _sys1;        //Sys loop over - need to book HFT
+    int    _sys2;
+
 
     float metRel;
     float mT2;

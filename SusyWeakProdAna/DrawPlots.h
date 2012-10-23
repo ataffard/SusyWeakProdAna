@@ -18,9 +18,10 @@
 #include "TH2F.h"
 #include "THStack.h"
 #include "TGraphErrors.h"
+#include "TGraphAsymmErrors.h"
 
 #include "SusyNtuple/TGuiUtils.h"
-
+#include "SusyWeakProdAna/Histos_Common.h"
 
 typedef unsigned uint;
 using namespace std;
@@ -30,7 +31,15 @@ using namespace std;
 const bool HIDEDATA=false;//true;
 
 enum MC { FAKE=0, Ztt=1, WW=2, TOP=3, ZX=4,  OTHER=5};
-enum SIG {modeANoSlep_15, modeANoSlep_18};
+
+const std::string MCNames[] ={
+  "FAKE",
+  "ZTT",
+  "WW",
+  "TOP",
+  "ZX"
+};
+
 /*My color scheme */
 /*
 enum MCCOL { C_TOP=kAzure-3, C_DIB=kYellow-7, C_WJETS = kMagenta+4, 
@@ -45,6 +54,7 @@ enum MCCOL { C_FAKE=kGray,
 	     C_SIG1=kMagenta-7, C_SIG2=kRed-2};
 const int iMarker[9]={20,21,22,23,24,25,26,27,30};
 
+enum SIG {modeANoSlep_15, modeANoSlep_18};
 //const char* const SIGFILE[] = {"mAwSl", "mCwSl"};
 
 
@@ -58,7 +68,7 @@ class DrawPlots {
 		      string Top="histo_topDil_Sherpa",
 		      string WW="histo_WW_Sherpa",
 		      string ZX="histo_ZX_Sherpa",		      
-		      string Ztt="histo_ZTauTaujets_SherpaLFHF",
+		      string Ztt="histo_ZTauTaujets_Sherpa",
 		      string Fake="histo_mcFake_Sherpa"
 		      );
 
@@ -71,6 +81,8 @@ class DrawPlots {
 
   /* To view bkg prediction & data */
   void drawPlot(string name, bool logy);
+  /* To view bkg prediction & data with error bands */
+  void drawPlotErrBand(string name, bool logy);
   
   /*  Fake composition */
   void  getFakeComposition(string sAna="DG2L", string sSR="SR0_OS", string lep="E");
@@ -106,12 +118,15 @@ class DrawPlots {
   
   /* Make Profile give axes to profile onto, the one to intergral and the one to loop over */
   TH1F* getProfile3D(TH3* _h, string axis="x", string afix="y", string aloop="z");
-  
-  vector<string> SFILE;
-  vector<TFile*> _mcFile;
-  vector<string> _mcFileName;
+
   string         _dataFileName;
   TFile*         _dataFile;
+  vector<string> SFILE;
+  vector<string> SIGFILE;
+  vector<TFile*> _mcFile;
+  vector<string> _mcFileName;
+  vector<TFile*> _sigFile;
+  vector<string> _sigFileName;
 
   ClassDef(DrawPlots,1);
 
@@ -124,27 +139,27 @@ class DrawPlots {
 
   bool _logy;
   bool _moveUO;
+
+  typedef TH1F* HVEC[DGSys_N];
   
-  vector<string> SIGFILE;
- 
-  vector<TFile*> _sigFile;
-  vector<string> _sigFileName;
+  vector<Color_t> _mcColor;
+  vector<int>     _mcMarker;
+  vector<string>  _mcName;
+
   vector<Color_t> _sigColor;
   vector<string>  _sigName;
   vector<TH1F*>   _sigH1;
 
-  TLegend*       _leg;
-  TH1F*          _dataH1;
-  THStack*       _mcStack;
-  TH1F*          _mcStackH;
-  vector<Color_t> _mcColor;
-  vector<int>     _mcMarker;
-  vector<string>  _mcName;
-  vector<TH1F*>   _mcH1;
+  TH1F*             _dataH1;
+  THStack*          _mcStack;
+  TH1F*             _mcStackH;
 
+  vector< vector<TH1F*> >   _mcH1;
+
+  //TLegend*       _leg;
 
   /* build histo stack */
-  void buildStack(string name);
+  void buildStack(string name, TLegend* _l);
   void grabHisto(string name, bool quiet=true);
   void setMoveUnderOver(bool b){_moveUO=b;}
   void setLogy(bool b) {_logy=b;}

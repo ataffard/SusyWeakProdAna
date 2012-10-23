@@ -13,15 +13,17 @@
 #date="101312_13fb_n0105_DD_blindData_noMetRel"
 #date="101312_13fb_n0105_DD_unblindData_wMetRel"
 
-date="101312_13fb_n0105_STD_unblindData_wMetRel"
+#date="101312_13fb_n0105_STD_unblindData_wMetRel"
+
+date="101812_13fb_n0107_DD_predSR"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 path=${WORKAREA}/histoAna/SusyAna/histos_${date}
 dir=${path}/Tables
 
 #OPT="-ZX histo_ZX_SherpaLFHF -Top histo_top_PowHeg"
-#OPT="-mode DD"
-OPT="-mode STD "
+OPT="-mode DD"
+#OPT="-mode STD "
 #-ZX histo_ZX_SherpaLFHF -Fake histo_mcfake_Sherpa"
 #OPT="-ZJet histo_Zjets_SherpaLFHF_wGam -Fake histo_mcFake_Sherpa_wGam"
 #OPT="-ZJet histo_Zjets_Alpgen -Fake histo_mcFake_Alpgen -Top histo_top_MCNLO"

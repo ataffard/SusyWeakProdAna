@@ -59,11 +59,15 @@ void help()
   cout << "  -useLoose                       "  << endl;
   cout << "     run 2L 3L using loose lepton " << endl;
 
-  cout << "  -doAll                          "  << endl;
+  cout << "  -doAll                           "  << endl;
   cout << "     run All ana                   " << endl;
 
-  cout << "  -doMll                          "  << endl;
+  cout << "  -doMll <true/false>             "  << endl;
   cout << "     run low mass alpgen - Mll<40 " << endl;
+
+  cout << "  -sys1 <name1> -sys2  <name2>    "  << endl;
+  cout << "     run  given sys1 and optionally sys2 " << endl;
+
 
   cout << "  -method                          "  << endl;
   cout << "     ana method: std: rlep, flep   " << endl;
@@ -87,6 +91,8 @@ int main(int argc, char** argv)
   bool useLoose = false;
   int method    = 0; //see SusyHisto.h 0:STD; 1:RLEP, 2:FLEP
   string smethod;
+  string sys1="";
+  string sys2="";
   string sample;
   string file;
   string fileList;
@@ -139,6 +145,12 @@ int main(int argc, char** argv)
       if(strcmp(smethod.c_str(),"rlep")==0) method = 1;
       if(strcmp(smethod.c_str(),"flep")==0) {method = 2; useLoose=true;}
     }
+    else if (strcmp(argv[i], "-sys1") == 0){
+      sys1 = argv[++i];
+    }
+    else if (strcmp(argv[i], "-sys2") == 0){
+      sys2 = argv[++i];
+    }
     else
     {
       help();
@@ -169,6 +181,8 @@ int main(int argc, char** argv)
   cout << "  doMll     " << doMll    << endl;
   cout << "  useLoose  " << useLoose << endl;
   cout << "  method    " << method   << endl;
+  cout << "  sys1      " << sys1     << endl;
+  cout << "  sys2      " << sys2     << endl;
 
   if(!file.empty())     cout << "  input   " << file     << endl;
   if(!fileList.empty()) cout << "  input   " << fileList << endl;
@@ -195,7 +209,7 @@ int main(int argc, char** argv)
   // Build the TSelector
   SusyAnaLooper* susyAna = new SusyAnaLooper();
   susyAna->setDebug(dbg);
-  susyAna->toggleCheckDuplicates();
+  susyAna->toggleCheckDuplicates(true);
   susyAna->setSampleName(sample);
   if(dbgEvt) susyAna->setEvtDebug();
   susyAna->do2L(do2L);
@@ -204,6 +218,10 @@ int main(int argc, char** argv)
   susyAna->doFake(doFake);
   susyAna->useLooseLep(useLoose);
   susyAna->setMethod(method);
+  if(strcmp(sys2.c_str(),"")!=0)
+    susyAna->doSysRange(sys1,sys2);
+  else if(strlen(sys1.c_str())>0) 
+    susyAna->setSystematic(sys1);
 
   // Run the job
   if(nEvt<0) nEvt = nEntries;

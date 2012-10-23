@@ -27,7 +27,7 @@ class Histos_2L
 
   TGuiUtils* _utils;
 
-  typedef TH1F        *HDG2L[nHSR_DG2L][3]; //3: EE, MM, EM
+  typedef TH1F        *HDG2L[nHSR_DG2L][3][DGSys_N]; //3: EE, MM, EM
   
   //2lep DG
   HDG2L DG2L_pred;
@@ -76,11 +76,6 @@ class Histos_2L
   HDG2L DG2L_etaj4;
   HDG2L DG2L_ptbj;
   HDG2L DG2L_etabj;
-
-  /** Fill histo given SR for DG2L*/
-  void H1sDG_Fill(HDG2L &h, int idx1, int idx2,  float x, float w){
-    h[idx1][idx2]->Fill(x,w);
-  };
 
   std::map<int,int> runBins;
 

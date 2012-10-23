@@ -6,7 +6,9 @@
 # ./run.sh susy 144874 STD
 
 #
-
+#./SusyAnaLooperExec -do2L -doMll true -method STD -s SAMPLE -D DIR
+#./SusyAnaLooperExec -dbgEvt -d 5 -do2L -doMll true -method STD -s SAMPLE -D DIR
+#
 
 Opt1=do2L
 #mll40 cut on low mass alpgen

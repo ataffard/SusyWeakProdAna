@@ -2,12 +2,6 @@
 #Match dir name constructed in SusyAnaCommon.h
 
 
-#date="101112_13fb_n0105_DD_blind_MCData"
-#mth="rlep"
-
-#date="101112_13fb_n0105_STD_blind_MCData"
-#mth="std"
-
 #date="101212_13fb_n0105_STD_blindData_noMetRel"
 #mth="std"
 
@@ -20,9 +14,11 @@
 #date="101312_13fb_n0105_DD_unblindData_wMetRel"
 #mth="rlep"
 
-date="101312_13fb_n0105_STD_unblindData_wMetRel"
-mth="std"
+#date="101312_13fb_n0105_STD_unblindData_wMetRel"
+#mth="std"
 
+date="102112_13fb_n0107_DD_predSR"
+mth="rlep"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
@@ -35,7 +31,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-doMove=true
+#doMove=true
 
 doData=true
 doDataFake=true
@@ -80,11 +76,12 @@ doSignal=true
 if [ $doMove ]; then
 #move all the histos to new area:
     if [ ! -d "${outPath}" ]; then
-	mkdir ${outPath}
-	mkdir ${outPath}/logs
+#	mkdir ${outPath}
+	mkdir -p ${outPath}/logs
     fi
     mv ${histPathBase}/*.root ${outPath}
     mv ${logPath}/*.log ${outPath}/logs
+    mv ${histPathBase}/HFTOutputs ${outPath}
 fi
 
 #######################################################################

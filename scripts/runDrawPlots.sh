@@ -24,31 +24,31 @@ pathRun=${WORKAREA}/SusyWeakProdAna/run
 if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #for testing
-#    SR=(CR2LepSS )
-#    DIL=(EE MM EM)
-#    PLOTS=(mll metrel etmiss)
+    SR=(CR2LepOS )
+    DIL=(EE)
+    PLOTS=(mll metrel etmiss)
 
 #    SR=(CRZ ZXCR1 ZXCR3 ZXCR4)
 #    DIL=(EE MM EM)
 #    PLOTS=(mll metrel etmiss mt2 )
 #    PLOTS=(metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)
  
-     SR=(CR2LepOS CR2LepSS CRZ  NTOP NWW1 NWW2 NWW3 ZXCR1 ZXCR3 ZXCR4)
+#     SR=(CR2LepOS CR2LepSS CRZ  NTOP NWW1 NWW2 NWW3 ZXCR1 ZXCR3 ZXCR4)
 #    SR=(SRjveto)
 #    PLOTS=(mll metrel etmiss)
 #    SR=(SRjveto SRSSjveto SR2jets SRmT2 SRmT2b )
-    DIL=(EE MM EM)
-    PLOTS=(mll pTll mjj dPhill etmiss metrel mt2 nJets nCJets nFJets nBJets npv mu \
-	ptl1 ptl2 etal1 etal2 d0Sl1 d0Sl2 z0sinthetal1 z0sinthetal2 \
-	ptj1 ptj2 ptj3 ptj4 etaj1 etaj3 etaj4 ptbj etabj \
-	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)      
+#    DIL=(EE MM EM)
+#    PLOTS=(mll pTll mjj dPhill etmiss metrel mt2 nJets nCJets nFJets nBJets npv mu \
+#	ptl1 ptl2 etal1 etal2 d0Sl1 d0Sl2 z0sinthetal1 z0sinthetal2 \
+#	ptj1 ptj2 ptj3 ptj4 etaj1 etaj3 etaj4 ptbj etabj \
+#	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)      
 
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do
 	    if [ "$sr" == "SR2jet" -a "$dil" == "EM" ]; then continue; fi
 	    if [ "$sr" == "CRZ" -a "$dil" == "EM" ]; then continue; fi
 	    for plots in ${PLOTS[@]}; do
-		name=DG2L_${sr}_${dil}_DG2L_${plots}
+		name=DG2L_${sr}_${dil}_DG2L_${plots}_NOM
 		${pathRun}/DrawPlotsExec -pred -p ${name} ${OPT}
 	    done
 	done

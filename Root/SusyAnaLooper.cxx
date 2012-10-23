@@ -15,6 +15,10 @@ SusyAnaLooper::SusyAnaLooper():
   _doFakeAna(false),
   _useLooseLep(false),
   _method(STD),
+  _systematic1("NOM"),
+  _systematic2("XS_DN"),
+  _runOneSys(false),
+  _runSysRange(false),
   _isAlpgenLowMass(false),
   nHFOR(0)
 {
@@ -60,6 +64,17 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseLeptons, &m_signalLeptons,
 			       &m_baseJets, &m_signalJets2Lep);
     _susyHistos->Book2LHistograms(_histoDir);
+    
+    if(DO_SYS){
+      int minSys=getSysIndex(_systematic1);
+      if(_runOneSys)   _susy2LAna->setMcSysMinMax(minSys,minSys);
+      else if(_runSysRange){
+	int maxSys=getSysIndex(_systematic2);
+      	_susy2LAna->setMcSysMinMax(minSys, maxSys);
+      }
+      else _susy2LAna->setMcSysMinMax();
+    }
+    
   }
 
   if(_do3LAna){
@@ -105,6 +120,8 @@ void SusyAnaLooper::printSettings()
   cout << "   USE_LEPSF         " << USE_LEPSF      << endl;
   cout << "   USE_QFLIP         " << USE_QFLIP      << endl;
   cout << endl;
+  cout << "   DO_SYS            " << DO_SYS         << endl;
+  cout << "   FILL_HFT          " << FILL_HFT       << endl;
   cout << " ================================"       <<endl;
   cout << endl;
 
@@ -139,10 +156,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 
   //TO DO Add HF bb/cc w/ mll cut!!!
   if((nt.evt()->mcChannel>=146830 && nt.evt()->mcChannel<=146855) 
-    //|| //low mass
-    //     (nt.evt()->mcChannel>=109300 && nt.evt()->mcChannel<=109313) || //Zeebb Zmmbb Zttbb
-    //(nt.evt()->mcChannel>=126414 && nt.evt()->mcChannel<=126421) || //Zeecc Zmmcc
-    //     (nt.evt()->mcChannel>=117706 && nt.evt()->mcChannel<=117709)    //Zttcc 
+     //|| //low mass
+     //(nt.evt()->mcChannel>=109300 && nt.evt()->mcChannel<=109313) || //Zeebb Zmmbb Zttbb
+     //(nt.evt()->mcChannel>=126414 && nt.evt()->mcChannel<=126421) || //Zeecc Zmmcc
+     //(nt.evt()->mcChannel>=117706 && nt.evt()->mcChannel<=117709)    //Zttcc 
      ){
     _isAlpgenLowMass=true;
     if(_doMll){ //Reject Alpgen low mass with Mll>40 - To patch w/ Sherpa
@@ -150,32 +167,89 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     }
   }
 
-  
-  if(dbg()>0){
+  //Check Duplicate run:event in data
+  if(!nt.evt()->isMC && checkDuplicate()){
+    if(isDuplicate(nt.evt()->run, nt.evt()->event))  return kFALSE;
+  }
+
+  if(dbg()>1){
     cout<<"-----------------------------------"<<endl;
     cout<<"Run: "<<nt.evt()->run<<" Event "<<nt.evt()->event<<endl;
   }
 
   // grab base object and select signal objects
-  SusyNtSys iSys=NtSys_NOM;
-  //SusyNtSys iSys=NtSys_RESOST;
-  selectObjects(iSys);
-  
-  if(dbgEvt()) dumpEvent();
-
-  //perform event analysis
-  if(_doFakeAna){
-    _susyFakeAna->hookMet(m_met);
-    _susyFakeAna->doAnalysis();
-  }
+  uint iSys=DGSys_NOM;
   if(_do2LAna){
-    _susy2LAna->hookMet(m_met);
-    _susy2LAna->doAnalysis();
+    uint minSys=DGSys_NOM;
+    uint maxSys=DGSys_NOM+1;
+    if(DO_SYS){
+      maxSys=DGSys_N;  
+      if(_runOneSys){
+	minSys=getSysIndex(_systematic1);
+	if(minSys==DGSys_N){
+	  cerr << " Requested systematic " << _systematic1 << " not found - Aborting" << endl;
+	  abort();
+	}
+	maxSys=minSys+1;
+      }
+      if(_runSysRange){
+	minSys=getSysIndex(_systematic1);
+	maxSys=getSysIndex(_systematic2)+1;
+      }
+    }
+    
+    for(uint iiSyst=minSys; iiSyst<maxSys; iiSyst++){     //Syst Looper
+      if(dbg()>10) cout << "Do sys? " << DG2LSystNames[iiSyst] <<endl;
+      
+      //SKIP TRIGGER SYS - MEM LEAK
+      // if(iiSyst>=DGSys_TRIGSF_EL_UP && iiSyst<=DGSys_TRIGSF_MU_DN) continue;
+
+      if( !nt.evt()->isMC && iiSyst>DGSys_NOM){
+	if(_method==FLEP){
+	  if(iiSyst < DGSys_FAKE_EL_RE_UP || iiSyst>DGSys_FAKE_MU_FR_DN){
+	    if(dbg()>10) cout << "\tNot fake sys - skip " << DG2LSystNames[iiSyst] <<endl;
+	    continue;   //DD fake  - fake sys only
+	  }
+	}
+	else if(_method!=FLEP) break; // done here
+      }
+      if(nt.evt()->isMC && 
+	 iiSyst >= DGSys_FAKE_EL_RE_UP &&
+	 iiSyst<=DGSys_FAKE_MU_FR_DN) continue; //DD Fake sys
+
+      //Skip spare sys.
+      if(iiSyst>= DGSys_GEN) break; // done here
+     
+      if(dbg()>10) cout << "  Processing Sys " << iiSyst << " " << DG2LSystNames[iiSyst] <<endl;
+      
+      clearObjects();
+      if(iiSyst<=DGSys_RESOST) //Only for sys up to trigger SF need reload the SusyNt obj
+	selectObjects( (SusyNtSys) iiSyst);
+      else
+	selectObjects((SusyNtSys) DGSys_NOM);
+      
+      if(dbg()>1) dumpEvent();
+      
+      _susy2LAna->hookMet(m_met);
+      _susy2LAna->doAnalysis(iiSyst);
+    }   
   }
-  if(_do3LAna){
-    _susy3LAna->hookMet(m_met);
-    _susy3LAna->doAnalysis();
+  else{
+    
+    selectObjects((SusyNtSys) iSys);
+    if(dbgEvt()) dumpEvent();
+
+    //perform event analysis
+    if(_doFakeAna){
+      _susyFakeAna->hookMet(m_met);
+      _susyFakeAna->doAnalysis();
+    }
+    if(_do3LAna){
+      _susy3LAna->hookMet(m_met);
+      _susy3LAna->doAnalysis();
+    }
   }
+
 
   return kTRUE;
 }
@@ -188,7 +262,9 @@ void SusyAnaLooper::Terminate()
   if(_do2LAna) _susy2LAna->end();
   if(_do3LAna) _susy3LAna->end();
 
-  _susyHistos->SaveHistograms(_histoDir,_method,_doMll,_isAlpgenLowMass);
+  _susyHistos->SaveHistograms(_histoDir,_method,
+			      _doMll,_isAlpgenLowMass,
+			      _systematic1, _systematic2);
 
   SusyNtAna::Terminate();
   if(dbg()>0) cout << "SusyAnaLooper::Terminate" << endl;

@@ -30,28 +30,30 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     if(i==1) sFlav="MM_";						\
     if(i==2) sFlav="EM_";						\
     for(int j=0; j<nHSR_DG2L; j++){					\
-      if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
-      else sx = 	string(xT);					\
-      string stype;							\
-      if(j==0) stype="DG2L_SRjveto_";					\
-      if(j==1) stype="DG2L_SRSSjveto_";					\
-      if(j==2) stype="DG2L_SR2jets_";					\
-      if(j==3) stype="DG2L_SRmT2_";					\
-      if(j==4) stype="DG2L_SRmT2b_";					\
-      if(j==5) stype="DG2L_CRZ_";					\
-      if(j==6) stype="DG2L_NTOP_";					\
-      if(j==7) stype="DG2L_NWW1_";					\
-      if(j==8) stype="DG2L_NWW2_";					\
-      if(j==9) stype="DG2L_NWW3_";					\
-      if(j==10) stype="DG2L_ZXCR1_";					\
-      if(j==11) stype="DG2L_ZXCR3_";					\
-      if(j==12) stype="DG2L_ZXCR4_";					\
-      if(j==13) stype="DG2L_CR2LepOS_";					\
-      if(j==14) stype="DG2L_CR2LepSS_";					\
-      hN[j][i] = (TH1F*) _utils->myTH1F((book_s1=stype + sFlav + #hN).c_str(), \
-				(book_s2=stype + sFlav + #hN).c_str(),	\
-				__VA_ARGS__,sx.c_str() ,yT);		\
-      _utils->yAxis(hN[j][i],u);					\
+      for(int isys=0; isys<DGSys_N; isys++){				\
+	if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
+	else sx = 	string(xT);					\
+	string stype;							\
+	if(j==0) stype="DG2L_SRjveto_";					\
+	if(j==1) stype="DG2L_SRSSjveto_";				\
+	if(j==2) stype="DG2L_SR2jets_";					\
+	if(j==3) stype="DG2L_SRmT2_";					\
+	if(j==4) stype="DG2L_SRmT2b_";					\
+	if(j==5) stype="DG2L_CRZ_";					\
+	if(j==6) stype="DG2L_NTOP_";					\
+	if(j==7) stype="DG2L_NWW1_";					\
+	if(j==8) stype="DG2L_NWW2_";					\
+	if(j==9) stype="DG2L_NWW3_";					\
+	if(j==10) stype="DG2L_ZXCR1_";					\
+	if(j==11) stype="DG2L_ZXCR3_";					\
+	if(j==12) stype="DG2L_ZXCR4_";					\
+	if(j==13) stype="DG2L_CR2LepOS_";				\
+	if(j==14) stype="DG2L_CR2LepSS_";				\
+	hN[j][i][isys] = (TH1F*) _utils->myTH1F((book_s1=stype + sFlav + #hN + "_" + DG2LSystNames[isys]).c_str(), \
+						(book_s2=stype + sFlav + #hN + "_" + DG2LSystNames[isys]).c_str(), \
+						__VA_ARGS__,sx.c_str() ,yT); \
+	_utils->yAxis(hN[j][i][isys],u);				\
+      }									\
     }									\
   }
   
@@ -115,8 +117,10 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   for(uint i=0; i<nHSR_DG2L; i++){
     for(int ilep=0; ilep<3; ilep++){			
       for(uint j=0; j<LepType.size(); j++){
-	DG2L_orgl1[i][ilep]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
-	DG2L_orgl2[i][ilep]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	for(int isys=0; isys<DGSys_N; isys++){				
+	  DG2L_orgl1[i][ilep][isys]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	  DG2L_orgl2[i][ilep][isys]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	}
       }
     }
   }
@@ -131,14 +135,12 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     exit(1);
   }
   
-  uint nbins = DG2L_Zcount[0][0]->GetXaxis()->GetNbins();
   int run;
   float lumi;
 
   int ibin=1;
   runBins.clear();
   while( _file >> run >> lumi){
-    //cout << "Read " << run << " " << lumi << endl;
     string sRun;
     ostringstream convert;
     convert << run;  
@@ -146,19 +148,13 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     runBins.insert(runBins.end(),make_pair(run,ibin));
     for(uint i=0; i<nHSR_DG2L; i++){
       for(int ilep=0; ilep<3; ilep++){	
-	DG2L_Zcount[i][ilep]->GetXaxis()->SetBinLabel(ibin,sRun.c_str());
+	for(int isys=0; isys<DGSys_N; isys++){
+	  DG2L_Zcount[i][ilep][isys]->GetXaxis()->SetBinLabel(ibin,sRun.c_str());
+	}
       }
     }
     ibin++;
   }
-
-  
-  /*
-  for(uint j=0; j<nbins; j++){
-    
-    DG2L_Zcount[0][0]->GetXaxis()->SetBinLabel(j+1,sRun);
-  }
-  */
 
   _file.close();
   

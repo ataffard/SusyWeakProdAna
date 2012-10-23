@@ -52,8 +52,8 @@ void DrawPlots::openHistoFiles(string mode,
   std::cout << "loading histo from method " << mode << endl;
   std::cout << "Using histo path " << _pathHisto <<endl;
 
-  //  _dataFileName = _pathHisto + "/histo_data12_std.root";
-  _dataFileName = _pathHisto + "/histo_dummy_rlep.root";
+  _dataFileName = _pathHisto + "/histo_data12_std.root";
+  //_dataFileName = _pathHisto + "/histo_dummy_rlep.root";
   std::cout << "Loading data " << std::endl;
   _dataFile = new TFile(_dataFileName.c_str(),"READ",SFILE[5].c_str());
 
@@ -110,6 +110,7 @@ void DrawPlots::openHistoFiles(string mode,
 //-------------------------------------------//
 void DrawPlots::grabHisto(string name, bool quiet)
 {
+  _mcH1.reserve(OTHER);
   _mcH1.clear();
   _mcName.clear();
   _mcColor.clear();
@@ -119,29 +120,23 @@ void DrawPlots::grabHisto(string name, bool quiet)
   TH1F* _tmp;
 
   _dataFile->cd();
-  title = "DATA_"+name;
-  _h = (TH1F*) _dataFile->Get(name.c_str());
+  string dname =  name + "_NOM"; 
+  title = "DATA_"+dname;
+  _h = (TH1F*) _dataFile->Get(dname.c_str());
   if(_h==NULL){
-    cerr <<" Could not find histo " << name << " in data file " << _dataFile->GetName() << endl;
+    cerr <<" Could not find histo " << dname << " in data file " << _dataFile->GetName() << endl;
     abort();
   }
   if(_moveUO) _utils->moveUnderOverFlow(_h);
   _dataH1 = (TH1F*) _h->Clone(title.c_str());
   
+  //Used in case MC file not there
   _tmp = (TH1F*) _dataH1->Clone();
   _tmp->Reset();
 
-
   int nLoad=0;
   for(uint i=0; i<_mcFile.size(); i++){
-    TFile* _f = _mcFile[i];
-    _f->cd();
-    _h = (TH1F*) _f->Get(name.c_str());
-    if(_h==NULL){ //put an empty histo
-      //cerr <<" Could not find histo " << name << " in MC file " << _f->GetName() << " using empty histo" << endl;
-      _h = (TH1F*) _tmp->Clone();
-    }
-    if(_moveUO) _utils->moveUnderOverFlow(_h);
+    
     switch (i){
     case FAKE:
       _mcColor.push_back(C_FAKE);
@@ -159,15 +154,30 @@ void DrawPlots::grabHisto(string name, bool quiet)
       _mcColor.push_back(C_ZX);
       break;
     }
-    
-    _mcName.push_back(SFILE[i]);
+    _mcName.push_back(MCNames[i]);
     _mcMarker.push_back(iMarker[i+1]);
-    title =SFILE[i] + "_" + name;
+
+    TFile* _f = _mcFile[i];
+    _f->cd();
     
-    _h->SetTitle(title.c_str());
-    _h->SetName(title.c_str());
-    //std::cout << "MC " << _h->GetName() << " entries " << _h->Integral(0,-1) <<std::endl;
-    _mcH1.push_back(_h);
+    vector<TH1F*> _hArray;
+    for(int isys=0; isys<DGSys_N; isys++){
+      string hName = name + "_" + DG2LSystNames[isys];
+      _h = (TH1F*) _f->Get(hName.c_str());
+      _hArray.push_back(_h);
+      if(_hArray[isys]==NULL){ //put an empty histo
+	cerr <<" Could not find histo " << hName << " in MC file " << _f->GetName() << " using empty histo" << endl;
+	_hArray[isys] = (TH1F*) _tmp->Clone();
+      }
+      if(_moveUO) _utils->moveUnderOverFlow(_hArray[isys]);
+
+      title =MCNames[i] + "_" + hName;
+      _hArray[isys]->SetTitle(title.c_str());
+      _hArray[isys]->SetName(title.c_str());
+      //std::cout << "MC " << _hArray[isys]->GetName() << " entries " << _hArray[isys]->Integral(0,-1) <<std::endl;      
+    }
+
+    _mcH1.push_back(_hArray);
     nLoad++;
   }
    
@@ -209,9 +219,10 @@ void DrawPlots::grabHisto(string name, bool quiet)
 //-------------------------------------------//
 // Open histo files
 //-------------------------------------------//
-void DrawPlots::buildStack(string name)
+void DrawPlots::buildStack(string name, TLegend* _l)
 {
-  _mcStackH = (TH1F*) _mcH1[0]->Clone();
+  
+  _mcStackH = (TH1F*) _mcH1[0][DGSys_NOM]->Clone();
   _mcStackH->Reset();
   _mcStackH->SetTitle(string("Stack_"+name).c_str());
   _mcStackH->SetName(string("Stack_"+name).c_str());
@@ -222,13 +233,14 @@ void DrawPlots::buildStack(string name)
   _mcStack->SetTitle(name.c_str());
 
   for(uint i=0; i<_mcH1.size(); i++){
-    std::cout << _mcH1[i]->GetName() << " \t Int " 
-	      << _mcH1[i]->Integral(0,-1) << std::endl;
+    std::cout << _mcH1[i][DGSys_NOM]->GetName() << " \t Int " 
+	      << _mcH1[i][DGSys_NOM]->Integral(0,-1) << std::endl;
     
-    _utils->addToTHStack(_mcStack,_mcH1[i],_mcColor[i], 
-			 "HIST", _leg, _mcName[i].c_str());
-    _mcStackH->Add(_mcH1[i],1);
+    _utils->addToTHStack(_mcStack,_mcH1[i][DGSys_NOM],_mcColor[i], 
+			 "HIST", _l, SFILE[i].c_str());
+    _mcStackH->Add(_mcH1[i][DGSys_NOM],1);
   }
+  
 }
 
 //-------------------------------------------//
@@ -309,7 +321,7 @@ void DrawPlots::compareShape(string name, bool logy){
     norm=false;
   }
 
-  _leg = new TLegend(0.6,0.5,0.75,0.85);
+  TLegend* _leg = new TLegend(0.6,0.5,0.75,0.85);
   _utils->legendSetting(_leg); 
 
   _tmp_dataH1 = (TH1F*) _dataH1->Clone();
@@ -324,7 +336,7 @@ void DrawPlots::compareShape(string name, bool logy){
   //Normalize the bkg
   //Fix this - what to compare the normalized sum of the bkg !
   for(uint i=0; i<_mcH1.size(); i++){
-    TH1F* _tmpH1 = (TH1F*) _mcH1[i]->Clone();
+    TH1F* _tmpH1 = (TH1F*) _mcH1[i][DGSys_NOM]->Clone();
     if(_tmpH1==NULL) {
       cerr << "Cannot find MC histo " << i << endl;
       abort();
@@ -381,14 +393,14 @@ void DrawPlots::drawPlot(string name, bool logy)
     scale=maxScaleLog;
   }
 
-  _leg = new TLegend(0.55,0.45,0.85,0.93);
+  TLegend*_leg = new TLegend(0.55,0.45,0.85,0.93);
   _utils->legendSetting(_leg); 
 
   //Grabs all histos: data, MC, signal points
   grabHisto(name,false);
 
   //Build the mc stack and retrieve histo of the total. Add entry to legend
-  buildStack(name);
+  buildStack(name,_leg);
 
   TH1F* _stackH = (TH1F*) _dataH1->Clone();
   _utils->getStackHisto(_mcStack,_stackH);
@@ -439,11 +451,147 @@ void DrawPlots::drawPlot(string name, bool logy)
   string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
   //  _c0->SaveAs((fName+".pdf").c_str());
   _c0->SaveAs((fName+".png").c_str());
+}
 
 
+//-------------------------------------------//
+// Compare bkg estimate & data w/ sys band
+//-------------------------------------------//
+void DrawPlots::drawPlotErrBand(string name, bool logy)
+{
+  const float maxScaleLin=1.4;
+  const float maxScaleLog=11;
+  float scale=maxScaleLin;
 
+  scale = maxScaleLin;
+  string _sLogy = "";
+  setLogy(logy);
+  if(logy){
+    _sLogy = "_logy";
+    scale=maxScaleLog;
+  }
+
+  TLegend*  _leg = new TLegend(0.55,0.45,0.85,0.93);
+  _utils->legendSetting(_leg); 
+
+  //Grabs all histos: data, MC, signal points including the sys histos
+  grabHisto(name,false);
+
+  //Build the mc stack and retrieve histo of the total. Add entry to legend
+  buildStack(name,_leg);
+
+  float avgRatio = 0;
+  if(_mcStackH->Integral(0,-1)>0) avgRatio =_dataH1->Integral(0,-1) / _mcStackH->Integral(0,-1);
+  std::cout << "Average ratio data/MC " << avgRatio << std::endl;
+  
+
+  //TH1F* _mcStackH = (TH1F*) _dataH1->Clone();
+  //_utils->getStackHisto(_mcStack,_mcStackH);
+ 
+  //
+  //Error band on prediction
+  //
+  TGraphAsymmErrors* _nomAsymErrors = _utils->TH1TOTGraphAsymErrors(_mcStackH);
+  
+  TH1F* totalSysHisto = (TH1F*) _mcStackH->Clone();
+  totalSysHisto->Reset();
+  TGraphAsymmErrors* transient; 
+
+  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_EES_MAT_DN/*DGSys_N*/; isys++){
+    for(uint imc=0; imc<_mcH1.size(); imc++){
+      TH1F* _hsys = _mcH1[imc][isys];
+      if(_hsys) {
+	cout << " MC " << _mcName[imc]
+	     << "\t\t Sys " << DG2LSystNames[isys] 
+	     << "\t " << _hsys->Integral(0,-1) << endl;
+	totalSysHisto->Add(_hsys);
+      }
+      else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
+    }    
+    transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+    _utils->myAddtoBand(transient,_nomAsymErrors);
+    totalSysHisto->Reset();
+  }
+  _leg->AddEntry(_nomAsymErrors,"Bkg. Uncert.","f");
+
+  //
+  //Error band on ratio 
+  //
+  TGraphAsymmErrors* ratioBand   = new TGraphAsymmErrors( *_nomAsymErrors ); 
+  ratioBand->SetMarkerSize(0);
+  for(int bin=0; bin < ratioBand->GetN(); bin++){ 
+    ratioBand->GetY()[bin] = 1.; 
+    if( _nomAsymErrors->GetY()[bin] > 0.0001 ) 
+      ratioBand->GetEYhigh()[bin]=_nomAsymErrors->GetEYhigh()[bin]/_nomAsymErrors->GetY()[bin]; 
+    else 
+      ratioBand->GetEYhigh()[bin]= 0.; 
+    if( _nomAsymErrors->GetY()[bin] > 0.0001 ) 
+      ratioBand->GetEYlow()[bin]=_nomAsymErrors->GetEYlow()[bin]/_nomAsymErrors->GetY()[bin]; 
+    else 
+      ratioBand->GetEYlow()[bin]= 0.; 
+    if( ratioBand->GetEYlow()[bin] > 1. ) 
+      ratioBand->GetEYlow()[bin] = 1.; 
+    if( ratioBand->GetEYhigh()[bin] > 1. ) 
+      ratioBand->GetEYhigh()[bin] = 1.; 
+  }
+
+
+  char sData[200];
+  int nData  = _dataH1->GetEntries();
+  sprintf(sData,"Data (%d)",nData);
+  std::cout << _dataH1->GetName() << " \t Int " << nData << std::endl;
+  _leg->AddEntry(_dataH1,sData ,"p");
+
+  if(HIDEDATA) _dataH1=NULL;
+  
+  TCanvas* _c0  = _utils->myCanvas(("c_"+name).c_str());
+  _c0->Clear();
+  TPad* _pTop = NULL;
+  TPad* _pBot = NULL;
+  if(HIDEDATA){
+    _pTop = new TPad("pTop","pTop",0,0.05,1,1);
+  }
+  else{
+    _pTop = new TPad("pTop","pTop",0,0.3,1,1);
+    _pBot = new TPad("pBot","pBot",0,0,1,0.3);
+  }
+
+  if(_mcStackH->Integral(0,-1)==0 || _dataH1->Integral(0,-1)==0) logy=false;
+  TVirtualPad* _tv = _utils->myDrawRatio(_c0,_pTop, _pBot, 
+					_mcStack,_mcStackH,
+					_dataH1,_leg,logy);
+
+  //Add signals template
+  for(uint i=0; i<_sigFile.size(); i++){
+    _utils->myDraw1d(_sigH1[i],_c0,1,"histsame",logy,_sigColor[i],false,20);
+    _leg->AddEntry(_sigH1[i],SIGFILE[i].c_str(),"l");
+    _c0->Update();
+    _pTop->Update();
+  }
+  //Add the error band
+  _c0->cd(1);
+  _pTop->cd();
+  _nomAsymErrors->Draw("SAME && E2");
+  _pTop->Update();
+
+  //  _c0->cd(1);
+  //  _pTop->cd();
+  drawChannelText(name,0.7,0.40);
+  drawLumi();
+  drawATLAS();
+  _c0->Update();
+
+  _pBot->cd();
+  ratioBand->Draw("same && E2");
+ _pBot->Update();
+
+  string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
+  //  _c0->SaveAs((fName+".pdf").c_str());
+  _c0->SaveAs((fName+".png").c_str());
 
 }
+
+
 //-------------------------------------------//
 // Draw channel labelx
 //-------------------------------------------//
@@ -675,6 +823,7 @@ TH1F* DrawPlots::getProfile3D(TH3* _h, string axis, string afix, string aloop)
 //-------------------------------------------//
 void DrawPlots::getFakeComposition(string sAna, string sSR, string lep)
 {
+  /*
   const char* const FKTYPE[]= {"HF","LF","CONV"}; 
   string sType[3]= {"hf","lf","cv"};
   vector<TH1F*>   _hFake[3]; 
@@ -724,15 +873,6 @@ void DrawPlots::getFakeComposition(string sAna, string sSR, string lep)
       _hFrac[imc]->SetBinError(iFk+1,_fracErr);
     }
   }
-  /*
-  TCanvas* _c1  = _utils->myCanvas("dummy",800,500,3,2);
-  for(uint imc=0; imc<_hFrac.size(); imc++){
-    _c1->cd(imc+1);
-    _hFrac[imc]->Draw("e");
-  }
-  string fName1= _pathPlots + "/" + "tmp_fakeFrac";
-  _c1->SaveAs((fName1+".png").c_str());  
-  */
 
   //Build Stack histo, legend
   _mcH1.clear();
@@ -749,7 +889,7 @@ void DrawPlots::getFakeComposition(string sAna, string sSR, string lep)
   string fName= _pathPlots + "/" + "fakeFrac_" +sAna + "_" + sSR + "_" + lep;
   _c0->SaveAs((fName+".png").c_str());
 
-
+  */
 }
 //-------------------------------------------//
 // Get FR/Eff -vs var for given inputs
@@ -1038,10 +1178,10 @@ void DrawPlots:: bkgEstimate_DG2L()
       _hDataLep[ilep]->Add(_dataH1);
       _hDataLep[sLEP.size()-1]->Add(_dataH1);
       for(uint ib=0; ib<sBKG.size()-1; ib++){
-	_hBkgLep[ib][ilep]->Add(_mcH1[ib]);
-	_hBkgLep[sBKG.size()-1][ilep]->Add(_mcH1[ib]);       //Sum over lep type
-	_hBkgLep[ib][sLEP.size()-1]->Add(_mcH1[ib]);         //Sum over bkg type
-	_hBkgLep[sBKG.size()-1][sLEP.size()-1]->Add(_mcH1[ib]);//Sum over all
+	_hBkgLep[ib][ilep]->Add(_mcH1[ib][DGSys_NOM]);
+	_hBkgLep[sBKG.size()-1][ilep]->Add(_mcH1[ib][DGSys_NOM]);       //Sum over lep type
+	_hBkgLep[ib][sLEP.size()-1]->Add(_mcH1[ib][DGSys_NOM]);         //Sum over bkg type
+	_hBkgLep[sBKG.size()-1][sLEP.size()-1]->Add(_mcH1[ib][DGSys_NOM]);//Sum over all
       }
     }
     
@@ -1193,8 +1333,8 @@ void DrawPlots:: bkgEstimate_ML()
     grabHisto(sHist);//get all the bkg for this lep type      
     _hDataLep->Add(_dataH1);
     for(uint ib=0; ib<sBKG.size()-1; ib++){
-      _hBkgLep[ib]->Add(_mcH1[ib]);
-      _hBkgLep[sBKG.size()-1]->Add(_mcH1[ib]);       //Sum over lep type
+      _hBkgLep[ib]->Add(_mcH1[ib][DGSys_NOM]);
+      _hBkgLep[sBKG.size()-1]->Add(_mcH1[ib][DGSys_NOM]);       //Sum over lep type
     }
     
     //Sum the evt categories into overflow bin
