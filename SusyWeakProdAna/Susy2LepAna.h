@@ -129,10 +129,11 @@ class Susy2LepAna: public SusyNtTools
     void restoreOriginal(LeptonVector& leptons, const Met *met);
     void clearVectors();
 
-    void setMcSysMinMax(int sys1=DGSys_NOM, int sys2=DGSys_BKGMETHOD_DN){
+    void setMcSysMinMax(uint sys1=DGSys_NOM, uint sys2=DGSys_BKGMETHOD_DN){
       _sys1 = sys1;
       _sys2 = sys2;
-      cout << "Setting Sys range from HFT to " << sys1 << " " << sys2 << endl;
+      cout << "Setting Sys range of HFT from " <<  DG2LSystNames[sys1]
+	   << " --> " << DG2LSystNames[sys2] << endl;
     }; 
     void initializeHistFitterTree();
     void writeIntoHistFitterTree( const LeptonVector* leptons, 
@@ -201,8 +202,8 @@ class Susy2LepAna: public SusyNtTools
     float _inc;          //To set counter inc to 1 or _ww.
     uint   SR;           //Signal region
     uint   SYST;         //Current Syst being handled
-    int    _sys1;        //Sys loop over - need to book HFT
-    int    _sys2;
+    uint   _sys1;        //Sys loop over - need to book HFT
+    uint   _sys2;
 
 
     float metRel;

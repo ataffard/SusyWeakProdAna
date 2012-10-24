@@ -15,8 +15,8 @@ SusyAnaLooper::SusyAnaLooper():
   _doFakeAna(false),
   _useLooseLep(false),
   _method(STD),
-  _systematic1("NOM"),
-  _systematic2("XS_DN"),
+  _systematic1(""),
+  _systematic2(""),
   _runOneSys(false),
   _runSysRange(false),
   _isAlpgenLowMass(false),
@@ -66,11 +66,22 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
     _susyHistos->Book2LHistograms(_histoDir);
     
     if(DO_SYS){
-      int minSys=getSysIndex(_systematic1);
-      if(_runOneSys)   _susy2LAna->setMcSysMinMax(minSys,minSys);
-      else if(_runSysRange){
-	int maxSys=getSysIndex(_systematic2);
-      	_susy2LAna->setMcSysMinMax(minSys, maxSys);
+      if(_runOneSys || _runSysRange){
+	if(_systematic1.length()>2){
+	  int minSys=getSysIndex(_systematic1);
+	  if(_runOneSys)   _susy2LAna->setMcSysMinMax(minSys,minSys);
+	  else if(_runSysRange){
+	    int maxSys=getSysIndex(_systematic2);
+	    _susy2LAna->setMcSysMinMax(minSys, maxSys);
+	  }
+	}
+	else {
+	  _systematic1="";
+	  _systematic2="";
+	  _runOneSys=false;
+	  _runSysRange=false;
+	  _susy2LAna->setMcSysMinMax();
+	}
       }
       else _susy2LAna->setMcSysMinMax();
     }

@@ -20,7 +20,7 @@ void ChangeDataTreeName(std::string suffix){
   treename.Form("id_%s",suffix.c_str());
   histname.Form("sumOfMcWeights_%s",suffix.c_str());
 
-  TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_102112_13fb_n0107_DD_predSR/HFTOutputs/");
+  TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_102312_13fb_n0107_DD_predSR/HFTOutputs/");
   filename = _pathFile+filename;
   cout << "open " << filename << endl;
 

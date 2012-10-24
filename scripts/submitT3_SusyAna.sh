@@ -43,6 +43,8 @@ ana=SusyAnaLooperExec
 anaOpt1=do2L
 anaOpt2=true #doMll 
 methodMC=std
+sys1="\"\""
+sys2="\"\""
 nEvt=-1
 
 ##
@@ -80,16 +82,80 @@ while read line; do
 	echo 
 
 	if [ "$type" == "mc12" -o "$type" == "susy" ]; then
-	    echo "Submitting MC "
-	    echo "  method:     $methodMC"
-	    # run the job - submit with qsub
-	    cd ${pathRun}
-	    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
-	    echo ""
-	    echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
-	    cd ${pathScript}
-	    echo ""
-	    sleep 1
+	    #For large sample - split the sys
+	    if [ "$sName" == "Zee.147770" -o "$sName" == "Zmumu.147771" -o "$sName" == "TtbarLeptLept.117800" ]; then
+		echo "Submitting MC using Sys Range "
+		
+		echo "Submitting MC "
+		sys1="NOM"
+		sys2="EES_LOW_UP"
+		echo "  sys $sys1 --> $sys2" 
+		echo "  method:     $methodMC"
+ 	        # run the job - submit with qsub
+		cd ${pathRun}
+		qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
+		echo ""
+		echo "qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
+		cd ${pathScript}
+		echo ""
+		sleep 1
+
+
+		echo "Submitting MC "
+		sys1="EES_LOW_DN"
+		sys2="JES_UP"
+		echo "  sys $sys1 --> $sys2" 
+		echo "  method:     $methodMC"
+ 	        # run the job - submit with qsub
+		cd ${pathRun}
+		qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
+		echo ""
+		echo "qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
+		cd ${pathScript}
+		echo ""
+		sleep 1
+		
+		echo "Submitting MC "
+		sys1="JES_DN"
+		sys2="TRIGSF_MU_UP"
+		echo "  sys $sys1 --> $sys2" 
+		echo "  method:     $methodMC"
+ 	        # run the job - submit with qsub
+		cd ${pathRun}
+		qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
+		echo ""
+		echo "qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
+		cd ${pathScript}
+		echo ""
+		sleep 1
+
+
+		echo "Submitting MC "
+		sys1="TRIGSF_MU_DN"
+		sys2="BKGMETHOD_DN"
+		echo "  sys $sys1 --> $sys2" 
+		echo "  method:     $methodMC"
+ 	        # run the job - submit with qsub
+		cd ${pathRun}
+		qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
+		echo ""
+		echo "qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
+		cd ${pathScript}
+		echo ""
+		sleep 1
+
+	    else 
+		echo "Submitting MC "
+		echo "  method:     $methodMC"
+ 	        # run the job - submit with qsub
+		cd ${pathRun}
+		qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
+		echo ""
+		echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodMC,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
+		cd ${pathScript}
+		echo ""
+		sleep 1
+	    fi
 	fi
 
 	if [ "$type" == "data12" ]; then
@@ -123,7 +189,7 @@ done <tmp.txt
 qstat |grep ataffard
 rm -f tmp.txt
 
-if [ "$type" == "mc12" ]; then
-    cd  ${pathRun}
-    ./run.sh mc12 dummy ${mode}
-fi
+#if [ "$type" == "mc12" ]; then
+#    cd  ${pathRun}
+#    ./run.sh mc12 dummy ${mode}
+#fi

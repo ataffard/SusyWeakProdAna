@@ -194,26 +194,42 @@ void Susy2LepAna::moveHFTOutput()
   string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/HFTOutputs";
   gSystem->mkdir(dir.c_str(),kTRUE);
   
-  string list = "HFTlist_" + HFTName;
-  string cmd = "ls -1 *"+ HFTName + "*.root >" +list;
-  gSystem->Exec(cmd.c_str());
-  
-  FILE* fInput;
-  if ((fInput = fopen(list.c_str(),"r")) == NULL) {
-    cout << "File " << list << " could not be opened. Exit" << endl;;
-    abort();
-  }
-  char _name[200];
-  while (!feof( fInput )) {
-    if (fscanf(fInput, "%s\n",&_name[0])){
-      string cmd2 = "mv " + string(_name) + " " + dir;
-      std::cout << "Move " << cmd2 << std::endl;
-      gSystem->Exec(cmd2.c_str());
+  if(nt->evt()->isMC){
+    TString mcId = "";
+    TString systName = "" ;
+    mcId.Form("%i",nt->evt()->mcChannel);
+    for(uint i=_sys1; i <=_sys2; i++) {
+      systName.Form("%s",DG2LSystNames[i].c_str());
+      TString fName = systName+"_"+mcId+".root";
+      string cmd = "mv " + string(fName.Data()) + " " + dir;
+      std::cout << "Moving MC HFT file " << cmd << std::endl;
+      gSystem->Exec(cmd.c_str());
     }
   }
+  else{
 
-  cmd = "rm -f " + list;
-  gSystem->Exec(cmd.c_str());
+    string list = "HFTlist_" + HFTName;
+    string cmd = "ls -1 *"+ HFTName + "*.root >" +list;
+    gSystem->Exec(cmd.c_str());
+    
+    FILE* fInput;
+    if ((fInput = fopen(list.c_str(),"r")) == NULL) {
+      cout << "File " << list << " could not be opened. Exit" << endl;;
+      abort();
+    }
+    char _name[200];
+    while (!feof( fInput )) {
+      if (fscanf(fInput, "%s\n",&_name[0])){
+	string cmd2 = "mv " + string(_name) + " " + dir;
+	std::cout << "Move " << cmd2 << std::endl;
+	gSystem->Exec(cmd2.c_str());
+      }
+    }
+    
+    cmd = "rm -f " + list;
+    gSystem->Exec(cmd.c_str());
+    
+  }
 
 }
 

@@ -17,7 +17,7 @@
 #date="101312_13fb_n0105_STD_unblindData_wMetRel"
 #mth="std"
 
-date="102112_13fb_n0107_DD_predSR"
+date="102312_13fb_n0107_DD_predSR"
 mth="rlep"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -31,7 +31,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-#doMove=true
+doMove=true
 
 doData=true
 doDataFake=true

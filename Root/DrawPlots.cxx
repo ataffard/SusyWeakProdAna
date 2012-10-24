@@ -497,7 +497,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
   totalSysHisto->Reset();
   TGraphAsymmErrors* transient; 
 
-  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_EES_MAT_DN/*DGSys_N*/; isys++){
+  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_N; isys++){
     for(uint imc=0; imc<_mcH1.size(); imc++){
       TH1F* _hsys = _mcH1[imc][isys];
       if(_hsys) {

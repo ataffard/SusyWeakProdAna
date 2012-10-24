@@ -44,6 +44,8 @@ int main(int argc, char *argv[]){
 void openHist(string mode,string Top,string WW,string ZX,string Ztt,string Fake)
 {
   _ana->openHistoFiles(mode,Top,WW, ZX, Ztt, Fake);
+  //  _ana->openHistoFiles("DD","histo_dummy","histo_dummy", ZX, "histo_dummy", "histo_dummy");
+
 }
 
 //--------------------------------------------------------------------------------

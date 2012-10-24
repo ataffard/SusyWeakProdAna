@@ -57,8 +57,9 @@ class SusyAnaLooper : public SusyNtAna
       _systematic1=sys1; 
       _systematic2=sys2; 
       _runSysRange=true;
-      cout << "Processing systematic range" 
+      cout << "Processing systematic range: " 
 	   << _systematic1 << " --> " << _systematic2 << endl;
+      cout << "Sys 1 " << _systematic1.length() << endl;
     }
     int getSysIndex(string sys){
       for(uint iiSyst=DGSys_NOM; iiSyst<DGSys_N; iiSyst++){
