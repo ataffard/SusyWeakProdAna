@@ -231,7 +231,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       //Skip spare sys.
       if(iiSyst>= DGSys_GEN) break; // done here
      
-      if(dbg()>10) cout << "  Processing Sys " << iiSyst << " " << DG2LSystNames[iiSyst] <<endl;
+      if(dbg()>1) cout << "  Processing Sys " << iiSyst << " " << DG2LSystNames[iiSyst] <<endl;
       
       clearObjects();
       if(iiSyst<=DGSys_RESOST) //Only for sys up to trigger SF need reload the SusyNt obj
@@ -239,7 +239,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       else
 	selectObjects((SusyNtSys) DGSys_NOM);
       
-      if(dbg()>1) dumpEvent();
+      if(dbg()>5) dumpEvent();
       
       _susy2LAna->hookMet(m_met);
       _susy2LAna->doAnalysis(iiSyst);

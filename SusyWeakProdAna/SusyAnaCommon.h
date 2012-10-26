@@ -10,7 +10,7 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //#define LUMI_5FB  //A->B14
 #define LUMI_13FB  //A->E5
 
-const std::string TAG  = "102312";
+const std::string TAG  = "102512";
 const std::string SUFF = "_n0107_DD_predSR"; //METRELCUT_SR & METREL40 - sys & HFT on this
 //const std::string SUFF = "_n0107_DD_noCut";  //both false 
 //const std::string SUFF = "_n0107_STD_predSR";

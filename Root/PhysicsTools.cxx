@@ -312,11 +312,11 @@ float GetNVertexBsCorrected(float nRecoVtx){
   //get corresponding NReconstructible (points are already sorted in X, monotonic in Y)
   float nRecon=-1;
   if (nRecoVtx < g_nvtx_nreco_bs66mm->GetY()[0]) {
-    std::cout << "NVtx_bs_correction.C: WARNING: Requested nVertex outside the expected range: " << nRecoVtx << std::endl;
+    //std::cout << "NVtx_bs_correction.C: WARNING: Requested nVertex outside the expected range: " << nRecoVtx << std::endl;
     return nRecoVtx; //do not correct
   }
   if (nRecoVtx > g_nvtx_nreco_bs66mm->GetY()[g_nvtx_nreco_bs66mm->GetN()-1]) {
-    std::cout << "NVtx_bs_correction.C: WARNING: Requested nVertex outside the expected range: " << nRecoVtx << std::endl;
+    //std::cout << "NVtx_bs_correction.C: WARNING: Requested nVertex outside the expected range: " << nRecoVtx << std::endl;
     return nRecoVtx; //do not correct 
   }
   for (int i=1; i < g_nvtx_nreco_bs66mm->GetN(); i++) {

@@ -153,6 +153,8 @@ class Susy2LepAna: public SusyNtTools
     void print_NZX();
     void print_line(string s, float a, float b, float c);
 
+    void dumpEvent();
+
     void moveHFTOutput();
     
     
@@ -244,9 +246,9 @@ class Susy2LepAna: public SusyNtTools
     enum DIL_SR{DIL_SRjveto=0, DIL_SRSSjveto=1, DIL_SR2jets=2, DIL_SRmT2=3,
 		DIL_SRmT2b=4,
 		DIL_CRZ=5, DIL_NTOP=6, DIL_NWW1=7, DIL_NWW2=8, DIL_NWW3=9,
-		DIL_ZXCR1=10, DIL_ZXCR3=11, DIL_ZXCR4=12,
-		DIL_CR2LepOS=13, DIL_CR2LepSS=14,
-		DIL_NSR=15
+		DIL_ZXCR1=10, DIL_ZXCR3=11, DIL_ZXCR4=12, DIL_ZXCR5=13,
+		DIL_CR2LepOS=14, DIL_CR2LepSS=15,
+		DIL_NSR=16
     };
 
 

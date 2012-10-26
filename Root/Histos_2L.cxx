@@ -47,8 +47,9 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
 	if(j==10) stype="DG2L_ZXCR1_";					\
 	if(j==11) stype="DG2L_ZXCR3_";					\
 	if(j==12) stype="DG2L_ZXCR4_";					\
-	if(j==13) stype="DG2L_CR2LepOS_";				\
-	if(j==14) stype="DG2L_CR2LepSS_";				\
+	if(j==13) stype="DG2L_ZXCR5_";					\
+	if(j==14) stype="DG2L_CR2LepOS_";				\
+	if(j==15) stype="DG2L_CR2LepSS_";				\
 	hN[j][i][isys] = (TH1F*) _utils->myTH1F((book_s1=stype + sFlav + #hN + "_" + DG2LSystNames[isys]).c_str(), \
 						(book_s2=stype + sFlav + #hN + "_" + DG2LSystNames[isys]).c_str(), \
 						__VA_ARGS__,sx.c_str() ,yT); \

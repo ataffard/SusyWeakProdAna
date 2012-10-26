@@ -17,7 +17,7 @@
 #date="101312_13fb_n0105_STD_unblindData_wMetRel"
 #mth="std"
 
-date="102312_13fb_n0107_DD_predSR"
+date="102512_13fb_n0107_DD_predSR"
 mth="rlep"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -76,8 +76,8 @@ doSignal=true
 if [ $doMove ]; then
 #move all the histos to new area:
     if [ ! -d "${outPath}" ]; then
-#	mkdir ${outPath}
-	mkdir -p ${outPath}/logs
+	mkdir ${outPath}
+	mkdir ${outPath}/logs
     fi
     mv ${histPathBase}/*.root ${outPath}
     mv ${logPath}/*.log ${outPath}/logs

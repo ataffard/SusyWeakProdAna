@@ -107,7 +107,7 @@ int main(int argc, char *argv[]){
 
 
   if(comp) _ana->compareShape(pName,logY);
-  if(pred) _ana->drawPlot(pName,logY);
+  if(pred) _ana->drawPlotErrBand(pName,logY);
   if(table){
     _ana->bkgEstimate_DG2L();
     _ana->bkgEstimate_ML();
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]){
   if(cutflow){
     TString s(ana);
     if(s.Contains("DG2L")) _ana->dumpCutflow_DG2L(pName);
-    if(s.Contains("ML")) _ana->dumpCutflow_ML(pName);
+    //if(s.Contains("ML")) _ana->dumpCutflow_ML(pName);
   }
   
 

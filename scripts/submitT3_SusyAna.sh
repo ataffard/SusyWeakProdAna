@@ -83,7 +83,7 @@ while read line; do
 
 	if [ "$type" == "mc12" -o "$type" == "susy" ]; then
 	    #For large sample - split the sys
-	    if [ "$sName" == "Zee.147770" -o "$sName" == "Zmumu.147771" -o "$sName" == "TtbarLeptLept.117800" ]; then
+	    if [ "$sName" == "Zee.147770" -o "$sName" == "Zmumu.147771" -o "$sName" == "TtbarLeptLept.117800" -o "$sName" == "llnunu_WW.126892" ]; then
 		echo "Submitting MC using Sys Range "
 		
 		echo "Submitting MC "

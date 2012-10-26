@@ -14,7 +14,7 @@ const char* const DIL_QQ[] = {"OS", "SS"};
 const string DIL_SRNAME[] = {"SRjveto", "SRSSjveto", "SR2jets", "SRmT2",
 			     "SRmT2b",
 			     "CRZ", "NTOP", "NWW1", "NWW2", "NWW3",
-			     "ZXCR1", "ZXCR3", "ZXCR4",
+			     "ZXCR1", "ZXCR3", "ZXCR4","ZXCR5",
 			     "CR2LepOS", "CR2LepSS"
 };
 
@@ -184,7 +184,7 @@ void Susy2LepAna::end()
     moveHFTOutput();
   }
 
-
+  clearVectors();
 }
 /*--------------------------------------------------------------------------------*/
 // Move output of this HFT to a decent location
@@ -283,7 +283,6 @@ void Susy2LepAna::resetCounter()
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::reset()
 {
-  //_ww  = 0;
   _inc = 1;
   SR=DIL_NSR;
   m_ET = ET_Unknown;
@@ -440,6 +439,13 @@ void Susy2LepAna::setSelection(std::string s)
     if(METRELCUT_SR) m_metRelMin=40;
     else m_metRelMin=0;
   }
+  else if(m_sel == "ZXCR5"){
+    m_selOS = true;
+    m_selZ  = true;
+    m_vetoJ = true;
+    m_metRelMin=70;
+    m_metRelMax=100;
+  }
   else if(m_sel == "CR2LepOS"){
     m_selOS=true;
     if(METREL40) m_metRelMin=40;
@@ -459,17 +465,40 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 			      const JetVector* signalJets,
 			      const Met* met)
 {
+  if(dbg()>10){ 
+    cout << "\n >>> run " << nt->evt()->run  
+	 << " event " << nt->evt()->event 
+	 << " SYST " << DG2LSystNames[SYST]
+	 << endl;
+    dumpEvent();
+  }
+
   if(SYST==DGSys_NOM) n_readin+=_inc;
 
-  if(!passEventCleaning() )         return false;
+  if(!passEventCleaning() ){
+    if(dbg()>10) cout<<"Fail cleaning" << endl;  
+      return false;
+    }
   if(!passBadFCAL(v_baseJet,
 		  nt->evt()->run,
-		  nt->evt()->isMC)) return false;
-  if( v_baseLep->size() < 2 )       return false;
+		  nt->evt()->isMC)){
+    if(dbg()>10) cout<<"Fail FCAL" << endl; 
+      return false;
+    }
+  if( v_baseLep->size() < 2 ){ 
+    if(dbg()>10) cout<<"Fail baselep1 " << endl;  
+      return false;
+    }
   if(SYST==DGSys_NOM) n_pass_atleast2BaseLep+=_inc;
-  if( v_baseLep->size() != 2 )      return false;
+  if( v_baseLep->size() != 2 ){ 
+    if(dbg()>10) cout<<"Fail baselep2 " << endl;
+      return false;
+    }
   if(SYST==DGSys_NOM) n_pass_exactly2BaseLep+=_inc;
-  if(! passMll20(baseLeps))         return false;
+  if(! passMll20(baseLeps)){ 
+    if(dbg()>10) cout<<"Fail Mll20 " << endl; 
+      return false;
+    }
   if(SYST==DGSys_NOM) n_pass_mll20+=_inc;
 
   // Get Event Type to continue cutflow
@@ -478,9 +507,18 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   
   if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;
 
-  if( !passNLepCut(leptons) )     return false;
-  if( !passTrigger(leptons) )     return false; 
-  if( !passIsPromptLepton(leptons,nt->evt()->isMC)) return false; 
+  if( !passNLepCut(leptons) ){ 
+    if(dbg()>10) cout<<"Fail Nlep " << endl; 
+      return false;
+    }
+  if( !passTrigger(leptons) ){ 
+    if(dbg()>10) cout<<"Fail Trig " << endl;  
+      return false; 
+    }
+  if( !passIsPromptLepton(leptons,nt->evt()->isMC)){
+    if(dbg()>10) cout<<"Fail Prompt " << endl; 
+      return false; 
+    }
   
   //
   //Write HistFitterTree here
@@ -501,9 +539,15 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   float _wwSave = _ww;
 
   //Backup Met & leptons
-  if(dbg()>1) cout << "\n >>> run " << nt->evt()->run  
-		    << " event " << nt->evt()->event 
-		    << " weight " << _ww << endl;
+  /*
+  if(dbg()>1){ 
+    cout << "\n >>> run " << nt->evt()->run  
+	 << " event " << nt->evt()->event 
+	 << " SYST " << DG2LSystNames[SYST]
+	 << " weight " << _ww << endl;
+    dumpEvent();
+  }
+  */
   saveOriginal();
 
   //
@@ -559,9 +603,10 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     //Dump run event
-    if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
+    //    if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
+    if(DUMP_RUNEVT && SYST==DGSys_NOM && (iSR==DIL_NTOP && m_ET==ET_ee) ){
       evtDump << nt->evt()->run << " " << nt->evt()->event 
-	      << " " << sSR << " " << DIL_FLAV[m_ET]  << endl;
+	      << " " << sSR << " " << DIL_FLAV[m_ET] << " " << _ww << endl;
     }
 
     if(!passZVeto(leptons) && allowZVeto ) continue;
@@ -615,7 +660,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 
   }
 
-  clearVectors();
+  if(nt->evt()->isMC) restoreOriginal(*leptons,met);
+  // clearVectors();
 
   return true;
 }
@@ -646,6 +692,8 @@ float Susy2LepAna::eventWeight(int mode)
     _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
   }
   
+  float _w1 = _evtW;
+
   if(USE_LEPSF && nt->evt()->isMC){
     for(uint ilep=0; ilep<v_sigLep->size(); ilep++){
       const Susy::Lepton* _l = v_sigLep->at(ilep);
@@ -668,6 +716,7 @@ float Susy2LepAna::eventWeight(int mode)
       if(_wtrig>0) _wtrig=1;
     }
     _evtW *= _wtrig;
+    if(dbg()>10) cout << "trigW " << _wtrig << endl; 
   }
   
   return _evtW;
@@ -727,6 +776,9 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   case DIL_ZXCR4:
     frSR = SusyMatrixMethod::FR_SRNONE;
     break;
+  case DIL_ZXCR5:
+    frSR = SusyMatrixMethod::FR_SRNONE;
+    break;
   case DIL_CR2LepOS:
     frSR = SusyMatrixMethod::FR_SRNONE; //FR_SRNONE
     break;
@@ -778,6 +830,7 @@ bool Susy2LepAna::passEventCleaning()
   if(SYST>DGSys_RESOST) iiSys = DGSys_NOM;
 
   int cutFlag = nt->evt()->cutFlags[iiSys];
+  //cout << "CutFlag " << hex << cutFlag << dec << endl;
 
   if(!passHotSpot(cutFlag)) return false;
   if(SYST==DGSys_NOM) n_pass_HotSpot+=_inc;
@@ -799,7 +852,7 @@ bool Susy2LepAna::passEventCleaning()
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passBadFCAL(const JetVector* jets, int run, bool isMC)
 {
-  bool inBadFCAL=hasJetInBadFCAL(*jets);
+  bool inBadFCAL=hasJetInBadFCAL(*jets,run,isMC);
 
   if(!isMC){ //Veto data C1-C8
     if(run>=BAD_FCAL_RUN1 && 
@@ -1275,6 +1328,12 @@ void Susy2LepAna::print_NZX()
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  j= DIL_ZXCR5;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+
+
   
 }
 
@@ -1304,7 +1363,7 @@ void Susy2LepAna::saveOriginal()
   }
   buildLeptons(v_save_sigLep, v_save_sigEle, v_save_sigMu);
 
-  if(dbg()>5){
+  if(dbg()>10){
     cout << ">>> Original Lep" <<endl;
     for(uint iLep=0; iLep<v_save_sigLep.size(); iLep++){
       Susy::Lepton* _l = v_save_sigLep.at(iLep);
@@ -1328,7 +1387,7 @@ void Susy2LepAna::restoreOriginal(LeptonVector& leptons, const Met *met)
   leptons.clear();
   buildLeptons(leptons, *v_sigEle, *v_sigMu);
 
-  if(dbg()>5){
+  if(dbg()>10){
     cout << "Restored Lep " << leptons.size() <<endl;
     for(uint iLep=0; iLep<leptons.size(); iLep++){
       Susy::Lepton* _l = leptons.at(iLep);
@@ -1482,6 +1541,43 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
     _hh->H1FILL(_hh->DG2L_mjj[iSR][m_ET][iSYS],_jj.M(),_ww); 
   }
 }
+
+
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::dumpEvent()
+{
+  cout << ">>> ";  nt->evt()->print();
+  
+  cout << "Baseline objects" << endl;
+  for(uint iEl=0; iEl < v_baseEle->size(); iEl++){
+    cout << "  ";
+    v_baseEle->at(iEl)->print();
+  }
+  for(uint iMu=0; iMu < v_baseMu->size(); iMu++){
+    cout << "  ";
+    v_baseMu->at(iMu)->print();
+  }
+  for(uint iJ=0; iJ < v_baseJet->size(); iJ++){
+    cout << "  ";
+    v_baseJet->at(iJ)->print();
+  }
+
+  cout << "Signal objects" << endl;
+  for(uint iEl=0; iEl < v_sigEle->size(); iEl++){
+    cout << "  ";
+    v_sigEle->at(iEl)->print();
+  }
+  for(uint iMu=0; iMu < v_sigMu->size(); iMu++){
+    cout << "  ";
+    v_sigMu->at(iMu)->print();
+  }
+  for(uint iJ=0; iJ < v_sigJet->size(); iJ++){
+    cout << "  ";
+    v_sigJet->at(iJ)->print();
+  }
+}
+
+
 
 /*--------------------------------------------------------------------------------*/
 // Initialize HistFitterTree

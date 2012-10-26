@@ -28,7 +28,7 @@ using namespace std;
 
 #define DATA8TEV
 
-const bool HIDEDATA=false;//true;
+const bool HIDEDATA=true;
 
 enum MC { FAKE=0, Ztt=1, WW=2, TOP=3, ZX=4,  OTHER=5};
 
@@ -84,6 +84,10 @@ class DrawPlots {
   /* To view bkg prediction & data with error bands */
   void drawPlotErrBand(string name, bool logy);
   
+  TGraphAsymmErrors* getSysErrorBand(TH1F* _hist);
+  
+  void getFakeSys(vector<TH1F*> &sys);
+
   /*  Fake composition */
   void  getFakeComposition(string sAna="DG2L", string sSR="SR0_OS", string lep="E");
   TH1F* getFakeRate(string sample, string sel, string cr, string type, string lep, string var);
@@ -109,7 +113,7 @@ class DrawPlots {
   TH1F* calcEff(TH1F* h, int opt=0); //opt=1: 1-Eff
   TGraphErrors* TGraph2Hist(TH1F* hx, TH1F* hy); //hx,hy hs same number of bins
 
-  TH1F* calcRatio(TH1F* hnum, TH1F* hden, string name="ratio");
+  TH1F* calcRatio(TH1F* hnum, TH1F* hden, string name="ratio", string opt="B");
 
   string itos(int i);
 
@@ -128,6 +132,12 @@ class DrawPlots {
   vector<TFile*> _sigFile;
   vector<string> _sigFileName;
 
+  TH1F*             _dataH1;
+  THStack*          _mcStack;
+  TH1F*             _mcStackH;
+  vector< vector<TH1F*> >   _mcH1;
+
+
   ClassDef(DrawPlots,1);
 
  private:
@@ -140,27 +150,22 @@ class DrawPlots {
   bool _logy;
   bool _moveUO;
 
-  typedef TH1F* HVEC[DGSys_N];
   
   vector<Color_t> _mcColor;
   vector<int>     _mcMarker;
-  vector<string>  _mcName;
 
   vector<Color_t> _sigColor;
   vector<string>  _sigName;
   vector<TH1F*>   _sigH1;
 
-  TH1F*             _dataH1;
-  THStack*          _mcStack;
-  TH1F*             _mcStackH;
 
-  vector< vector<TH1F*> >   _mcH1;
 
   //TLegend*       _leg;
 
   /* build histo stack */
   void buildStack(string name, TLegend* _l);
   void grabHisto(string name, bool quiet=true);
+  void blindDataSR();
   void setMoveUnderOver(bool b){_moveUO=b;}
   void setLogy(bool b) {_logy=b;}
 

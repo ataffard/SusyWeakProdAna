@@ -112,7 +112,6 @@ void DrawPlots::grabHisto(string name, bool quiet)
 {
   _mcH1.reserve(OTHER);
   _mcH1.clear();
-  _mcName.clear();
   _mcColor.clear();
   _mcMarker.clear();
   string title;
@@ -129,7 +128,8 @@ void DrawPlots::grabHisto(string name, bool quiet)
   }
   if(_moveUO) _utils->moveUnderOverFlow(_h);
   _dataH1 = (TH1F*) _h->Clone(title.c_str());
-  
+  if(HIDEDATA) blindDataSR();
+
   //Used in case MC file not there
   _tmp = (TH1F*) _dataH1->Clone();
   _tmp->Reset();
@@ -154,7 +154,6 @@ void DrawPlots::grabHisto(string name, bool quiet)
       _mcColor.push_back(C_ZX);
       break;
     }
-    _mcName.push_back(MCNames[i]);
     _mcMarker.push_back(iMarker[i+1]);
 
     TFile* _f = _mcFile[i];
@@ -215,6 +214,24 @@ void DrawPlots::grabHisto(string name, bool quiet)
   }
 
 }
+//-------------------------------------------//
+// Open histo files
+//-------------------------------------------//
+void DrawPlots::blindDataSR(){
+
+  TString hName(_dataH1->GetName());
+  
+  if(hName.Contains("SRjveto") ||
+     hName.Contains("SR2jets") ||
+     hName.Contains("SRSSjveto") ||
+     hName.Contains("SRmT2") ||
+     hName.Contains("SRmT2b") 
+     ) 
+    _dataH1->Reset();
+  
+
+}
+
 
 //-------------------------------------------//
 // Open histo files
@@ -343,7 +360,7 @@ void DrawPlots::compareShape(string name, bool logy){
     }
     if(norm) _utils->normalize(_tmpH1,1);
     _tmp_mcH1.push_back(_tmpH1);
-    _leg->AddEntry(_tmpH1,_mcName[i].c_str(),"p");
+    _leg->AddEntry(_tmpH1,MCNames[i].c_str(),"p");
 
     if(_tmpH1->GetMaximum()>yMax) yMax=_tmpH1->GetMaximum();
   }
@@ -459,7 +476,7 @@ void DrawPlots::drawPlot(string name, bool logy)
 //-------------------------------------------//
 void DrawPlots::drawPlotErrBand(string name, bool logy)
 {
-  const float maxScaleLin=1.4;
+  const float maxScaleLin=1.2;
   const float maxScaleLog=11;
   float scale=maxScaleLin;
 
@@ -483,58 +500,17 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
   float avgRatio = 0;
   if(_mcStackH->Integral(0,-1)>0) avgRatio =_dataH1->Integral(0,-1) / _mcStackH->Integral(0,-1);
   std::cout << "Average ratio data/MC " << avgRatio << std::endl;
-  
-
-  //TH1F* _mcStackH = (TH1F*) _dataH1->Clone();
-  //_utils->getStackHisto(_mcStack,_mcStackH);
- 
+   
   //
   //Error band on prediction
   //
-  TGraphAsymmErrors* _nomAsymErrors = _utils->TH1TOTGraphAsymErrors(_mcStackH);
-  
-  TH1F* totalSysHisto = (TH1F*) _mcStackH->Clone();
-  totalSysHisto->Reset();
-  TGraphAsymmErrors* transient; 
-
-  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_N; isys++){
-    for(uint imc=0; imc<_mcH1.size(); imc++){
-      TH1F* _hsys = _mcH1[imc][isys];
-      if(_hsys) {
-	cout << " MC " << _mcName[imc]
-	     << "\t\t Sys " << DG2LSystNames[isys] 
-	     << "\t " << _hsys->Integral(0,-1) << endl;
-	totalSysHisto->Add(_hsys);
-      }
-      else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
-    }    
-    transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
-    _utils->myAddtoBand(transient,_nomAsymErrors);
-    totalSysHisto->Reset();
-  }
+  TGraphAsymmErrors* _nomAsymErrors = getSysErrorBand(_mcStackH);
   _leg->AddEntry(_nomAsymErrors,"Bkg. Uncert.","f");
 
   //
   //Error band on ratio 
   //
-  TGraphAsymmErrors* ratioBand   = new TGraphAsymmErrors( *_nomAsymErrors ); 
-  ratioBand->SetMarkerSize(0);
-  for(int bin=0; bin < ratioBand->GetN(); bin++){ 
-    ratioBand->GetY()[bin] = 1.; 
-    if( _nomAsymErrors->GetY()[bin] > 0.0001 ) 
-      ratioBand->GetEYhigh()[bin]=_nomAsymErrors->GetEYhigh()[bin]/_nomAsymErrors->GetY()[bin]; 
-    else 
-      ratioBand->GetEYhigh()[bin]= 0.; 
-    if( _nomAsymErrors->GetY()[bin] > 0.0001 ) 
-      ratioBand->GetEYlow()[bin]=_nomAsymErrors->GetEYlow()[bin]/_nomAsymErrors->GetY()[bin]; 
-    else 
-      ratioBand->GetEYlow()[bin]= 0.; 
-    if( ratioBand->GetEYlow()[bin] > 1. ) 
-      ratioBand->GetEYlow()[bin] = 1.; 
-    if( ratioBand->GetEYhigh()[bin] > 1. ) 
-      ratioBand->GetEYhigh()[bin] = 1.; 
-  }
-
+  TGraphAsymmErrors* ratioBand   = _utils->myRatioBand(_nomAsymErrors ); 
 
   char sData[200];
   int nData  = _dataH1->GetEntries();
@@ -542,19 +518,14 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
   std::cout << _dataH1->GetName() << " \t Int " << nData << std::endl;
   _leg->AddEntry(_dataH1,sData ,"p");
 
-  if(HIDEDATA) _dataH1=NULL;
+  //if(HIDEDATA) _dataH1=NULL;
   
   TCanvas* _c0  = _utils->myCanvas(("c_"+name).c_str());
   _c0->Clear();
   TPad* _pTop = NULL;
   TPad* _pBot = NULL;
-  if(HIDEDATA){
-    _pTop = new TPad("pTop","pTop",0,0.05,1,1);
-  }
-  else{
-    _pTop = new TPad("pTop","pTop",0,0.3,1,1);
-    _pBot = new TPad("pBot","pBot",0,0,1,0.3);
-  }
+  _pTop = new TPad("pTop","pTop",0,0.3,1,1);
+  _pBot = new TPad("pBot","pBot",0,0,1,0.3);
 
   if(_mcStackH->Integral(0,-1)==0 || _dataH1->Integral(0,-1)==0) logy=false;
   TVirtualPad* _tv = _utils->myDrawRatio(_c0,_pTop, _pBot, 
@@ -571,29 +542,134 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
   //Add the error band
   _c0->cd(1);
   _pTop->cd();
-  _nomAsymErrors->Draw("SAME && E2");
+  if(_nomAsymErrors) _nomAsymErrors->Draw("SAME && E2");
   _pTop->Update();
-
-  //  _c0->cd(1);
-  //  _pTop->cd();
+  
+  //Decoration
   drawChannelText(name,0.7,0.40);
   drawLumi();
   drawATLAS();
   _c0->Update();
 
+  //Bottom ratio band
   _pBot->cd();
-  ratioBand->Draw("same && E2");
+  if(ratioBand) ratioBand->Draw("same && E2");
  _pBot->Update();
 
   string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
-  //  _c0->SaveAs((fName+".pdf").c_str());
   _c0->SaveAs((fName+".png").c_str());
 
 }
+//-------------------------------------------//
+// Get systematic error band for loaded histo
+//-------------------------------------------//
+TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist)
+{
+  TGraphAsymmErrors* _asymErrors = _utils->TH1TOTGraphAsymErrors(_hist);
+  
+  TH1F* totalSysHisto = (TH1F*) _hist->Clone();
+  totalSysHisto->Reset();
+  TGraphAsymmErrors* transient; 
 
+  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_FAKE_EL_RE_UP/*DGSys_N*/; isys++){
+    //Deal with fake sys separately - uncorrelated 
+    if(isys>=DGSys_FAKE_EL_RE_UP && isys <= DGSys_FAKE_MU_FR_DN) continue;
+    for(uint imc=0; imc<_mcH1.size(); imc++){ //100% correlation between sample - add linear
+      if(imc==FAKE) continue;
+      TH1F* _hsys = _mcH1[imc][isys];
+      if(_hsys) {
+	/*
+	cout << " MC " << MCNames[imc]
+	     << "\t\t Sys " << DG2LSystNames[isys] 
+	     << "\t " << _hsys->Integral(0,-1) << endl;
+	*/
+	totalSysHisto->Add(_hsys);
+      }
+      else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
+    }    
+    transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+    _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+    totalSysHisto->Reset();
+  }
+
+  //Add the fake systematics
+  vector<TH1F*> fakeSys;
+  TH1F* sys0 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
+  TH1F* sys1 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
+  sys0->Reset();
+  sys1->Reset();
+  fakeSys.push_back(sys0);
+  fakeSys.push_back(sys1);
+  getFakeSys(fakeSys);
+
+  /*
+  for(uint i=0; i<fakeSys.size(); i++){
+    totalSysHisto->Add(fakeSys[i]);
+    transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+    _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+    totalSysHisto->Reset();
+  }
+  */
+ 
+  //clean up 
+  for(uint i=0; i<fakeSys.size(); i++) fakeSys[i]->Delete();
+  fakeSys.clear();
+
+  return _asymErrors;
+
+}
+//-------------------------------------------//
+// Get Sys UP & Sys DN for fake estimate
+// This is a bin by bin computation depending if a given 
+// sys give more or less than the nominal
+//-------------------------------------------//
+void DrawPlots::getFakeSys(vector<TH1F*> &sys)
+{
+  
+  int nbins = _mcH1[FAKE][DGSys_NOM]->GetNbinsX();  
+  for(int bin=0; bin<=nbins; ++bin){
+    float stat = pow(_mcH1[FAKE][DGSys_NOM]->GetBinError(bin),2);//stat err
+    float err_up = stat; 
+    float err_dn = stat;
+    float bc = _mcH1[FAKE][DGSys_NOM]->GetBinContent(bin);
+    /*
+    cout << " MC " << MCNames[FAKE]
+	 << "\t\t Nom " 
+	 << "\t " << bc << endl;
+    */
+    for(uint isys=DGSys_FAKE_EL_RE_UP; isys<=DGSys_FAKE_MU_FR_DN; ++isys){
+      float shift = _mcH1[FAKE][isys]->GetBinContent(bin);
+      /*
+      cout << " MC " << MCNames[FAKE]
+	     << "\t\t Sys " << DG2LSystNames[isys] 
+	     << "\t " << shift << endl;
+      */
+      if(shift > bc) err_up += pow(shift-bc,2);
+      else           err_dn += pow(shift-bc,2);
+    }// end loop over sys
+    
+    sys[0]->SetBinContent(bin, sqrt(err_up));
+    sys[1]->SetBinContent(bin, sqrt(err_dn));
+    //cout << "Check Fake sys0 " << sys[0]->GetBinContent(bin) << endl;
+    //cout << "Check Fake sys1 " << sys[1]->GetBinContent(bin) << endl;
+  }// end loop over bins
+  
+  sys[0]->Add(_mcH1[FAKE][DGSys_NOM]);
+  TH1F* _htmp = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
+  _htmp->Add(sys[1],-1);
+  sys[1]->Reset();
+  sys[1]->Add(_htmp); 
+  _htmp->Delete();
+  
+  /*
+  cout << "Check Int sys0 " << sys[0]->Integral(0,-1)<<endl;;
+  cout << "Check Int sys1 " << sys[1]->Integral(0,-1)<<endl;;
+  */
+
+}
 
 //-------------------------------------------//
-// Draw channel labelx
+// Draw channel label
 //-------------------------------------------//
 void DrawPlots::drawChannelText(string name, float x, float y)
 {
@@ -690,7 +766,7 @@ TH1F* DrawPlots::calcEff(TH1F* h, int opt)
 //-----------------------------------------------------------------------------
 // Make ratio plot
 //-----------------------------------------------------------------------------
-TH1F* DrawPlots::calcRatio(TH1F* hnum, TH1F* hden, string name)
+TH1F* DrawPlots::calcRatio(TH1F* hnum, TH1F* hden, string name, string opt)
 {
   //Compute FR
   TH1F* _h_R = (TH1F*) hnum->Clone();
@@ -699,7 +775,7 @@ TH1F* DrawPlots::calcRatio(TH1F* hnum, TH1F* hden, string name)
   _h_R->SetName(name.c_str()); 
   _h_R->SetTitle(name.c_str());
   _h_R->GetYaxis()->SetTitle("Efficiency");
-  _h_R->Divide(hnum,hden,1,1,"B");
+  _h_R->Divide(hnum,hden,1,1,opt.c_str());
 
   return _h_R;
 }

@@ -228,6 +228,14 @@ int main(int argc, char** argv)
   cout << endl;
   cout << "Total entries:   " << nEntries << endl;
   cout << "Process entries: " << nEvt << endl;
+
+  //Try caching ahead
+  /*
+  Int_t cachesize = 100000000;          //100 MBytes
+  chain->SetCacheSize(cachesize); 
+  chain->AddBranchToCache("*",kTRUE);   //add all branches to the cache
+  */
+
   if(nEvt>0) chain->Process(susyAna, sample.c_str(), nEvt, nSkip);
 
 
