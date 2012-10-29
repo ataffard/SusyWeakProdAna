@@ -57,6 +57,9 @@ class Susy2LepAna: public SusyNtTools
 
     //MC weight
     float eventWeight(int mode=1);
+    float getLepSFWeight(const LeptonVector* leptons);
+    float getTriggerWeight(const LeptonVector* leptons, uint iSys=DGSys_NOM);
+
 
     void doAnalysis(unsigned int isys=DGSys_NOM);
     void fillHistograms(uint iSR,
@@ -140,7 +143,7 @@ class Susy2LepAna: public SusyNtTools
 				  const LeptonVector* baseLeptons, 
 				  const JetVector* signalJets, 
 				  const JetVector* baseJets,
-				  const Met* met );
+				  const Met* met);
     
     //Other functions
     void print_SRjveto();
@@ -248,7 +251,8 @@ class Susy2LepAna: public SusyNtTools
 		DIL_CRZ=5, DIL_NTOP=6, DIL_NWW1=7, DIL_NWW2=8, DIL_NWW3=9,
 		DIL_ZXCR1=10, DIL_ZXCR3=11, DIL_ZXCR4=12, DIL_ZXCR5=13,
 		DIL_CR2LepOS=14, DIL_CR2LepSS=15,
-		DIL_NSR=16
+		DIL_preSRjveto=16, DIL_preSRSSjveto=17, DIL_preSR2jets=18, DIL_preSRmT2=19,
+		DIL_NSR=20
     };
 
 

@@ -1,6 +1,6 @@
 # ./makeLatexTable.sh  
 
-date="102512_13fb_n0107_DD_predSR"
+date="102712_13fb_n0105_DD_SYS_HFT"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 path=${WORKAREA}/histoAna/SusyAna/histos_${date}
@@ -16,7 +16,8 @@ OPT="-mode DD"
 ${pathRun}/DrawPlotsExec -table ${OPT}
 
 cp ${WORKAREA}/SusyWeakProdAna/scripts/*.tex ${dir}
-declare -a file=(BkgEst_DG2L BkgEst_ML)
+#declare -a file=(BkgEst_DG2L BkgEst_ML)
+declare -a file=(BkgEst_DG2L)
 
 cd ${dir}
 for ifile in ${file[@]}; do

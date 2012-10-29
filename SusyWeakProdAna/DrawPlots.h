@@ -28,7 +28,7 @@ using namespace std;
 
 #define DATA8TEV
 
-const bool HIDEDATA=true;
+const bool HIDEDATA=false;//true;
 
 enum MC { FAKE=0, Ztt=1, WW=2, TOP=3, ZX=4,  OTHER=5};
 

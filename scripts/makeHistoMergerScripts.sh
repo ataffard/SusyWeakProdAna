@@ -17,8 +17,16 @@
 #date="101312_13fb_n0105_STD_unblindData_wMetRel"
 #mth="std"
 
-date="102512_13fb_n0107_DD_predSR"
-mth="rlep"
+#date="102512_13fb_n0107_DD_predSR"
+#mth="rlep"
+
+#date="102712_13fb_n0105_DD_SYS_HFT"
+#mth="rlep"
+
+date="102812_13fb_n0105_STD"
+mth="std"
+
+
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
@@ -31,7 +39,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-doMove=true
+#doMove=true
 
 doData=true
 doDataFake=true
@@ -570,8 +578,9 @@ if [ $doMergeWjetBB ]; then
     cat > $SCRIPT << "EOF"
 #!/bin/bash
     hadd -f ${histPath}/histo_mcFake_Alpgen_${mth}.root   \
-	${histPath}/histo_Wjets_Alpgen_${mth}.root 
-    #TODO add BB/CC
+	${histPath}/histo_Wjets_Alpgen_${mth}.root \
+        ${histPath}/histo_bbTo*15*_${mth}.root \
+        ${histPath}/histo_ccTo*15*_${mth}.root 
 EOF
     chmod 755 $SCRIPT
 
@@ -590,8 +599,9 @@ EOF
 	${histPath}/histo_Ttbar*.117808_${mth}.root \
 	${histPath}/histo_Ttbar*.117809_${mth}.root \
 	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
-	${histPath}/histo_singletop_tchan*.*_${mth}.root  
-    #TODO add BB/CC
+	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
+        ${histPath}/histo_bbTo*15*_${mth}.root \
+        ${histPath}/histo_ccTo*15*_${mth}.root 
 EOF
     chmod 755 $SCRIPT
 fi

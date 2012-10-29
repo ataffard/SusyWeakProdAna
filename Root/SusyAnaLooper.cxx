@@ -118,7 +118,6 @@ void SusyAnaLooper::printSettings()
   cout << "   pLUMI             " << pLUMI          << endl;
   cout << endl;
   cout << " 2L Settings " << endl;
-  cout << "   METRELCUT_SR      " << METRELCUT_SR   << endl;
   cout << "   METREL40          " << METREL40       << endl;
   cout << endl;
   cout << "   BLIND_DATA        " << BLIND_DATA     << endl;

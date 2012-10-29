@@ -10,37 +10,41 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //#define LUMI_5FB  //A->B14
 #define LUMI_13FB  //A->E5
 
-const std::string TAG  = "102512";
-const std::string SUFF = "_n0107_DD_predSR"; //METRELCUT_SR & METREL40 - sys & HFT on this
-//const std::string SUFF = "_n0107_DD_noCut";  //both false 
-//const std::string SUFF = "_n0107_STD_predSR";
-//const std::string SUFF = "_n0107_STD_noCut";
+//const std::string TAG  = "102512";
+//const std::string SUFF = "_n0107_DD_predSR"; //METRELCUT_SR & METREL40 - sys & HFT on this
+
+const std::string TAG  = "102712";
+const std::string SUFF = "_n0105_DD_SYS_HFT"; 
+
+//const std::string TAG  = "102812";
+//const std::string SUFF = "_n0105_STD"; 
+
 
 //
 //Normal mode - all these are true
 //
 //Pred Mode
-const bool METRELCUT_SR   = true;           //Apply Metrel/Mt2 cut in SR - SR prediction
-const bool METREL40       = true;           //Apply min MetRel40 to CR2LepOS and CR2LepSS
-//noCut mode
-//const bool METRELCUT_SR   = false;          //Apply Metrel/Mt2 cut in SR - SR prediction
-//const bool METREL40       = false;          //Apply min MetRel40 to CR2LepOS and CR2LepSS
+const bool METREL40       = false;//true; //Apply min MetRel40 to CR2LepOS and CR2LepSS
 
+const bool DO_SYS         = true; //false;    //Toggles systematics looper
+const bool FILL_HFT       = true; //false;    //Write the HistFitterTree
 
-const bool BLIND_MC       = false;
-
-const bool WEIGHT_COUNT   = true;                      //Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_COUNT   = true; /*false;*/  //Apply weight to dump count table - NLO weight always applied
 const bool DO_FILL_HISTO  = true;
 
 const bool USE_DGWEIGHT   = true;
 const bool USE_BWEIGHT    = true;
-const bool USE_LEPSF      = true; 
-const bool USE_QFLIP      = true;     //Toggled charge flip prob
+const bool USE_LEPSF      = true;
+const bool USE_QFLIP      = true;    //Toggled charge flip prob
 
-const bool DUMP_RUNEVT    = false;    //Dump run:event passing CR2LepOS/CR2LepSS
+const bool USE_MCWEIGHT   = false;   //Use this to apply only the mcWeight and then one another weight at a time
+const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 
-const bool DO_SYS         = true; /*false;*/        //Toggles systematics looper
-const bool FILL_HFT       = true; /* false;*/        //Write the HistFitterTree
+const bool BLIND_MC       = false;
+
+const bool DUMP_RUNEVT    = false;   //Dump run:event passing CR2LepOS/CR2LepSS
+
+
 
 //
 // Should not need to change anything below

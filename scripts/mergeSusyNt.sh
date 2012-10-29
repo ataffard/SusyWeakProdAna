@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sub=n0107
+sub=n0105
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutDir=$WORKAREA/histoAna/SusyAna/SusyNt_merge/${sub}

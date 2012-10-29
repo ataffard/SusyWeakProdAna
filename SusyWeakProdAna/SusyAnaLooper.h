@@ -26,6 +26,7 @@
 #include "SusyWeakProdAna/SusyFakeAna.h"
 #include "SusyWeakProdAna/Susy2LepAna.h"
 #include "SusyWeakProdAna/Susy3LepAna.h"
+#include "SusyWeakProdAna/SusyAnaCommon.h"
 
 class SusyAnaLooper : public SusyNtAna
 {
@@ -49,11 +50,19 @@ class SusyAnaLooper : public SusyNtAna
     void doFake(bool b){_doFakeAna=b;}
     void setMethod(int m) {_method=m;}
     void setSystematic(string sys) {
+      if(!DO_SYS){
+	cerr<< "ERROR DO_SYS False and requested sys " << endl;
+	abort();
+      }
       _systematic1=sys; 
       _runOneSys=true;
       cout << "Processing one systematic " << _systematic1 << endl;
     }
     void doSysRange(string sys1, string sys2) {
+      if(!DO_SYS){
+	cerr<< "ERROR DO_SYS False and requested sys " << endl;
+	abort();
+      }
       _systematic1=sys1; 
       _systematic2=sys2; 
       _runSysRange=true;

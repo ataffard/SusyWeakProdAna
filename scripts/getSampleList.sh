@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sub=_n0107
+sub=_n0111
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutPath=$WORKAREA/SusyWeakProdAna/scripts
@@ -38,6 +38,11 @@ if [[ $type == "mc12" ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)
 	elif [[ ${DIS} -eq 119583 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)
+	elif [[ ${DIS} -ge 129134 && ${DIS} -le 129136 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)
+	elif [[ ${DIS} -ge 147666 && ${DIS} -le 147668 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)
+
 	else
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-3`)
 	fi
