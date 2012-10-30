@@ -773,13 +773,14 @@ float  Susy2LepAna::getTriggerWeight(const LeptonVector* leptons, uint iSys){
     if(iSys==DGSys_TRIGSF_MU_UP) iiSys=NtSys_TRIGSF_MU_UP;
     if(iSys==DGSys_TRIGSF_MU_DN) iiSys=NtSys_TRIGSF_MU_DN;
     
+    float _wTrigNoSys =  m_trigObj->getTriggerWeight(*leptons,  nt->evt()->isMC, (SusyNtSys) 0);
     _wTrig =  m_trigObj->getTriggerWeight(*leptons,  nt->evt()->isMC, (SusyNtSys) iiSys);
     if(_wTrig<0 || _wTrig>1) {
       //cout << "WARNING Trigger weight out of bound - set to 0 or 1 " << DIL_FLAV[m_ET]  << " " << _wtrig << endl;
       if(_wTrig<0) _wTrig=0;
       if(_wTrig>0) _wTrig=1;
     }
-    if(dbg()>10) cout << "trigW " << _wTrig << endl; 
+    if(dbg()>-10) cout << "No sys "<< _wTrigNoSys << " " << iiSys << " trigW " << _wTrig << endl; 
   }
   return _wTrig;
 }
