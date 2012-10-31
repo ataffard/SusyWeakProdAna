@@ -73,7 +73,9 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/fakeRate_trial7_Oct12.root"; 
+    //"/SusyMatrixMethod/data/fakeRate_trial7_Oct12.root"; 
+    "/SusyMatrixMethod/data/fakeRate_trial8_Oct29.root"; 
+
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT);
 
@@ -180,6 +182,7 @@ void Susy2LepAna::end()
     for(uint i=DGSys_NOM; i < DGSys_GEN ; i++) {
       if( m_histFitterTrees[i]){
 	float sumw = nt->evt()->sumw;
+	/*
 	if(nt->evt()->mcChannel==147771){
 	  sumw = 2.35447863214e+13;
 	  cout << "Warning overwritting sumW in " << nt->evt()->mcChannel << " with " << sumw << endl;
@@ -188,6 +191,7 @@ void Susy2LepAna::end()
 	  sumw = 1.23966712709e+13;
 	  cout << "Warning overwritting sumW in " << nt->evt()->mcChannel << " with " << sumw << endl;
 	  }
+	*/
 	m_histFitterTrees[i]->setSumOfMcWeights(sumw); 
 	delete m_histFitterTrees[i];
       }
@@ -619,7 +623,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!USE_QFLIP && !passQQ(leptons)) continue;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
-	  (iSR==DIL_SRSSjveto || iSR==DIL_CR2LepSS) ){
+	  (iSR==DIL_SRSSjveto || iSR==DIL_CR2LepSS || iSR==DIL_preSRSSjveto 
+	   || iSR==DIL_VR1SS) ){
 	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
 	else{ //OS ee/em event - get the qFlip prob
 	  float _ww_qFlip = getQFlipProb(leptons,&new_met);
@@ -644,7 +649,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     
     // Apply bweight only to SR where we use jet count/veto
     if(USE_BWEIGHT && nt->evt()->isMC) {
-      if( ! ( iSR ==DIL_CR2LepOS || iSR==DIL_CR2LepSS || iSR==DIL_CRZ) )
+      if( ! ( iSR ==DIL_CR2LepOS || iSR==DIL_CR2LepSS || 
+	      iSR==DIL_CRZ || iSR==DIL_preSRSSjveto || iSR==DIL_VR1SS) )
 	_ww = _wwSave * bTagWeight;
 	if(WEIGHT_COUNT) _inc = _ww;
 	//cout << " Wsave " << _wwSave << " btag " <<  bTagWeight << " w " << _ww << endl;
@@ -729,16 +735,19 @@ float Susy2LepAna::eventWeight(int mode)
   if(mode==NOLUMI) _evtW= nt->evt()->w; //raw weight - generator included!
   else if(mode==LUMI1FB){
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_B3);
+    //    else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_B3);
+    else _evtW=getEventWeight(nt->evt(),LUMI_A_B3);
   }
   else if(mode==LUMI5FB){
     //_evtW=getEventWeightAB(nt->evt());
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_B14);
+    //else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_B14);
+    else _evtW=getEventWeight(nt->evt(),LUMI_A_B14);
   }
   else if(mode==LUMI13FB){
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
+    //else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
+    else _evtW=getEventWeight(nt->evt(),LUMI_A_E);
     //Fixes Sherpa Zmumu weight 
     //_evtW=getEventWeight(nt->evt());
   }
@@ -773,14 +782,22 @@ float  Susy2LepAna::getTriggerWeight(const LeptonVector* leptons, uint iSys){
     if(iSys==DGSys_TRIGSF_MU_UP) iiSys=NtSys_TRIGSF_MU_UP;
     if(iSys==DGSys_TRIGSF_MU_DN) iiSys=NtSys_TRIGSF_MU_DN;
     
-    float _wTrigNoSys =  m_trigObj->getTriggerWeight(*leptons,  nt->evt()->isMC, (SusyNtSys) 0);
     _wTrig =  m_trigObj->getTriggerWeight(*leptons,  nt->evt()->isMC, (SusyNtSys) iiSys);
     if(_wTrig<0 || _wTrig>1) {
       //cout << "WARNING Trigger weight out of bound - set to 0 or 1 " << DIL_FLAV[m_ET]  << " " << _wtrig << endl;
       if(_wTrig<0) _wTrig=0;
       if(_wTrig>0) _wTrig=1;
+      
     }
-    if(dbg()>-10) cout << "No sys "<< _wTrigNoSys << " " << iiSys << " trigW " << _wTrig << endl; 
+    if(_wTrig != _wTrig){
+      float _wTrigNoSys = m_trigObj->getTriggerWeight(*leptons,  nt->evt()->isMC, (SusyNtSys) 0);
+      cout << "WARNING OVERWRITE TRIG SYS BECAUSE OF NAN" << endl;
+      _wTrig = _wTrigNoSys;
+      if(dbg()>10){
+	cout << "No sys "<< _wTrigNoSys << " " << iiSys << " trigW " << _wTrig
+	     << " pt1 " << leptons->at(0)->Pt() << " pt2 " << leptons->at(1)->Pt() << endl; 
+      }
+    }
   }
   return _wTrig;
 }
@@ -803,13 +820,25 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   case DIL_SRjveto:
     frSR = SusyMatrixMethod::FR_SR1;
     break;
+  case DIL_preSRjveto:
+    frSR = SusyMatrixMethod::FR_SR1;
+    break;
   case DIL_SRSSjveto:
+    frSR = SusyMatrixMethod::FR_SR2;
+    break;
+  case DIL_preSRSSjveto:
     frSR = SusyMatrixMethod::FR_SR2;
     break;
   case DIL_SR2jets:
     frSR = SusyMatrixMethod::FR_SR3; 
     break;
+  case DIL_preSR2jets:
+    frSR = SusyMatrixMethod::FR_SR3; 
+    break;
   case DIL_SRmT2:
+    frSR = SusyMatrixMethod::FR_SR4;
+    break;
+  case DIL_preSRmT2:
     frSR = SusyMatrixMethod::FR_SR4;
     break;
   case DIL_SRmT2b:
@@ -846,6 +875,9 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SRNONE; //FR_SRNONE
     break;
   case DIL_CR2LepSS:
+    frSR = SusyMatrixMethod::FR_VR1;
+    break;
+  case DIL_VR1SS:
     frSR = SusyMatrixMethod::FR_VR1;
     break;
   }
@@ -1010,6 +1042,7 @@ float Susy2LepAna::getQFlipProb(const LeptonVector* leptons, Met* met)
 				  &_new_met, _sys);
 
   cfP*=  m_chargeFlip->overlapFrac().first; // QFLIP_RESCLALE;
+  //cfP*= QFLIP_RESCLALE;
   
   if(dbg()>5){
     cout << "qFlip - original " <<endl;
@@ -1733,8 +1766,8 @@ void Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
 
     float _sumW = nt->evt()->sumw;
     //Hack for broken sumW in n0107 !!!
-    if(nt->evt()->mcChannel==147771) _sumW = 2.35447863214e+13;
-    if(nt->evt()->mcChannel==147772) _sumW = 1.23966712709e+13;
+    //if(nt->evt()->mcChannel==147771) _sumW = 2.35447863214e+13;
+    //if(nt->evt()->mcChannel==147772) _sumW = 1.23966712709e+13;
     totalWeight   = histFitWeight * nt->evt()->xsec * LUMI_A_E / _sumW;
   }
   else{

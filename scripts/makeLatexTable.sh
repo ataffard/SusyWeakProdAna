@@ -1,6 +1,8 @@
 # ./makeLatexTable.sh  
 
-date="102712_13fb_n0105_DD_SYS_HFT"
+#date="102712_13fb_n0105_DD_SYS_HFT"
+#date="103012_13fb_n0111_STD"
+date="103012_13fb_n0111_DD"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 path=${WORKAREA}/histoAna/SusyAna/histos_${date}

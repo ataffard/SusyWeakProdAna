@@ -252,7 +252,7 @@ class Susy2LepAna: public SusyNtTools
 		DIL_ZXCR1=10, DIL_ZXCR3=11, DIL_ZXCR4=12, DIL_ZXCR5=13,
 		DIL_CR2LepOS=14, DIL_CR2LepSS=15,
 		DIL_preSRjveto=16, DIL_preSRSSjveto=17, DIL_preSR2jets=18, DIL_preSRmT2=19,
-		DIL_NSR=20
+		DIL_VR1SS=20, DIL_NSR=21
     };
 
 

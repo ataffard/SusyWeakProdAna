@@ -4,7 +4,7 @@
 typedef unsigned uint;
 
 string mth = "std";
-string dir = "histos_102112_13fb_n0107_DD_predSR/";
+string dir = "histos_103012_13fb_n0111_STD/";
 
 
 TGuiUtils* _utils;
@@ -28,17 +28,12 @@ int main(int argc, char *argv[]){
  prd.push_back("B");
  prd.push_back("C");
  prd.push_back("D");
- prd.push_back("E1");
- prd.push_back("E2");
- prd.push_back("E3");
- prd.push_back("E4");
- prd.push_back("E5");
+ prd.push_back("E");
 
  vector<string> SR;
- // SR.push_back("DG2L_CR2LepOS_");
- // SR.push_back("DG2L_CR2LepSS_");
-
- SR.push_back("DG2L_NTOP_");
+ SR.push_back("DG2L_CR2LepOS_");
+ SR.push_back("DG2L_CR2LepSS_");
+ // SR.push_back("DG2L_NTOP_");
 
  //SR.push_back("DG2L_NWW1_");
 

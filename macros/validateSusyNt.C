@@ -7,7 +7,7 @@ awk '/group/ {print $18,'\t', $7}' subperiods_p1181.txt > subperiods_p1181.test
 #include "SusyNtuple/TGuiUtils.h"
 typedef unsigned uint;
 
-string pass = "n0107/";
+string pass = "n0111/";
 string dir = "SusyNt_merge/"+pass;
 
 TGuiUtils* _utils;
@@ -29,11 +29,14 @@ int main(int argc, char *argv[]){
   prd.push_back("B");
   prd.push_back("C");
   prd.push_back("D");
+  prd.push_back("E");
+  /*
   prd.push_back("E1");
   prd.push_back("E2");
   prd.push_back("E3");
   prd.push_back("E4");
   prd.push_back("E5");
+  */
 
   for(uint i=0; i<stream.size(); i++){
     cout << "Stream " <<stream[i] << endl;

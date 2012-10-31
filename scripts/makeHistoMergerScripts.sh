@@ -1,32 +1,14 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-
-#date="101212_13fb_n0105_STD_blindData_noMetRel"
+#date="103012_13fb_n0111_STD"
 #mth="std"
 
-#date="101212_13fb_n0105_DD_blindData_noMetRel"
+#date="103012_13fb_n0111_DD"
 #mth="rlep"
 
-#date="101312_13fb_n0105_DD_blindData_noMetRel"
-#mth="rlep"
-
-#date="101312_13fb_n0105_DD_unblindData_wMetRel"
-#mth="rlep"
-
-#date="101312_13fb_n0105_STD_unblindData_wMetRel"
-#mth="std"
-
-#date="102512_13fb_n0107_DD_predSR"
-#mth="rlep"
-
-#date="102712_13fb_n0105_DD_SYS_HFT"
-#mth="rlep"
-
-date="102812_13fb_n0105_STD"
-mth="std"
-
-
+date="103012_13fb_n0111_DD_MMtrial8_noQflipSF"
+mth="rlep"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
@@ -39,7 +21,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-#doMove=true
+doMove=true
 
 doData=true
 doDataFake=true
@@ -120,8 +102,8 @@ hadd -f ${histPath}/histo_data12_std.root \
     	${histPath}/histo_Muons.periodC_std.root \
     	${histPath}/histo_Egamma.periodD_std.root \
     	${histPath}/histo_Muons.periodD_std.root \
-    	${histPath}/histo_Egamma.periodE?_std.root \
-    	${histPath}/histo_Muons.periodE?_std.root 
+    	${histPath}/histo_Egamma.periodE_std.root \
+    	${histPath}/histo_Muons.periodE_std.root 
 EOF
     chmod 755 $SCRIPT
 fi 
@@ -143,8 +125,8 @@ hadd -f ${histPath}/histo_data12_fake.root \
 	${histPath}/histo_Muons.periodC_flep.root \
 	${histPath}/histo_Egamma.periodD_flep.root \
 	${histPath}/histo_Muons.periodD_flep.root \
-	${histPath}/histo_Egamma.periodE?_flep.root \
-	${histPath}/histo_Muons.periodE?_flep.root 
+	${histPath}/histo_Egamma.periodE_flep.root \
+	${histPath}/histo_Muons.periodE_flep.root 
 EOF
     chmod 755 $SCRIPT
 fi 

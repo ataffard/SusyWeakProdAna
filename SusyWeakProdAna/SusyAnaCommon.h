@@ -13,21 +13,27 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //const std::string TAG  = "102512";
 //const std::string SUFF = "_n0107_DD_predSR"; //METRELCUT_SR & METREL40 - sys & HFT on this
 
-const std::string TAG  = "102712";
-const std::string SUFF = "_n0105_DD_SYS_HFT"; 
+//const std::string TAG  = "102712";
+//const std::string SUFF = "_n0105_DD_SYS_HFT"; 
 
 //const std::string TAG  = "102812";
 //const std::string SUFF = "_n0105_STD"; 
 
 
+const std::string TAG  = "103012";
+//const std::string SUFF = "_n0111_DD_MMtrial8_noQflipSF"; 
+const std::string SUFF = "_n0111_DD_MMtrial8_wQflipSFnew"; 
+//const std::string SUFF = "_n0111_STD"; 
+//const std::string SUFF = "_n0111_DD_SYS_HFT"; 
+
 //
 //Normal mode - all these are true
 //
 //Pred Mode
-const bool METREL40       = false;//true; //Apply min MetRel40 to CR2LepOS and CR2LepSS
+const bool METREL40       = false;  //Apply min MetRel40 to CR2LepOS and CR2LepSS
 
-const bool DO_SYS         = true; //false;    //Toggles systematics looper
-const bool FILL_HFT       = true; //false;    //Write the HistFitterTree
+const bool DO_SYS         = /*true;*/false;    //Toggles systematics looper
+const bool FILL_HFT       = /*true;*/ false;    //Write the HistFitterTree
 
 const bool WEIGHT_COUNT   = true; /*false;*/  //Apply weight to dump count table - NLO weight always applied
 const bool DO_FILL_HISTO  = true;
@@ -93,7 +99,7 @@ const bool USE_NOJVF_bSF=true;
 //PICK VALUE FROM QFLIP PACKAGE - TEMPORARY
 //const float QFLIP_RESCLALE= 0.5537; //+/- 0.0081  //Alpgen Zee
 //const float QFLIP_RESCLALE= 0.5820;// +/- 0.0084 (stat.) //Sherpa Zee
-const float QFLIP_RESCLALE=0.5966;// +/- 0.0011 (stat.) //Sherpa Zee - fix mcTruthMatch
+const float QFLIP_RESCLALE=1;//0.5966;// +/- 0.0011 (stat.) //Sherpa Zee - fix mcTruthMatch
 
 
 

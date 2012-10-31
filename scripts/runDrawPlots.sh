@@ -24,7 +24,7 @@ pathRun=${WORKAREA}/SusyWeakProdAna/run
 if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #for testing
-   SR=(SRSSjveto )
+   SR=(CR2LepSS VR1SS preSRSSjveto)
    DIL=(EE)
    PLOTS=(mll metrel etmiss)
 
