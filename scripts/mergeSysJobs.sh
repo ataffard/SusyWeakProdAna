@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path=${WORKAREA}/histoAna/SusyAna
+path=${WORKAREA}/histoAna/SusyAna/histos_103112_13fb_n0111_DD_MMtrial8_SYS_HFT
 
 hadd -f ${path}/histo_Zee.147770_rlep.root ${path}/histo_Zee.147770_rlep_*
 hadd -f ${path}/histo_Zmumu.147771_rlep.root ${path}/histo_Zmumu.147771_rlep_*

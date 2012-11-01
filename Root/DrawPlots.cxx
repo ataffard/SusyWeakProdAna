@@ -221,13 +221,14 @@ void DrawPlots::blindDataSR(){
 
   TString hName(_dataH1->GetName());
   
-  if(hName.Contains("SRjveto") ||
-     hName.Contains("SR2jets") ||
-     hName.Contains("SRSSjveto") ||
-     hName.Contains("SRmT2") ||
-     hName.Contains("SRmT2b") 
-     ) 
+  if((hName.Contains("SRjveto") ||
+      hName.Contains("SR2jets") ||
+      hName.Contains("SRSSjveto") ||
+      hName.Contains("SRmT2") ||
+      hName.Contains("SRmT2b")) && hName.Contains("preSR")==kFALSE
+     ) {
     _dataH1->Reset();
+  }
   
 
 }
@@ -678,7 +679,11 @@ void DrawPlots::drawChannelText(string name, float x, float y)
   TString hName(name);
   if(hName.Contains("DG2L_")){
 
-    if(hName.Contains("SRjveto"))        _text = "SRjveto ";
+    if(hName.Contains("preSRjveto"))        _text = "preSRjveto ";
+    else if(hName.Contains("preSRSSjveto")) _text = "preSRSSjveto ";
+    else if(hName.Contains("preSR2jets"))   _text = "preSR2jets ";
+    else if(hName.Contains("preSRmT2"))     _text = "preSRmT2 ";
+    else if(hName.Contains("SRjveto"))        _text = "SRjveto ";
     else if(hName.Contains("SRSSjveto")) _text = "SRSSjveto ";
     else if(hName.Contains("SR2jets"))   _text = "SR2jets ";
     else if(hName.Contains("SRmT2b"))    _text = "SRmT2b ";
@@ -691,8 +696,11 @@ void DrawPlots::drawChannelText(string name, float x, float y)
     else if(hName.Contains("ZXCR1"))     _text = "ZXCR1 ";
     else if(hName.Contains("ZXCR3"))     _text = "ZXCR3 ";
     else if(hName.Contains("ZXCR4"))     _text = "ZXCR4 ";
+    else if(hName.Contains("ZXCR5"))     _text = "ZXCR5 ";
     else if(hName.Contains("CR2LepOS"))  _text = "CR2LepOS ";
     else if(hName.Contains("CR2LepSS"))  _text = "CR2LepSS ";
+    else if(hName.Contains("VR1SS"))     _text = "VR1SS ";
+
     
     if(hName.Contains("EE")) _text += "ee";
     else if(hName.Contains("MM")) _text += "#mu#mu";
@@ -1193,19 +1201,26 @@ void DrawPlots:: bkgEstimate_DG2L()
   sSRCR.clear();
   sSRCR.push_back("CR2LepOS");
   sSRCR.push_back("CR2LepSS");
+  sSRCR.push_back("VR1SS");
   sSRCR.push_back("CRZ");
   sSRCR.push_back("NTOP");
+  sSRCR.push_back("ZXCR1");
+  sSRCR.push_back("ZXCR3");
+  sSRCR.push_back("ZXCR4");
+  sSRCR.push_back("ZXCR5");
   sSRCR.push_back("NWW1");
   sSRCR.push_back("NWW2");
   sSRCR.push_back("NWW3");
+  sSRCR.push_back("preSRjveto");
+  sSRCR.push_back("preSR2jets");
+  sSRCR.push_back("preSRSSjveto");
+  sSRCR.push_back("preSRmT2");
   sSRCR.push_back("SRjveto");
   sSRCR.push_back("SR2jets");
   sSRCR.push_back("SRSSjveto");
   sSRCR.push_back("SRmT2");
   sSRCR.push_back("SRmT2b");
-  sSRCR.push_back("ZXCR1");
-  sSRCR.push_back("ZXCR3");
-  sSRCR.push_back("ZXCR4");
+
 
 
   string fileName = _pathTables + "/BkgEst_DG2L.tex";
@@ -1303,7 +1318,7 @@ void DrawPlots:: bkgEstimate_DG2L()
     out << std::endl;
     out << std::endl;
     
-
+     out << "\\FloatBarrier" << std::endl;
 
   }//SR's 
 

@@ -30,16 +30,17 @@ int main(int argc, char *argv[]){
   bool cutflow = false;
   string ana = ""; //DG2L, ML
   string pName = "";
+
   /*
   string mode = "STD";
   string sTop = "histo_top_Sherpa";
   string sFake = "histo_mcFake_Sherpa";
   */
-  
+
   string mode = "DD";
   string sTop = "histo_topDil_Sherpa";
   string sFake = "histo_data12_fake";
-  
+
 
   //string sTop = "histo_top_PowHeg";
   string sWW = "histo_WW_Sherpa";

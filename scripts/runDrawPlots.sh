@@ -25,7 +25,7 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #for testing
    SR=(CR2LepSS VR1SS preSRSSjveto)
-   DIL=(EE)
+   DIL=(EE MM EM)
    PLOTS=(mll metrel etmiss)
 
 #    SR=(CRZ ZXCR1 ZXCR3 ZXCR4)

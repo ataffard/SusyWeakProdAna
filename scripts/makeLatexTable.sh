@@ -2,7 +2,12 @@
 
 #date="102712_13fb_n0105_DD_SYS_HFT"
 #date="103012_13fb_n0111_STD"
-date="103012_13fb_n0111_DD"
+#date="103012_13fb_n0111_DD"
+
+#date="103012_13fb_n0111_DD_MMtrial8_wQflipSFnew"
+
+#date="103112_13fb_n0111_DD_MMtrial7"
+date="103112_13fb_n0111_DD_MMtrial8_SYS_HFT"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 path=${WORKAREA}/histoAna/SusyAna/histos_${date}
@@ -35,5 +40,5 @@ EOF
     rm -f *.aux
     rm -f *.log
     rm -f *.out
-    rm -f ${ifile}_table.tex
+   # rm -f ${ifile}_table.tex
 done

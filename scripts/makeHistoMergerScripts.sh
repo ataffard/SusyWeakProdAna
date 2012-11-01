@@ -7,7 +7,13 @@
 #date="103012_13fb_n0111_DD"
 #mth="rlep"
 
-date="103012_13fb_n0111_DD_MMtrial8_noQflipSF"
+#date="103012_13fb_n0111_DD_MMtrial8_wQflipSFnew"
+#mth="rlep"
+
+#date="103112_13fb_n0111_DD_MMtrial7"
+#mth="rlep"
+
+date="103112_13fb_n0111_DD_MMtrial8_SYS_HFT"
 mth="rlep"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -21,7 +27,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-doMove=true
+#doMove=true
 
 doData=true
 doDataFake=true
