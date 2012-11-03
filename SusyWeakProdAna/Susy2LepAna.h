@@ -139,7 +139,7 @@ class Susy2LepAna: public SusyNtTools
 	   << " --> " << DG2LSystNames[sys2] << endl;
     }; 
     void initializeHistFitterTree();
-    void writeIntoHistFitterTree( const LeptonVector* leptons, 
+    float writeIntoHistFitterTree( const LeptonVector* leptons, 
 				  const LeptonVector* baseLeptons, 
 				  const JetVector* signalJets, 
 				  const JetVector* baseJets,
@@ -252,7 +252,8 @@ class Susy2LepAna: public SusyNtTools
 		DIL_ZXCR1=10, DIL_ZXCR3=11, DIL_ZXCR4=12, DIL_ZXCR5=13,
 		DIL_CR2LepOS=14, DIL_CR2LepSS=15,
 		DIL_preSRjveto=16, DIL_preSRSSjveto=17, DIL_preSR2jets=18, DIL_preSRmT2=19,
-		DIL_VR1SS=20, DIL_NSR=21
+		DIL_VR1SS=20, DIL_CR2LepOS40=21, DIL_CR2LepSS40=22,
+		DIL_NSR=23
     };
 
 

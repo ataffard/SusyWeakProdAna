@@ -40,7 +40,7 @@
   while (!feof( fInput )) {
     if (fscanf(fInput, "%s\n",&_lib)){
       string cmd = string(getenv("ROOTCOREDIR")) + "/lib/lib";
-      std::cout << "Lib " << cmd << std::endl;
+      //      std::cout << "Lib " << cmd << std::endl;
       cmd.append(_lib);
       cmd += ".so";
       //cout << "test " << cmd << endl;

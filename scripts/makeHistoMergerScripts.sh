@@ -13,7 +13,10 @@
 #date="103112_13fb_n0111_DD_MMtrial7"
 #mth="rlep"
 
-date="103112_13fb_n0111_DD_MMtrial8_SYS_HFT"
+#date="103112_13fb_n0111_DD_MMtrial8_SYS_HFT"
+#mth="rlep"
+
+date="110212_13fb_n0111_DD_MMtrial9_SYS_HFT"
 mth="rlep"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts

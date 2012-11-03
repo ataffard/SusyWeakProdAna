@@ -20,12 +20,12 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //const std::string SUFF = "_n0105_STD"; 
 
 
-const std::string TAG  = "103112";
+const std::string TAG  = "110212";
 //const std::string SUFF = "_n0111_DD"; 
 //const std::string SUFF = "_n0111_DD_MMtrial7";
 //const std::string SUFF = "_n0111_DD_MMtrial8_noQflipSF";
 //const std::string SUFF = "_n0111_DD_MMtrial8"; 
-const std::string SUFF = "_n0111_DD_MMtrial8_SYS_HFT"; 
+const std::string SUFF = "_n0111_DD_MMtrial9_SYS_HFT"; 
 //const std::string SUFF = "_n0111_DD_MMtrial8_wQflipSFnew"; 
 //const std::string SUFF = "_n0111_STD"; 
 //const std::string SUFF = "_n0111_DD_SYS_HFT"; 
@@ -36,10 +36,10 @@ const std::string SUFF = "_n0111_DD_MMtrial8_SYS_HFT";
 //Pred Mode
 const bool METREL40       = false;  //Apply min MetRel40 to CR2LepOS and CR2LepSS
 
-const bool DO_SYS         = true; //false;    //Toggles systematics looper
-const bool FILL_HFT       = true; // false;    //Write the HistFitterTree
+const bool DO_SYS         = true;   //false;    //Toggles systematics looper
+const bool FILL_HFT       = true;   // false;    //Write the HistFitterTree
 
-const bool WEIGHT_COUNT   = true; /*false;*/  //Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool DO_FILL_HISTO  = true;
 
 const bool USE_DGWEIGHT   = true;

@@ -123,6 +123,9 @@ class DrawPlots {
   /* Make Profile give axes to profile onto, the one to intergral and the one to loop over */
   TH1F* getProfile3D(TH3* _h, string axis="x", string afix="y", string aloop="z");
 
+  void grabHisto(string name, bool quiet=true);
+
+
   string         _dataFileName;
   TFile*         _dataFile;
   vector<string> SFILE;
@@ -164,7 +167,6 @@ class DrawPlots {
 
   /* build histo stack */
   void buildStack(string name, TLegend* _l);
-  void grabHisto(string name, bool quiet=true);
   void blindDataSR();
   void setMoveUnderOver(bool b){_moveUO=b;}
   void setLogy(bool b) {_logy=b;}

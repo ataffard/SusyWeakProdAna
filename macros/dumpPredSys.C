@@ -3,10 +3,7 @@
 
 typedef unsigned uint;
 
-string mth = "std";
-//string dir = "histos_102812_13fb_n0111_DD_SYS_HFT/";
-//string dir = "histos_102812_13fb_n0111_STD_SYS_HFT/";
-string dir ="validate_n0111/";
+string dir ="histos_103112_13fb_n0111_DD_MMtrial8_SYS_HFT/";
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
@@ -25,16 +22,24 @@ int main(int argc, char *argv[]){
   vector<string> sample;
   //sample.push_back("histo_TtbarLeptLept.117800_rlep.root");
   //sample.push_back("histo_llnunu_WW.126892_rlep.root");
-  //  sample.push_back("histo_llnunu_WW.126892_std.mcWeight.root");
-  sample.push_back("histo_llnunu_WW.126892_std.allWeight.root");
+  
+  //sample.push_back("histo_data12_fake.root");
+  sample.push_back("histo_ZX_Sherpa_rlep.root");
+  //sample.push_back("histo_WW_Sherpa_rlep.root");
+  //sample.push_back("histo_topDil_Sherpa_rlep.root");
+
 
   vector<string> SR;
-  SR.push_back("DG2L_CR2LepOS_");
+  SR.push_back("DG2L_SRSSjveto_");
   SR.push_back("DG2L_SRjveto_");
   SR.push_back("DG2L_SR2jets_");
-  SR.push_back("DG2L_preSRmT2_");
+  SR.push_back("DG2L_SRmT2_");
   SR.push_back("DG2L_NTOP_");
   SR.push_back("DG2L_NWW1_");  
+  SR.push_back("DG2L_ZXCR1_");  
+  SR.push_back("DG2L_ZXCR3_");  
+  SR.push_back("DG2L_ZXCR4_");  
+  SR.push_back("DG2L_ZXCR5_");  
   
   vector<string> LEP;
   LEP.push_back("EE");

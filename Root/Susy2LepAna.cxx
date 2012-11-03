@@ -17,7 +17,7 @@ const string DIL_SRNAME[] = {"SRjveto", "SRSSjveto", "SR2jets", "SRmT2",
 			     "ZXCR1", "ZXCR3", "ZXCR4","ZXCR5",
 			     "CR2LepOS", "CR2LepSS",
 			     "preSRjveto", "preSRSSjveto", "preSR2jets", "preSRmT2",
-			     "VR1SS"
+			     "VR1SS","CR2LepOS40", "CR2LepSS40",
 };
 
 /*--------------------------------------------------------------------------------*/
@@ -75,7 +75,8 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   string _fakeInput  =  string(getenv("WORKAREA")) + 
     //"/SusyMatrixMethod/data/fakeRate_trial7_Oct12.root"; 
     //"/SusyMatrixMethod/data/fakeRate_trial8_Oct29.root"; 
-    "/SusyMatrixMethod/data/test_UpdateHFSFMuon.root"; 
+    //"/SusyMatrixMethod/data/test_UpdateHFSFMuon.root"; 
+    "/SusyMatrixMethod/data/fakeRate_trial9_Nov2.root";
 
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT);
@@ -183,6 +184,10 @@ void Susy2LepAna::end()
     for(uint i=DGSys_NOM; i < DGSys_GEN ; i++) {
       if( m_histFitterTrees[i]){
 	float sumw = nt->evt()->sumw;
+	if(nt->evt()->mcChannel==147770){
+	  sumw = 2.4806e+13;
+	  cout << "Warning overwritting sumW in " << nt->evt()->mcChannel << " with " << sumw << endl;
+	}
 	/*
 	if(nt->evt()->mcChannel==147771){
 	  sumw = 2.35447863214e+13;
@@ -489,11 +494,17 @@ void Susy2LepAna::setSelection(std::string s)
   }
   else if(m_sel == "CR2LepOS"){
     m_selOS=true;
-    if(METREL40) m_metRelMin=40;
   }
   else if(m_sel == "CR2LepSS"){
     m_selSS=true;
-    if(METREL40) m_metRelMin=40;
+  }
+  else if(m_sel == "CR2LepOS40"){
+    m_selOS=true;
+     m_metRelMin=40;
+  }
+  else if(m_sel == "CR2LepSS40"){
+    m_selSS=true;
+    m_metRelMin=40;
   }
   
 }
@@ -581,7 +592,12 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //Write HistFitterTree here
   //
   if(m_writeHFT){
-    writeIntoHistFitterTree(leptons,baseLeps,signalJets,v_baseJet,met);
+    float wHFT= writeIntoHistFitterTree(leptons,baseLeps,signalJets,v_baseJet,met);
+    _tmp += wHFT;
+    if(fabs((_ww*bTagWeight)-wHFT)/wHFT>0.000001) 
+      cout << "WARNING >>> run " << nt->evt()->run  
+	   << " event " << nt->evt()->event 
+	   << " mismatch weight with HFT " << _ww*bTagWeight << " " << wHFT << endl;
     if(nt->evt()->isMC) restoreOriginal(*leptons,met);//Because qFlip was have been called
   }
    
@@ -593,7 +609,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	 << " trigW " << _trigW
 	 << " bTag " << bTagWeight
 	 << " weight " << _ww << endl;
-    //    dumpEvent();
+    // cout<< " myEvtW " << _ww*bTagWeight<<endl;
+      //dumpEvent();
   }
  
 
@@ -626,8 +643,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!USE_QFLIP && !passQQ(leptons)) continue;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
-	  (iSR==DIL_SRSSjveto || iSR==DIL_CR2LepSS || iSR==DIL_preSRSSjveto 
-	   || iSR==DIL_VR1SS) ){
+	  (iSR==DIL_SRSSjveto || iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 
+	   || iSR==DIL_preSRSSjveto  || iSR==DIL_VR1SS) ){
 	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
 	else{ //OS ee/em event - get the qFlip prob
 	  float _ww_qFlip = getQFlipProb(leptons,&new_met);
@@ -654,6 +671,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     // Apply bweight only to SR where we use jet count/veto
     if(USE_BWEIGHT && nt->evt()->isMC) {
       if( ! ( iSR ==DIL_CR2LepOS || iSR==DIL_CR2LepSS || 
+	      iSR ==DIL_CR2LepOS40 || iSR==DIL_CR2LepSS40 || 
 	      iSR==DIL_CRZ  || iSR==DIL_VR1SS ) )
 	//	_ww = _wwSave * bTagWeight;
 	_ww *= bTagWeight;
@@ -751,8 +769,8 @@ float Susy2LepAna::eventWeight(int mode)
   }
   else if(mode==LUMI13FB){
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    //else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
-    else _evtW=getEventWeight(nt->evt(),LUMI_A_E);
+    else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
+    //else _evtW=getEventWeight(nt->evt(),LUMI_A_E);
     //Fixes Sherpa Zmumu weight 
     //_evtW=getEventWeight(nt->evt());
   }
@@ -880,6 +898,12 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SRNONE; //FR_SRNONE
     break;
   case DIL_CR2LepSS:
+    frSR = SusyMatrixMethod::FR_VR1;
+    break;
+  case DIL_CR2LepOS40:
+    frSR = SusyMatrixMethod::FR_SRNONE;
+    break;
+  case DIL_CR2LepSS40:
     frSR = SusyMatrixMethod::FR_VR1;
     break;
   case DIL_VR1SS:
@@ -1735,12 +1759,14 @@ void Susy2LepAna::initializeHistFitterTree()
 /*--------------------------------------------------------------------------------*/
 // Write into HistFitter Tree
 /*--------------------------------------------------------------------------------*/
-void Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons, 
+float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons, 
 					   const LeptonVector* baseLeptons, 
 					   const JetVector* signalJets, 
 					   const JetVector* baseJets,
 					   const Met* met)
 {
+  float totWeight=1;
+
   // Find which event type
   DiLepEvtType evtType = getDiLepEvtType(*baseLeptons);
   
@@ -1757,45 +1783,41 @@ void Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
   float histFitWeight = 1;
   float totalWeight=1;
 
+
+  bool  _isOS   = leptons->at(0)->q * leptons->at(1)->q < 0 ? true:false;
+  bool  _isEE   =  evtType==ET_ee ? true:false;
+  bool  _isEM   = (evtType==ET_em || evtType==ET_me) ? true:false;
+  bool  _isMM   = evtType==ET_mm ? true:false;
+  bool _topTag  = passTopTag(*leptons,*signalJets,met);
+  int   _nC25   = numberOfCLJets(*signalJets);
+  int   _nB20   = numberOfCBJets(*signalJets);
+  int   _nF30   = numberOfFJets(*signalJets);
+  float _ptl1   = leptons->at(0)->Pt();
+  float _ptl2   = leptons->at(1)->Pt();
+  float _ZPt    = Zcandidate.Pt();
+  float _metET  = met->lv().Pt();
+  float _metRel = getMetRel(met,*leptons,*signalJets);
+  float _Mll    = Mll(leptons->at(0), leptons->at(1));
+  float _MT2    = getMT2(*leptons, met);
+
+
   if(nt->evt()->isMC){
     histFitWeight  = nt->evt()->w * nt->evt()->wPileup
                      *leptons->at(0)->effSF*leptons->at(1)->effSF;
-    if(USE_DGWEIGHT){
-      uint iiSys = DGSys_NOM;
-      if(SYST==DGSys_TRIGSF_EL_UP) iiSys=NtSys_TRIGSF_EL_UP;
-      if(SYST==DGSys_TRIGSF_EL_DN) iiSys=NtSys_TRIGSF_EL_DN;
-      if(SYST==DGSys_TRIGSF_MU_UP) iiSys=NtSys_TRIGSF_MU_UP;
-      if(SYST==DGSys_TRIGSF_MU_DN) iiSys=NtSys_TRIGSF_MU_DN;
-      histFitWeight *= m_trigObj->getTriggerWeight(*leptons, nt->evt()->isMC, (SusyNtSys) iiSys);
-    }
+    histFitWeight *= getTriggerWeight(leptons,SYST);
     histFitWeight *= getBTagSF(nt->evt(),baseJets);
 
     float _sumW = nt->evt()->sumw;
-    //Hack for broken sumW in n0107 !!!
-    //if(nt->evt()->mcChannel==147771) _sumW = 2.35447863214e+13;
-    //if(nt->evt()->mcChannel==147772) _sumW = 1.23966712709e+13;
+    //Hack for broken sumW in n0111 !!!
+    if(nt->evt()->mcChannel==147770) _sumW = 2.4806e+13;
     totalWeight   = histFitWeight * nt->evt()->xsec * LUMI_A_E / _sumW;
+    totWeight= totalWeight;
+
   }
   else{
     if(m_useLooseLep && ( SYST==DGSys_NOM ||
 			  (SYST>=DGSys_FAKE_EL_RE_UP && SYST<=DGSys_FAKE_MU_FR_DN) ) ){
       
-      bool  _isOS   = leptons->at(0)->q * leptons->at(1)->q < 0 ? true:false;
-      bool  _isEE   =  evtType==ET_ee ? true:false;
-      bool  _isEM   = (evtType==ET_em || evtType==ET_me) ? true:false;
-      bool  _isMM   = evtType==ET_mm ? true:false;
-      bool _topTag  = passTopTag(*leptons,*signalJets,met);
-      int   _nC25   = numberOfCLJets(*signalJets);
-      int   _nB20   = numberOfCBJets(*signalJets);
-      int   _nF30   = numberOfFJets(*signalJets);
-      float _ptl1   = leptons->at(0)->Pt();
-      float _ptl2   = leptons->at(1)->Pt();
-      float _ZPt    = Zcandidate.Pt();
-      float _metET  = met->lv().Pt();
-      float _metRel = getMetRel(met,*leptons,*signalJets);
-      float _Mll    = Mll(leptons->at(0), leptons->at(1));
-      float _MT2    = getMT2(*leptons, met);
-
       // NEED TO DETERMINE WHICH SR to get the appropriate weight
       int iSR = findSRCR(_isOS, _isEE, _isMM, _isEM, _topTag, 
 			 _nC25, _nB20, _nF30, 
@@ -1803,31 +1825,45 @@ void Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
 			 _metET, _metRel, _Mll, _MT2);
       histFitWeight = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel);
       totalWeight = histFitWeight;
+      totWeight= totalWeight;
+
     }
   }
 
   // Fill the tree
+  //Get the QFlip weight
+  
+  float qFlipWeight=1;
+  if(nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm){
+    if(!isGenuineSS(leptons) && (_isEE || _isEM) ){ //Not true SS - use OS * qFlip
+      qFlipWeight = getQFlipProb(leptons,&new_met); //lept pt/Met changed !!!!
+    }
+  }
+  
   // Store everything in MeV
-  m_histFitterTrees[SYST]->Fill2LTreeEventInfo(leptons->at(0)->Pt()*1000.,
-					       leptons->at(1)->Pt()*1000.,
-					       met->lv().Pt()*1000.,
-					       numberOfCLJets(*signalJets),
-					       numberOfCBJets(*signalJets),
-					       numberOfFJets(*signalJets),
-					       getMetRel(met,*leptons,*signalJets)*1000.,
-					       Mll(leptons->at(0), leptons->at(1))*1000.,
-					       getMT2(*leptons, met)*1000.,
-					       Zcandidate.Pt()*1000.,
-					       leptons->at(0)->q * leptons->at(1)->q < 0 ? true:false,                                       
-					       passTopTag(*leptons,*signalJets,met),
+  m_histFitterTrees[SYST]->Fill2LTreeEventInfo(_ptl1*1000.,
+					       _ptl2*1000.,
+					       _metET*1000.,
+					       _nC25,
+					       _nB20,
+					       _nF30,
+					       _metRel*1000.,
+					       _Mll*1000,
+					       _MT2*1000,
+					       _ZPt*1000,
+					       _isOS,
+					       _topTag,
 					       histFitWeight,
-					       (evtType==ET_em || evtType==ET_me) ? true:false,
-					       evtType==ET_mm ? true:false,
-					       evtType==ET_ee ? true:false,
-					       totalWeight
+					       _isEM,
+					       _isMM,
+					       _isEE,
+					       totalWeight,
+					       qFlipWeight
 					       );
-
-
+  // Write the tree
+  m_histFitterTrees[SYST]->WriteTree();
+  
+  /*
   //Deal with SS events w/ qFlip - make another entry for OS events weighted w/ qFlip.
   if(nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm){
     if(!isGenuineSS(leptons)){ //Not true SS - use OS * qFlip
@@ -1835,38 +1871,42 @@ void Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
       histFitWeight *= _ww_qFlip;
       totalWeight *= _ww_qFlip;
       //Lepton pt & met have been smeeared in getQFlipProb
-      m_histFitterTrees[SYST]->Fill2LTreeEventInfo(leptons->at(0)->Pt()*1000.,
-						   leptons->at(1)->Pt()*1000.,
-						   met->lv().Pt()*1000.,
-						   numberOfCLJets(*signalJets),
-						   numberOfCBJets(*signalJets),
-						   numberOfFJets(*signalJets),
-						   getMetRel(met,*leptons,*signalJets)*1000.,
-						   Mll(leptons->at(0), leptons->at(1))*1000.,
-						   getMT2(*leptons, met)*1000.,
-						   Zcandidate.Pt()*1000.,
-						   false,   //flagged as SS                                    
-						   passTopTag(*leptons,*signalJets,met),
+      _topTag  = passTopTag(*leptons,*signalJets,met);
+      _ptl1   = leptons->at(0)->Pt();
+      _ptl2   = leptons->at(1)->Pt();
+      _ZPt    = Zcandidate.Pt();
+      _metET  = met->lv().Pt();
+      _metRel = getMetRel(met,*leptons,*signalJets);
+      _Mll    = Mll(leptons->at(0), leptons->at(1));
+      _MT2    = getMT2(*leptons, met);
+      m_histFitterTrees[SYST]->Fill2LTreeEventInfo(_ptl1*1000.,
+						   _ptl2*1000.,
+						   _metET*1000.,
+						   _nC25,
+						   _nB20,
+						   _nF30,
+						   _metRel*1000.,
+						   _Mll*1000,
+						   _MT2*1000,
+						   _ZPt*1000,
+						   _isOS,
+						   _topTag,
 						   histFitWeight,
-						   (evtType==ET_em || evtType==ET_me) ? true:false,
-						   evtType==ET_mm ? true:false,
-						   evtType==ET_ee ? true:false,
-						   totalWeight
+						   _isEM,
+						   _isMM,
+						   _isEE,
+						   totalWeight //,_ww_qFlip
 						   );
+
+      // Write the tree
+      m_histFitterTrees[SYST]->WriteTree();
 
     }
   }
+  */
 
+  return totWeight;
 
-
-
-
-
-
-
-  
-  // Write the tree
-  m_histFitterTrees[SYST]->WriteTree();
   
 }
 

@@ -110,10 +110,18 @@ void DrawPlots::openHistoFiles(string mode,
 //-------------------------------------------//
 void DrawPlots::grabHisto(string name, bool quiet)
 {
-  _mcH1.reserve(OTHER);
+  for(uint i=0; i<_mcH1.size(); i++){
+    for(uint j=0; j<_mcH1[i].size(); j++){
+    _mcH1[i][j]->Clear();
+    }
+  }
   _mcH1.clear();
+
+  _mcH1.reserve(OTHER);
   _mcColor.clear();
   _mcMarker.clear();
+  if(_dataH1) _dataH1->Clear();
+  
   string title;
   TH1F* _h;
   TH1F* _tmp;
@@ -251,7 +259,7 @@ void DrawPlots::buildStack(string name, TLegend* _l)
   _mcStack->SetTitle(name.c_str());
 
   for(uint i=0; i<_mcH1.size(); i++){
-    std::cout << _mcH1[i][DGSys_NOM]->GetName() << " \t Int " 
+    std::cout << _mcH1[i][DGSys_NOM]->GetName() << " \t\t Int " 
 	      << _mcH1[i][DGSys_NOM]->Integral(0,-1) << std::endl;
     
     _utils->addToTHStack(_mcStack,_mcH1[i][DGSys_NOM],_mcColor[i], 
@@ -483,12 +491,11 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
 
   scale = maxScaleLin;
   string _sLogy = "";
-  setLogy(logy);
-  if(logy){
-    _sLogy = "_logy";
-    scale=maxScaleLog;
-  }
+ 
 
+  if(_mcStack)  _mcStack->Clear();
+  if(_mcStackH) _mcStackH->Clear();
+  
   TLegend*  _leg = new TLegend(0.55,0.45,0.85,0.93);
   _utils->legendSetting(_leg); 
 
@@ -501,7 +508,16 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
   float avgRatio = 0;
   if(_mcStackH->Integral(0,-1)>0) avgRatio =_dataH1->Integral(0,-1) / _mcStackH->Integral(0,-1);
   std::cout << "Average ratio data/MC " << avgRatio << std::endl;
-   
+  
+  //Overwrite log scale if less than 100 entries 
+  if(_mcStackH->Integral(0,-1)<100 || _dataH1->Integral(0,-1)<100) logy=false;
+  setLogy(logy);
+  if(logy){
+    _sLogy = "_logy";
+    scale=maxScaleLog;
+  }
+  
+ 
   //
   //Error band on prediction
   //
@@ -516,7 +532,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
   char sData[200];
   int nData  = _dataH1->GetEntries();
   sprintf(sData,"Data (%d)",nData);
-  std::cout << _dataH1->GetName() << " \t Int " << nData << std::endl;
+  std::cout << _dataH1->GetName() << " \t\t Int " << nData << std::endl;
   _leg->AddEntry(_dataH1,sData ,"p");
 
   //if(HIDEDATA) _dataH1=NULL;
@@ -576,24 +592,34 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist)
     //Deal with fake sys separately - uncorrelated 
     if(isys>=DGSys_FAKE_EL_RE_UP && isys <= DGSys_FAKE_MU_FR_DN) continue;
     for(uint imc=0; imc<_mcH1.size(); imc++){ //100% correlation between sample - add linear
-      if(imc==FAKE) continue;
-      TH1F* _hsys = _mcH1[imc][isys];
+      TH1F* _hsys;
+      if(imc==FAKE)_hsys = _mcH1[FAKE][DGSys_NOM]; //add the nominal values since those sys have no effect
+      else  _hsys = _mcH1[imc][isys];
       if(_hsys) {
 	/*
-	cout << " MC " << MCNames[imc]
-	     << "\t\t Sys " << DG2LSystNames[isys] 
+	cout << "\t\t MC " << MCNames[imc]
+	     << "\t Sys " << DG2LSystNames[isys] 
 	     << "\t " << _hsys->Integral(0,-1) << endl;
 	*/
 	totalSysHisto->Add(_hsys);
       }
       else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
-    }    
-    transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
-    _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+    }   
+    if(totalSysHisto->Integral(0,-1)>0){
+      /*
+      cout << "Sys " << DG2LSystNames[isys] 
+	   << "\t " << totalSysHisto->Integral(0,-1) 
+	   << "\t nom " << _hist->Integral(0,-1) 
+	   << endl;
+      */
+      transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+      _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+    }
     totalSysHisto->Reset();
   }
 
   //Add the fake systematics
+  
   vector<TH1F*> fakeSys;
   TH1F* sys0 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
   TH1F* sys1 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
@@ -603,19 +629,21 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist)
   fakeSys.push_back(sys1);
   getFakeSys(fakeSys);
 
-  /*
   for(uint i=0; i<fakeSys.size(); i++){
-    totalSysHisto->Add(fakeSys[i]);
-    transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
-    _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+    if(totalSysHisto->Integral(0,-1)>0){
+      totalSysHisto->Add(fakeSys[i]);
+      transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+      _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+    }
     totalSysHisto->Reset();
   }
-  */
+
  
   //clean up 
   for(uint i=0; i<fakeSys.size(); i++) fakeSys[i]->Delete();
   fakeSys.clear();
-
+  
+  
   return _asymErrors;
 
 }
@@ -628,22 +656,22 @@ void DrawPlots::getFakeSys(vector<TH1F*> &sys)
 {
   
   int nbins = _mcH1[FAKE][DGSys_NOM]->GetNbinsX();  
-  for(int bin=0; bin<=nbins; ++bin){
+  for(int bin=1; bin<nbins+1; ++bin){
     float stat = pow(_mcH1[FAKE][DGSys_NOM]->GetBinError(bin),2);//stat err
     float err_up = stat; 
     float err_dn = stat;
     float bc = _mcH1[FAKE][DGSys_NOM]->GetBinContent(bin);
     /*
-    cout << " MC " << MCNames[FAKE]
+    cout << " Fake " << MCNames[FAKE]
 	 << "\t\t Nom " 
-	 << "\t " << bc << endl;
+	 << "\t " << bc << " " << stat << endl;
     */
     for(uint isys=DGSys_FAKE_EL_RE_UP; isys<=DGSys_FAKE_MU_FR_DN; ++isys){
       float shift = _mcH1[FAKE][isys]->GetBinContent(bin);
       /*
-      cout << " MC " << MCNames[FAKE]
-	     << "\t\t Sys " << DG2LSystNames[isys] 
-	     << "\t " << shift << endl;
+      cout << " Fake " << MCNames[FAKE]
+	   << "\t\t Sys " << DG2LSystNames[isys] 
+	   << "\t " << shift << endl;
       */
       if(shift > bc) err_up += pow(shift-bc,2);
       else           err_dn += pow(shift-bc,2);
@@ -663,6 +691,7 @@ void DrawPlots::getFakeSys(vector<TH1F*> &sys)
   _htmp->Delete();
   
   /*
+  cout << "Check fake nom " << _mcH1[FAKE][DGSys_NOM]->Integral(0,-1)<<endl;;
   cout << "Check Int sys0 " << sys[0]->Integral(0,-1)<<endl;;
   cout << "Check Int sys1 " << sys[1]->Integral(0,-1)<<endl;;
   */

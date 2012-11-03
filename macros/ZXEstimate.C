@@ -1,6 +1,6 @@
 #include "SusyNtuple/TGuiUtils.h"
 #include "SusyWeakProdAna/DrawPlots.h"
-
+#include "SusyWeakProdAna/Histos_Common.h"
 #include <vector>
 #include <string>
 #include "TFile.h"
@@ -74,11 +74,14 @@ void getZX_TF()
       string hNameSR= "DG2L_" + ZXSR[ireg] + "_" + LEP[il] + "_DG2L_pred"; 
       
       _ana->grabHisto(hNameCR,false);
-      TH1F*              _hCR = (TH1F*)  _ana->_mcH1[ZX][DGSys_NOM]->Clone();
+      cout << " chekc " << ZX  << " " << DGSys_NOM << endl;
+      int imc  = ZX;
+      int isys = DGSys_NOM 
+      TH1F*              _hCR = (TH1F*)  _ana->_mcH1[imc][isys]->Clone();
       TGraphAsymmErrors* _sysErr_CR = getSysErrorBand(_hCR);
       
       _ana->grabHisto(hNameSR,false);
-      TH1F*              _hSR = (TH1F*)  _ana->_mcH1[ZX][DGSys_NOM]->Clone();
+      TH1F*              _hSR = (TH1F*)  _ana->_mcH1[imc][isys]->Clone();
       TGraphAsymmErrors* _sysErr_SR = getSysErrorBand(_hSR);
       
       //      TH1F* _hCR = (TH1F*) _ana->getHisto("ZX_Sherpa_rlep",hNameCR);
