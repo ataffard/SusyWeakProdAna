@@ -3,7 +3,7 @@
 
 typedef unsigned uint;
 
-string dir ="histos_103112_13fb_n0111_DD_MMtrial8_SYS_HFT/";
+string dir ="histos_110212_13fb_n0111_DD_MMtrial9_SYS_HFT/";
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
@@ -23,11 +23,12 @@ int main(int argc, char *argv[]){
   //sample.push_back("histo_TtbarLeptLept.117800_rlep.root");
   //sample.push_back("histo_llnunu_WW.126892_rlep.root");
   
-  //sample.push_back("histo_data12_fake.root");
-  sample.push_back("histo_ZX_Sherpa_rlep.root");
+  sample.push_back("histo_data12_fake.root");
+  //sample.push_back("histo_ZX_Sherpa_rlep.root");
   //sample.push_back("histo_WW_Sherpa_rlep.root");
   //sample.push_back("histo_topDil_Sherpa_rlep.root");
 
+  //sample.push_back("histo_llnunu_WW.126892_rlep.root"); 
 
   vector<string> SR;
   SR.push_back("DG2L_SRSSjveto_");

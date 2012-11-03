@@ -30,7 +30,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-#doMove=true
+doMove=true
 
 doData=true
 doDataFake=true
@@ -80,7 +80,7 @@ if [ $doMove ]; then
     fi
     mv ${histPathBase}/*.root ${outPath}
     mv ${logPath}/*.log ${outPath}/logs
-    mv ${histPathBase}/HFTOutputs ${outPath}
+#    mv ${histPathBase}/HFTOutputs ${outPath}
 fi
 
 #######################################################################

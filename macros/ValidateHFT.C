@@ -16,8 +16,8 @@ void validateHFT()
   //_chain = new TChain("id_126892");
   //  TString fileName=_pathFile + "NOM_126892.root";
 
-  _chain = new TChain("id_147770");
-    TString fileName=_pathFile + "NOM_147770.root";
+  _chain = new TChain("id_147771");
+    TString fileName=_pathFile + "NOM_147771.root";
 
   //_chain = new TChain("id_117800");
   //  TString fileName=_pathFile + "NOM_117800.root";

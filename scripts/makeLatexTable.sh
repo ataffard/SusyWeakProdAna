@@ -7,7 +7,8 @@
 #date="103012_13fb_n0111_DD_MMtrial8_wQflipSFnew"
 
 #date="103112_13fb_n0111_DD_MMtrial7"
-date="103112_13fb_n0111_DD_MMtrial8_SYS_HFT"
+#date="103112_13fb_n0111_DD_MMtrial8_SYS_HFT"
+date="110212_13fb_n0111_DD_MMtrial9_SYS_HFT"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 path=${WORKAREA}/histoAna/SusyAna/histos_${date}

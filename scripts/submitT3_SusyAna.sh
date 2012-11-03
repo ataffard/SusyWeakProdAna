@@ -148,14 +148,28 @@ while read line; do
 
 	    if [ "$mode" == "DD" ]; then
 		echo "Submitting data DD fake "
-		methodData=flep
-		cd ${pathRun}
-		qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
-		echo ""
-		echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
-		cd ${pathScript}
-		echo ""
-		sleep 1
+		 SYS1=("FAKE_EL_RE_UP" "FAKE_EL_FR_UP" "FAKE_MU_RE_UP" "FAKE_MU_FR_UP")
+		 SYS2=("FAKE_EL_RE_DN" "FAKE_EL_FR_DN" "FAKE_MU_RE_DN" "FAKE_MU_FR_DN")
+		 methodData=flep
+
+		 echo "Submitting Data fake using Sys Range "
+		 index=0
+		 for sys1 in ${SYS1[@]}; do
+		     sys2=${SYS2[$index]}
+		     echo "Submitting DATA FAKE "
+		     echo "  sys $sys1 --> $sys2" 
+		     echo "  method:     $methodData"
+		     
+		     cd ${pathRun}
+		     qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
+		     echo ""
+		     echo "qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
+		     cd ${pathScript}
+		     echo ""
+		     sleep 1
+		     ((index++))
+		 done  
+
 	    fi
 	fi
 

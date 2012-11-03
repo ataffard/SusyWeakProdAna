@@ -1783,7 +1783,7 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
   float histFitWeight = 1;
   float totalWeight=1;
 
-
+  bool  _isData = false;
   bool  _isOS   = leptons->at(0)->q * leptons->at(1)->q < 0 ? true:false;
   bool  _isEE   =  evtType==ET_ee ? true:false;
   bool  _isEM   = (evtType==ET_em || evtType==ET_me) ? true:false;
@@ -1812,9 +1812,10 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
     if(nt->evt()->mcChannel==147770) _sumW = 2.4806e+13;
     totalWeight   = histFitWeight * nt->evt()->xsec * LUMI_A_E / _sumW;
     totWeight= totalWeight;
-
+    _isData=false;
   }
   else{
+    _isData=true;
     if(m_useLooseLep && ( SYST==DGSys_NOM ||
 			  (SYST>=DGSys_FAKE_EL_RE_UP && SYST<=DGSys_FAKE_MU_FR_DN) ) ){
       
@@ -1858,7 +1859,8 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
 					       _isMM,
 					       _isEE,
 					       totalWeight,
-					       qFlipWeight
+					       qFlipWeight,
+					       _isData
 					       );
   // Write the tree
   m_histFitterTrees[SYST]->WriteTree();
