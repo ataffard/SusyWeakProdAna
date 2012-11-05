@@ -16,8 +16,9 @@
 #date="103112_13fb_n0111_DD_MMtrial8_SYS_HFT"
 #mth="rlep"
 
-date="110212_13fb_n0111_DD_MMtrial9_SYS_HFT"
+date="110412_13fb_n0111_DD_MMtrial9_SYS_HFT"
 mth="rlep"
+
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs
@@ -80,7 +81,7 @@ if [ $doMove ]; then
     fi
     mv ${histPathBase}/*.root ${outPath}
     mv ${logPath}/*.log ${outPath}/logs
-#    mv ${histPathBase}/HFTOutputs ${outPath}
+    mv ${histPathBase}/HFTOutputs ${outPath}
 fi
 
 #######################################################################

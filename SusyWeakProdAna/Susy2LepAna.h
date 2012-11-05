@@ -123,7 +123,7 @@ class Susy2LepAna: public SusyNtTools
     float JZBJet(const JetVector* jets, const LeptonVector* leptons);
     float JZBEtmiss(const Met *met, const LeptonVector* leptons);
 
-    int findSRCR(bool isOS, bool isEE, bool isMM, bool isEM, bool topTag,
+    int findSRCR(bool isData, bool isOS, bool isEE, bool isMM, bool isEM, bool topTag,
 		 int nC25, int nB20, int nF30, 
 		 float ptl1, float ptl2, float Zpt,
 		 float met, float metrel, float mll, float mt2);

@@ -125,6 +125,8 @@ class DrawPlots {
 
   void grabHisto(string name, bool quiet=true);
 
+  TH1F* getMcHisto(int imc, int isys){return _mcH1[imc][isys];}
+  TH1F* getDataHisto() {return _dataH1;}
 
   string         _dataFileName;
   TFile*         _dataFile;

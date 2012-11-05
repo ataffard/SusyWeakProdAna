@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <string>
 #include "TString.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -10,23 +10,43 @@ TChain* _chain;
 
 void validateHFT()
 {
-  //TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_103112_13fb_n0111_DD_MMtrial8_SYS_HFT/HFTOutputs/");
-  TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/HFTOutputs/");
+  //TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_110312_13fb_n0111_DD_MMtrial9_SYS_HFT/HFTOutputs/");
+  TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/HFT_tmp/");
 
-  //_chain = new TChain("id_126892");
-  //  TString fileName=_pathFile + "NOM_126892.root";
+  vector<TString> sample; 
+  
+  
+  _chain = new TChain("id_Fake");
+  sample.push_back("NOM_Egamma.periodA_FAKE.root");  
+  sample.push_back("NOM_Egamma.periodB_FAKE.root"); 
+  sample.push_back("NOM_Egamma.periodC_FAKE.root"); 
+  sample.push_back("NOM_Egamma.periodD_FAKE.root"); 
+  sample.push_back("NOM_Egamma.periodE_FAKE.root"); 
+  sample.push_back("NOM_Muons.periodA_FAKE.root");  
+  sample.push_back("NOM_Muons.periodB_FAKE.root");  
+  sample.push_back("NOM_Muons.periodC_FAKE.root");  
+  sample.push_back("NOM_Muons.periodD_FAKE.root");  
+  sample.push_back("NOM_Muons.periodE_FAKE.root");  
+  
+  /*
+  _chain = new TChain("id_147770");
+  sample.push_back("NOM_147770.root");  
+  */
 
-  _chain = new TChain("id_147771");
-    TString fileName=_pathFile + "NOM_147771.root";
+  /*
+  _chain = new TChain("id_117800");
+  sample.push_back("NOM_117800.root");  
+  */
 
-  //_chain = new TChain("id_117800");
-  //  TString fileName=_pathFile + "NOM_117800.root";
-
-  _chain->Add(fileName);
+  for(unsigned int i=0; i<sample.size(); i++){
+    TString fileName=_pathFile + sample[i]; 
+    _chain->Add(fileName);
+  }
 
   //Signal region and CR's cut
   TCut SR1("2LnCentralLightJets==0 && 2LnCentralBJets==0 && 2LnForwardJets==0 && abs(2LMll/1000.-91.2)>10. && 2LMETrel>100000. && 2LisOS");
-  TCut SRSS("((isEE || isEMU) && 2LisOS) || !2LisOS");
+  //TCut SRSS("((isEE || isEMU) && 2LisOS ) || !2LisOS");
+  TCut SRSS("((isEE || isEMU) && 2LisOS && !2LisData) || !2LisOS");
   //TCut SRSS("!2LisOS"); //old HFT
 
   TCut SR2("2LnCentralLightJets==0 && 2LnCentralBJets==0 && 2LnForwardJets==0 && 2LMETrel>100000");

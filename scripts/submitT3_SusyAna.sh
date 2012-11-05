@@ -148,8 +148,8 @@ while read line; do
 
 	    if [ "$mode" == "DD" ]; then
 		echo "Submitting data DD fake "
-		 SYS1=("FAKE_EL_RE_UP" "FAKE_EL_FR_UP" "FAKE_MU_RE_UP" "FAKE_MU_FR_UP")
-		 SYS2=("FAKE_EL_RE_DN" "FAKE_EL_FR_DN" "FAKE_MU_RE_DN" "FAKE_MU_FR_DN")
+		 SYS1=("NOM" "FAKE_EL_RE_UP" "FAKE_EL_FR_UP" "FAKE_MU_RE_UP" "FAKE_MU_FR_UP")
+		 SYS2=("NOM" "FAKE_EL_RE_DN" "FAKE_EL_FR_DN" "FAKE_MU_RE_DN" "FAKE_MU_FR_DN")
 		 methodData=flep
 
 		 echo "Submitting Data fake using Sys Range "
