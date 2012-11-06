@@ -155,7 +155,8 @@ void getZX_TF()
 float get_ZXCR_data(int il, int ireg)
 {
   string hNameCR= "DG2L_" + ZXCR[ireg] + "_" + LEP[il] + "_DG2L_pred"; 
-  _ana->grabHisto(hNameCR,true);
+  cout << "Grab " << hNameCR << endl;
+  _ana->grabHisto(hNameCR,false);
   
   //ZX MC in CR's
   TH1F* _h_ZX_mc      = (TH1F*)  _ana->getMcHisto(ZX,DGSys_NOM)->Clone(); 
@@ -189,5 +190,16 @@ float get_ZXCR_data(int il, int ireg)
        << "\t ZX_data " << _h_ZX_data->Integral(0,-1)
        << endl;
   
+  
+  _h_ZX_mc->Delete();
+  _h_data->Delete();
+  _h_fake->Delete();
+  _h_top->Delete();
+  _h_WW->Delete();
+  _h_Ztt->Delete();
+  _h_oBkg->Delete();
+  _h_ZX_data->Delete();
+
+
   return _h_ZX_data->Integral(0,-1);
 }

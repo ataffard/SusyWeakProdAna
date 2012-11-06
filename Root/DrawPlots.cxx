@@ -110,18 +110,22 @@ void DrawPlots::openHistoFiles(string mode,
 //-------------------------------------------//
 void DrawPlots::grabHisto(string name, bool quiet)
 {
+  cout << "HERE1 " << endl;
   for(uint i=0; i<_mcH1.size(); i++){
     for(uint j=0; j<_mcH1[i].size(); j++){
-    _mcH1[i][j]->Clear();
+      if(_mcH1[i][j]!=NULL) _mcH1[i][j]->Clear();
     }
   }
   _mcH1.clear();
-
+  cout << "HERE2 " << endl;
   _mcH1.reserve(OTHER);
+  cout << "HERE3 " << endl;
   _mcColor.clear();
   _mcMarker.clear();
-  if(_dataH1) _dataH1->Clear();
-  
+  cout << "HERE4 " << endl;
+  //if(_dataH1!=NULL) _dataH1->Clear();
+  cout << "HERE5 " << endl;
+
   string title;
   TH1F* _h;
   TH1F* _tmp;
@@ -137,6 +141,7 @@ void DrawPlots::grabHisto(string name, bool quiet)
   if(_moveUO) _utils->moveUnderOverFlow(_h);
   _dataH1 = (TH1F*) _h->Clone(title.c_str());
   if(HIDEDATA) blindDataSR();
+  if(!quiet) cout << "Got " << _dataH1->GetName() << endl;
 
   //Used in case MC file not there
   _tmp = (TH1F*) _dataH1->Clone();
@@ -181,7 +186,7 @@ void DrawPlots::grabHisto(string name, bool quiet)
       title =MCNames[i] + "_" + hName;
       _hArray[isys]->SetTitle(title.c_str());
       _hArray[isys]->SetName(title.c_str());
-      //std::cout << "MC " << _hArray[isys]->GetName() << " entries " << _hArray[isys]->Integral(0,-1) <<std::endl;      
+      if(!quiet && isys==DGSys_NOM) std::cout << "MC " << _hArray[isys]->GetName() << " entries " << _hArray[isys]->Integral(0,-1) <<std::endl;      
     }
 
     _mcH1.push_back(_hArray);

@@ -34,7 +34,8 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #    PLOTS=(metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)
  
 #     SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS  NTOP NWW1 NWW2 NWW3 ZXCR1 ZXCR3 ZXCR4 ZXCR5 SRjveto SRSSjveto SR2jets SRmT2 SRmT2b)
-     SR=(preSRjveto preSRssjveto preSR2jets preSRmT2)
+#     SR=(preSRjveto preSRSSjveto preSR2jets preSRmT2)
+     SR=(preSRSSjveto)
 #    SR=(SRjveto)
 #    PLOTS=(mll metrel etmiss)
 #    SR=(SRjveto SRSSjveto SR2jets SRmT2 SRmT2b )

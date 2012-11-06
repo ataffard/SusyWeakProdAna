@@ -19,8 +19,8 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //const std::string TAG  = "102812";
 //const std::string SUFF = "_n0105_STD"; 
 
-
-const std::string TAG  = "110412";
+const std::string TAG  = "110212";
+//const std::string TAG  = "110412";
 //const std::string SUFF = "_n0111_DD"; 
 //const std::string SUFF = "_n0111_DD_MMtrial7";
 //const std::string SUFF = "_n0111_DD_MMtrial8_noQflipSF";
