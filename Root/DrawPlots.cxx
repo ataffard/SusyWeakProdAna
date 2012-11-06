@@ -98,7 +98,7 @@ void DrawPlots::openHistoFiles(string mode,
   //  _sigFileName.push_back(string(_pathHisto +"/histo_SimplifiedModel_wA_slep.root").c_str());
   //  _sigFileName.push_back(string(_pathHisto +"/histo_SimplifiedModel_wC_slep.root").c_str());
   for(uint i=0; i<_sigFileName.size(); i++){
-    std::cout << "Loading " << SIGFILE[i] << std::endl;
+    std::cout << "Loading " << SIGFILE[i]._c_str() << std::endl;
     TFile* _f = new TFile(_sigFileName[i].c_str(),"READ",SIGFILE[i].c_str());
     _sigFile.push_back(_f);
   }

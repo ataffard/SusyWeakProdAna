@@ -20,6 +20,7 @@
 #include "SusyNtuple/MCTruthClassifierDefs.h"
 
 using namespace std;
+typedef unsigned uint;
 
 #define nHM  2  //0: selected probe, 1: truth matching [method]
 #define nHMC 4  //prompt, hf, LF, conv [type]
