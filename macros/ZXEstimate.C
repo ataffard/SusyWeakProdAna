@@ -27,8 +27,9 @@ void openHist(string mode="DD",
 	      string Ztt="histo_ZTauTaujets_Sherpa",
 	      string Fake="histo_data12_fake");
 
-void getZX_TF();
+void  getZX_TF();
 float get_ZXCR_data(int ilep, int ireg);
+float get_MT2Eff(int ilep, string ireg);
 
 
 //_____________________________________________________________________________//
@@ -119,6 +120,16 @@ void getZX_TF()
       err_dn = sqrt(err_dn);
 
       //
+      //For MT2 a/b need eff 
+      //
+      float eff_mt2a=1;
+      float eff_mt2b=1;
+      if(ZXCR[ireg]=="ZXCR4"){
+	eff_mt2a = get_MT2Eff(il, "SRmT2" );
+	eff_mt2b = get_MT2Eff(il, "SRmT2b");
+      }
+
+      //
       //Print results
       //
       cout << std::setprecision(3) 
@@ -128,14 +139,36 @@ void getZX_TF()
 	   << " + " << err_up << " (sys.)"
 	   << " - " << err_dn << " (sys.)"
 	   << endl;
-	
 
-      cout << "Predicted ZX in SR's " <<
-	   << "\t " << ZX_data * _TF
-	   << " +/- " << ZX_data * _err << " (stat.)"
-	   << " + " <<  ZX_data * err_up << " (sys.)"
-	   << " - " <<  ZX_data * err_dn << " (sys.)"
-	   << endl;
+      if(ZXCR[ireg]=="ZXCR4"){
+	cout << "\t Predicted ZX " 
+	     << "\t "   << ZX_data * _TF 
+	     << " +/- " << ZX_data * _err << " (stat.)"
+	     << " + "   << ZX_data * err_up << " (sys.)"
+	     << " - "   << ZX_data * err_dn << " (sys.)"
+	     << endl;
+
+	cout << "\t Predicted ZX mT2a" 
+	     << "\t "   << ZX_data * eff_mt2a * _TF 
+	     << " +/- " << ZX_data * eff_mt2a * _err << " (stat.)"
+	     << " + "   << ZX_data * eff_mt2a * err_up << " (sys.)"
+	     << " - "   << ZX_data * eff_mt2a * err_dn << " (sys.)"
+	     << endl;
+	cout << "\t Predicted ZX mT2b" 
+	     << "\t "   << ZX_data * eff_mt2b * _TF 
+	     << " +/- " << ZX_data * eff_mt2b * _err << " (stat.)"
+	     << " + "   << ZX_data * eff_mt2b * err_up << " (sys.)"
+	     << " - "   << ZX_data * eff_mt2b * err_dn << " (sys.)"
+	     << endl;
+      }
+      else{
+	cout << "\t Predicted ZX " 
+	     << "\t "   << ZX_data * _TF 
+	     << " +/- " << ZX_data * _err << " (stat.)"
+	     << " + "   << ZX_data * err_up << " (sys.)"
+	     << " - "   << ZX_data * err_dn << " (sys.)"
+	     << endl;
+      }
 
       _hCR->Delete();
       _hSR->Delete();
@@ -155,12 +188,10 @@ void getZX_TF()
 float get_ZXCR_data(int il, int ireg)
 {
   string hNameCR= "DG2L_" + ZXCR[ireg] + "_" + LEP[il] + "_DG2L_pred"; 
-  cout << "Grab " << hNameCR << endl;
-  _ana->grabHisto(hNameCR,false);
+  _ana->grabHisto(hNameCR,true);
 
   //ZX MC in CR's
   TH1F* _h_ZX_mc      = (TH1F*)  _ana->getMcHisto(ZX,DGSys_NOM)->Clone(); 
-  cout << "Name " << _h_ZX_mc->Integral(0,-1) << endl;
   
   //Data in CR's
   TH1F* _h_data       = (TH1F*)  _ana->getDataHisto()->Clone(); 
@@ -182,15 +213,15 @@ float get_ZXCR_data(int il, int ireg)
   _h_ZX_data->Add(_h_oBkg,-1);
   
   cout << std::setprecision(5) 
-       << ">>> ZX estimate from CR's \n"
-       << "\t " << ZXCR[ireg] 
+       << ">>> ZX estimate in " << ZXCR[ireg] << "\n"
        << "\t Data " << _h_data->Integral(0,-1)
        << "\t oBkg " << _h_oBkg->Integral(0,-1)
        << "\t ZX_mc " << _h_ZX_mc->Integral(0,-1)
        << "\t ZX_data " << _h_ZX_data->Integral(0,-1)
        << endl;
   
-  
+  float val = _h_ZX_data->Integral(0,-1);
+
   _h_ZX_mc->Delete();
   _h_data->Delete();
   _h_fake->Delete();
@@ -200,6 +231,42 @@ float get_ZXCR_data(int il, int ireg)
   _h_oBkg->Delete();
   _h_ZX_data->Delete();
 
+  return val;
+}
 
-  return _h_ZX_data->Integral(0,-1);
+//_____________________________________________________________________________//
+//
+// MT2 Eff SRMt2a/b - preMT2
+//
+float get_MT2Eff(int ilep, string sreg){
+
+ //ZX MC in SR's
+ string hNameCR= "DG2L_" + sreg + "_" + LEP[ilep] + "_DG2L_pred"; 
+ _ana->grabHisto(hNameCR,true);
+ TH1F* _h_ZX_SR      = (TH1F*)  _ana->getMcHisto(ZX,DGSys_NOM)->Clone(); 
+
+ //ZX MC in preMT2
+ hNameCR= "DG2L_preSRmT2_" + LEP[ilep] + "_DG2L_pred"; 
+ _ana->grabHisto(hNameCR,true);
+ TH1F* _h_ZX_preSR   = (TH1F*)  _ana->getMcHisto(ZX,DGSys_NOM)->Clone(); 
+
+ //Efficiency
+ TH1F* _hRatio =  _ana->calcRatio(_h_ZX_SR,_h_ZX_preSR,"EFF",""); //uncorrelated 
+
+ Double_t _err=0;
+ Double_t _EFF=_hRatio->IntegralAndError(0,-1,_err);
+
+ //
+ //Print results
+ //
+ cout << std::setprecision(3) 
+      << "\t " << sreg 
+      << "\t MT2Eff " << _EFF 
+      << " +/- " << _err << " (stat.)"
+   //      << " + " << err_up << " (sys.)"
+   //      << " - " << err_dn << " (sys.)"
+      << endl;
+ 
+ return _EFF;
+
 }

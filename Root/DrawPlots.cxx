@@ -110,21 +110,16 @@ void DrawPlots::openHistoFiles(string mode,
 //-------------------------------------------//
 void DrawPlots::grabHisto(string name, bool quiet)
 {
-  cout << "HERE1 " << endl;
   for(uint i=0; i<_mcH1.size(); i++){
     for(uint j=0; j<_mcH1[i].size(); j++){
       if(_mcH1[i][j]!=NULL) _mcH1[i][j]->Clear();
     }
   }
   _mcH1.clear();
-  cout << "HERE2 " << endl;
   _mcH1.reserve(OTHER);
-  cout << "HERE3 " << endl;
   _mcColor.clear();
   _mcMarker.clear();
-  cout << "HERE4 " << endl;
   //if(_dataH1!=NULL) _dataH1->Clear();
-  cout << "HERE5 " << endl;
 
   string title;
   TH1F* _h;

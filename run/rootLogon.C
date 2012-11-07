@@ -27,8 +27,10 @@
   cout<<"\t libXmlParser = "<<gSystem->Load("libXMLParser")<<endl;
 
   //Load all the libs 
+  //MAC
+  gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f7-7 >libs.list");
   ///T3
-  gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f6-7 >libs.list");
+  //gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f6-7 >libs.list");
   //EOS CERN
   //gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f10-10 >libs.list");
   FILE* fInput;
