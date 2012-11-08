@@ -57,4 +57,9 @@ float signedD0(float d0, float sigmaD0, TLorentzVector _p, TLorentzVector _j);
 // pT relative to jet axis 
 float ptRel(TLorentzVector j, TLorentzVector p);
 
+
+//Simplified Model cross section
+double getCrossSection(std::ifstream &infile, int mcID, double crossSection, int syst = 0);
+
+
 #endif

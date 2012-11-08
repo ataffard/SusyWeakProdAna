@@ -87,6 +87,13 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
     "/ChargeFlip/data/chargeFlip.root";
   m_chargeFlip = new chargeFlip(chargeFlipInput);
   
+
+  //Open signal cross section file
+  string _sSigFile = string(getenv("WORKAREA")) +
+    "/SusyWeakProdAna/data/" + "Simplified_CrossSections.txt";
+  sigXsfile.open(_sSigFile.c_str());
+
+
   _tmp=0;
 }
 
@@ -181,7 +188,7 @@ void Susy2LepAna::end()
   }
   
   if(m_writeHFT){ //Saving HistFitterTree - yes that's done in delete contructor!
-    for(uint i=DGSys_NOM; i < DGSys_GEN ; i++) {
+    for(uint i=_sys1; i <= _sys2; i++) {
       if( m_histFitterTrees[i]){
 	float sumw = nt->evt()->sumw;
 	if(nt->evt()->mcChannel==147770){
@@ -206,6 +213,8 @@ void Susy2LepAna::end()
   }
 
   clearVectors();
+  sigXsfile.close();
+  
 }
 /*--------------------------------------------------------------------------------*/
 // Move output of this HFT to a decent location
@@ -619,7 +628,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     float wHFT= writeIntoHistFitterTree(leptons,baseLeps,signalJets,v_baseJet,met);
     _tmp += wHFT;
     
-    if(nt->evt()->isMC && fabs((_ww*bTagWeight)-wHFT)/wHFT>0.000001) 
+    if(nt->evt()->isMC && !(SYST==DGSys_XS_UP || SYST==DGSys_XS_DN)
+       && fabs((_ww*bTagWeight)-wHFT)/wHFT>0.000001) 
       cout << "WARNING >>> run " << nt->evt()->run  
 	   << " event " << nt->evt()->event 
 	   << " mismatch weight with HFT " << _ww*bTagWeight << " " << wHFT << endl;
@@ -1842,7 +1852,13 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
     float _sumW = nt->evt()->sumw;
     //Hack for broken sumW in n0111 !!!
     if(nt->evt()->mcChannel==147770) _sumW = 2.4806e+13;
-    totalWeight   = histFitWeight * nt->evt()->xsec * LUMI_A_E / _sumW;
+
+    uint iiSys = DGSys_NOM;
+    if(SYST==DGSys_XS_UP) iiSys=1;
+    if(SYST==DGSys_XS_DN) iiSys=-1;
+    float _XS = getCrossSection(sigXsfile,nt->evt()->mcChannel,nt->evt()->xsec,iiSys);
+
+    totalWeight   = histFitWeight * _XS * LUMI_A_E / _sumW;
     totWeight= totalWeight;
     _isData=false;
   }

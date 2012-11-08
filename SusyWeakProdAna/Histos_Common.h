@@ -81,6 +81,8 @@ enum DG2L_SYS
   DGSys_LJet_UP,             // LJet sys + sigma
   DGSys_BKGMETHOD_UP,        // charge flip, jet veto...
   DGSys_BKGMETHOD_DN,        // charge flip, jet veto...
+  DGSys_XS_UP,               // Cross section
+  DGSys_XS_DN,               // Cross section
   DGSys_FAKE_EL_RE_UP,       // Fake Sys 
   DGSys_FAKE_EL_RE_DN,
   DGSys_FAKE_EL_FR_UP,
@@ -94,8 +96,6 @@ enum DG2L_SYS
   DGSys_GEN_DN,              // Generator param Alpgen, ISR/FSR
   DGSys_PDF_UP,              // PDF
   DGSys_PDF_DN,              // PDF
-  DGSys_XS_UP,               // Cross section
-  DGSys_XS_DN,               // Cross section
   DGSys_N
 };
 
@@ -135,6 +135,8 @@ const std::string DG2LSystNames[DGSys_N] = {
   "BTag_LJet_UP",
   "BKGMETHOD_UP",
   "BKGMETHOD_DN",
+  "XS_UP",
+  "XS_DN",
   "FAKE_EL_RE_UP",  
   "FAKE_EL_RE_DN",
   "FAKE_EL_FR_UP",
@@ -147,9 +149,7 @@ const std::string DG2LSystNames[DGSys_N] = {
   "GEN_UP",
   "GEN_DN",
   "PDF_UP",
-  "PDF_DN",
-  "XS_UP",
-  "XS_DN"
+  "PDF_DN"
 };
 
 

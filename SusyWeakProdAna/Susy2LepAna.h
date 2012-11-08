@@ -132,7 +132,7 @@ class Susy2LepAna: public SusyNtTools
     void restoreOriginal(LeptonVector& leptons, const Met *met);
     void clearVectors();
 
-    void setMcSysMinMax(uint sys1=DGSys_NOM, uint sys2=DGSys_BKGMETHOD_DN){
+    void setMcSysMinMax(uint sys1=DGSys_NOM, uint sys2=DGSys_XS_DN){
       _sys1 = sys1;
       _sys2 = sys2;
       cout << "Setting Sys range of HFT from " <<  DG2LSystNames[sys1]
@@ -295,6 +295,9 @@ class Susy2LepAna: public SusyNtTools
     float _tmp;
 
     ofstream evtDump;
+
+    ifstream sigXsfile;
+
 
 };
 
