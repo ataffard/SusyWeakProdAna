@@ -64,11 +64,11 @@ void DrawPlots::openHistoFiles(string mode,
   if(strcmp(mode.c_str(),"STD")==0){
     cout << "Loading STD MC mode " << endl;
     method="std";
-    _mcFileName.push_back(string(_pathHisto +"/" + Fake + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(_pathHisto +"/" + Ztt + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(_pathHisto +"/" + WW + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(_pathHisto +"/" + Top + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(_pathHisto +"/" + ZX + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(Fake + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(Ztt + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(ZX + "_" + method + ".root").c_str());
   }
   else if(strcmp(mode.c_str(),"DD")==0){
     cout << "Loading rlep MC & DD fake " << endl;
@@ -76,30 +76,30 @@ void DrawPlots::openHistoFiles(string mode,
     method="rlep";
     //Some overlap but - top ->semi lep not included 
     //method="std";
-    _mcFileName.push_back(string(_pathHisto + "/histo_data12_fake.root").c_str());
-    _mcFileName.push_back(string(_pathHisto +"/" + Ztt + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(_pathHisto +"/" + WW + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(_pathHisto +"/" + Top + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(_pathHisto +"/" + ZX + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string("histo_data12_fake.root").c_str());
+    _mcFileName.push_back(string(Ztt + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(ZX + "_" + method + ".root").c_str());
     SFILE[0]="Fake-leptons MM";
   }
 
   for(uint i=0; i<_mcFileName.size(); i++){
     std::cout << "Loading " << SFILE[i] << " " << _mcFileName[i].c_str() << std::endl;
-    TFile* _f = new TFile(_mcFileName[i].c_str(),"READ",SFILE[i].c_str());
+    string fName = _pathHisto + "/" + _mcFileName[i];
+    TFile* _f = new TFile(fName.c_str(),"READ",SFILE[i].c_str());
     _mcFile.push_back(_f);
   }
 
   _sigFileName.clear();
   _sigFile.clear();
-  _sigFileName.push_back(string(_pathHisto +"/histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_10.144876_" + method + ".root").c_str());
-  _sigFileName.push_back(string(_pathHisto +"/histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_18.144884_" + method + ".root").c_str());
+  _sigFileName.push_back(string("histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_10.144876_" + method + ".root").c_str());
+  _sigFileName.push_back(string("histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_18.144884_" + method + ".root").c_str());
   
-  //  _sigFileName.push_back(string(_pathHisto +"/histo_SimplifiedModel_wA_slep.root").c_str());
-  //  _sigFileName.push_back(string(_pathHisto +"/histo_SimplifiedModel_wC_slep.root").c_str());
   for(uint i=0; i<_sigFileName.size(); i++){
-    std::cout << "Loading " << SIGFILE[i].c_str() << std::endl;
-    TFile* _f = new TFile(_sigFileName[i].c_str(),"READ",SIGFILE[i].c_str());
+    std::cout << "Loading " << SIGFILE[i].c_str() << " " << _sigFileName[i] << std::endl;
+    string fName =  _pathHisto + "/" + _sigFileName[i];
+    TFile* _f = new TFile(fName.c_str(),"READ",SIGFILE[i].c_str());
     _sigFile.push_back(_f);
   }
 
@@ -1229,7 +1229,9 @@ void DrawPlots:: bkgEstimate_DG2L()
   std::vector<string> sSRCR;
   sSRCR.clear();
   sSRCR.push_back("CR2LepOS");
+  sSRCR.push_back("CR2LepOS40");
   sSRCR.push_back("CR2LepSS");
+  sSRCR.push_back("CR2LepSS40");
   sSRCR.push_back("VR1SS");
   sSRCR.push_back("CRZ");
   sSRCR.push_back("NTOP");
@@ -1237,6 +1239,8 @@ void DrawPlots:: bkgEstimate_DG2L()
   sSRCR.push_back("ZXCR3");
   sSRCR.push_back("ZXCR4");
   sSRCR.push_back("ZXCR5");
+  sSRCR.push_back("ZXCR6");
+  sSRCR.push_back("ZXCR7");
   sSRCR.push_back("NWW1");
   sSRCR.push_back("NWW2");
   sSRCR.push_back("NWW3");

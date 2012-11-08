@@ -14,7 +14,7 @@ const char* const DIL_QQ[] = {"OS", "SS"};
 const string DIL_SRNAME[] = {"SRjveto", "SRSSjveto", "SR2jets", "SRmT2",
 			     "SRmT2b",
 			     "CRZ", "NTOP", "NWW1", "NWW2", "NWW3",
-			     "ZXCR1", "ZXCR3", "ZXCR4","ZXCR5",
+			     "ZXCR1", "ZXCR3", "ZXCR4","ZXCR5","ZXCR6","ZXCR7",
 			     "CR2LepOS", "CR2LepSS",
 			     "preSRjveto", "preSRSSjveto", "preSR2jets", "preSRmT2",
 			     "VR1SS","CR2LepOS40", "CR2LepSS40",
@@ -502,6 +502,20 @@ void Susy2LepAna::setSelection(std::string s)
     m_metRelMin=70;
     m_metRelMax=100;
   }
+  else if(m_sel == "ZXCR6"){
+    m_selOS = true;
+    m_selZ  = true;
+    m_vetoJ = true;
+    m_metRelMin=40;
+    m_mt2Min=90;
+  }
+  else if(m_sel == "ZXCR7"){
+    m_selOS = true;
+    m_selZ  = true;
+    m_vetoJ = true;
+    m_metRelMin=40;
+    m_mt2Min=110;
+  }
   else if(m_sel == "CR2LepOS"){
     m_selOS=true;
   }
@@ -903,6 +917,12 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SRNONE;
     break;
   case DIL_ZXCR5:
+    frSR = SusyMatrixMethod::FR_SRNONE;
+    break;
+  case DIL_ZXCR6:
+    frSR = SusyMatrixMethod::FR_SRNONE;
+    break;
+  case DIL_ZXCR7:
     frSR = SusyMatrixMethod::FR_SRNONE;
     break;
   case DIL_CR2LepOS:
@@ -1471,6 +1491,13 @@ void Susy2LepAna::print_NZX()
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
 
+  j= DIL_ZXCR6;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  j= DIL_ZXCR7;
+  print_line("pass MT2(110)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 
   
 }
@@ -1874,6 +1901,8 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
      iSR==DIL_ZXCR3 ||
      iSR==DIL_ZXCR4 ||
      iSR==DIL_ZXCR5 ||
+     iSR==DIL_ZXCR6 ||
+     iSR==DIL_ZXCR7 ||
      iSR==DIL_NTOP)
     saveEvt = true;
      
@@ -1990,6 +2019,10 @@ int Susy2LepAna::findSRCR(bool isData, bool isOS, bool isEE, bool isMM, bool isE
 	  metrel>100 && (nC25+nB20+nF30)==0)                       iSR=DIL_ZXCR1;
   else if(isOS && _inZ && !isEM &&
 	  metrel>40 && (nC25+nB20+nF30)==0)                        iSR=DIL_ZXCR4;
+  else if(isOS && _inZ && !isEM &&
+	  metrel>40 && (nC25+nB20+nF30)==0 && mt2>90 )             iSR=DIL_ZXCR6;
+  else if(isOS && _inZ && !isEM &&
+	  metrel>40 && (nC25+nB20+nF30)==0 && mt2>110 )            iSR=DIL_ZXCR7;
   else if(isOS && _inZ && !isEM &&
 	  metrel>50 && topTag && nC25>=2 && nB20==0 && nF30==0)    iSR=DIL_ZXCR3;
   else if(isOS && _inZ && !isEM  &&

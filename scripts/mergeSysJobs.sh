@@ -4,7 +4,7 @@ if [[ $# = 1 ]]; then
     sample=$1
 fi
 
-path=${WORKAREA}/histoAna/SusyAna/histos_110412_13fb_n0111_DD_MMtrial9_SYS_HFT
+path=${WORKAREA}/histoAna/SusyAna/histos_110812_13fb_n0111_DD_MMtrial9_SYS_HFT
 
 if [ "$sample" == "EG" ] ; then
     hadd -f ${path}/histo_Egamma.periodA_flep.root ${path}/histo_Egamma.periodA_flep_*

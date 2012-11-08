@@ -8,8 +8,7 @@ fi
 
 if [ "$job" == "DATA"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/data12_fake_job.sh
-#    MergeJobsScripts/data12_std_job.sh
-
+    MergeJobsScripts/data12_std_job.sh
 
 elif [ "$job" == "TOP" -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/top_MCNLO_${mth}_job.sh
