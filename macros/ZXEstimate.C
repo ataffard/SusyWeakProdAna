@@ -52,30 +52,30 @@ int main(int argc, char *argv[]){
   openHist();
   
   LEP.clear();
-  //LEP.push_back("EE");
+  LEP.push_back("EE");
   LEP.push_back("MM");
-  //  LEP.push_back("EM");
-
+  //LEP.push_back("EM");
+  
   ZXCR.push_back("ZXCR1"); //SRjveto
-  /*
   ZXCR.push_back("ZXCR3"); //SR2jets
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2b
   ZXCR.push_back("ZXCR5"); //NWW1
+  ZXCR.push_back("ZXCR5"); //NWW2
   ZXCR.push_back("ZXCR6"); //SRmT2a
   ZXCR.push_back("ZXCR7"); //SRmT2b
-  */
-
 
   ZXSR.push_back("SRjveto");
-  /*
   ZXSR.push_back("SR2jets");
   ZXSR.push_back("preSRmT2"); // ->mT2a
   ZXSR.push_back("preSRmT2"); // ->mT2b
   ZXSR.push_back("NWW1");
+  ZXSR.push_back("NWW2");
   ZXSR.push_back("SRmT2");
   ZXSR.push_back("SRmT2b");
-  */
+
+  get_ZX_Est();
+
 }
 //--------------------------------------------------------------------------------
 void openHist(string mode,string Top,string WW,string ZX,string Ztt,string Fake)
@@ -95,8 +95,14 @@ void get_ZX_Est()
   for(uint il=0; il<LEP.size(); il++){//EE && MM only
     cout << "****** "<< LEP[il] << " *******" << endl;
     for(uint ireg=0; ireg<ZXCR.size(); ireg++){
-      
-      string fileName = "ZX_SF_" + LEP[il] + "_" +ZXSR[ireg] + ".txt";
+           
+      string sReg = ZXSR[ireg];
+      if(ZXCR[ireg]=="ZXCR4"){
+	if(iMT2==0) sReg=ZXSR[ireg]+"a";
+	else        sReg=ZXSR[ireg]+"b";
+      }
+
+      string fileName= "ZX_SF_" + LEP[il] + "_" + sReg + ".txt";
       std::ofstream txt(fileName.c_str());
       std::ostream & out = txt;
       if (!txt.is_open()){
@@ -435,42 +441,35 @@ void  get_ZX_BkgErr(int ilep, int ireg, Double_t &SF_up, Double_t &SF_dn){
 
 
   //
-  // Compute additional error sigma_b such that cover the whole gap
+  //Compute extra sys needed
   //
-  // [ZX_data - ZX_mc] = sqrt(sigma_a^2 + sigma_b^2)  
-  //
-
-  Double_t sigma_tot;
-  if(ZX_data > _nom ) sigma_tot = (ZX_data - ZX_data_err) - _nom;
-  else                sigma_tot = (ZX_data + ZX_data_err) - _nom;
-
   Double_t sigma_b_up = 0;
   Double_t sigma_b_dn = 0;
-  if(sigma_tot >0){ //use sys_up
-    sigma_b_up = pow(sigma_tot,2) - pow(_sys_up,2);
-  }
-  else { //use sys_dn
-    sigma_b_dn = pow(sigma_tot,2) - pow(_sys_dn,2);
-  }
-  if(sigma_b_up>0) sigma_b_up = sqrt(sigma_b_up);
-  if(sigma_b_dn>0) sigma_b_dn = sqrt(sigma_b_dn);
 
-  cout << " Additional error needed for ZX \n" 
-       << _nom 
-       << " + " << _sys_up 
-       << " - " << _sys_dn 
-       << " extra + " << sigma_b_up 
-       << " extra - " << sigma_b_dn 
-       << endl;
+  //Taking the full difference as sys (i think that's an overestimate)
+  Double_t _sys = fabs(_nom - ZX_data)/_nom;
 
+  //Taking only the diff not already covered by the sys
+  //if(_nom -ZX_data >0)  _sys = fabs( _nom - _sys_dn - ZX_data)/(_nom-_sys_dn);
+  //else                  _sys = fabs( _nom + _sys_up - ZX_data)/(_nom+_sys_up);
+
+  if(_nom> ZX_data)  sigma_b_up = _sys;  //MC overpredict 
+  else               sigma_b_dn = _sys;
 
   //
   // Get corresponding SF
   //
-  SF_up = ZX_data /(_nom + sigma_b_up);
-  SF_dn = ZX_data /(_nom - sigma_b_dn);
+  SF_up = ZX_data /_nom * (1 + sigma_b_up);
+  SF_dn = ZX_data /_nom * (1 - sigma_b_dn);
   
-  
+  cout << " Additional error needed for ZX \n" 
+       << " ZX_mc "   <<  _nom << " +" << _sys_up << " - " << _sys_dn << "\n" 
+       << " ZX_data " << ZX_data
+       << " sys "     << _sys << "\n"
+       << " SF_up "   << SF_up
+       << " SF_dn "   << SF_dn
+       << endl;
+
   _h_data->Delete();
   _h_fake->Delete();
   _h_top->Delete();
