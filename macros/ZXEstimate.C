@@ -17,6 +17,8 @@ vector<string> LEP;
 vector<string> ZXCR;
 vector<string> ZXSR;
 
+bool verbose = false;
+
 //
 // Functions
 //
@@ -39,8 +41,12 @@ void  get_ZX_SF_SR(int ilep, int ireg, int isys,
 		   Double_t pred, Double_t predErr, 
 		   Double_t &SF, Double_t &SFerr);
 
+void  get_ZX_BkgErr(int ilep, int ireg, 
+		    Double_t &bkgSysUp, Double_t &bkgSysDn, 
+		    Double_t &ZX_mc_bkgUp, Double_t &ZX_mc_bkgDn, 
+		    Double_t &SF_up, Double_t &SF_dn);
 
-void  get_ZX_BkgErr(int ilep, int ireg, Double_t &SF_up, Double_t &SF_dn);
+void  make_ZXPlots();
 
 
 //_____________________________________________________________________________//
@@ -49,13 +55,12 @@ int main(int argc, char *argv[]){
   gROOT->SetStyle("ATLAS");
   _utils->atlasStyle->SetOptStat("emr");
   _ana = new DrawPlots(); 
-  openHist();
   
   LEP.clear();
   LEP.push_back("EE");
   LEP.push_back("MM");
   //LEP.push_back("EM");
-  
+
   ZXCR.push_back("ZXCR1"); //SRjveto
   ZXCR.push_back("ZXCR3"); //SR2jets
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
@@ -73,8 +78,7 @@ int main(int argc, char *argv[]){
   ZXSR.push_back("NWW2");
   ZXSR.push_back("SRmT2");
   ZXSR.push_back("SRmT2b");
-
-  get_ZX_Est();
+  //get_ZX_Est();
 
 }
 //--------------------------------------------------------------------------------
@@ -90,29 +94,79 @@ void openHist(string mode,string Top,string WW,string ZX,string Ztt,string Fake)
 //
 void get_ZX_Est()
 {
+  openHist();
+
   int iMT2=0;
 
   for(uint il=0; il<LEP.size(); il++){//EE && MM only
-    cout << "****** "<< LEP[il] << " *******" << endl;
+    if(verbose) cout << "****** "<< LEP[il] << " *******" << endl;
     for(uint ireg=0; ireg<ZXCR.size(); ireg++){
-           
+      cout << "Get ZX est for " << LEP[il] << " " << ZXSR[ireg] << endl;
+      
       string sReg = ZXSR[ireg];
       if(ZXCR[ireg]=="ZXCR4"){
 	if(iMT2==0) sReg=ZXSR[ireg]+"a";
 	else        sReg=ZXSR[ireg]+"b";
       }
 
+      //
+      //Output SF file
+      //
       string fileName= "ZX_SF_" + LEP[il] + "_" + sReg + ".txt";
       std::ofstream txt(fileName.c_str());
-      std::ostream & out = txt;
+      std::ostream & outSF = txt;
       if (!txt.is_open()){
 	printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
 	return;
       }
-      else printf("Output file opened: %s \n",fileName.c_str());
       
+      //
+      //Output TF file
+      //
+      fileName= "ZX_TF_" + LEP[il] + "_" + sReg + ".txt";
+      std::ofstream txt2(fileName.c_str());
+      std::ostream & outTF = txt2;
+      if (!txt2.is_open()){
+	printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
+	return;
+      }
+
+
+      //
+      //Output ZX est file
+      //
+      fileName= "ZX_EST_" + LEP[il] + "_" + sReg + ".txt";
+      std::ofstream txt3(fileName.c_str());
+      std::ostream & outEST = txt3;
+      if (!txt3.is_open()){
+	printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
+	return;
+      }
+
+      //
+      //Output MT2 Eff files
+      //
+      fileName= "ZX_MT2aEff_" + LEP[il] + "_" + sReg + ".txt";
+      std::ofstream txt4(fileName.c_str());
+      std::ostream & outMt2aEff = txt4;
+      if (!txt4.is_open()){
+	printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
+	return;
+      }
+ 
+      fileName= "ZX_MT2bEff_" + LEP[il] + "_" + sReg + ".txt";
+      std::ofstream txt5(fileName.c_str());
+      std::ostream & outMt2bEff = txt5;
+      if (!txt5.is_open()){
+	printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
+	return;
+      }
+
+      //
+      // Loop over sys
+      //
       for(uint isys=DGSys_NOM; isys<DGSys_BKGMETHOD_UP; isys++){
-	cout << " SYS " << DG2LSystNames[isys] << endl;
+	if(verbose) cout << " SYS " << DG2LSystNames[isys] << endl;
 	
 
 	//Get ZX SF in CR's
@@ -153,51 +207,121 @@ void get_ZX_Est()
 	  float _frac4 =  _SF_CR_err/_SF_CR;
 	  float _combErr_SF = sqrt(_frac3*_frac3 + _frac4*_frac4);
 
-	  _SF_SR     *= eff_mt2;
-	  _SF_SR_err = _SF_SR * _combErr_SF;
+	  //_SF_SR     *= eff_mt2;
+	  //_SF_SR_err = _SF_SR * _combErr_SF;
 	  
-	  if(iMT2==0) sReg = "SRmT2a"; 
-	  else        sReg = "SRmT2b"; 
+	  if(iMT2==0){
+	    sReg = "SRmT2a"; 
+	    //
+	    //Dump outout Eff  to file
+	    //
+	    outMt2aEff << DG2LSystNames[isys] << "\t" << eff_mt2 << endl;
+	    if(isys==DGSys_NOM){
+	      float CR_stat_up = eff_mt2 + eff_err_mt2;
+	      float CR_stat_dn = eff_mt2 - eff_err_mt2;
+	      outMt2aEff << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
+	      outMt2aEff << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
+	    }
+	  }
+	  else{
+	    sReg = "SRmT2b"; 
+	    //
+	    //Dump outout Eff  to file
+	    //
+	    outMt2aEff << DG2LSystNames[isys] << "\t" << eff_mt2 << endl;
+	    if(isys==DGSys_NOM){
+	      float CR_stat_up = eff_mt2 + eff_err_mt2;
+	      float CR_stat_dn = eff_mt2 - eff_err_mt2;
+	      outMt2bEff << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
+	      outMt2bEff << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
+	    }
+	  }
+
 	  iMT2++;
 	}
 	
 	//Get ZX SF in SR (cross check - should be the same as in CR's
-	Double_t _SF, _SF_err;
-	get_ZX_SF_SR(il,ireg,isys, _ZX_pred,_ZX_pred_err,_SF, _SF_err);
+	//Double_t _SF, _SF_err;
+	//get_ZX_SF_SR(il,ireg,isys, _ZX_pred,_ZX_pred_err,_SF, _SF_err);
 	
 	
 	//Print results
-	cout << "\t ZX " << sReg
-	     << "\t "   << _ZX_pred 
-	     << " +/- " << _ZX_pred_err << " (stat.)"
-	     << endl;
-	cout << "\t SF ZX " << sReg
-	     << "\t "   << _SF_SR 
-	     << " +/- " << _SF_SR_err << " (stat.)"
-	     << endl;
+	if(verbose) {
+	  cout << "\t ZX " << sReg
+	       << "\t "   << _ZX_pred 
+	       << " +/- " << _ZX_pred_err << " (stat.)"
+	       << endl;
+	  cout << "\t SF ZX " << sReg
+	       << "\t "   << _SF_SR 
+	       << " +/- " << _SF_SR_err << " (stat.)"
+	       << endl;
+	}
 	
-
 	//
-	//Dump output to file
+	//Dump output SF to file
 	//
-	out << DG2LSystNames[isys] << "\t" << _SF_SR << endl;
+	outSF << DG2LSystNames[isys] << "\t" << _SF_SR << endl;
 	if(isys==DGSys_NOM){
 	  float CR_stat_up = _SF_SR + _SF_SR_err;
 	  float CR_stat_dn = _SF_SR - _SF_SR_err;
-	  out << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
-	  out << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
+	  outSF << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
+	  outSF << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
+	}
+
+
+	//
+	//Dump output TF to file
+	//
+	outTF << DG2LSystNames[isys] << "\t" << _TF << endl;
+	if(isys==DGSys_NOM){
+	  float CR_stat_up = _TF + _TF_err;
+	  float CR_stat_dn = _TF - _TF_err;
+	  outTF << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
+	  outTF << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
+	}
+
+	//
+	//Dump ZX EST to file
+	//
+	outEST << DG2LSystNames[isys] << "\t" << _ZX_pred << endl;
+	if(isys==DGSys_NOM){
+	  float CR_stat_up = _ZX_pred + _ZX_pred_err;
+	  float CR_stat_dn = _ZX_pred - _ZX_pred_err;
+	  outEST << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
+	  outEST << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
 	}
 	
       }//sys
-      Double_t BKG_UP, BKG_DN;
-      get_ZX_BkgErr(il,ireg, BKG_UP, BKG_DN);
-      out << "BKGMETHOD_UP " << "\t"  << BKG_UP << endl;
-      out << "BKGMETHOD_DN " << "\t"  << BKG_DN << endl;
-      
+
+      //
+      //Get the extra sys for data/MC disagreement in CR's
+      //
+      Double_t BKG_sysUp, BKG_sysDn;
+      Double_t ZXmc_BKG_UP, ZXmc_BKG_DN;
+      Double_t SF_BKG_UP, SF_BKG_DN;
+      get_ZX_BkgErr(il,ireg, 
+		    BKG_sysUp, BKG_sysDn,
+		    ZXmc_BKG_UP, ZXmc_BKG_DN,
+		    SF_BKG_UP, SF_BKG_DN);
+
+      outSF << "BKGMETHOD_UP " << "\t"  << SF_BKG_UP << endl;
+      outSF << "BKGMETHOD_DN " << "\t"  << SF_BKG_DN << endl;
+
+      outTF << "BKGMETHOD_UP " << "\t"  << _TF * (1 + BKG_sysUp) << endl;
+      outTF << "BKGMETHOD_DN " << "\t"  << _TF * (1 - BKG_sysDn) << endl;
+
+      outEST << "BKGMETHOD_UP " << "\t"  << _ZX_pred * (1 + BKG_sysDn) << endl; //swap since not ratio
+      outEST << "BKGMETHOD_DN " << "\t"  << _ZX_pred * (1 - BKG_sysUp) << endl;
+
+
       txt.close();
+      txt2.close();
+      txt3.close();
+      txt4.close();
+      txt5.close();
 	
     }//Region
-    cout << endl;
+    if(verbose) cout << endl;
   } //Lepton
   
  
@@ -248,15 +372,16 @@ void get_ZXCR_data(int il, int ireg, int isys,
   SF = _h_ZX_CR_SF->IntegralAndError(0,-1,SFerr);
 
   //Print
-  cout << std::setprecision(5) 
-       << ">>> ZX estimate in " << ZXCR[ireg] << "\n"
-       << "\t Data \t\t" << _h_data->Integral(0,-1)
-       << "\t oBkg " << _h_oBkg->Integral(0,-1)
-       << "\t ZX_mc " << _h_ZX_mc->Integral(0,-1)
-       << "\t ZX_data " << est  << " +/- " << err
-       << "\t ZX_CR SF " << SF << " +/- " << SFerr
-       << endl;
-  
+  if(verbose) {
+    cout << std::setprecision(5) 
+	 << ">>> ZX estimate in " << ZXCR[ireg] << "\n"
+	 << "\t Data \t\t" << _h_data->Integral(0,-1)
+	 << "\t oBkg " << _h_oBkg->Integral(0,-1)
+	 << "\t ZX_mc " << _h_ZX_mc->Integral(0,-1)
+	 << "\t ZX_data " << est  << " +/- " << err
+	 << "\t ZX_CR SF " << SF << " +/- " << SFerr
+	 << endl;
+  }
   _h_ZX_mc->Delete();
   _h_data->Delete();
   _h_fake->Delete();
@@ -289,12 +414,14 @@ void  get_ZX_TF(int ilep, int ireg, int isys, Double_t &est, Double_t &err)
   TH1F* _hRatio    = _ana->calcRatio(_hSR,_hCR,"TF",""); //uncorrelated 
   est =_hRatio->IntegralAndError(0,-1,err);
   
-  cout << std::setprecision(5) 
-       << "\t ZX CR \t\t"  << _hCR->Integral(0,-1)
-       << "\t ZX SR "  << _hSR->Integral(0,-1)
-       << " TF "       << est 
-       << " +/- "      << err
-       << endl;
+  if(verbose) {
+    cout << std::setprecision(5) 
+	 << "\t ZX CR \t\t"  << _hCR->Integral(0,-1)
+	 << "\t ZX SR "  << _hSR->Integral(0,-1)
+	 << " TF "       << est 
+	 << " +/- "      << err
+	 << endl;
+  }
 
   _hCR->Delete();
   _hSR->Delete();
@@ -360,11 +487,13 @@ void  get_MT2Eff(int ilep, string sreg, int isys,
   //
   //Print results
   //
-  cout << std::setprecision(5) 
-       << "\t " << sreg 
-       << "\t Eff " << est 
-       << " +/- " << err << " (stat.)"
-       << endl;
+  if(verbose){
+    cout << std::setprecision(5) 
+	 << "\t " << sreg 
+	 << "\t Eff \t" << est 
+	 << " +/- " << err << " (stat.)"
+	 << endl;
+  }
   
   _h_ZX_SR->Delete();
   _h_ZX_preSR->Delete();
@@ -378,7 +507,10 @@ void  get_MT2Eff(int ilep, string sreg, int isys,
 //
 // Compute additional error needed to cover for data/MC disagreement in CR.
 //
-void  get_ZX_BkgErr(int ilep, int ireg, Double_t &SF_up, Double_t &SF_dn){
+void  get_ZX_BkgErr(int ilep, int ireg,
+		    Double_t &bkgSysUp, Double_t &bkgSysDn, 
+		    Double_t &ZX_mc_bkgUp, Double_t &ZX_mc_bkgDn,
+		    Double_t &SF_up, Double_t &SF_dn){
 
   
   //CR Histos
@@ -450,8 +582,8 @@ void  get_ZX_BkgErr(int ilep, int ireg, Double_t &SF_up, Double_t &SF_dn){
   Double_t _sys = fabs(_nom - ZX_data)/_nom;
 
   //Taking only the diff not already covered by the sys
-  //if(_nom -ZX_data >0)  _sys = fabs( _nom - _sys_dn - ZX_data)/(_nom-_sys_dn);
-  //else                  _sys = fabs( _nom + _sys_up - ZX_data)/(_nom+_sys_up);
+  if(_nom -ZX_data >0)  _sys = fabs( _nom - _sys_dn - ZX_data)/(_nom-_sys_dn);
+  else                  _sys = fabs( _nom + _sys_up - ZX_data)/(_nom+_sys_up);
 
   if(_nom> ZX_data)  sigma_b_up = _sys;  //MC overpredict 
   else               sigma_b_dn = _sys;
@@ -461,14 +593,20 @@ void  get_ZX_BkgErr(int ilep, int ireg, Double_t &SF_up, Double_t &SF_dn){
   //
   SF_up = ZX_data /_nom * (1 + sigma_b_up);
   SF_dn = ZX_data /_nom * (1 - sigma_b_dn);
+  bkgSysUp = sigma_b_up;
+  bkgSysDn = sigma_b_dn;
+  ZX_mc_bkgUp = _nom * (1 + sigma_b_dn); //swap since not ratio
+  ZX_mc_bkgDn = _nom * (1 - sigma_b_up);
   
-  cout << " Additional error needed for ZX \n" 
-       << " ZX_mc "   <<  _nom << " +" << _sys_up << " - " << _sys_dn << "\n" 
-       << " ZX_data " << ZX_data
-       << " sys "     << _sys << "\n"
-       << " SF_up "   << SF_up
-       << " SF_dn "   << SF_dn
-       << endl;
+  if(verbose) {
+    cout << " Additional error needed for ZX_mc \n" 
+	 << " ZX_mc "     <<  _nom << " +" << _sys_up << " - " << _sys_dn << "\n" 
+	 << " ZX_data "   << ZX_data << "\n"
+	 << " Extra sys + " << bkgSysUp << " - " << bkgSysDn << "\n"
+	 << " SF " << ZX_data /_nom << " + " <<  SF_up << " - " << SF_dn << "\n"
+	 << " ZX_mc " << _nom << " + " <<  ZX_mc_bkgUp << " - " << ZX_mc_bkgDn 
+	 << endl;
+  }
 
   _h_data->Delete();
   _h_fake->Delete();
@@ -477,6 +615,91 @@ void  get_ZX_BkgErr(int ilep, int ireg, Double_t &SF_up, Double_t &SF_dn){
   _h_Ztt->Delete();
   _h_oBkg->Delete();
   _h_ZX_data->Delete();
+
+
+}
+
+//_____________________________________________________________________________//
+//
+// Make plot for ZX section
+//
+void  make_ZXPlots(){
+  
+  string name;
+
+  //
+  // Use Ztt place to put diB,ok since Ztt is 0
+  //
+  _ana->SFILE[1]="ZZ,WZ";
+  _ana->SFILE[4]="Z(ee,#mu#mu)+jets";
+
+  openHist("DD",
+	   "histo_topDil_Sherpa",
+	   "histo_WW_Sherpa",
+	   "histo_Zjets_Sherpa",		      
+	   "histo_diBZX_Sherpa",
+	   "histo_data12_fake");
+  
+  
+  bool logy=false;
+
+  //
+  // ZXCR1
+  //
+  //name = "DG2L_ZXCR1_EE_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+  //name = "DG2L_ZXCR1_MM_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+  
+  //
+  // ZXCR3
+  //
+  //name = "DG2L_ZXCR3_EE_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+  // name = "DG2L_ZXCR3_MM_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+
+  //
+  // ZXCR4
+  //
+  //logy=true;
+  //name = "DG2L_ZXCR4_EE_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+  // name = "DG2L_ZXCR4_MM_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+
+  //
+  // ZXCR6
+  //
+  // name = "DG2L_ZXCR6_EE_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+  //name = "DG2L_ZXCR6_MM_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+  //
+  // ZXCR7
+  //
+  //name = "DG2L_ZXCR7_EE_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+  //name = "DG2L_ZXCR7_MM_DG2L_metrel";
+  //_ana->drawPlotErrBand(name,logy);
+
+  //
+  // ZXCR5
+  //
+  //name = "DG2L_ZXCR5_EE_DG2L_mt2";
+  //_ana->drawPlotErrBand(name,logy);
+
+  name = "DG2L_ZXCR5_MM_DG2L_mt2";
+  _ana->drawPlotErrBand(name,logy);
 
 
 }

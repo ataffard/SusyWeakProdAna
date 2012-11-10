@@ -588,14 +588,14 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist)
   totalSysHisto->Reset();
   TGraphAsymmErrors* transient; 
 
-  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_FAKE_EL_RE_UP/*DGSys_N*/; isys++){
+  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_BKGMETHOD_UP/*DGSys_FAKE_EL_RE_UP*//*DGSys_N*/; isys++){
     //Deal with fake sys separately - uncorrelated 
     if(isys>=DGSys_FAKE_EL_RE_UP && isys <= DGSys_FAKE_MU_FR_DN) continue;
     for(uint imc=0; imc<_mcH1.size(); imc++){ //100% correlation between sample - add linear
       TH1F* _hsys;
       if(imc==FAKE)_hsys = _mcH1[FAKE][DGSys_NOM]; //add the nominal values since those sys have no effect
       else  _hsys = _mcH1[imc][isys];
-      if(_hsys) {
+      if(_hsys && _hsys->Integral(0,-1)>0) {
 	/*
 	cout << "\t\t MC " << MCNames[imc]
 	     << "\t Sys " << DG2LSystNames[isys] 
@@ -603,7 +603,7 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist)
 	*/
 	totalSysHisto->Add(_hsys);
       }
-      else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
+      //else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
     }   
     if(totalSysHisto->Integral(0,-1)>0){
       /*
