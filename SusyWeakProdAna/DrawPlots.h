@@ -82,7 +82,7 @@ class DrawPlots {
   /* To view bkg prediction & data */
   void drawPlot(string name, bool logy);
   /* To view bkg prediction & data with error bands */
-  void drawPlotErrBand(string name, bool logy);
+  void drawPlotErrBand(string name, bool logy=true, bool wSig=true);
   
   TGraphAsymmErrors* getSysErrorBand(TH1F* _hist);
   

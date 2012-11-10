@@ -483,7 +483,7 @@ void DrawPlots::drawPlot(string name, bool logy)
 //-------------------------------------------//
 // Compare bkg estimate & data w/ sys band
 //-------------------------------------------//
-void DrawPlots::drawPlotErrBand(string name, bool logy)
+void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig)
 {
   const float maxScaleLin=1.2;
   const float maxScaleLog=11;
@@ -530,7 +530,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
   TGraphAsymmErrors* ratioBand   = _utils->myRatioBand(_nomAsymErrors ); 
 
   char sData[200];
-  int nData  = _dataH1->GetEntries();
+  int nData  = _dataH1->Integral(0,-1);
   sprintf(sData,"Data (%d)",nData);
   std::cout << _dataH1->GetName() << " \t\t Int " << nData << std::endl;
   _leg->AddEntry(_dataH1,sData ,"p");
@@ -550,11 +550,13 @@ void DrawPlots::drawPlotErrBand(string name, bool logy)
 					_dataH1,_leg,logy);
 
   //Add signals template
-  for(uint i=0; i<_sigFile.size(); i++){
-    _utils->myDraw1d(_sigH1[i],_c0,1,"histsame",logy,_sigColor[i],false,20);
-    _leg->AddEntry(_sigH1[i],SIGFILE[i].c_str(),"l");
-    _c0->Update();
-    _pTop->Update();
+  if(wSig){
+    for(uint i=0; i<_sigFile.size(); i++){
+      _utils->myDraw1d(_sigH1[i],_c0,1,"histsame",logy,_sigColor[i],false,20);
+      _leg->AddEntry(_sigH1[i],SIGFILE[i].c_str(),"l");
+      _c0->Update();
+      _pTop->Update();
+    }
   }
   //Add the error band
   _c0->cd(1);

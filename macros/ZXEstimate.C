@@ -61,23 +61,31 @@ int main(int argc, char *argv[]){
   LEP.push_back("MM");
   //LEP.push_back("EM");
 
+  /*
   ZXCR.push_back("ZXCR1"); //SRjveto
   ZXCR.push_back("ZXCR3"); //SR2jets
+  */
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2b
+  /*
   ZXCR.push_back("ZXCR5"); //NWW1
   ZXCR.push_back("ZXCR5"); //NWW2
   ZXCR.push_back("ZXCR6"); //SRmT2a
   ZXCR.push_back("ZXCR7"); //SRmT2b
+  */
 
+  /*
   ZXSR.push_back("SRjveto");
   ZXSR.push_back("SR2jets");
+  */
   ZXSR.push_back("preSRmT2"); // ->mT2a
   ZXSR.push_back("preSRmT2"); // ->mT2b
+  /*
   ZXSR.push_back("NWW1");
   ZXSR.push_back("NWW2");
   ZXSR.push_back("SRmT2");
   ZXSR.push_back("SRmT2b");
+  */
   //get_ZX_Est();
 
 }
@@ -96,9 +104,8 @@ void get_ZX_Est()
 {
   openHist();
 
-  int iMT2=0;
-
   for(uint il=0; il<LEP.size(); il++){//EE && MM only
+    int iMT2=0;
     if(verbose) cout << "****** "<< LEP[il] << " *******" << endl;
     for(uint ireg=0; ireg<ZXCR.size(); ireg++){
       cout << "Get ZX est for " << LEP[il] << " " << ZXSR[ireg] << endl;
@@ -146,20 +153,22 @@ void get_ZX_Est()
       //
       //Output MT2 Eff files
       //
-      fileName= "ZX_MT2aEff_" + LEP[il] + "_" + sReg + ".txt";
-      std::ofstream txt4(fileName.c_str());
-      std::ostream & outMt2aEff = txt4;
-      if (!txt4.is_open()){
-	printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
-	return;
-      }
- 
-      fileName= "ZX_MT2bEff_" + LEP[il] + "_" + sReg + ".txt";
-      std::ofstream txt5(fileName.c_str());
-      std::ostream & outMt2bEff = txt5;
-      if (!txt5.is_open()){
-	printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
-	return;
+      if(ZXCR[ireg]=="ZXCR4"){
+	fileName= "ZX_MT2aEff_" + LEP[il] + "_" + sReg + ".txt";
+	std::ofstream txt4(fileName.c_str());
+	std::ostream & outMt2aEff = txt4;
+	if (!txt4.is_open()){
+	  printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
+	  return;
+	}
+	
+	fileName= "ZX_MT2bEff_" + LEP[il] + "_" + sReg + ".txt";
+	std::ofstream txt5(fileName.c_str());
+	std::ostream & outMt2bEff = txt5;
+	if (!txt5.is_open()){
+	  printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
+	  return;
+	}
       }
 
       //
@@ -228,7 +237,7 @@ void get_ZX_Est()
 	    //
 	    //Dump outout Eff  to file
 	    //
-	    outMt2aEff << DG2LSystNames[isys] << "\t" << eff_mt2 << endl;
+	    outMt2bEff << DG2LSystNames[isys] << "\t" << eff_mt2 << endl;
 	    if(isys==DGSys_NOM){
 	      float CR_stat_up = eff_mt2 + eff_err_mt2;
 	      float CR_stat_dn = eff_mt2 - eff_err_mt2;
@@ -237,7 +246,6 @@ void get_ZX_Est()
 	    }
 	  }
 
-	  iMT2++;
 	}
 	
 	//Get ZX SF in SR (cross check - should be the same as in CR's
@@ -317,10 +325,14 @@ void get_ZX_Est()
       txt.close();
       txt2.close();
       txt3.close();
-      txt4.close();
-      txt5.close();
-	
+      if(ZXCR[ireg]=="ZXCR4"){
+	txt4.close();
+	txt5.close();
+      }
+      
+      if(ZXCR[ireg]=="ZXCR4") iMT2++;
     }//Region
+
     if(verbose) cout << endl;
   } //Lepton
   
@@ -623,7 +635,7 @@ void  get_ZX_BkgErr(int ilep, int ireg,
 //
 // Make plot for ZX section
 //
-void  make_ZXPlots(){
+void  make_ZXPlots(int ilep, int ireg){
   
   string name;
 
@@ -639,67 +651,34 @@ void  make_ZXPlots(){
 	   "histo_Zjets_Sherpa",		      
 	   "histo_diBZX_Sherpa",
 	   "histo_data12_fake");
-  
-  
+    
   bool logy=false;
 
-  //
-  // ZXCR1
-  //
-  //name = "DG2L_ZXCR1_EE_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-  //name = "DG2L_ZXCR1_MM_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
+  if(ireg==1){       // ZXCR1
+    if(ilep==0) name = "DG2L_ZXCR1_EE_DG2L_metrel";
+    if(ilep==1) name = "DG2L_ZXCR1_MM_DG2L_metrel";
+  }
+  else if(ireg==3){  // ZXCR3
+    if(ilep==0) name = "DG2L_ZXCR3_EE_DG2L_metrel";
+    if(ilep==1) name = "DG2L_ZXCR3_MM_DG2L_metrel";
+  }
+  else if(ireg==4){  // ZXCR4
+    logy=true;
+    if(ilep==0) name = "DG2L_ZXCR4_EE_DG2L_metrel";
+    if(ilep==1) name = "DG2L_ZXCR4_MM_DG2L_metrel";
+  }
+  else if(ireg==6){  // ZXCR6
+   if(ilep==0) name = "DG2L_ZXCR6_EE_DG2L_metrel";
+   if(ilep==1) name = "DG2L_ZXCR6_MM_DG2L_metrel";
+  }
+  else if(ireg==7){  // ZXCR7
+   if(ilep==0) name = "DG2L_ZXCR7_EE_DG2L_metrel";
+   if(ilep==1) name = "DG2L_ZXCR7_MM_DG2L_metrel";
+  }
+  else if(ireg==5){  // ZXCR5
+   if(ilep==0) name = "DG2L_ZXCR5_EE_DG2L_mt2";
+   if(ilep==1) name = "DG2L_ZXCR5_MM_DG2L_mt2";
+  }
   
-  //
-  // ZXCR3
-  //
-  //name = "DG2L_ZXCR3_EE_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-  // name = "DG2L_ZXCR3_MM_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-
-  //
-  // ZXCR4
-  //
-  //logy=true;
-  //name = "DG2L_ZXCR4_EE_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-  // name = "DG2L_ZXCR4_MM_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-
-  //
-  // ZXCR6
-  //
-  // name = "DG2L_ZXCR6_EE_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-  //name = "DG2L_ZXCR6_MM_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-  //
-  // ZXCR7
-  //
-  //name = "DG2L_ZXCR7_EE_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-  //name = "DG2L_ZXCR7_MM_DG2L_metrel";
-  //_ana->drawPlotErrBand(name,logy);
-
-  //
-  // ZXCR5
-  //
-  //name = "DG2L_ZXCR5_EE_DG2L_mt2";
-  //_ana->drawPlotErrBand(name,logy);
-
-  name = "DG2L_ZXCR5_MM_DG2L_mt2";
-  _ana->drawPlotErrBand(name,logy);
-
-
+  _ana->drawPlotErrBand(name,logy,false);
 }
