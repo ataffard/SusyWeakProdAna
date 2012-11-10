@@ -78,6 +78,7 @@ void make_ZX_texTables(string var)
     if(var == "MT2aEff") sVar = "\\mtta\\ $\\mathcal{E}$ ";
     if(var == "MT2bEff") sVar = "\\mttb\\ $\\mathcal{E}$ ";
     caption = "\\caption{\\mtt\\ efficiency }";
+    numPrecision=4;
   }
 
   outFile << "\\begin{table}[htbp] "<< std::endl;
