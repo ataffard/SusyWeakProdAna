@@ -33,6 +33,8 @@ void  get_ZX_Est();
 void  get_ZXCR_data(int ilep, int ireg, int isys,
 		    Double_t &est, Double_t &err, 
 		    Double_t &SF, Double_t &SFerr);
+void  get_ZXSR_mc(int ilep, int ireg, int isys,
+		    Double_t &est, Double_t &err);
 void  get_ZX_TF(int ilep, int ireg, int isys, 
 		Double_t &est, Double_t &err);
 void  get_MT2Eff(int ilep, string ireg, int isys,  
@@ -61,31 +63,24 @@ int main(int argc, char *argv[]){
   LEP.push_back("MM");
   //LEP.push_back("EM");
 
-  /*
   ZXCR.push_back("ZXCR1"); //SRjveto
   ZXCR.push_back("ZXCR3"); //SR2jets
-  */
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2b
-  /*
   ZXCR.push_back("ZXCR5"); //NWW1
   ZXCR.push_back("ZXCR5"); //NWW2
   ZXCR.push_back("ZXCR6"); //SRmT2a
   ZXCR.push_back("ZXCR7"); //SRmT2b
-  */
 
-  /*
   ZXSR.push_back("SRjveto");
   ZXSR.push_back("SR2jets");
-  */
   ZXSR.push_back("preSRmT2"); // ->mT2a
   ZXSR.push_back("preSRmT2"); // ->mT2b
-  /*
   ZXSR.push_back("NWW1");
   ZXSR.push_back("NWW2");
   ZXSR.push_back("SRmT2");
   ZXSR.push_back("SRmT2b");
-  */
+
   //get_ZX_Est();
 
 }
@@ -140,7 +135,7 @@ void get_ZX_Est()
 
 
       //
-      //Output ZX est file
+      //Output ZX est data file
       //
       fileName= "ZX_EST_" + LEP[il] + "_" + sReg + ".txt";
       std::ofstream txt3(fileName.c_str());
@@ -172,6 +167,17 @@ void get_ZX_Est()
       }
 
       //
+      //Output ZX SR mc file
+      //
+      fileName= "ZX_SREST_" + LEP[il] + "_" + sReg + ".txt";
+      std::ofstream txt6(fileName.c_str());
+      std::ostream & outZXSR = txt6;
+      if (!txt6.is_open()){
+	printf("Problem opening output file .... bailing out \n %s \n",fileName.c_str());
+	return;
+      }
+
+      //
       // Loop over sys
       //
       for(uint isys=DGSys_NOM; isys<DGSys_BKGMETHOD_UP; isys++){
@@ -198,6 +204,11 @@ void get_ZX_Est()
 	Double_t _ZX_pred     = ZX_CR_data * _TF; 
 	Double_t _ZX_pred_err = ZX_CR_data * _TF *_combErr; 
 	
+	//ZX MC in SR
+	Double_t ZX_SR_mc, ZX_SR_mc_err; 
+	get_ZXSR_mc(il,ireg,isys, ZX_SR_mc, ZX_SR_mc_err);
+
+
 	string sReg = ZXSR[ireg];
 	//
 	//For MT2 a/b need eff (old way)
@@ -299,6 +310,19 @@ void get_ZX_Est()
 	  outEST << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
 	}
 	
+	//
+	//Dump ZX SR mcto file
+	//
+	outZXSR << DG2LSystNames[isys] << "\t" << ZX_SR_mc << endl;
+	if(isys==DGSys_NOM){
+	  float CR_stat_up = ZX_SR_mc + ZX_SR_mc_err;
+	  float CR_stat_dn = ZX_SR_mc - ZX_SR_mc_err;
+	  outEST << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
+	  outEST << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
+	}
+	
+
+
       }//sys
 
       //
@@ -321,6 +345,9 @@ void get_ZX_Est()
       outEST << "BKGMETHOD_UP " << "\t"  << _ZX_pred * (1 + BKG_sysDn) << endl; //swap since not ratio
       outEST << "BKGMETHOD_DN " << "\t"  << _ZX_pred * (1 - BKG_sysUp) << endl;
 
+      outZXSR << "BKGMETHOD_UP " << "\t"  << ZX_SR_mc * (1 + BKG_sysDn) << endl; //swap since not ratio
+      outZXSR << "BKGMETHOD_DN " << "\t"  << ZX_SR_mc * (1 - BKG_sysUp) << endl;
+
 
       txt.close();
       txt2.close();
@@ -329,7 +356,8 @@ void get_ZX_Est()
 	txt4.close();
 	txt5.close();
       }
-      
+      txt6.close();
+
       if(ZXCR[ireg]=="ZXCR4") iMT2++;
     }//Region
 
@@ -404,6 +432,39 @@ void get_ZXCR_data(int il, int ireg, int isys,
   _h_ZX_data->Delete();
   _h_ZX_CR_SF->Delete();
 }
+
+
+//_____________________________________________________________________________//
+//
+// SF of Z+X background in CR's 
+//
+void get_ZXSR_mc(int il, int ireg, int isys,
+		   Double_t &est, Double_t &err)
+{
+  est =0;
+  err =0;
+  
+  //SR Histos
+  string hNameSR= "DG2L_" + ZXSR[ireg] + "_" + LEP[il] + "_DG2L_pred"; 
+  _ana->grabHisto(hNameSR,true);
+
+  //ZX MC in CR's
+  TH1F* _h_ZX_mc      = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
+  est = _h_ZX_mc->IntegralAndError(0,-1,err);
+
+  //Print
+  if(verbose) {
+    cout << std::setprecision(5) 
+	 << ">>> ZX " << ZXSR[ireg] << "\n"
+	 << "\t ZX_mc " << est  << " +/- " << err
+	 << endl;
+  }
+  _h_ZX_mc->Delete();
+}
+
+
+
+
 //_____________________________________________________________________________//
 // TF of ZX SR/CR
 //

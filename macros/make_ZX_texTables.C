@@ -3,12 +3,12 @@
  make_ZX_texTables("TF");
  make_ZX_texTables("SF");
  make_ZX_texTables("EST");
+ make_ZX_texTables("SREST");
  make_ZX_texTables("MT2aEff");
  make_ZX_texTables("MT2bEff");
 
 */
 
-#include <iostream>
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
@@ -31,10 +31,12 @@ vector<string> LEP;
 vector<string> SREG;
 
 void getRegion(string var, string sReg);
-void readFile(string var, string sReg, int ilep,  std::map<string,float>* sysVal);
-void getSymSysVal(std::map<string,float>* sysVal, std::map<string,float>* _sysValSymm);
-void dump(std::map<string,float>* sysVal);
-void addLine(string sReg,std::map<string,float>* sysVal_ee,std::map<string,float>* sysVal_mm);
+void readFile(string var, string sReg, int ilep, std::map<string,float>* sysVal);
+void getSymSysVal(std::map<string,float>* sysVal, 
+		  std::map<string,pair<float,float> >* _sysValSymm);
+void dump(std::map<string,pair<float,float> >* sysVal);
+void addLine(string sReg,std::map<string,pair<float,float> >* sysVal_ee,
+	     std::map<string,pair<float,float> >* sysVal_mm);
 
 //_______________________________________________________
 // 
@@ -119,8 +121,8 @@ void getRegion(string var, string sReg){
   readFile(var,sReg,1,_sysVal_mm);
 
   //Symmetrize sys
-  std::map<string,float>* _sysValSymm_ee = new map<string,float>();
-  std::map<string,float>* _sysValSymm_mm = new map<string,float>();
+  std::map<string,pair<float,float> >* _sysValSymm_ee = new map<string,pair<float,float> >();
+  std::map<string,pair<float,float> >* _sysValSymm_mm = new map<string,pair<float,float> >();
   //cout << "EE " << endl;
   getSymSysVal(_sysVal_ee,_sysValSymm_ee);
   //cout << "MM " << endl;
@@ -195,7 +197,8 @@ void readFile(string var, string sReg, int ilep, std::map<string,float>* sysVal)
 // Symmetrize/group systematics
 // Compute each indidual shift by sys categories 
 //_______________________________________________________
-void getSymSysVal(std::map<string,float>* sysVal, std::map<string,float>* sysValSymm){
+void getSymSysVal(std::map<string,float>* sysVal, 
+		  std::map<string,pair<float,float> >* sysValSymm){
 
   sysList.clear();
   sysList.push_back("NOM");
@@ -220,14 +223,16 @@ void getSymSysVal(std::map<string,float>* sysVal, std::map<string,float>* sysVal
 
   //Get nominal 
   float _nom = 0;
-  float _totSys=0; //no stat
-  float _bTagSys=0;
+  float _totSysUp=0; //no stat
+  float _totSysDn=0; //no stat
+  float _bTagSysUp=0;
+  float _bTagSysDn=0;
   sysValSymm->clear();
 
   std::map<string,float>::iterator _iter =  sysVal->find(sysList[0]);
   if(_iter != sysVal->end()){
     _nom = (*_iter).second;
-    sysValSymm->insert(sysValSymm->end(),make_pair(sysList[0],_nom));
+    sysValSymm->insert(sysValSymm->end(),make_pair(sysList[0],make_pair(_nom,0)));
   }
   
   //Get all the sys
@@ -237,8 +242,9 @@ void getSymSysVal(std::map<string,float>* sysVal, std::map<string,float>* sysVal
       _iter = sysVal->find(sysList[isys]);
       float _sys=0;
       if(_iter != sysVal->end()) _sys = (*_iter).second - _nom;
-      sysValSymm->insert(sysValSymm->end(),make_pair(sysList[isys],_sys));
-      _totSys += pow(_sys,2);
+      sysValSymm->insert(sysValSymm->end(),make_pair(sysList[isys],make_pair(_sys,0)));
+      _totSysUp += pow(_sys,2);
+      _totSysDn=0;
       //cout << "add to tot " << sysList[isys] << " " << _sys << endl;
     }
     else{
@@ -250,20 +256,31 @@ void getSymSysVal(std::map<string,float>* sysVal, std::map<string,float>* sysVal
       if(_iter != sysVal->end()) _sysUp = (*_iter).second - _nom;
       _iter =  sysVal->find(sSysDn);
       if(_iter != sysVal->end()) _sysDn = (*_iter).second - _nom;
-      float _symSys=0;
-      if(fabs(_sysUp)>fabs(_sysDn)) _symSys = fabs(_sysUp);
-      else                          _symSys = fabs(_sysDn); 
+      //float _symSys=0;
+      //if(fabs(_sysUp)>fabs(_sysDn)) _symSys = fabs(_sysUp);
+      //else                          _symSys = fabs(_sysDn); 
+      
       TString _thisSys(sysList[isys]);
-      if(_thisSys.Contains("BTag")) _bTagSys += pow(_symSys,2); 
-      else  sysValSymm->insert(sysValSymm->end(),make_pair(sysList[isys],_symSys));
+      if(_thisSys.Contains("BTag")){
+	_bTagSysUp += pow(_sysUp,2); 
+	_bTagSysDn += pow(_sysDn,2); 
+      }
+      else{
+	sysValSymm->insert(sysValSymm->end(),make_pair(sysList[isys],make_pair(_sysUp,_sysDn)));
+      }
       if(sysList[isys] != "CRSTAT"){
 	//cout << "add to tot " << sysList[isys] << " " << _symSys << endl;
-	_totSys += pow(_symSys,2);
+	_totSysUp += pow(_sysUp,2);
+	_totSysDn += pow(_sysDn,2);
       }
     }
   }
-  sysValSymm->insert(sysValSymm->end(),make_pair("BTag",sqrt(_bTagSys)));
-  sysValSymm->insert(sysValSymm->end(),make_pair("TOTAL",sqrt(_totSys)));
+  _bTagSysUp = sqrt(_bTagSysUp);
+  _bTagSysDn = sqrt(_bTagSysDn);
+  _totSysUp  = sqrt(_totSysUp);
+  _totSysDn  = sqrt(_totSysDn);
+  sysValSymm->insert(sysValSymm->end(),make_pair("BTag",make_pair(_bTagSysUp,_bTagSysDn)));
+  sysValSymm->insert(sysValSymm->end(),make_pair("TOTAL",make_pair(_totSysUp,_totSysDn)));
   //cout << endl;
 
 }
@@ -271,55 +288,81 @@ void getSymSysVal(std::map<string,float>* sysVal, std::map<string,float>* sysVal
 //
 // Debug dump
 //_______________________________________________________
-void dump(std::map<string,float>* sysVal){
+void dump(std::map<string,pair<float,float> >* sysVal){
 
-  std::map<string,float>::iterator _iter;
+  std::map<string,pair<float,float> >::iterator _iter;
   for(_iter = sysVal->begin(); _iter != sysVal->end(); ++_iter )
-    cout << _iter->first << "\t \t" << _iter->second << "\n";
+    cout << _iter->first << "\t \t" 
+	 << _iter->second.first << " " 
+	 << _iter->second.second << "\n";
 
 }
 //_______________________________________________________
 //
 // Add line to latex Table
 //_______________________________________________________
-void addLine(string sReg,std::map<string,float>* sysVal_ee,std::map<string,float>* sysVal_mm)
+void addLine(string sReg,std::map<string,pair<float,float> >* sysVal_ee,
+	     std::map<string,pair<float,float> >* sysVal_mm)
 {
   float val_ee=0;
   float val_ee_stat=0;
-  float val_ee_sys=0;
+  float val_ee_sysUp=0;
+  float val_ee_sysDn=0;
 
   float val_mm=0;
   float val_mm_stat=0;
-  float val_mm_sys=0;
+  float val_mm_sysUp=0;
+  float val_mm_sysDn=0;
 
-  std::map<string,float>::iterator _iter;
+  std::map<string,pair<float,float> >::iterator _iter;
   _iter = sysVal_ee->find("NOM");
-  if(_iter != sysVal_ee->end()) val_ee = (*_iter).second;
+  if(_iter != sysVal_ee->end()) val_ee = (*_iter).second.first;
 
   _iter = sysVal_ee->find("CRSTAT");
-  if(_iter != sysVal_ee->end()) val_ee_stat = (*_iter).second;
+  if(_iter != sysVal_ee->end()) val_ee_stat = (*_iter).second.first;
 
   _iter = sysVal_ee->find("TOTAL");
-  if(_iter != sysVal_ee->end()) val_ee_sys = (*_iter).second;
+  if(_iter != sysVal_ee->end()) {
+    val_ee_sysUp = (*_iter).second.first;
+    val_ee_sysDn = (*_iter).second.second;
+  }
 
 
   _iter = sysVal_mm->find("NOM");
-  if(_iter != sysVal_mm->end()) val_mm = (*_iter).second;
+  if(_iter != sysVal_mm->end()) val_mm = (*_iter).second.first;
 
   _iter = sysVal_mm->find("CRSTAT");
-  if(_iter != sysVal_mm->end()) val_mm_stat = (*_iter).second;
+  if(_iter != sysVal_mm->end()) val_mm_stat = (*_iter).second.first;
 
   _iter = sysVal_mm->find("TOTAL");
-  if(_iter != sysVal_mm->end()) val_mm_sys = (*_iter).second;
+  if(_iter != sysVal_mm->end()){
+    val_mm_sysUp = (*_iter).second.first;
+    val_mm_sysDn = (*_iter).second.second;
+  }
 
 
 
   outFile << std::setprecision(numPrecision) << std::fixed 
 	  << sReg << " & " 
-	  << val_ee << " $\\pm$ " << val_ee_stat << " $\\pm$ " << val_ee_sys
-	  << " & "
-	  << val_mm << " $\\pm$ " << val_mm_stat << " $\\pm$ " << val_mm_sys
-	  << "\\\\" << std::endl;
+	  << val_ee << " $\\pm$ " << val_ee_stat;
+
+  if( val_ee_sysUp== val_ee_sysDn)
+    outFile <<" $\\pm$ " << val_ee_sysUp;
+  else{
+    outFile << " $^{+ " << val_ee_sysUp << "}"
+	    << " _{- " << val_ee_sysDn << "}$";
+  }
+
+  outFile << " & "
+	  << val_mm << " $\\pm$ " << val_mm_stat;
+  
+  if( val_mm_sysUp== val_mm_sysDn)
+    outFile <<" $\\pm$ " << val_mm_sysUp;
+  else{
+    outFile << " $^{+ " << val_mm_sysUp << "}"
+	    << " _{- " << val_mm_sysDn << "}$";
+  }
+  outFile << "\\\\" << std::endl;
   
 
 }

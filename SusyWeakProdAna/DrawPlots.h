@@ -128,6 +128,25 @@ class DrawPlots {
   TH1F* getMcHisto(int imc, int isys){return _mcH1[imc][isys];}
   TH1F* getDataHisto() {return _dataH1;}
 
+  string getFileName(string DSId);
+  TFile* openFile(string DSId);
+
+  std::vector<TH1F*> loadHisto(TFile* file, string DSId, 
+			       string name, bool verbose=false);
+  
+  void clearHistVect(std::vector<TH1F*> _histVec);
+
+  void   getYield(std::vector<TH1F*> histV, 
+		  Double_t &nom,
+		  Double_t &stat_err,
+		  Double_t &sysUp, Double_t &sysDn,
+		  bool verbose=false);
+  
+  std::vector<TH1F*> sumChannels(std::vector<TH1F*> _histEE,
+				 std::vector<TH1F*> _histMM,
+				 std::vector<TH1F*> _histEM);
+  
+
   string         _dataFileName;
   TFile*         _dataFile;
   vector<string> SFILE;

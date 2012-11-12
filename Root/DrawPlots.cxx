@@ -774,6 +774,156 @@ void DrawPlots::drawATLAS(float x, float y)
   _utils->myText(x,y,kBlack,_text.c_str(),0.05);
   
 }
+//_____________________________________________________________________________//
+std::vector<TH1F*> DrawPlots::loadHisto(TFile* file,string DSId, 
+					string name,bool verbose){
+  std::vector<TH1F*> _hArray;
+  string title;
+  TH1F* _h;
+  
+  file->cd();
+  _hArray.reserve(DGSys_N);
+
+  for(int isys=0; isys<DGSys_N; isys++){
+    string _hName = name + "_" + DG2LSystNames[isys];
+    _h = (TH1F*) file->Get(_hName.c_str());
+    _hArray.push_back(_h);
+    if(_hArray[isys]==NULL){ 
+      cerr <<" Could not find histo " << _hName << " in file " 
+	   << file->GetName() << endl;
+      abort();
+    }
+    _utils->moveUnderOverFlow(_hArray[isys]);
+    
+    title = DSId + "_" + _hName;
+    _hArray[isys]->SetTitle(title.c_str());
+    _hArray[isys]->SetName(title.c_str());
+    if(verbose && isys==DGSys_NOM) 
+      std::cout << "SIG " << _hArray[isys]->GetName() 
+		<< " Int: " << _hArray[isys]->Integral(0,-1) <<std::endl;      
+  }
+
+  return _hArray;
+
+}
+//_____________________________________________________________________________//
+std::vector<TH1F*> DrawPlots::sumChannels(std::vector<TH1F*> _histEE,
+					  std::vector<TH1F*> _histMM,
+					  std::vector<TH1F*> _histEM){
+  std::vector<TH1F*> _hArray;
+  string title;
+  TH1F* _h;
+
+  _hArray.reserve(DGSys_N);
+  for(int isys=0; isys<DGSys_N; isys++){
+    if(_histEE[isys]==NULL) continue;
+    if(_histMM[isys]==NULL) continue;
+    if(_histEM[isys]==NULL) continue;
+
+    TString _hName = _histEE[isys]->GetName();
+    _hName.ReplaceAll("EE","ALL");
+    _h = (TH1F*) _histEE[isys]->Clone();
+    _h->SetName(_hName.Data());
+    _h->SetTitle(_hName.Data());
+    _h->Add(_histMM[isys]);
+    _h->Add(_histEM[isys]);
+    _hArray.push_back(_h);
+  }
+  return _hArray;
+}
+
+//_____________________________________________________________________________//
+void DrawPlots::clearHistVect(std::vector<TH1F*> _histVec){
+
+  for(uint i=0; i<_histVec.size(); i++){
+    if(_histVec[i]!=NULL) _histVec[i]->Delete();
+  }
+  _histVec.clear();
+  
+}
+//_____________________________________________________________________________//
+void DrawPlots::getYield(std::vector<TH1F*> histV, 
+			 Double_t &nom,
+			 Double_t &stat_err,
+			 Double_t &sysUp, Double_t &sysDn,
+			 bool verbose){
+  
+  sysUp=0;
+  sysDn=0;
+
+  if(histV[DGSys_NOM]==NULL){
+    cerr << "Empty hist " << endl;
+    abort();
+  }
+
+  nom = histV[DGSys_NOM]->IntegralAndError(0,-1,stat_err);
+
+  for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
+    if(histV[isys]==NULL) continue;
+    Double_t val = histV[isys]->Integral(0,-1);
+    if(val==0) continue; //No Sys
+    Double_t shift = val-nom;
+    if(shift>0) sysUp += pow(shift,2);
+    else        sysDn += pow(shift,2);
+  }
+  sysUp = sqrt(sysUp);
+  sysDn = sqrt(sysDn);
+  
+  if(verbose) cout << "\t Yield " << nom 
+		   << " +/- " << stat_err
+		   << " + " << sysUp << " - " << sysDn 
+		   << endl;
+  
+}
+
+//_____________________________________________________________________________//
+TFile* DrawPlots::openFile(string DSId){
+  
+  string fileName = getFileName(DSId);
+
+  TFile*_file = new TFile(fileName.c_str(),"READ",DSId.c_str());
+  if(_file->IsOpen()==kFALSE){
+    std::cout << "Fail opening file " << fileName << std::endl;
+    abort();
+  }
+  else{
+    cout << "Opened file " << fileName << endl;
+  }
+
+  return _file;
+}
+//_____________________________________________________________________________//
+string  DrawPlots::getFileName(string DSId){
+
+  _pathHisto  =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_" + DATE;
+  string fileName="";
+  
+  string tmpFile = "fileName.txt";
+  string cmd = "ls -1 " + _pathHisto + "/*" + DSId + "*.root > " +tmpFile;  
+
+  gSystem->Exec(cmd.c_str());
+
+  FILE* fInput;
+  if ((fInput = fopen(tmpFile.c_str(),"r")) == NULL) {
+    cout << "File " << tmpFile << " could not be opened. Exit" << endl;;
+    abort();
+  }
+  char _name[200];
+  while (!feof( fInput )) {
+    if (fscanf(fInput, "%s\n",&_name[0])){
+      fileName = string(_name);
+    }
+  }
+
+  cmd = "rm -f " + tmpFile;
+  gSystem->Exec(cmd.c_str());
+
+  return fileName;
+
+}
+
+
+
 
 //-----------------------------------------------------------------------------
 void DrawPlots::binomialError(float Num, float Den, float& Eff, float& EffErr){

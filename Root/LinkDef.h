@@ -43,6 +43,9 @@
 #pragma link C++ class Susy3LepAna+;
 #pragma link C++ class SusyAnaLooper+;
 
+#pragma link C++ class std::vector< TH1F* >+;
+#pragma link C++ class std::vector< std::vector< TH1F* > >+;
+
 #endif
 
 #endif
