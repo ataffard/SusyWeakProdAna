@@ -142,10 +142,25 @@ class DrawPlots {
 		  Double_t &sysUp, Double_t &sysDn,
 		  bool verbose=false);
   
+
+   void   getYieldBkgAll(std::vector<TH1F*> histFakeV, 
+			 std::vector<TH1F*> histZttV, 
+			 std::vector<TH1F*> histWWV, 
+			 std::vector<TH1F*> histTopV, 
+			 std::vector<TH1F*> histZXV, 
+			 Double_t &nom,
+			 Double_t &stat_err,
+			 Double_t &sysUp, Double_t &sysDn,
+			 bool verbose=false);
+   
+
   std::vector<TH1F*> sumChannels(std::vector<TH1F*> _histEE,
 				 std::vector<TH1F*> _histMM,
 				 std::vector<TH1F*> _histEM);
   
+  string       _pathHisto;
+  string       _pathPlots;
+  string       _pathTables;
 
   string         _dataFileName;
   TFile*         _dataFile;
@@ -166,9 +181,7 @@ class DrawPlots {
 
  private:
 
-  string       _pathHisto;
-  string       _pathPlots;
-  string       _pathTables;
+
   TGuiUtils*   _utils;
 
   bool _logy;
@@ -181,10 +194,6 @@ class DrawPlots {
   vector<Color_t> _sigColor;
   vector<string>  _sigName;
   vector<TH1F*>   _sigH1;
-
-
-
-  //TLegend*       _leg;
 
   /* build histo stack */
   void buildStack(string name, TLegend* _l);

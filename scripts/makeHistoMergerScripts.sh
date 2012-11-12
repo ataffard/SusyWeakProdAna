@@ -69,6 +69,8 @@ doWjetAlpgen=true
 
 doMergeWjetBB=true
 
+doBkgDD=true
+
 doSignal=true
 
 #######################################################################
@@ -597,6 +599,32 @@ EOF
 EOF
     chmod 755 $SCRIPT
 fi
+
+
+#
+# Merge All Bkg DD
+#
+
+if [ $doBkgDD ]; then
+    echo "Merge DD Bkg "
+    rm -f ${histPath}/histo_Bkg_${mth}.root
+    SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_Bkg_${mth}.root \
+          ${histPath}/histo_topDil_Sherpa_${mth}.root \
+          ${histPath}/histo_data12_fake.root \
+          ${histPath}/histo_WW_Sherpa_${mth}.root \
+  	  ${histPath}/histo_ZX_Sherpa_${mth}.root   \
+	  ${histPath}/histo_ZTauTaujets_Sherpa_${mth}.root 
+EOF
+    chmod 755 $SCRIPT
+fi
+
+
+
 
 
 

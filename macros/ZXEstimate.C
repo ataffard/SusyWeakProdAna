@@ -64,6 +64,7 @@ int main(int argc, char *argv[]){
   //LEP.push_back("EM");
 
   ZXCR.push_back("ZXCR1"); //SRjveto
+  /*
   ZXCR.push_back("ZXCR3"); //SR2jets
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2b
@@ -71,8 +72,10 @@ int main(int argc, char *argv[]){
   ZXCR.push_back("ZXCR5"); //NWW2
   ZXCR.push_back("ZXCR6"); //SRmT2a
   ZXCR.push_back("ZXCR7"); //SRmT2b
+  */
 
   ZXSR.push_back("SRjveto");
+  /*
   ZXSR.push_back("SR2jets");
   ZXSR.push_back("preSRmT2"); // ->mT2a
   ZXSR.push_back("preSRmT2"); // ->mT2b
@@ -80,6 +83,7 @@ int main(int argc, char *argv[]){
   ZXSR.push_back("NWW2");
   ZXSR.push_back("SRmT2");
   ZXSR.push_back("SRmT2b");
+  */
 
   //get_ZX_Est();
 

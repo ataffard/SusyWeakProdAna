@@ -728,6 +728,8 @@ void DrawPlots::drawChannelText(string name, float x, float y)
     else if(hName.Contains("ZXCR3"))     _text = "ZXCR3 ";
     else if(hName.Contains("ZXCR4"))     _text = "ZXCR4 ";
     else if(hName.Contains("ZXCR5"))     _text = "ZXCR5 ";
+    else if(hName.Contains("ZXCR6"))     _text = "ZXCR6 ";
+    else if(hName.Contains("ZXCR7"))     _text = "ZXCR7 ";
     else if(hName.Contains("CR2LepOS"))  _text = "CR2LepOS ";
     else if(hName.Contains("CR2LepSS"))  _text = "CR2LepSS ";
     else if(hName.Contains("VR1SS"))     _text = "VR1SS ";
@@ -868,6 +870,89 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
   }
   sysUp = sqrt(sysUp);
   sysDn = sqrt(sysDn);
+  
+  if(verbose) cout << "\t Yield " << nom 
+		   << " +/- " << stat_err
+		   << " + " << sysUp << " - " << sysDn 
+		   << endl;
+  
+}
+
+
+//_____________________________________________________________________________//
+void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV, 
+			       std::vector<TH1F*> histZttV, 
+			       std::vector<TH1F*> histWWV, 
+			       std::vector<TH1F*> histTopV, 
+			       std::vector<TH1F*> histZXV,
+			       Double_t &nom,
+			       Double_t &stat_err,
+			       Double_t &sysUp, Double_t &sysDn,
+			       bool verbose){
+  
+  sysUp=0;
+  sysDn=0;
+
+  //Treat MC Bkg sys as correlated - add linearly
+  //Fake sys uncorrelated w/ others - add in quad
+  TH1F* _hSum = (TH1F*)  histFakeV[DGSys_NOM]->Clone();
+  _hSum->SetTitle("totBkg");
+  _hSum->SetName("totBkg");
+  _hSum->Add(histZttV[DGSys_NOM]);
+  _hSum->Add(histWWV[DGSys_NOM]);
+  _hSum->Add(histTopV[DGSys_NOM]);
+  _hSum->Add(histZXV[DGSys_NOM]);
+
+  nom = _hSum->IntegralAndError(0,-1,stat_err);
+
+  float mcSysUp=0;
+  float mcSysDn=0;
+  for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
+    Double_t val = 0;
+    if(histZttV[isys]->Integral(0,-1)>0) 
+      val += histZttV[isys]->Integral(0,-1)-histZttV[DGSys_NOM]->Integral(0,-1);
+    if(histWWV[isys]->Integral(0,-1)>0)
+      val +=  histWWV[isys]->Integral(0,-1)-histWWV[DGSys_NOM]->Integral(0,-1);
+    if(histTopV[isys]->Integral(0,-1)>0)
+      val +=  histTopV[isys]->Integral(0,-1)-histTopV[DGSys_NOM]->Integral(0,-1);
+    if(histZXV[isys]->Integral(0,-1)>0)
+      val +=  histZXV[isys]->Integral(0,-1)-histZXV[DGSys_NOM]->Integral(0,-1);
+    
+    if(val==0) continue; //No Sys
+    if(val>0) mcSysUp += pow(val,2);
+    else      mcSysDn += pow(val,2);
+    /*
+    cout << "\t SysMC " << DG2LSystNames[isys] 
+	 << " " << val 
+	 << " + " << mcSysUp
+	 << " - " << mcSysDn
+	 << endl; 
+    */
+  }
+  mcSysUp = sqrt(mcSysUp);
+  mcSysDn = sqrt(mcSysDn);
+  //cout << "MC sys " << mcSysUp << " " << mcSysDn << endl;
+  
+  //Add fake sys
+  float fakeSysUp=0;
+  float fakeSysDn=0;
+  for(uint isys=DGSys_FAKE_EL_RE_UP; isys<DGSys_FAKE_MU_FR_DN+1; isys++){
+    if(histFakeV[isys]==NULL) continue;
+    Double_t val;
+    if(histFakeV[isys]->Integral(0,-1)>0)
+      val = histFakeV[isys]->Integral(0,-1) - histFakeV[DGSys_NOM]->Integral(0,-1);
+    if(val>0) fakeSysUp += pow(val,2);
+    else      fakeSysDn += pow(val,2);
+  }
+  fakeSysUp = sqrt(fakeSysUp);
+  fakeSysDn = sqrt(fakeSysDn);
+  //cout << "Fake sys " << fakeSysUp << " " << fakeSysDn << endl;
+  
+  //
+  //Add MC & fake sys in quad
+  //
+  sysUp = sqrt(pow(mcSysUp,2) + pow(fakeSysUp,2) );
+  sysDn = sqrt(pow(mcSysDn,2) + pow(fakeSysDn,2) );
   
   if(verbose) cout << "\t Yield " << nom 
 		   << " +/- " << stat_err
@@ -1430,7 +1515,7 @@ void DrawPlots:: bkgEstimate_DG2L()
     double err=0;   
 
     //Matrix hist 
-    const int NBKG=7; //MUST mathc sBKG size
+    const int NBKG=7; //MUST match sBKG size
     const int NLEP=4;
     TH1F* _hBkgLep[NBKG][NLEP];
     TH1F* _hDataLep[NLEP];
