@@ -1,3 +1,16 @@
+/*
+ .L ../macros/ZXEstimate.C
+ main()
+get_ZX_Est(); //uncommented
+
+plots: do one by one - fix range one some plots
+
+Then run 
+.L ../macros/make_ZX_texTables.C++
+ make_ZX_texTables("TF");
+
+*/
+
 #include "SusyNtuple/TGuiUtils.h"
 #include "SusyWeakProdAna/DrawPlots.h"
 #include "SusyWeakProdAna/Histos_Common.h"
@@ -59,12 +72,11 @@ int main(int argc, char *argv[]){
   _ana = new DrawPlots(); 
   
   LEP.clear();
-  LEP.push_back("EE");
+  //  LEP.push_back("EE");
   LEP.push_back("MM");
   //LEP.push_back("EM");
 
   ZXCR.push_back("ZXCR1"); //SRjveto
-  /*
   ZXCR.push_back("ZXCR3"); //SR2jets
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
   ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2b
@@ -72,10 +84,8 @@ int main(int argc, char *argv[]){
   ZXCR.push_back("ZXCR5"); //NWW2
   ZXCR.push_back("ZXCR6"); //SRmT2a
   ZXCR.push_back("ZXCR7"); //SRmT2b
-  */
 
   ZXSR.push_back("SRjveto");
-  /*
   ZXSR.push_back("SR2jets");
   ZXSR.push_back("preSRmT2"); // ->mT2a
   ZXSR.push_back("preSRmT2"); // ->mT2b
@@ -83,9 +93,8 @@ int main(int argc, char *argv[]){
   ZXSR.push_back("NWW2");
   ZXSR.push_back("SRmT2");
   ZXSR.push_back("SRmT2b");
-  */
 
-  //get_ZX_Est();
+  get_ZX_Est();
 
 }
 //--------------------------------------------------------------------------------
@@ -321,8 +330,8 @@ void get_ZX_Est()
 	if(isys==DGSys_NOM){
 	  float CR_stat_up = ZX_SR_mc + ZX_SR_mc_err;
 	  float CR_stat_dn = ZX_SR_mc - ZX_SR_mc_err;
-	  outEST << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
-	  outEST << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
+	  outZXSR << "CRSTAT_UP " << "\t"  << CR_stat_up << endl;
+	  outZXSR << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
 	}
 	
 

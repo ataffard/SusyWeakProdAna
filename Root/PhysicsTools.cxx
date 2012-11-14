@@ -399,8 +399,8 @@ double getCrossSection(std::ifstream &infile, int mcID, double crossSection, int
   
   // Check if match is found
   if(!matched) {
-    std::cout << "getCrossSection::WARNING No match is found for MCID :: " << _dsId << std::endl;
-    std::cout << "                         Returning input value..."     << std::endl;
+    //std::cout << "getCrossSection::WARNING No match is found for MCID :: " << _dsId << std::endl;
+    //std::cout << "                         Returning input value..."     << std::endl;
     return crossSection;
   }
   

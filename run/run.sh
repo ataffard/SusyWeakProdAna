@@ -25,6 +25,8 @@ elif [[ $# -eq 4 ]]; then
     Opt2=$4
 fi
 
+NOM="-sys1 NOM"
+
 methodMC=std
 methodData=std
 if [ "$mode" == "DD" ]; then
@@ -37,20 +39,20 @@ fi
 if [ "$type" == "mc12" ]; then
     if [ "${DS}" == "dummy" ] ; then
 	sample=(`more ../scripts/mc12_sampleList.txt |grep 105200 |cut -d" " -f 3-4`)
-	./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  dummy -n 1 -D ${sample} |tee jobLogs/dummy_${methodMC}.log
+	./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  dummy -n 1 -D ${sample} |tee jobLogs/dummy_${methodMC}.log
     else
 	name=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
 	sample=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-	./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
+	./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
     fi
 elif [ "$type" == "data12" ]; then
     name=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodData}.log
+    ./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodData}.log
 elif [ "$type" == "susy" ]; then
     name=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
+    ./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
 fi
 
 

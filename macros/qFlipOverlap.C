@@ -9,15 +9,15 @@
   
 #include <string>
   
-  double appliedFactor = 1;//0.5966; 
+  double appliedFactor = 0.6176;//1;//0.5966; 
   //string histname = "DG2L_CR2LepSS_EE_DG2L_mll_NOM";
-  //string histname = "DG2L_preSRSSjveto_EE_DG2L_mll_NOM";
-  string histname = "DG2L_VR1SS_EE_DG2L_mll_NOM";
+  string histname = "DG2L_preSRSSjveto_EE_DG2L_mll_NOM";
+  //string histname = "DG2L_VR1SS_EE_DG2L_mll_NOM";
 
   int binDn = 39;
   int binUp = 50;
 
-  string dir = "histos_103112_13fb_n0111_DD_MMtrial8_noQflipSF/";
+  string dir = "histos_110812_13fb_n0111_DD_MMtrial9_SYS_HFT/";
   string _pathHisto  = string(getenv("WORKAREA")) + "/histoAna/SusyAna/" +dir;
 
   string dFile =  _pathHisto + "histo_data12_std.root"; 

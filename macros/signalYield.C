@@ -6,10 +6,7 @@ txt file with
 
    format/channels  nom stat sysUp sysDn
 
-
-.L ../macros/signalYield.C
-main(); makeSignalYieldTxt("pMSSM_Rizzo.txt","CR2LepOS")  
-
+root -q -l '../macros/signalYield.C+("pMSSM_Rizzo.txt","SRjveto")'
 
 */
 
@@ -50,16 +47,13 @@ std::vector<string> LEP;
 // Functions
 //
 
-void   makeSignalYieldTxt(string filename, string sReg);
 std::vector<string>  readSignalList(string filename);
 void   loadSignal(string DSId, string sReg);
 
 
-
-
-
 //_____________________________________________________________________________//
-int main(int argc, char *argv[]){
+void   signalYield(string filename, string sReg){
+  
   _utils = new TGuiUtils();
   gROOT->SetStyle("ATLAS");
   _utils->atlasStyle->SetOptStat("emr");
@@ -71,14 +65,12 @@ int main(int argc, char *argv[]){
   LEP.push_back("EM");
   LEP.push_back("ALL");
 
-}
-
-//_____________________________________________________________________________//
-void   makeSignalYieldTxt(string filename, string sReg){
-  
   vector<string> DSId_list = readSignalList(filename);
   
-  string fileName= "SignalYield_" + sReg + ".txt";
+  string dir = _ana->_pathHisto + "/pMSSM_Rizzo/";
+  gSystem->mkdir(dir.c_str(),kTRUE);
+
+  string fileName= dir + "SignalYield_" + sReg + ".txt";
   std::ofstream outFile;
   outFile.open(fileName.c_str());
   if (!outFile.is_open()){

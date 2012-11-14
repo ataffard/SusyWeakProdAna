@@ -860,13 +860,21 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
 
   nom = histV[DGSys_NOM]->IntegralAndError(0,-1,stat_err);
 
-  for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
+  for(uint isys=DGSys_NOM+1; isys<DGSys_N; isys++){
     if(histV[isys]==NULL) continue;
     Double_t val = histV[isys]->Integral(0,-1);
     if(val==0) continue; //No Sys
     Double_t shift = val-nom;
     if(shift>0) sysUp += pow(shift,2);
     else        sysDn += pow(shift,2);
+    /*
+    cout << "\t\t sys " << DG2LSystNames[isys] 
+	 << " " << val
+	 << " " << shift 
+	 << " + " << sysUp
+	 << " - " << sysDn
+	 << endl; 
+    */
   }
   sysUp = sqrt(sysUp);
   sysDn = sqrt(sysDn);
@@ -938,7 +946,7 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
   float fakeSysDn=0;
   for(uint isys=DGSys_FAKE_EL_RE_UP; isys<DGSys_FAKE_MU_FR_DN+1; isys++){
     if(histFakeV[isys]==NULL) continue;
-    Double_t val;
+    Double_t val=0;
     if(histFakeV[isys]->Integral(0,-1)>0)
       val = histFakeV[isys]->Integral(0,-1) - histFakeV[DGSys_NOM]->Integral(0,-1);
     if(val>0) fakeSysUp += pow(val,2);
