@@ -11,6 +11,7 @@
 void Histos_2L::Book2LHistograms(TDirectory* _hDir)
 {
   std::cout << "Booking 2L histos " << std::endl;
+  std::cout << "Number of Signal regions " << DIL_NSR << endl;
 
   _hDir->cd();
 
@@ -29,38 +30,13 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     if(i==0) sFlav="EE_";						\
     if(i==1) sFlav="MM_";						\
     if(i==2) sFlav="EM_";						\
-    for(int j=0; j<nHSR_DG2L; j++){					\
+    for(int j=0; j<DIL_NSR; j++){					\
       for(int isys=0; isys<DGSys_N; isys++){				\
 	if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
 	else sx = 	string(xT);					\
-	string stype;							\
-	if(j==0) stype="DG2L_SRjveto_";					\
-	if(j==1) stype="DG2L_SRSSjveto_";				\
-	if(j==2) stype="DG2L_SR2jets_";					\
-	if(j==3) stype="DG2L_SRmT2_";					\
-	if(j==4) stype="DG2L_SRmT2b_";					\
-	if(j==5) stype="DG2L_CRZ_";					\
-	if(j==6) stype="DG2L_NTOP_";					\
-	if(j==7) stype="DG2L_NWW1_";					\
-	if(j==8) stype="DG2L_NWW2_";					\
-	if(j==9) stype="DG2L_NWW3_";					\
-	if(j==10) stype="DG2L_ZXCR1_";					\
-	if(j==11) stype="DG2L_ZXCR3_";					\
-	if(j==12) stype="DG2L_ZXCR4_";					\
-	if(j==13) stype="DG2L_ZXCR5_";					\
-	if(j==14) stype="DG2L_ZXCR6_";					\
-	if(j==15) stype="DG2L_ZXCR7_";					\
-	if(j==16) stype="DG2L_CR2LepOS_";				\
-	if(j==17) stype="DG2L_CR2LepSS_";				\
-	if(j==18) stype="DG2L_preSRjveto_";				\
-	if(j==19) stype="DG2L_preSRSSjveto_";				\
-	if(j==20) stype="DG2L_preSR2jets_";				\
-	if(j==21) stype="DG2L_preSRmT2_";				\
-	if(j==22) stype="DG2L_VR1SS_";					\
-	if(j==23) stype="DG2L_CR2LepOS40_";				\
-	if(j==24) stype="DG2L_CR2LepSS40_";				\
-	hN[j][i][isys] = (TH1F*) _utils->myTH1F((book_s1=stype + sFlav + #hN + "_" + DG2LSystNames[isys]).c_str(), \
-						(book_s2=stype + sFlav + #hN + "_" + DG2LSystNames[isys]).c_str(), \
+	string stype = "DG2L_" + DIL_SRNAME[j] + "_" + sFlav + #hN + "_" + DG2LSystNames[isys];	\
+	hN[j][i][isys] = (TH1F*) _utils->myTH1F(stype.c_str(),		\
+						stype.c_str(),		\
 						__VA_ARGS__,sx.c_str() ,yT); \
 	_utils->yAxis(hN[j][i][isys],u);				\
       }									\
@@ -80,9 +56,12 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   BOOK_SRDG2L(DG2L_pTll,"p_{T}^{ll}","GeV",syaxis,105,10,220);
   BOOK_SRDG2L(DG2L_mWWT,"m_{T}^{WW}","GeV",syaxis,100,0,500);
   BOOK_SRDG2L(DG2L_dPhill,"dPhi(l,l)","degree",syaxis,9,0,180);
+  BOOK_SRDG2L(DG2L_dPhilMet,"dPhi(l,Met)","degree",syaxis,9,0,180);
+  BOOK_SRDG2L(DG2L_dPhiJetMet,"dPhi(j,Met)","degree",syaxis,9,0,180);
   BOOK_SRDG2L(DG2L_JZBJet,"JZB","GeV",syaxis,120,-400,800);
   BOOK_SRDG2L(DG2L_JZBEtmiss,"JZB","GeV",syaxis,120,-400,800);
   BOOK_SRDG2L(DG2L_etmiss,"#slash{E}_{T}","GeV",syaxis,40,0,200);
+  BOOK_SRDG2L(DG2L_etmissPhi,"Phi_{#slash{E}_{T}}","degree",syaxis,18,-180,180);
   BOOK_SRDG2L(DG2L_metrel,"#slash{E}_{T}^{Rel}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_metRefEle,"#slash{E}_{T}^{RefEle}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_metRefGam,"#slash{E}_{T}^{RefGamma}","GeV",syaxis,40,0,200);
@@ -91,12 +70,20 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   BOOK_SRDG2L(DG2L_metRefSJet,"#slash{E}_{T}^{RefSoftJet}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_metCellout,"#slash{E}_{T}^{Cellout}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_mt2,"M_{T2}","GeV",syaxis,40,0,200);
+  BOOK_SRDG2L(DG2L_mEff,"M_{eff}","GeV",syaxis,100,0,1000);
+  BOOK_SRDG2L(DG2L_ST,"S_{T}","GeV",syaxis,100,0,1000);
+  BOOK_SRDG2L(DG2L_mTl1,"M_{T}^{l1}","GeV",syaxis,100,0,500);
+  BOOK_SRDG2L(DG2L_mTl2,"M_{T}^{l2}","GeV",syaxis,100,0,500);
   BOOK_SRDG2L(DG2L_npv,"N_{pv}","",syaxis,30,-0.5,29.5);
   BOOK_SRDG2L(DG2L_mu,"<#mu>","",syaxis,40,-0.5,39.5);
   BOOK_SRDG2L(DG2L_ptl1,"P_{T}^{l1}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_ptl2,"P_{T}^{l2}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_etal1,"#eta^{l1}","",syaxis,25,-2.5,2.5);
   BOOK_SRDG2L(DG2L_etal2,"#eta^{l2}","",syaxis,25,-2.5,2.5);
+  BOOK_SRDG2L(DG2L_ePt,"P_{T}^{e}","GeV",syaxis,40,0,200);
+  BOOK_SRDG2L(DG2L_mPt,"P_{T}^{#mu}","GeV",syaxis,40,0,200);
+  BOOK_SRDG2L(DG2L_eEta,"#eta^{e}","",syaxis,25,-2.5,2.5);
+  BOOK_SRDG2L(DG2L_mEta,"#eta^{#mu}","",syaxis,25,-2.5,2.5);
   BOOK_SRDG2L(DG2L_d0Sl1,"d0/#sigma_{d0}^{l1}","",syaxis,100,-10,10);
   BOOK_SRDG2L(DG2L_d0Sl2,"d0/#sigma_{d0}^{l2}","",syaxis,100,-10,10);
   BOOK_SRDG2L(DG2L_z0sinthetal1,"z0 sin(#theta)^{l1}","cm",syaxis,200,-1,1);
@@ -124,7 +111,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   LepType.push_back("LF");
   LepType.push_back("Unknown");
  
-  for(uint i=0; i<nHSR_DG2L; i++){
+  for(uint i=0; i<DIL_NSR; i++){
     for(int ilep=0; ilep<3; ilep++){			
       for(uint j=0; j<LepType.size(); j++){
 	for(int isys=0; isys<DGSys_N; isys++){				
@@ -156,7 +143,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     convert << run;  
     sRun = convert.str();
     runBins.insert(runBins.end(),make_pair(run,ibin));
-    for(uint i=0; i<nHSR_DG2L; i++){
+    for(uint i=0; i<DIL_NSR; i++){
       for(int ilep=0; ilep<3; ilep++){	
 	for(int isys=0; isys<DGSys_N; isys++){
 	  DG2L_Zcount[i][ilep][isys]->GetXaxis()->SetBinLabel(ibin,sRun.c_str());

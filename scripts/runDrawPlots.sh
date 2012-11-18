@@ -23,27 +23,22 @@ pathRun=${WORKAREA}/SusyWeakProdAna/run
 
 if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
-#for testing
-#   SR=(CR2LepSS VR1SS preSRSSjveto)
-#   DIL=(EE MM EM)
-#   PLOTS=(mll metrel etmiss)
-
-    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1  ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7,SRjveto SRSSjveto SR2jets SRmT2 SRmT2b,preSRjveto preSRSSjveto preSR2jets preSRmT2)
+    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1 \
+	ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
+	SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
+        preSRjveto preSRSSjveto preSR2jets preSRmT2)
 
 #    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1  ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7)
 #    SR=(SRjveto SRSSjveto SR2jets SRmT2 SRmT2b)
 #    SR=(preSRjveto preSRSSjveto preSR2jets preSRmT2)
 #    SR=(CR2LepSS)
+#    SR=(NTOP)
     DIL=(EE MM EM)
     PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
-	ptl1 ptl2 etal1 etal2  \
-	ptj1 ptj2  etaj1 etaj2 ptbj etabj \
-	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)      
-
-#    PLOTS=(mll pTll mjj dPhill etmiss metrel mt2 nJets nCJets nFJets nBJets npv mu \
-#	ptl1 ptl2 etal1 etal2 d0Sl1 d0Sl2 z0sinthetal1 z0sinthetal2 \
-#	ptj1 ptj2 ptj3 ptj4 etaj1 etaj3 etaj4 ptbj etabj \
-#	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout)      
+	ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \
+	ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
+	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout      
+	dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT)
 
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do

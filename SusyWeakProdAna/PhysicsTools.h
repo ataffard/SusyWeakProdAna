@@ -51,6 +51,9 @@ float GetNVertexBsCorrected(float nRecoVtx);
 //Transverse mass
 float mT(TLorentzVector _l, TLorentzVector _nu);
 
+//Transverse mass WW
+float mTWW(TLorentzVector _ll, TLorentzVector _nu, bool MvvTrue=true);
+
 // Signed d0 wrt to jet axis 
 float signedD0(float d0, float sigmaD0, TLorentzVector _p, TLorentzVector _j);
 

@@ -150,7 +150,8 @@ void getRegion(string var, string sReg){
 //_______________________________________________________
 void readFile(string var, string sReg, int ilep, std::map<string,float>* sysVal){
 
-  string dir = "histos_110812_13fb_n0111_DD_MMtrial9_SYS_HFT/ZX_est_v2/";
+  //  string dir = "histos_110812_13fb_n0111_DD_MMtrial9_SYS_HFT/ZX_est_v2/";
+  string dir = "histos_110812_13fb_n0111_DD_MMtrial9_SYS_HFT/ZX_est_v2_powHegDiB/";
   string _pathFile = string(getenv("WORKAREA")) + "/histoAna/SusyAna/"+ dir;
   //string _pathFile = string(getenv("WORKAREA")) + "/SusyWeakProdAna/run/";
 

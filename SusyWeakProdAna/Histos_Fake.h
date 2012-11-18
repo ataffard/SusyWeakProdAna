@@ -8,7 +8,7 @@
 #include "SusyNtuple/TGuiUtils.h"
 
 #include "SusyWeakProdAna/Histos_Common.h"
-
+#include "SusyWeakProdAna/Histos_2L.h"
 
 //  typedef TH1F     *H1s[nHM][nHMC];
 //  typedef TH1F     *H1sCR[nHM][nHMC][nCR];
@@ -38,7 +38,7 @@ class Histos_Fake
 #define DEF_HPROBE( name )       name[nHM][nHMC];                //TH1,TH2F, TH3, TProfile
 #define DEF_HPROBE_CR( name )    name[nHM][nHMC][nCR];           //TH1
 #define DEF_HPROBE_TRIG( name )  name[nHM][nHMC][nTRIG];         //TH2  
-#define DEF_DG2L_FK( name )      name[nHSR_DG2L][nLEPTON][nHMC]; //TH3
+#define DEF_DG2L_FK( name )      name[DIL_NSR][nLEPTON][nHMC]; //TH3
 #define DEF_ML_FK( name )        name[nHSR_ML][nLEPTON][nHMC];   //TH3
   
 

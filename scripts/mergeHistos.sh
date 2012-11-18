@@ -17,17 +17,18 @@ elif [ "$job" == "TOP" -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/topDil_Sherpa_${mth}_job.sh
 
 elif [ "$job" == "WW"  -a  "$mode" ==  "ALL" ] ; then
-    MergeJobsScripts/WW_Powheg_${mth}_job.sh
+#    MergeJobsScripts/WW_Powheg_${mth}_job.sh
     MergeJobsScripts/WW_Sherpa_${mth}_job.sh
 
 elif [ "$job" == "DIB"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/diBZX_Sherpa_${mth}_job.sh
     MergeJobsScripts/diBoson_Sherpa_${mth}_job.sh
+    MergeJobsScripts/diBZX_Powheg_${mth}_job.sh
 
 elif [ "$job" == "ZJ"  -a  "$mode" ==  "ALL" ] ; then
-    MergeJobsScripts/Zjets_Alpgen_${mth}_job.sh
+#    MergeJobsScripts/Zjets_Sherpa_${mth}_job.sh
     MergeJobsScripts/Zjets_SherpaLFHF_${mth}_job.sh
-    MergeJobsScripts/Zjets_Sherpa_${mth}_job.sh
+#    MergeJobsScripts/Zjets_Alpgen_${mth}_job.sh
 
 elif [ "$job" == "ZTT"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/ZTauTaujets_Alpgen_${mth}_job.sh
@@ -54,8 +55,9 @@ elif [ "$job" == "FAKE"  -a  "$mode" ==  "MERGE" ] ; then
     MergeJobsScripts/mcFake_Alpgen_${mth}_job.sh
     MergeJobsScripts/mcFake_Sherpa_${mth}_job.sh
 elif [ "$job" == "ZX"  -a  "$mode" ==  "MERGE" ] ; then
-    MergeJobsScripts/ZX_SherpaLFHF_${mth}_job.sh
     MergeJobsScripts/ZX_Sherpa_${mth}_job.sh
+    MergeJobsScripts/ZX_SherpaLFHF_${mth}_job.sh
+    MergeJobsScripts/ZX_Alpgen_${mth}_job.sh
 elif [ "$job" == "BKG"  -a  "$mode" ==  "MERGE" ] ; then
     MergeJobsScripts/Bkg_${mth}_job.sh
 fi

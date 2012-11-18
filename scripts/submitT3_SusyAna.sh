@@ -12,6 +12,8 @@
 # ./submitT3_SusyAna data12                 // submit all data
 # ./submitT3_SusyAna mc12 ttbar             // submit all mc ttbar
 # ./submitT3_SusyAna data12 Egamma.periodB1 // submit all data: periodE muon Dil
+#./submitT3_SusyAna.sh mc12 Mll10to60 DD    //to submit just the alpgen low mass
+#
 #
 # Quick way to check all run
 # grep "events processed"  jobLogs/*.log |wc -l
@@ -42,6 +44,7 @@ ana=SusyAnaLooperExec
 #anaOpt1=doAll
 anaOpt1=do2L
 anaOpt2=true #doMll 
+#anaOpt2=false #doMll 
 methodMC=std
 sys1="\"\""
 sys2="\"\""
@@ -86,7 +89,17 @@ while read line; do
 	if [ "$type" == "mc12" -o "$type" == "susy" ]; then
 	    if [ $doSys ]; then
 	        #For large sample - split the sys
-		if [ "$sName" == "Zee.147770" -o "$sName" == "Zmumu.147771" -o "$sName" == "TtbarLeptLept.117800" -o "$sName" == "llnunu_WW.126892" ]; then
+		if [ "$sName" == "Zee.147770" -o \
+"$sName" == "Zmumu.147771" -o \
+"$sName" == "TtbarLeptLept.117800" -o \
+"$sName" == "llnunu_WW.126892" -o \
+"$sName" == "ZeeNp0.107650" -o \
+"$sName" == "ZmumuNp0.107660" -o \
+"$sName" == "ttbar.117210" -o \
+"$sName" == "ZeeHeavyJets.128975" -o \
+"$sName" == "ZmumuHeavyJets.128976"  -o \
+"$sName" == "ttbar.105200" \
+]; then
 		    SYS1=("NOM"         "EES_MAT_DN" "EES_LOW_DN" "MS_DN"   "JES_DN"     "RESOST"       "TRIGSF_MU_DN" "BTag_BJet_UP" )
 		    SYS2=("EES_MAT_UP"  "EES_LOW_UP" "MS_UP"      "JES_UP"  "SCALEST_DN" "TRIGSF_MU_UP" "BTag_LJet_DN" "BKGMETHOD_DN")
 		    

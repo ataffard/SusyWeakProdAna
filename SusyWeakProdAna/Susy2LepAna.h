@@ -243,19 +243,11 @@ class Susy2LepAna: public SusyNtTools
     float               m_pTllMax;      // max Ptll
     float               m_dPhiMetll;    // dphi Met & ll
     float               m_dPhiMetl1;    // dphi Met & l1
+    float               m_lowMll;       // low Mll bound
+    float               m_highMll;      // high Mll bound
     
     DiLepEvtType        m_ET;           // Dilepton event type to store cf
     std::string         m_sel;          // event selection string
-    enum DIL_SR{DIL_SRjveto=0, DIL_SRSSjveto=1, DIL_SR2jets=2, DIL_SRmT2=3,
-		DIL_SRmT2b=4,
-		DIL_CRZ=5, DIL_NTOP=6, DIL_NWW1=7, DIL_NWW2=8, DIL_NWW3=9,
-		DIL_ZXCR1=10, DIL_ZXCR3=11, DIL_ZXCR4=12, DIL_ZXCR5=13, DIL_ZXCR6=14,DIL_ZXCR7=15,
-		DIL_CR2LepOS=16, DIL_CR2LepSS=17,
-		DIL_preSRjveto=18, DIL_preSRSSjveto=19, DIL_preSR2jets=20, DIL_preSRmT2=21,
-		DIL_VR1SS=22, DIL_CR2LepOS40=23, DIL_CR2LepSS40=24,
-		DIL_NSR=25
-    };
-
 
     // Event counters
     float                n_readin;

@@ -560,23 +560,8 @@ for(int j=0; j<nHMC; j++){						\
 
 
 #define BOOK_DG2Lfk(hN, ...)						\
-  for(int i=0; i<nHSR_DG2L; i++){					\
-    string sr;								\
-    if(i==0) sr="DG2L_SRjveto_";					\
-    if(i==1) sr="DG2L_SRSSjveto_";					\
-    if(i==2) sr="DG2L_SR2jets_";					\
-    if(i==3) sr="DG2L_SRmT2_";						\
-    if(i==4) sr="DG2L_SRmT2b_";						\
-    if(i==5) sr="DG2L_CRZ_";						\
-    if(i==6) sr="DG2L_NTOP_";						\
-    if(i==7) sr="DG2L_NWW1_";						\
-    if(i==8) sr="DG2L_NWW2_";						\
-    if(i==9) sr="DG2L_NWW3_";						\
-    if(i==10) sr="DG2L_ZXCR1_";						\
-    if(i==11) sr="DG2L_ZXCR3_";						\
-    if(i==12) sr="DG2L_ZXCR4_";						\
-    if(i==13) sr="DG2L_CR2LepOS_";					\
-    if(i==14) sr="DG2L_CR2LepSS_";					\
+  for(int i=0; i<DIL_NSR; i++){						\
+    string sr = "DG2L_" + DIL_SRNAME[i] + "_";								\
     for(int j=0; j<2; j++){						\
       string sFlav;							\
       if(j==0) sFlav="E_";						\

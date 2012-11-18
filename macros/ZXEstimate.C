@@ -38,7 +38,8 @@ bool verbose = false;
 void openHist(string mode="DD",
 	      string Top="histo_topDil_Sherpa",
 	      string WW="histo_WW_Sherpa",
-	      string ZX="histo_ZX_Sherpa",		      
+	      //string ZX="histo_ZX_Sherpa",		      
+	      string ZX="histo_ZX_SherpaPowheg",
 	      string Ztt="histo_ZTauTaujets_Sherpa",
 	      string Fake="histo_data12_fake");
 
@@ -72,8 +73,8 @@ int main(int argc, char *argv[]){
   _ana = new DrawPlots(); 
   
   LEP.clear();
-  //  LEP.push_back("EE");
-  LEP.push_back("MM");
+  LEP.push_back("EE");
+  //  LEP.push_back("MM");
   //LEP.push_back("EM");
 
   ZXCR.push_back("ZXCR1"); //SRjveto

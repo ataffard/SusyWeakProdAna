@@ -1,22 +1,10 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-#date="103012_13fb_n0111_STD"
-#mth="std"
-
-#date="103012_13fb_n0111_DD"
+#date="110812_13fb_n0111_DD_MMtrial9_SYS_HFT"
 #mth="rlep"
 
-#date="103012_13fb_n0111_DD_MMtrial8_wQflipSFnew"
-#mth="rlep"
-
-#date="103112_13fb_n0111_DD_MMtrial7"
-#mth="rlep"
-
-#date="103112_13fb_n0111_DD_MMtrial8_SYS_HFT"
-#mth="rlep"
-
-date="110812_13fb_n0111_DD_MMtrial9_SYS_HFT"
+date="111812_13fb_n0111_DD_MMtrial9_SYS"
 mth="rlep"
 
 
@@ -50,7 +38,7 @@ doWWPowHeg=true;
 dodiBosonSherpa=true
 
 dodiBZSherpa=true
-dodiBXPowHeg=true
+dodiBZPowHeg=true
 
 doZjetAlpgen=true
 doZTauTaujetAlpgen=true
@@ -62,7 +50,9 @@ doZjetSherpaLFHF=true
 doZTauTaujetSherpaLFHF=true
 
 doZXSherpa=true
+doZXSherpaPowheg=true
 doZXSherpaLFHF=true
+doZXAlpgen=true
 
 doWjetSherpa=true
 doWjetAlpgen=true
@@ -323,6 +313,9 @@ EOF
 fi
 
 
+
+
+
 if [ $dodiBZSherpa ]; then
 #Sherpa Diboson
     echo "Merge diBoson ZX Sherpa "
@@ -368,17 +361,25 @@ if [ $doZjetAlpgen ]; then
     
     cat > $SCRIPT << "EOF"
 #!/bin/bash
-    hadd -f ${histPath}/histo_Zjets_Alpgen_${mth}.root  \
+     hadd -f ${histPath}/histo_ZeeJets_Alpgen_${mth}.root  \
 	${histPath}/histo_ZeeNp?.*_${mth}.root  \
 	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZeeNp5Incl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZeebbNp?.*_${mth}.root \
-	${histPath}/histo_ZeeccNp?.*_${mth}.root \
-	${histPath}/histo_ZmumuNp?.*_${mth}.root \ 
+	${histPath}/histo_ZeeccNp?.*_${mth}.root 
+
+
+    hadd -f ${histPath}/histo_ZmumuJets_Alpgen_${mth}.root  \
+	${histPath}/histo_ZmumuNp?.*_${mth}.root \
 	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZmumuNp5Incl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZmumubbNp?.*_${mth}.root  \
 	${histPath}/histo_ZmumuccNp?.*_${mth}.root  
+
+
+    hadd -f ${histPath}/histo_Zjets_Alpgen_${mth}.root  \
+	${histPath}/histo_ZeeJets_Alpgen_${mth}.root \
+	${histPath}/histo_ZmumuJets_Alpgen_${mth}.root  
 EOF
     chmod 755 $SCRIPT
 fi
@@ -503,6 +504,23 @@ EOF
     chmod 755 $SCRIPT
 fi
 
+if [ $doZXSherpaPowheg ]; then
+    echo "Merge ZX+jets Sherpa "
+    rm -f ${histPath}/histo_ZX_SherpaPowheg_${mth}.root
+    SCRIPT=${mergeJobDir}/ZX_SherpaPowheg_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_ZX_SherpaPowheg_${mth}.root \
+	${histPath}/histo_diBZX_Powheg_${mth}.root   \
+	${histPath}/histo_Zjets_Sherpa_${mth}.root 
+EOF
+    chmod 755 $SCRIPT
+fi
+
+
+
 if [ $doZXSherpaLFHF ]; then
     echo "Merge ZX+jets SherpaLFHF "
     rm -f ${histPath}/histo_ZX_SherpaLFHF_${mth}.root
@@ -518,9 +536,20 @@ EOF
     chmod 755 $SCRIPT
 fi
 
-
-### TO Do add alpgen buggy full mll
-
+if [ $doZXAlpgen ]; then
+    echo "Merge ZX+jets Alpgen "
+    rm -f ${histPath}/histo_ZX_Alpgen_${mth}.root
+    SCRIPT=${mergeJobDir}/ZX_Alpgen_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_ZX_Alpgen_${mth}.root \
+	${histPath}/histo_diBZX_Sherpa_${mth}.root   \
+	${histPath}/histo_Zjets_Alpgen_${mth}.root 
+EOF
+    chmod 755 $SCRIPT
+fi
 
 
 if [ $doWjetSherpa ]; then

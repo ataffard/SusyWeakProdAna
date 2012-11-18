@@ -1,6 +1,6 @@
 # ./makeLatexTable.sh  
 
-date="110812_13fb_n0111_DD_MMtrial9_SYS_HFT"
+date="111812_13fb_n0111_DD_MMtrial9_SYS"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts
@@ -14,13 +14,14 @@ SR=(CR2LepOS  CR2LepSS CR2LepOS40 CR2LepSS40 \
     CRZ VR1SS NTOP NWW1\
     ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
     preSRjveto preSRSSjveto preSR2jets preSRmT2 \
-    SRjveto SRSSjveto SR2jets SRmT2 SRmT2b )
+    SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
+    SRjveto2 VRjveto VRjveto2)
 
 
 cd ${pathRun}
-for sr in ${SR[@]}; do
-    root -q -l "../macros/bkgYield.C+(\"${sr}\")" 
-done
+#for sr in ${SR[@]}; do
+#    root -q -l "../macros/bkgYield.C+(\"${sr}\")" 
+#done
 
 cp ${WORKAREA}/SusyWeakProdAna/scripts/*.tex ${dir}
 declare -a file=(DG2L_Bkg)

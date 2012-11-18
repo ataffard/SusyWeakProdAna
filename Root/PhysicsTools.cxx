@@ -191,6 +191,25 @@ float mT(TLorentzVector _l, TLorentzVector _nu)
 }
 
 //-----------------------------------------------------------------------------
+// Transverse mass WW
+float mTWW(TLorentzVector _ll, TLorentzVector _nu,bool MvvTrue)
+{
+  float dphi = acos(cos(_ll.Phi()-_nu.Phi()));
+  float mll = _ll.M();
+  float mvv=0;
+  if(!MvvTrue) mvv=mll;
+
+  float mT=0;
+  mT = sqrt( pow(mll,2) + pow(mvv,2) 
+	     + 2*( sqrt(pow(_ll.Pt(),2) + pow(mll,2)) * sqrt(pow(_nu.Pt(),2) + pow(mvv,2)) 
+		   - _ll.Pt()*_nu.Pt()*cos(dphi) ) );
+  
+  return mT;
+
+}
+
+
+//-----------------------------------------------------------------------------
 // d0 signed wrt to jet direction
 float signedD0(float d0, float sigmaD0,
 	       TLorentzVector _p, TLorentzVector _j){
