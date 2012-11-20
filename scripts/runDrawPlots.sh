@@ -23,6 +23,8 @@ pathRun=${WORKAREA}/SusyWeakProdAna/run
 
 if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
+#Add back tothe list 
+
     SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1 \
 	ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
 	SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
@@ -30,7 +32,7 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1  ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7)
 #    SR=(SRjveto SRSSjveto SR2jets SRmT2 SRmT2b)
-#    SR=(preSRjveto preSRSSjveto preSR2jets preSRmT2)
+#    SR=(SRjveto SRjveto2 VRjveto VRjveto2 NTOP NWW1)
 #    SR=(CR2LepSS)
 #    SR=(NTOP)
     DIL=(EE MM EM)

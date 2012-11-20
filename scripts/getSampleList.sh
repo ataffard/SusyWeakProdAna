@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sub=_n0111
+sub=_n0105
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutPath=$WORKAREA/SusyWeakProdAna/scripts
@@ -90,5 +90,18 @@ elif [ "$type" == "data12" ]; then
 
     n=(`more data12_sampleList.txt |wc -l `)
     printf "Number of DATA12 samples ${n} \n" 
+
+elif [ "$type" == "debug" ]; then
+    log=${OutPath}/${type}_sampleList.txt
+    [ -f ${log} ] && rm -f ${log}
+
+    list=(`ls -d ${InPath}/$type${sub}/user* |grep debug`)
+    for iline in ${list[@]}; do
+	dir=(`echo $iline | tr ',' ' '`)
+	name="debug"
+	DIS=( `echo $dir |cut -d'.' -f4-4`)
+	printf "${name}.${DIS} \t ${dir}/ \n" >>${log}
+    done
+
 
 fi
