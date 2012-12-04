@@ -40,7 +40,7 @@ typedef unsigned uint;
 #define nTRIG 5
 #define nLEPTON 2
 
-#define nHSR_DG2L 29     // Regions for DIL ana = DIL_NSR in Susy2LepAna
+//#define nHSR_DG2L 29     // Regions for DIL ana = DIL_NSR in Susy2LepAna
 #define nHSR_ML   13     // Regions for ML ana = ML_NSR in Susy3LepAna
 
 //

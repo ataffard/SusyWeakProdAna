@@ -25,22 +25,24 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #Add back tothe list 
 
-    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1 \
-	ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
-	SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
-        preSRjveto preSRSSjveto preSR2jets preSRmT2)
+#    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1 \
+#	ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
+#	SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
+#        preSRjveto preSRSSjveto preSR2jets preSRmT2)
 
 #    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1  ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7)
 #    SR=(SRjveto SRSSjveto SR2jets SRmT2 SRmT2b)
 #    SR=(SRjveto SRjveto2 VRjveto VRjveto2 NTOP NWW1)
 #    SR=(CR2LepSS)
-#    SR=(NTOP)
+    SR=(preSRmT2)
     DIL=(EE MM EM)
-    PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
-	ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \
-	ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
-	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout      
-	dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT)
+    PLOTS=(mt2)
+#    PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
+#	ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \
+#	ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
+#	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout      
+#	dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT
+#	nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2)
 
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do

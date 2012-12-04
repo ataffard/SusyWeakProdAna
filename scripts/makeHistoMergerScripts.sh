@@ -4,7 +4,7 @@
 #date="110812_13fb_n0111_DD_MMtrial9_SYS_HFT"
 #mth="rlep"
 
-date="111812_13fb_n0111_DD_MMtrial9_SYS"
+date="112812_13fb_n0114_DD_MMtrial9_SYS"
 mth="rlep"
 
 
@@ -354,7 +354,7 @@ fi
 #Buggy
 if [ $doZjetAlpgen ]; then
 #Z+jets Alpgen
-    echo "Merge Z+jets Alpgen "
+    echo "Merge Z+jets Alpgen+Pythia + low mass Alpgen+Herwig "
     rm -f ${histPath}/histo_Zjets_Alpgen_${mth}.root
     SCRIPT=${mergeJobDir}/Zjets_Alpgen_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
@@ -362,19 +362,19 @@ if [ $doZjetAlpgen ]; then
     cat > $SCRIPT << "EOF"
 #!/bin/bash
      hadd -f ${histPath}/histo_ZeeJets_Alpgen_${mth}.root  \
-	${histPath}/histo_ZeeNp?.*_${mth}.root  \
+	${histPath}/histo_ZeeNp?.117*_${mth}.root  \
 	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZeeNp5Incl_Mll10to60.*_mll60_${mth}.root  \
-	${histPath}/histo_ZeebbNp?.*_${mth}.root \
-	${histPath}/histo_ZeeccNp?.*_${mth}.root 
+	${histPath}/histo_ZeebbNp?.110*_${mth}.root \
+	${histPath}/histo_ZeeccNp?.110*_${mth}.root 
 
 
     hadd -f ${histPath}/histo_ZmumuJets_Alpgen_${mth}.root  \
-	${histPath}/histo_ZmumuNp?.*_${mth}.root \
+	${histPath}/histo_ZmumuNp?.117*_${mth}.root \
 	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZmumuNp5Incl_Mll10to60.*_mll60_${mth}.root  \
-	${histPath}/histo_ZmumubbNp?.*_${mth}.root  \
-	${histPath}/histo_ZmumuccNp?.*_${mth}.root  
+	${histPath}/histo_ZmumubbNp?.110*_${mth}.root  \
+	${histPath}/histo_ZmumuccNp?.110*_${mth}.root  
 
 
     hadd -f ${histPath}/histo_Zjets_Alpgen_${mth}.root  \
@@ -394,11 +394,11 @@ if [ $doZTauTaujetAlpgen ]; then
     cat > $SCRIPT << "EOF"
 #!/bin/bash
     hadd -f ${histPath}/histo_ZTauTaujets_Alpgen_${mth}.root  \
-	${histPath}/histo_ZtautauNp?.*_${mth}.root  \
+	${histPath}/histo_ZtautauNp?.117*_${mth}.root  \
 	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll60_${mth}.root  \
 	${histPath}/histo_ZtautauNp5Incl_Mll10to60.*_mll60_${mth}.root  \
-	${histPath}/histo_ZtautaubbNp?.*_${mth}.root  \
-	${histPath}/histo_ZtautauccNp?.*_${mth}.root  
+	${histPath}/histo_ZtautaubbNp?.110*_${mth}.root  \
+	${histPath}/histo_ZtautauccNp?.110*_${mth}.root  
 EOF
     chmod 755 $SCRIPT
 fi
@@ -574,7 +574,7 @@ fi
 
 if [ $doWjetAlpgen ]; then
 #W+jets Alpgen
-    echo "Merge W+jets Alpgen "
+    echo "Merge W+jets Alpgen+Pythia "
     rm -f ${histPath}/histo_Wjets_Alpgen_${mth}.root
     SCRIPT=${mergeJobDir}/Wjets_Alpgen_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
@@ -582,12 +582,12 @@ if [ $doWjetAlpgen ]; then
     cat > $SCRIPT << "EOF"
 #!/bin/bash
     hadd -f ${histPath}/histo_Wjets_Alpgen_${mth}.root   \
-	${histPath}/histo_WenuNp?.*_${mth}.root  \
-	${histPath}/histo_WmunuNp?.*_${mth}.root  \
-	${histPath}/histo_WtaunuNp?.*_${mth}.root \
-	${histPath}/histo_WbbNp?.*_${mth}.root  \
-	${histPath}/histo_WccNp?.*_${mth}.root  \
-	${histPath}/histo_WcNp?.*_${mth}.root   \
+	${histPath}/histo_WenuNp?.117*_${mth}.root  \
+	${histPath}/histo_WmunuNp?.117*_${mth}.root  \
+	${histPath}/histo_WtaunuNp?.117*_${mth}.root \
+	${histPath}/histo_WbbNp?.110*_${mth}.root  \
+	${histPath}/histo_WccNp?.126*_${mth}.root  \
+	${histPath}/histo_WcNp?.126*_${mth}.root   \
 	${histPath}/histo_WgammaNp?.*_${mth}.root
 EOF
     chmod 755 $SCRIPT

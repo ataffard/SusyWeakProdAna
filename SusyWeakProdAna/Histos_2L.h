@@ -11,7 +11,7 @@
 #include <map>
 
 enum DIL_SR{DIL_SRjveto=0, DIL_SR2jets, DIL_SRmT2, DIL_SRmT2b,
-	    DIL_CRZ, DIL_NTOP, DIL_NWW1, DIL_NWW2, DIL_NWW3,
+	    DIL_CRZ, DIL_CRZjveto, DIL_NTOP, DIL_NWW1, DIL_NWW2, DIL_NWW3,
 	    DIL_ZXCR1, DIL_ZXCR3, DIL_ZXCR4, DIL_ZXCR5, DIL_ZXCR6,DIL_ZXCR7,
 	    DIL_preSRjveto, DIL_preSR2jets, DIL_preSRmT2,
 	    DIL_CR2LepOS, DIL_CR2LepOS40,
@@ -23,7 +23,7 @@ enum DIL_SR{DIL_SRjveto=0, DIL_SR2jets, DIL_SRmT2, DIL_SRmT2b,
 
 //111712: reorder SR/CR and put SS at the end to resolve the lept pt prb
 const string DIL_SRNAME[] = {"SRjveto", "SR2jets", "SRmT2", "SRmT2b",
-			     "CRZ", "NTOP", "NWW1", "NWW2", "NWW3",
+			     "CRZ", "CRZjveto", "NTOP", "NWW1", "NWW2", "NWW3",
 			     "ZXCR1", "ZXCR3", "ZXCR4","ZXCR5","ZXCR6","ZXCR7",
 			     "preSRjveto", "preSR2jets", "preSRmT2",
 			     "CR2LepOS", "CR2LepOS40",
@@ -59,6 +59,7 @@ class Histos_2L
   HDG2L DG2L_nCJets;
   HDG2L DG2L_nFJets;
   HDG2L DG2L_nBJets;
+  HDG2L DG2L_nSoftJets; //Not 2L jets
   HDG2L DG2L_qq; //SS: --/++; OS: -+/+-
   HDG2L DG2L_mll;
   HDG2L DG2L_mjj;
@@ -107,8 +108,17 @@ class Histos_2L
   HDG2L DG2L_etaj2;
   HDG2L DG2L_etaj3;
   HDG2L DG2L_etaj4;
+  HDG2L DG2L_jvfj1;
+  HDG2L DG2L_jvfj2;
   HDG2L DG2L_ptbj;
   HDG2L DG2L_etabj;
+  HDG2L DG2L_jvfbj;
+  HDG2L DG2L_ptSj1; //softJet
+  HDG2L DG2L_ptSj2; //softJet
+  HDG2L DG2L_etaSj1; //softJet
+  HDG2L DG2L_etaSj2; //softJet
+  HDG2L DG2L_jvfSj1; //softJet
+  HDG2L DG2L_jvfSj2; //softJet
 
   std::map<int,int> runBins;
 

@@ -184,10 +184,12 @@ void Susy2LepAna::end()
     for(uint i=_sys1; i <= _sys2; i++) {
       if( m_histFitterTrees[i]){
 	float sumw = nt->evt()->sumw;
+	/*
 	if(nt->evt()->mcChannel==147770){
 	  sumw = 2.4806e+13;
 	  cout << "Warning overwritting sumW in " << nt->evt()->mcChannel << " with " << sumw << endl;
 	}
+	*/
 	/*
 	if(nt->evt()->mcChannel==147771){
 	  sumw = 2.35447863214e+13;
@@ -447,6 +449,11 @@ void Susy2LepAna::setSelection(std::string s)
   else if(m_sel == "CRZ"){
     m_selOS = true;
     m_selZ  = true;
+  }
+  else if(m_sel == "CRZjveto"){
+    m_selOS = true;
+    m_selZ  = true;
+    m_vetoJ = true;
   }
   else if(m_sel == "NTOP"){
     m_selOS = true;
@@ -727,7 +734,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(USE_BWEIGHT && nt->evt()->isMC) {
       if( ! ( iSR ==DIL_CR2LepOS || iSR==DIL_CR2LepSS || 
 	      iSR ==DIL_CR2LepOS40 || iSR==DIL_CR2LepSS40 || 
-	      iSR==DIL_CRZ  || iSR==DIL_VR1SS ) )
+	      iSR==DIL_CRZ || iSR==DIL_VR1SS ) )
 	//	_ww = _wwSave * bTagWeight;
 	_ww *= bTagWeight;
 	if(WEIGHT_COUNT) _inc = _ww;
@@ -824,8 +831,8 @@ float Susy2LepAna::eventWeight(int mode)
   }
   else if(mode==LUMI13FB){
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
-    //else _evtW=getEventWeight(nt->evt(),LUMI_A_E);
+    //else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
+    else _evtW=getEventWeight(nt->evt(),LUMI_A_E);
     //Fixes Sherpa Zmumu weight 
     //_evtW=getEventWeight(nt->evt());
   }
@@ -923,6 +930,9 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SR4;
     break;
   case DIL_CRZ:
+    frSR = SusyMatrixMethod::FR_SR1;
+    break;
+  case DIL_CRZjveto:
     frSR = SusyMatrixMethod::FR_SR1;
     break;
   case DIL_NTOP:
@@ -1744,15 +1754,18 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
       nBJets++;
       _hh->H1FILL(_hh->DG2L_ptbj[iSR][m_ET][iSYS],_j->Pt(),_ww); 
       _hh->H1FILL(_hh->DG2L_etabj[iSR][m_ET][iSYS],_j->Eta(),_ww); 
+      _hh->H1FILL(_hh->DG2L_jvfbj[iSR][m_ET][iSYS],_j->jvf,_ww); 
     }
 
     if(ijet==0){
       _hh->H1FILL(_hh->DG2L_ptj1[iSR][m_ET][iSYS],_j->Pt(),_ww); 
       _hh->H1FILL(_hh->DG2L_etaj1[iSR][m_ET][iSYS],_j->Eta(),_ww); 
+      _hh->H1FILL(_hh->DG2L_jvfj1[iSR][m_ET][iSYS],_j->jvf,_ww); 
     }
     if(ijet==1){
       _hh->H1FILL(_hh->DG2L_ptj2[iSR][m_ET][iSYS],_j->Pt(),_ww); 
-      _hh->H1FILL(_hh->DG2L_etaj2[iSR][m_ET][iSYS],_j->Eta(),_ww); 
+      _hh->H1FILL(_hh->DG2L_etaj2[iSR][m_ET][iSYS],_j->Eta(),_ww);
+      _hh->H1FILL(_hh->DG2L_jvfj2[iSR][m_ET][iSYS],_j->jvf,_ww);  
     }
     if(ijet==2){
       _hh->H1FILL(_hh->DG2L_ptj3[iSR][m_ET][iSYS],_j->Pt(),_ww); 
@@ -1793,6 +1806,26 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
     TLorentzVector _jj = (*jets->at(0)) + (*jets->at(1));
     _hh->H1FILL(_hh->DG2L_mjj[iSR][m_ET][iSYS],_jj.M(),_ww); 
   }
+
+
+  int nSoftJets=0;
+  for(uint ijet=0; ijet<v_baseJet->size(); ijet++){
+    const Susy::Jet* _j = v_baseJet->at(ijet);
+    if(isSignalJet(_j)) continue;
+    nSoftJets++;
+    if(ijet==0){
+      _hh->H1FILL(_hh->DG2L_ptSj1[iSR][m_ET][iSYS],_j->Pt(),_ww); 
+      _hh->H1FILL(_hh->DG2L_etaSj1[iSR][m_ET][iSYS],_j->Eta(),_ww); 
+      _hh->H1FILL(_hh->DG2L_jvfSj1[iSR][m_ET][iSYS],_j->jvf,_ww); 
+    }
+    if(ijet==1){
+      _hh->H1FILL(_hh->DG2L_ptSj2[iSR][m_ET][iSYS],_j->Pt(),_ww); 
+      _hh->H1FILL(_hh->DG2L_etaSj2[iSR][m_ET][iSYS],_j->Eta(),_ww); 
+      _hh->H1FILL(_hh->DG2L_jvfSj2[iSR][m_ET][iSYS],_j->jvf,_ww); 
+    }
+  }
+  _hh->H1FILL(_hh->DG2L_nSoftJets[iSR][m_ET][iSYS],nSoftJets,_ww); 
+
 
 }
 
@@ -1930,7 +1963,7 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
 
     float _sumW = nt->evt()->sumw;
     //Hack for broken sumW in n0111 !!!
-    if(nt->evt()->mcChannel==147770) _sumW = 2.4806e+13;
+    //if(nt->evt()->mcChannel==147770) _sumW = 2.4806e+13;
 
     uint iiSys = DGSys_NOM;
     if(SYST==DGSys_XS_UP) iiSys=1;
@@ -1998,7 +2031,8 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
      iSR==DIL_ZXCR5 ||
      iSR==DIL_ZXCR6 ||
      iSR==DIL_ZXCR7 ||
-     iSR==DIL_NTOP)
+     iSR==DIL_NTOP  ||
+     iSR==DIL_CR2LepSS)
     saveEvt = true;
      
 
@@ -2090,8 +2124,10 @@ int Susy2LepAna::findSRCR(bool isData, bool isOS, bool isEE, bool isMM, bool isE
   //Signal regions
   //
   //Order matters 
-  if( (( (isEE || isEM) && isOS && !isData) || !isOS)
-      && metrel>100 && (nC25+nB20+nF30)==0)                        iSR=DIL_SRSSjveto;
+  //Temporary - for bump hunt !!!
+  if( !isOS && isMM )                                              iSR=DIL_CR2LepSS;
+  else if( (( (isEE || isEM) && isOS && !isData) || !isOS)
+	   && metrel>100 && (nC25+nB20+nF30)==0)                   iSR=DIL_SRSSjveto;
   else if(isOS && !_inZ && metrel>40 && 
 	  (nC25+nB20+nF30)==0 && mt2>110)                          iSR=DIL_SRmT2b;
   else if(isOS && !_inZ && metrel>40 && 

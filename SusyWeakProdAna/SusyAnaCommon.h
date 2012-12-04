@@ -15,8 +15,8 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //const std::string SUFF = "_n0111_DD_MMtrial9_SYS_HFT"; 
 
 //New vars, reorder SR 
-const std::string TAG  = "111812";
-const std::string SUFF = "_n0111_DD_MMtrial9_SYS"; 
+const std::string TAG  = "112812";
+const std::string SUFF = "_n0114_DD_MMtrial9_SYS"; 
 
 
 //
@@ -26,7 +26,7 @@ const std::string SUFF = "_n0111_DD_MMtrial9_SYS";
 const bool METREL40       = false;  //Apply min MetRel40 to CR2LepOS and CR2LepSS
 
 const bool DO_SYS         = true; //   false;    //Toggles systematics looper
-const bool FILL_HFT       = /*true;*/    false;    //Write the HistFitterTree
+const bool FILL_HFT       = true; //    false;    //Write the HistFitterTree
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool DO_FILL_HISTO  = true;

@@ -14,6 +14,8 @@
 
 #include "SusyWeakProdAna/PhysicsTools.h"
 
+#include "SusyWeakProdAna/ToyNt.h"
+
 #include "SusyWeakProdAna/SusyAnaCommon.h"
 #include "SusyWeakProdAna/SusyFakeAna.h"
 #include "SusyWeakProdAna/Susy2LepAna.h"
@@ -37,6 +39,8 @@
 #pragma link C++ class DrawPlots+;
 
 //#pragma link C++ class PhysicsTools+;
+
+#pragma link C++ class ToyNt+;
 
 #pragma link C++ class SusyFakeAna+;
 #pragma link C++ class Susy2LepAna+;

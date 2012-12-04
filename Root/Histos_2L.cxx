@@ -50,6 +50,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   BOOK_SRDG2L(DG2L_nCJets,"NJets - central","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nFJets,"NJets - forward ","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nBJets,"NBJets","",syaxis,5,-0.5,4.5);
+  BOOK_SRDG2L(DG2L_nSoftJets,"NSoftJets","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_qq,"","",syaxis,10,-0.5,1.5);
   BOOK_SRDG2L(DG2L_mll,"M_{ll}","GeV",syaxis,110,0,220); 
   BOOK_SRDG2L(DG2L_mjj,"M_{jj}","GeV",syaxis,50,0,500);
@@ -98,8 +99,18 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   BOOK_SRDG2L(DG2L_etaj2,"#eta^{j2}","",syaxis,25,-2.5,2.5);
   BOOK_SRDG2L(DG2L_etaj3,"#eta^{j3}","",syaxis,25,-2.5,2.5);
   BOOK_SRDG2L(DG2L_etaj4,"#eta^{j4}","",syaxis,25,-2.5,2.5);
+  BOOK_SRDG2L(DG2L_jvfj1,"JVF^{j1}","",syaxis,10,0,1);
+  BOOK_SRDG2L(DG2L_jvfj2,"JVF^{j2}","",syaxis,10,0,1);
   BOOK_SRDG2L(DG2L_ptbj,"P_{T}^{bjet}","GeV",syaxis,40,0,200);
   BOOK_SRDG2L(DG2L_etabj,"#eta^{bjet}","",syaxis,25,-2.5,2.5);
+  BOOK_SRDG2L(DG2L_jvfbj,"JVF^{j1}","",syaxis,10,0,1);
+  BOOK_SRDG2L(DG2L_ptSj1,"P_{T}^{j1-soft}","GeV",syaxis,40,0,200);
+  BOOK_SRDG2L(DG2L_ptSj2,"P_{T}^{j2-soft}","GeV",syaxis,40,0,200);
+  BOOK_SRDG2L(DG2L_etaSj1,"#eta^{j1-soft}","",syaxis,25,-2.5,2.5);
+  BOOK_SRDG2L(DG2L_etaSj2,"#eta^{j2-soft}","",syaxis,25,-2.5,2.5);
+  BOOK_SRDG2L(DG2L_jvfSj1,"JVF^{j1-soft}","",syaxis,10,0,1);
+  BOOK_SRDG2L(DG2L_jvfSj2,"JVF^{j2-soft}","",syaxis,10,0,1);
+
 
 #undef BOOK_SRDG2L
   

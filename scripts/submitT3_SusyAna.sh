@@ -86,6 +86,9 @@ while read line; do
 	echo "  doMll:      $anaOpt2"
 	echo 
 
+#"$sName" == "ZeeNp0.107650" -o \
+#"$sName" == "ZmumuNp0.107660" -o \
+
 	if [ "$type" == "mc12" -o "$type" == "susy" ]; then
 	    if [ $doSys ]; then
 	        #For large sample - split the sys
@@ -93,9 +96,9 @@ while read line; do
 "$sName" == "Zmumu.147771" -o \
 "$sName" == "TtbarLeptLept.117800" -o \
 "$sName" == "llnunu_WW.126892" -o \
-"$sName" == "ZeeNp0.107650" -o \
-"$sName" == "ZmumuNp0.107660" -o \
 "$sName" == "ttbar.117210" -o \
+"$sName" == "ZeeNp0.117650" -o \
+"$sName" == "ZmumuNp0.117660" -o \
 "$sName" == "ZeeHeavyJets.128975" -o \
 "$sName" == "ZmumuHeavyJets.128976"  -o \
 "$sName" == "ttbar.105200" \

@@ -38,8 +38,8 @@ bool verbose = false;
 void openHist(string mode="DD",
 	      string Top="histo_topDil_Sherpa",
 	      string WW="histo_WW_Sherpa",
-	      //string ZX="histo_ZX_Sherpa",		      
-	      string ZX="histo_ZX_SherpaPowheg",
+	      string ZX="histo_ZX_Sherpa",		      
+	      //string ZX="histo_ZX_SherpaPowheg",
 	      string Ztt="histo_ZTauTaujets_Sherpa",
 	      string Fake="histo_data12_fake");
 
@@ -62,6 +62,10 @@ void  get_ZX_BkgErr(int ilep, int ireg,
 		    Double_t &ZX_mc_bkgUp, Double_t &ZX_mc_bkgDn, 
 		    Double_t &SF_up, Double_t &SF_dn);
 
+
+void get_ZX_oBkg(int ilep, int ireg, int isys, 
+		 Double_t& _pred, Double_t& _pred_err);
+
 void  make_ZXPlots();
 
 
@@ -74,7 +78,7 @@ int main(int argc, char *argv[]){
   
   LEP.clear();
   LEP.push_back("EE");
-  //  LEP.push_back("MM");
+  LEP.push_back("MM");
   //LEP.push_back("EM");
 
   ZXCR.push_back("ZXCR1"); //SRjveto
@@ -151,7 +155,7 @@ void get_ZX_Est()
       //
       //Output ZX est data file
       //
-      fileName= "ZX_EST_" + LEP[il] + "_" + sReg + ".txt";
+      fileName= "ZX_SRDDEST_" + LEP[il] + "_" + sReg + ".txt";
       std::ofstream txt3(fileName.c_str());
       std::ostream & outEST = txt3;
       if (!txt3.is_open()){
@@ -183,7 +187,7 @@ void get_ZX_Est()
       //
       //Output ZX SR mc file
       //
-      fileName= "ZX_SREST_" + LEP[il] + "_" + sReg + ".txt";
+      fileName= "ZX_SRMCEST_" + LEP[il] + "_" + sReg + ".txt";
       std::ofstream txt6(fileName.c_str());
       std::ostream & outZXSR = txt6;
       if (!txt6.is_open()){
@@ -222,6 +226,21 @@ void get_ZX_Est()
 	Double_t ZX_SR_mc, ZX_SR_mc_err; 
 	get_ZXSR_mc(il,ireg,isys, ZX_SR_mc, ZX_SR_mc_err);
 
+	//EST using SF
+	float _frac3 = ZX_SR_mc_err / ZX_SR_mc;
+	float _frac4 = _SF_CR_err / _SF_CR;
+	float _combErr2 = sqrt(_frac3*_frac3 + _frac4*_frac4);
+
+	/*
+	cout << "Check Pred " << ZX_CR_data << " " << ZX_CR_data_err
+	     << " TF " << _TF << " " << _TF_err
+	     << " fracErr " << _combErr
+	     << " ZXPred " << _ZX_pred << " " << _ZX_pred_err 
+	     << "\n ZX_SRmc " << ZX_SR_mc << " " << ZX_SR_mc_err
+	     << " SF " << _SF_CR << " " << _SF_CR_err
+	     << " ZXPred " << ZX_SR_mc*_SF_CR << " " << ZX_SR_mc*_SF_CR*_combErr2
+	     << "\n" << endl; 
+	*/
 
 	string sReg = ZXSR[ireg];
 	//
@@ -325,7 +344,7 @@ void get_ZX_Est()
 	}
 	
 	//
-	//Dump ZX SR mcto file
+	//Dump ZX SR mc to file
 	//
 	outZXSR << DG2LSystNames[isys] << "\t" << ZX_SR_mc << endl;
 	if(isys==DGSys_NOM){
@@ -415,16 +434,57 @@ void get_ZXCR_data(int il, int ireg, int isys,
   _h_oBkg->Add(_h_WW);
   _h_oBkg->Add(_h_Ztt);
   
+  Double_t oBkg_err;
+  Double_t oBkg = _h_oBkg->IntegralAndError(0,-1,oBkg_err);
+
+  //Use data base estimate from EM
+  get_ZX_oBkg(il,ireg,isys,oBkg,oBkg_err);
+  
   //ZX_data = data - oBkg
+  /*
   TH1F* _h_ZX_data = (TH1F*) _h_data->Clone();
   _h_ZX_data->SetTitle("ZX_data"); _h_ZX_data->SetName("ZX_data");
   _h_ZX_data->Add(_h_oBkg,-1);
   est = _h_ZX_data->IntegralAndError(0,-1,err);
+  */
   
+  Double_t _data_err;
+  Double_t _data = _h_data->IntegralAndError(0,-1,_data_err);
+  
+  est  = _data - oBkg;
+  err  = pow(_data_err,2) + pow(oBkg_err,2);
+  err  = sqrt(err);
+  
+  TH1F* _h_ZX_data = (TH1F*) _h_data->Clone();
+  _h_ZX_data->Reset();
+  _h_ZX_data->SetTitle("ZX_data"); _h_ZX_data->SetName("ZX_data");
+  _h_ZX_data->SetBinContent(1,est);
+  _h_ZX_data->SetBinError(1,err);
+  
+
   //ZX SF in CR = ZX_data/ZX_mc
   TH1F* _h_ZX_CR_SF = _ana->calcRatio(_h_ZX_data,_h_ZX_mc,"SF",""); //uncorrelated
   SF = _h_ZX_CR_SF->IntegralAndError(0,-1,SFerr);
+  
+  Double_t dZX1err;
+  Double_t dZX1 = _h_ZX_data->IntegralAndError(0,-1,dZX1err);
+  Double_t dZX2err;
+  Double_t dZX2 = _h_ZX_mc->IntegralAndError(0,-1,dZX2err);
 
+  Double_t data_err;
+  float data = _h_data->IntegralAndError(0,-1,data_err);
+
+  /*
+  std::cout << std::setprecision(5) 
+	    << "\t\t Check" 
+	    << " data " << data << " "  << data_err
+	    << " oBkg " << oBkg << " " << oBkg_err
+	    << " ZXdata " << dZX1 << " " << dZX1err
+	    << " ZXmc " << dZX2 << " " << dZX2err 
+	    << " ratio " << SF << " " << SFerr
+	    << std::endl;
+  */
+  
   //Print
   if(verbose) {
     cout << std::setprecision(5) 
@@ -435,7 +495,9 @@ void get_ZXCR_data(int il, int ireg, int isys,
 	 << "\t ZX_data " << est  << " +/- " << err
 	 << "\t ZX_CR SF " << SF << " +/- " << SFerr
 	 << endl;
+
   }
+
   _h_ZX_mc->Delete();
   _h_data->Delete();
   _h_fake->Delete();
@@ -447,6 +509,113 @@ void get_ZXCR_data(int il, int ireg, int isys,
   _h_ZX_CR_SF->Delete();
 }
 
+//_____________________________________________________________________________//
+//
+// Estimate other Bkg using EM events
+//
+void get_ZX_oBkg(int ilep, int ireg, int isys, Double_t& oBkg, Double_t& oBkg_err){
+  //
+  // Need Nee and Nmm for oBkg, ZX and data in CR
+  // 
+
+  //EE CR Histos
+  //string hNameCR_EE= "DG2L_" + ZXCR[ireg] + "_EE_DG2L_pred"; 
+  string hNameCR_EE= "DG2L_ZXCR4_EE_DG2L_pred"; 
+  _ana->grabHisto(hNameCR_EE,true);
+
+  TH1F* _h_Nee_data   = (TH1F*)  _ana->getDataHisto()->Clone(); 
+  TH1F* _h_Nee_mc_ZX  = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
+
+  TH1F* _h_Nee_fake   = (TH1F*)  _ana->getMcHisto(FAKE,isys)->Clone(); 
+  TH1F* _h_Nee_top    = (TH1F*)  _ana->getMcHisto(TOP,isys)->Clone(); 
+  TH1F* _h_Nee_WW     = (TH1F*)  _ana->getMcHisto(WW,isys)->Clone(); 
+  TH1F* _h_Nee_Ztt    = (TH1F*)  _ana->getMcHisto(Ztt,isys)->Clone(); 
+  
+  TH1F* _h_Nee_oBkg = (TH1F*) _h_Nee_fake->Clone();
+  _h_Nee_oBkg->SetTitle("Nee_oBkg");  _h_Nee_oBkg->SetName("Nee_oBkg");
+  _h_Nee_oBkg->Add(_h_Nee_top);
+  _h_Nee_oBkg->Add(_h_Nee_WW);
+  _h_Nee_oBkg->Add(_h_Nee_Ztt);
+
+  
+  //MM CR Histos
+  //string hNameCR_MM= "DG2L_" + ZXCR[ireg] + "_MM_DG2L_pred"; 
+  string hNameCR_MM= "DG2L_ZXCR4_MM_DG2L_pred"; 
+  _ana->grabHisto(hNameCR_MM,true);
+
+  TH1F* _h_Nmm_data   = (TH1F*)  _ana->getDataHisto()->Clone(); 
+  TH1F* _h_Nmm_mc_ZX  = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
+
+  TH1F* _h_Nmm_fake   = (TH1F*)  _ana->getMcHisto(FAKE,isys)->Clone(); 
+  TH1F* _h_Nmm_top    = (TH1F*)  _ana->getMcHisto(TOP,isys)->Clone(); 
+  TH1F* _h_Nmm_WW     = (TH1F*)  _ana->getMcHisto(WW,isys)->Clone(); 
+  TH1F* _h_Nmm_Ztt    = (TH1F*)  _ana->getMcHisto(Ztt,isys)->Clone(); 
+  
+  TH1F* _h_Nmm_oBkg = (TH1F*) _h_Nmm_fake->Clone();
+  _h_Nmm_oBkg->SetTitle("Nmm_oBkg");  _h_Nmm_oBkg->SetName("Nmm_oBkg");
+  _h_Nmm_oBkg->Add(_h_Nmm_top);
+  _h_Nmm_oBkg->Add(_h_Nmm_WW);
+  _h_Nmm_oBkg->Add(_h_Nmm_Ztt);
+  
+  
+  //Correction factor to Epsilon_e/Epsilon_m
+  TH1F* _h_EpsRatio_MC_oBkg = _ana->calcRatio(_h_Nee_oBkg,_h_Nmm_oBkg,"EpsRatio_MC_oBkg",""); //uncorrelated  
+  TH1F* _h_EpsRatio_MC_ZX   = _ana->calcRatio(_h_Nee_mc_ZX,_h_Nmm_mc_ZX,"EpsRatio_MC_ZX",""); //uncorrelated  
+  
+  TH1F* _h_Corr = _ana->calcRatio(_h_EpsRatio_MC_oBkg,_h_EpsRatio_MC_ZX,"Corr",""); //uncorrelated
+  
+  //Data with  Le=Lm=1
+  TH1F* _h_EpsRatio_data   = _ana->calcRatio(_h_Nee_data,_h_Nmm_data,"EpsRatio_data",""); //uncorrelated    
+
+  Double_t _eps_data_err;
+  Double_t _eps_data = _h_EpsRatio_data->IntegralAndError(0,-1,_eps_data_err);
+  Double_t _corr_err;
+  Double_t _corr     = _h_Corr->IntegralAndError(0,-1,_corr_err);
+  
+  Double_t _eps_ratio_corr = _eps_data * _corr;
+  Double_t _eps_ratio_corr_err = sqrt( pow(_eps_data_err/_eps_data,2) + pow(_corr_err/_corr,2) );  
+  _eps_ratio_corr_err *= _eps_ratio_corr;
+
+  //Predicted Nee or Nmm 
+  //EM CR nonZ
+  string hNameCR_EM= "DG2L_" + ZXCR[ireg] + "_EM_DG2L_pred"; 
+  _ana->grabHisto(hNameCR_EM,true);
+  
+  TH1F* _h_Nem_fake   = (TH1F*)  _ana->getMcHisto(FAKE,isys)->Clone(); 
+  TH1F* _h_Nem_top    = (TH1F*)  _ana->getMcHisto(TOP,isys)->Clone(); 
+  TH1F* _h_Nem_WW     = (TH1F*)  _ana->getMcHisto(WW,isys)->Clone(); 
+  TH1F* _h_Nem_Ztt    = (TH1F*)  _ana->getMcHisto(Ztt,isys)->Clone(); 
+  
+  TH1F* _h_Nem_oBkg = (TH1F*) _h_Nem_fake->Clone();
+  _h_Nem_oBkg->SetTitle("Nem_oBkg");  _h_Nem_oBkg->SetName("Nem_oBkg");
+  _h_Nem_oBkg->Add(_h_Nem_top);
+  _h_Nem_oBkg->Add(_h_Nem_WW);
+  _h_Nem_oBkg->Add(_h_Nem_Ztt);
+
+  Double_t _Nem_err;
+  Double_t _Nem =  _h_Nem_oBkg->IntegralAndError(0,-1,_Nem_err);
+
+  //Prediction
+  Double_t _pred_Nll = _Nem * 0.5 * _eps_ratio_corr;
+  Double_t _pred_Nll_err = sqrt( pow(_Nem_err/_Nem,2) + pow(_eps_ratio_corr_err/_eps_ratio_corr ,2) );
+  _pred_Nll_err *=  _pred_Nll;
+  
+  /*
+  cout << "Eps_nonZ " << _h_EpsRatio_MC_oBkg->Integral(0,-1)
+       << " Eps_ZX " << _h_EpsRatio_MC_ZX->Integral(0,-1)
+       << " Corr " << _corr << " +/- " << _corr_err
+       << " Eps_data " << _eps_data << " +/- " << _eps_data_err
+       << " CorrRatio " << _eps_ratio_corr << " +/- " << _eps_ratio_corr_err
+       << " Nem " << _Nem << " +/- " << _Nem_err 
+       << " predNll " << _pred_Nll << " +/- " << _pred_Nll_err
+       << endl;
+  */
+
+  oBkg = _pred_Nll;
+  oBkg_err = _pred_Nll_err;
+
+
+}
 
 //_____________________________________________________________________________//
 //
@@ -500,7 +669,19 @@ void  get_ZX_TF(int ilep, int ireg, int isys, Double_t &est, Double_t &err)
   //Calc TF
   TH1F* _hRatio    = _ana->calcRatio(_hSR,_hCR,"TF",""); //uncorrelated 
   est =_hRatio->IntegralAndError(0,-1,err);
+
+  Double_t numErr;
+  Double_t denErr;
+  float num = _hSR->IntegralAndError(0,-1,numErr);
+  float den = _hCR->IntegralAndError(0,-1,denErr);
   
+  /*
+  cout << "\t\t Check TF " 
+       << " num " << num << " " << numErr
+       << " den " << den << " " << denErr
+       << " TF " << est << " " << err << endl;
+  */
+
   if(verbose) {
     cout << std::setprecision(5) 
 	 << "\t ZX CR \t\t"  << _hCR->Integral(0,-1)

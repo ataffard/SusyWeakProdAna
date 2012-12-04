@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 #Usage 
@@ -26,6 +27,7 @@ elif [[ $# -eq 4 ]]; then
 fi
 
 NOM="-sys1 NOM"
+#NOM="-sys1 TRIGSF_MU_UP"
 
 methodMC=std
 methodData=std
