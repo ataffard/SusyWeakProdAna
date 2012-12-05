@@ -19,6 +19,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   m_dbg(0),
   m_useLooseLep(false),
   m_writeHFT(false),
+  m_writeToyNt(false),
 
   m_nLepMin(2),
   m_nLepMax(2),
@@ -125,6 +126,7 @@ void Susy2LepAna::doAnalysis(unsigned int isys)
   SYST = isys;
 
   if(FILL_HFT && !m_writeHFT) initializeHistFitterTree();
+  if(FILL_TOYNT && !m_writeToyNt && isys==DGSys_NOM) initializeToyNt();
 
   //cout << "Analysing event for Sys " << DG2LSystNames[SYST] <<endl;
 
@@ -206,6 +208,12 @@ void Susy2LepAna::end()
     }
     moveHFTOutput();
   }
+  
+  if(m_writeToyNt){
+    m_toyNt->setSumOfMcWeights(nt->evt()->sumw); 
+    delete m_toyNt;
+  }
+
 
   clearVectors();
   sigXsfile.close();
@@ -2167,4 +2175,36 @@ int Susy2LepAna::findSRCR(bool isData, bool isOS, bool isEE, bool isMM, bool isE
 
 
   return iSR;
+}
+
+/*--------------------------------------------------------------------------------*/
+// Initialize ToyNt
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::initializeToyNt()
+{
+  // Set the writeToyNt flag
+  m_writeToyNt=true;
+  cout << " ===> Initialising ToyNt Outputs " << endl;
+
+ 
+  
+  if(nt->evt()->isMC){
+    // Read MC ID, only run over one unique DS while using this option!!!
+    TString mcId = "";
+    mcId.Form("%i",nt->evt()->mcChannel);
+    m_toyNt = new ToyNt(mcId,TString(TOYNT_SR));
+  }
+  else{
+    if(m_method == FLEP){ //DD Fake lepton
+      TString ds(string(_hh->sampleName()+"_FAKE"));
+      m_toyNt = new ToyNt(ds,TString(TOYNT_SR));
+    }
+    else{ //Data 
+      TString ds(string(_hh->sampleName()+"DATA"));
+      m_toyNt = new ToyNt(ds,TString(TOYNT_SR));
+    }
+  }
+  
+  
+
 }

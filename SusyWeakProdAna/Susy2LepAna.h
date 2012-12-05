@@ -25,6 +25,8 @@
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusyHistos.h"
 
+#include "SusyWeakProdAna/ToyNt.h"
+
 
 class Susy2LepAna: public SusyNtTools
 {
@@ -145,6 +147,8 @@ class Susy2LepAna: public SusyNtTools
 				  const JetVector* baseJets,
 				  const Met* met);
     
+    void initializeToyNt();
+
     //Other functions
     void print_SRjveto();
     void print_SRSSjveto();
@@ -178,10 +182,14 @@ class Susy2LepAna: public SusyNtTools
 
     HistFitterTree*  m_histFitterTrees[ DGSys_GEN ];
 
+    ToyNt*  m_toyNt;
+
     bool m_useLooseLep;
     int  m_method;
     bool m_writeHFT;
     string  HFTName;
+
+    bool m_writeToyNt;
 
     //containers - from SusyNt
     ElectronVector*      v_baseEle;     // baseline electrons

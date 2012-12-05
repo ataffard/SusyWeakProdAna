@@ -17,6 +17,9 @@
 #include "TLorentzVector.h"
 #include "TParameter.h"
 
+#include "SusyNtuple/SusyDefs.h"
+#include "SusyNtuple/SusyNtObject.h"
+#include "SusyNtuple/SusyNtTools.h"
 
 class ToyNt  {
 
@@ -27,8 +30,16 @@ class ToyNt  {
 
   void WriteTree();
   void SaveTree();
-  void FillTree();
   void setSumOfMcWeights(double sumOfMcWeights);
+
+  void FillTree();
+
+  void FillTreeEvent(TString mcid, int run, int event, int npv, int npvCorr);
+  void FillTreeLeptons();
+  void FillTreeSignalJets();
+  void FillTreeOtherJets();
+  void FillTreeKin();
+  void FillTreeMet();
 
 private:
 
@@ -44,9 +55,10 @@ private:
   TString _b_mcid;
   int     _b_run;
   int     _b_event;
-  float   _b_npv;
-  float   _b_npvCorr;
+  int     _b_npv;
+  int     _b_npvCorr;
   
+  int     _b_nlep;
   float   _b_l_pt[2];
   float   _b_l_eta[2];
   float   _b_l_phi[2];
@@ -71,13 +83,14 @@ private:
   float   _b_j_eta[5];
   float   _b_j_phi[5];
   float   _b_j_e[5];
+  float   _b_j_jvf[5];
 
-
-
-  int     _b_nOJets; 
-
-
-
+  int     _b_nOJets; //Other jets
+  float   _b_oj_pt[5];
+  float   _b_oj_eta[5];
+  float   _b_oj_phi[5];
+  float   _b_oj_e[5];
+  float   _b_oj_jvf[5];
 
   float   _b_met;
   float   _b_met_phi;
@@ -87,21 +100,23 @@ private:
   float   _b_met_refJet;
   float   _b_met_cellout;
   
-
   float   _b_mTl1;
   float   _b_mTl2;
   float   _b_mWWT;
   
-  
-
   float   _b_dphi_metcl; //closest lepton
   float   _b_dphi_metl1; 
   float   _b_dphi_metl2; 
 
   float   _b_dphi_metcj; //closest jet
+  float   _b_dphi_metcoj; //closest other jet
+
+  float   _b_dphi_ll_oj1; //dphi ll & leading other jet
 
   float   _b_mEff;
   float   _b_ST;
+  float   _b_mjj;
+  
   
 
   

@@ -17,6 +17,16 @@ ToyNt::ToyNt(TString MCID, TString suffix) {
   TTree::SetBranchStyle(1);
   (tree)->SetDirectory(file);
   
+
+  tree->Branch("mcid",&_b_mcid);
+  tree->Branch("run",&_b_run);
+  tree->Branch("event",&_b_event);
+  tree->Branch("npv",&_b_npv);
+  tree->Branch("npvCorr",&_b_npvCorr);
+
+  tree->Branch("nlep",&_b_nlep);
+  tree->Branch("l_pt",_b_l_pt);
+
   clearOutputBranches();
   return;
 
@@ -47,10 +57,36 @@ void ToyNt::WriteTree(){
 } 
 
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillTree()
+void ToyNt::FillTreeEvent(TString mcid, int run, int event, int npv, int npvCorr)
 {
 
 }
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillTreeLeptons()
+{
+
+}
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillTreeSignalJets()
+{
+
+}
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillTreeOtherJets()
+{
+
+}
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillTreeKin()
+{
+
+}
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillTreeMet()
+{
+
+}
+
 //-----------------------------------------------------------------------------------------------------------
 void ToyNt::setSumOfMcWeights(double sumOfMcWeights) {
   // Define histogram

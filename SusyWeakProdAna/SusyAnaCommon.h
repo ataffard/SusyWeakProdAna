@@ -25,6 +25,9 @@ const std::string SUFF = "_n0114_DD_MMtrial9_SYS";
 //Pred Mode
 const bool METREL40       = false;  //Apply min MetRel40 to CR2LepOS and CR2LepSS
 
+const bool FILL_TOYNT     = true; //    false;    //Write ToyNt
+const string TOYNT_SR     = "DIL_CRZ";     //SR used to fill ToyNt
+
 const bool DO_SYS         = true; //   false;    //Toggles systematics looper
 const bool FILL_HFT       = true; //    false;    //Write the HistFitterTree
 
