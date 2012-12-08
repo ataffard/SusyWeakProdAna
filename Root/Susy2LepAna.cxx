@@ -211,6 +211,15 @@ void Susy2LepAna::end()
   
   if(m_writeToyNt){
     m_toyNt->setSumOfMcWeights(nt->evt()->sumw); 
+    m_toyNt->SaveTree();
+
+    string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/ToyNtOutputs";
+    gSystem->mkdir(dir.c_str(),kTRUE);
+
+    string cmd = "mv " + m_toyNt->getFilename() + " " + dir;
+    std::cout << "Moving ToyNt " << cmd << std::endl;
+    gSystem->Exec(cmd.c_str());
+
     delete m_toyNt;
   }
 
@@ -792,15 +801,15 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!passBlindData(nt->evt()->isMC,iSR, metRel,mT2)) continue;
 
     if(DO_FILL_HISTO ) fillHistograms(SR,SYST,leptons, signalJets,&new_met,_ww);
+    if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) fillToyNt(SR,SYST,leptons, signalJets,&new_met,_ww);
+
+
     if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
 
     //Dump run event
     //    if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
     //if(DUMP_RUNEVT && SYST==DGSys_NOM && (iSR==DIL_NTOP && m_ET==ET_ee) ){
     if(DUMP_RUNEVT && (iSR==DIL_SRjveto) ){
-      float wl1 = leptons->at(0)->effSF;
-      float wl2 = leptons->at(1)->effSF;
-
       evtDump << nt->evt()->run 
 	      << " " << nt->evt()->event 
 	      << " " << sSR 
@@ -2039,8 +2048,8 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
      iSR==DIL_ZXCR5 ||
      iSR==DIL_ZXCR6 ||
      iSR==DIL_ZXCR7 ||
-     iSR==DIL_NTOP  ||
-     iSR==DIL_CR2LepSS)
+     iSR==DIL_NTOP  
+     )
     saveEvt = true;
      
 
@@ -2070,48 +2079,6 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
     m_histFitterTrees[SYST]->WriteTree();
   }
 
-  /*
-  //Deal with SS events w/ qFlip - make another entry for OS events weighted w/ qFlip.
-  if(nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm){
-    if(!isGenuineSS(leptons)){ //Not true SS - use OS * qFlip
-      float _ww_qFlip = getQFlipProb(leptons,&new_met);
-      histFitWeight *= _ww_qFlip;
-      totalWeight *= _ww_qFlip;
-      //Lepton pt & met have been smeeared in getQFlipProb
-      _topTag  = passTopTag(*leptons,*signalJets,met);
-      _ptl1   = leptons->at(0)->Pt();
-      _ptl2   = leptons->at(1)->Pt();
-      _ZPt    = Zcandidate.Pt();
-      _metET  = met->lv().Pt();
-      _metRel = getMetRel(met,*leptons,*signalJets);
-      _Mll    = Mll(leptons->at(0), leptons->at(1));
-      _MT2    = getMT2(*leptons, met);
-      m_histFitterTrees[SYST]->Fill2LTreeEventInfo(_ptl1*1000.,
-						   _ptl2*1000.,
-						   _metET*1000.,
-						   _nC25,
-						   _nB20,
-						   _nF30,
-						   _metRel*1000.,
-						   _Mll*1000,
-						   _MT2*1000,
-						   _ZPt*1000,
-						   _isOS,
-						   _topTag,
-						   histFitWeight,
-						   _isEM,
-						   _isMM,
-						   _isEE,
-						   totalWeight //,_ww_qFlip
-						   );
-
-      // Write the tree
-      m_histFitterTrees[SYST]->WriteTree();
-
-    }
-  }
-  */
-
   return totWeight;
 
   
@@ -2132,9 +2099,7 @@ int Susy2LepAna::findSRCR(bool isData, bool isOS, bool isEE, bool isMM, bool isE
   //Signal regions
   //
   //Order matters 
-  //Temporary - for bump hunt !!!
-  if( !isOS && isMM )                                              iSR=DIL_CR2LepSS;
-  else if( (( (isEE || isEM) && isOS && !isData) || !isOS)
+  if( (( (isEE || isEM) && isOS && !isData) || !isOS)
 	   && metrel>100 && (nC25+nB20+nF30)==0)                   iSR=DIL_SRSSjveto;
   else if(isOS && !_inZ && metrel>40 && 
 	  (nC25+nB20+nF30)==0 && mt2>110)                          iSR=DIL_SRmT2b;
@@ -2200,11 +2165,38 @@ void Susy2LepAna::initializeToyNt()
       m_toyNt = new ToyNt(ds,TString(TOYNT_SR));
     }
     else{ //Data 
-      TString ds(string(_hh->sampleName()+"DATA"));
+      TString ds(string(_hh->sampleName()+"_DATA"));
       m_toyNt = new ToyNt(ds,TString(TOYNT_SR));
     }
   }
   
   
+
+}
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::fillToyNt(uint iSR,uint iSYS,
+				 const LeptonVector* leptons, 
+				 const JetVector* jets,
+				 const Met* met,
+				 float _ww)
+{
+
+  float corrNpv = nt->evt()->nVtx;
+  if(nt->evt()->isMC) corrNpv = GetNVertexBsCorrected(nt->evt()->nVtx);
+  
+  m_toyNt->FillTreeEvent(nt->evt()->run,
+			 nt->evt()->event,
+			 nt->evt()->nVtx,
+			 corrNpv,
+			 iSR,
+			 m_ET,
+			 _ww);	 
+  m_toyNt->FillTreeLeptons(leptons,met);
+  m_toyNt->FillTreeMet(met,metRel,mT2);
+  m_toyNt->FillTreeSignalJets(jets,leptons,met);
+  m_toyNt->FillTreeOtherJets(v_baseJet,leptons,met);
+  
+  //Write entry to TTree
+  m_toyNt->WriteTree();
 
 }

@@ -148,6 +148,12 @@ class Susy2LepAna: public SusyNtTools
 				  const Met* met);
     
     void initializeToyNt();
+    void fillToyNt(uint iSR,
+		   uint iSYS,
+		   const LeptonVector* leptons, 
+		   const JetVector* jets,
+		   const Met* met,
+		   float _ww);
 
     //Other functions
     void print_SRjveto();

@@ -4,7 +4,7 @@ typedef unsigned uint;
 
 static const float sigLumi=0.039;
 
-string dir = "";
+string dir = "histos_112812_13fb_n0114_DD_MMtrial9_SYS/";
 string sFile = "histo_data12_std.root";
 
 TGuiUtils* _utils;
@@ -23,10 +23,10 @@ int main(int argc, char *argv[]){
   string _pathHisto  = string(getenv("WORKAREA")) + "/histoAna/SusyAna/" +dir;
   TFile* _f = new TFile(string(_pathHisto + sFile).c_str(),"READ");
   
-  string sHName ="DG2L_CRZ_EE_DG2L_Zcount"; 
+  string sHName ="DG2L_CRZ_EE_DG2L_Zcount_NOM"; 
   TH1F* _h_Zee = (TH1F*)  _f->Get(sHName.c_str())->Clone();
   
-  sHName ="DG2L_CRZ_MM_DG2L_Zcount"; 
+  sHName ="DG2L_CRZ_MM_DG2L_Zcount_NOM"; 
   TH1F* _h_Zmm = (TH1F*)  _f->Get(sHName.c_str())->Clone();
  
   //Set the errors
