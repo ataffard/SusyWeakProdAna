@@ -50,7 +50,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-#doSys=true
+doSys=true
 
 ##
 ## Ana mode STD or DD
@@ -163,29 +163,44 @@ while read line; do
 	    sleep 1
 
 	    if [ "$mode" == "DD" ]; then
-		echo "Submitting data DD fake "
-		 SYS1=("NOM" "FAKE_EL_RE_UP" "FAKE_EL_FR_UP" "FAKE_MU_RE_UP" "FAKE_MU_FR_UP")
-		 SYS2=("NOM" "FAKE_EL_RE_DN" "FAKE_EL_FR_DN" "FAKE_MU_RE_DN" "FAKE_MU_FR_DN")
-		 methodData=flep
-
-		 echo "Submitting Data fake using Sys Range "
-		 index=0
-		 for sys1 in ${SYS1[@]}; do
-		     sys2=${SYS2[$index]}
-		     echo "Submitting DATA FAKE "
-		     echo "  sys $sys1 --> $sys2" 
-		     echo "  method:     $methodData"
-		     
-		     cd ${pathRun}
-		     qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
-		     echo ""
-		     echo "qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
-		     cd ${pathScript}
-		     echo ""
-		     sleep 1
-		     ((index++))
-		 done  
-
+		if [ $doSys ]; then
+		    echo "Submitting data DD fake "
+		    SYS1=("NOM" "FAKE_EL_RE_UP" "FAKE_EL_FR_UP" "FAKE_MU_RE_UP" "FAKE_MU_FR_UP")
+		    SYS2=("NOM" "FAKE_EL_RE_DN" "FAKE_EL_FR_DN" "FAKE_MU_RE_DN" "FAKE_MU_FR_DN")
+		    methodData=flep
+		    
+		    echo "Submitting Data fake using Sys Range "
+		    index=0
+		    for sys1 in ${SYS1[@]}; do
+			sys2=${SYS2[$index]}
+			echo "Submitting DATA FAKE "
+			echo "  sys $sys1 --> $sys2" 
+			echo "  method:     $methodData"
+			
+			cd ${pathRun}
+			qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
+			echo ""
+			echo "qsub -j oe -V -v ana=$ana,sys1=$sys1,sys2=$sys2,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
+			cd ${pathScript}
+			echo ""
+			sleep 1
+			((index++))
+		    done  
+		    
+		else
+		    echo "Submitting DATA FAKE "
+		    echo "  method:     $methodData"
+		    
+		    cd ${pathRun}
+		    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
+		    echo ""
+		    echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
+		    cd ${pathScript}
+		    echo ""
+		    sleep 1
+		    
+		fi
+		
 	    fi
 	fi
 

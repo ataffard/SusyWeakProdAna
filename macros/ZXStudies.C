@@ -36,9 +36,9 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
   _ana = new DrawPlots(); 
 
-  //string ver = "histos_112812_13fb_n0114_DD_MMtrial9_SYS/";
-  string ver = "";
-  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/" +  ver + "ToyNtOutputs/";
+  string ver = "histos_112812_13fb_n0114_DD_MMtrial9_SYS/";
+  //string ver = "";
+  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/" +  ver + "ToyNtOutputs_v2/";
 
   ZAP = new TChain("ToyNt");
   ZAP->AddFile(string(dir+"117650_DIL_CRZ.root").c_str());
@@ -90,8 +90,13 @@ int main(int argc, char *argv[]){
 
 
 
-  _col.push_back(kRed-4);     //ZS
-  _col.push_back(kViolet+1);  //ZAP
+  _col.push_back(kRed-4);     
+  _col.push_back(kViolet+1);  
+  _col.push_back(kMagenta-4);
+  _col.push_back(kBlue-3);          
+  _col.push_back(kCyan-7);     
+  _col.push_back(kGreen+3);     
+  _col.push_back(kOrange-4);     
 
   _name.push_back("Sherpa");     
   _name.push_back("Alpgen+Pythia6");
@@ -221,7 +226,8 @@ void study(int type){
 
 
   //string sName = "CRZrecoil"+ SLEP + var;
-  string sName = "CRZrecoil_dphiZJ25"+ SLEP + var;
+  //  string sName = "CRZrecoil_dphiZJ25"+ SLEP + var;
+  string sName = "CRZrecoil_dphiZJ25_TM"+ SLEP + var;
   //string sName = "CRZjveto"+ SLEP + var;
   //string sName = "CRZjveto_pTll80"+ SLEP + var;
   //string sName = "CRZjveto_pTll80_ojPtGT30"+ SLEP + var;
@@ -403,58 +409,80 @@ void effJVF(int ilep)
   if(ilep==0)  LEP = "llType==0";
   else         LEP = "llType==1";
 
+  vector<string> label;
+  label.push_back("Sherpa");
+  label.push_back("AlpgenPythia");
+  label.push_back("Data");
+
   TCut SEL("j_isRecoil && dphi_Zj>2.5");
   
+  vector<string> sCUT;
+  sCUT.push_back("p_{T} > 200 GeV");
+  sCUT.push_back("100 < p_{T} < 200 GeV");
+  sCUT.push_back("80 < p_{T} < 100 GeV");
+  sCUT.push_back("50 < p_{T} < 80 GeV");
+  sCUT.push_back("30 < p_{T} < 50 GeV");
+  sCUT.push_back("25 < p_{T} < 30 GeV");
+  sCUT.push_back("20 < p_{T} < 25 GeV");
+
   TCut JALL(LEP && SEL);
-  TCut J200(JALL && "j_pt>200");
-  TCut J100(JALL && "j_pt>100 && j_pt<200");
-  TCut J80 (JALL && "j_pt>80 && j_pt<100");
-  TCut J50 (JALL && "j_pt>50 && j_pt<80");
-  TCut J30 (JALL && "j_pt>30 && j_pt<50");
-  TCut J20 (JALL && "j_pt>20 && j_pt<30");
+  TCut JXX[7];
 
+  JXX[0] = (JALL && "j_pt>200");
+  JXX[1] = (JALL && "j_pt>100 && j_pt<200");
+  JXX[2] = (JALL && "j_pt>80 && j_pt<100");
+  JXX[3] = (JALL && "j_pt>50 && j_pt<80");
+  JXX[4] = (JALL && "j_pt>30 && j_pt<50");
+  JXX[5] = (JALL && "j_pt>25 && j_pt<30");
+  JXX[6] = (JALL && "j_pt>20 && j_pt<25");
 
-  TH1F* h_ZAP_den = bookHist("j_jvf","h_ZAP_den");
-  TH1F* h_ZAP_num200 = bookHist("j_jvf","h_ZAP_num200");
-  TH1F* h_ZAP_num100 = bookHist("j_jvf","h_ZAP_num100");
-  TH1F* h_ZAP_num80 = bookHist("j_jvf","h_ZAP_num80");
-  TH1F* h_ZAP_num50 = bookHist("j_jvf","h_ZAP_num50");
-  TH1F* h_ZAP_num30 = bookHist("j_jvf","h_ZAP_num30");
-  TH1F* h_ZAP_num20 = bookHist("j_jvf","h_ZAP_num20");
+  TH1F* h[7];
+  h[0] = bookHist("j_jvf","h_200");
+  h[1] = bookHist("j_jvf","h_100");
+  h[2] = bookHist("j_jvf","h_80");
+  h[3] = bookHist("j_jvf","h_50");
+  h[4] = bookHist("j_jvf","h_30");
+  h[5] = bookHist("j_jvf","h_25");
+  h[6] = bookHist("j_jvf","h_20");
 
-  ZAP->Draw("j_jvf>>h_ZAP_den",JALL,"goff");
-  ZAP->Draw("j_jvf>>h_ZAP_num200",J200,"goff");
-  ZAP->Draw("j_jvf>>h_ZAP_num100",J100,"goff");
-  ZAP->Draw("j_jvf>>h_ZAP_num80",J80,"goff");
-  ZAP->Draw("j_jvf>>h_ZAP_num50",J50,"goff");
-  ZAP->Draw("j_jvf>>h_ZAP_num30",J30,"goff");
-  ZAP->Draw("j_jvf>>h_ZAP_num20",J20,"goff");
-
-
-  TH1F* ZAP_eff_200   = _ana->calcEff(h_ZAP_num200,1);
-  //ZAP_eff_200->GetYaxis()->SetTile("Efficiency");
-  TH1F* ZAP_eff_100   = _ana->calcEff(h_ZAP_num100,1);
-  //ZAP_eff_100->GetYaxis()->SetTile("Efficiency");
-  TH1F* ZAP_eff_80   = _ana->calcEff(h_ZAP_num80,1);
-  //ZAP_eff_80->GetYaxis()->SetTile("Efficiency");
-  TH1F* ZAP_eff_50   = _ana->calcEff(h_ZAP_num50,1);
-  //ZAP_eff_50->GetYaxis()->SetTile("Efficiency");
-  TH1F* ZAP_eff_30   = _ana->calcEff(h_ZAP_num30,1);
-  //ZAP_eff_30->GetYaxis()->SetTile("Efficiency");
-  TH1F* ZAP_eff_20   = _ana->calcEff(h_ZAP_num20,1);
-  //ZAP_eff_20->GetYaxis()->SetTile("Efficiency");
-
-
-  TCanvas* _c1  = _utils->myCanvas("JVF Eff");
-  _utils->myDraw1d(ZAP_eff_200,_c1,1,"e",false,kRed,false,20);
-  _utils->myDraw1d(ZAP_eff_100,_c1,1,"esame",false,kBlue,false,20);
-  _utils->myDraw1d(ZAP_eff_80,_c1,1,"esame",false,kMagenta,false,20);
-  _utils->myDraw1d(ZAP_eff_50,_c1,1,"esame",false,kGreen,false,20);
-  _utils->myDraw1d(ZAP_eff_30,_c1,1,"esame",false,kViolet,false,20);
-  _utils->myDraw1d(ZAP_eff_20,_c1,1,"esame",false,kCyan,false,20);
+  TH1F* _eff[3][7];
+  for(uint is=0; is<label.size(); is++){
+    TChain* _cc;
+    if(is==0) _cc = ZS;
+    else if(is==1) _cc = ZAP;
+    else if(is==2) _cc = data;
+    
+    _cc->Draw("j_jvf>>h_200",JXX[0],"goff");
+    _cc->Draw("j_jvf>>h_100",JXX[1],"goff");
+    _cc->Draw("j_jvf>>h_80",JXX[2],"goff");
+    _cc->Draw("j_jvf>>h_50",JXX[3],"goff");
+    _cc->Draw("j_jvf>>h_30",JXX[4],"goff");
+    _cc->Draw("j_jvf>>h_25",JXX[5],"goff");
+    _cc->Draw("j_jvf>>h_20",JXX[6],"goff");
+     
+    TLegend*  _leg = new TLegend(0.2,0.2,0.5,0.5);
+    _utils->legendSetting(_leg,0.03); 
+    
+    string sName = "JVF_Eff_" + label[is];
+    TCanvas* _c1  = _utils->myCanvas(sName.c_str());
+    for(uint ii=0; ii<7; ii++){
+      _eff[is][ii]  = _ana->calcEff(h[ii],1);
+      _eff[is][ii]->SetMarkerSize(0.5);
+      _eff[is][ii]->SetMaximum(1.2);
+      _eff[is][ii]->GetXaxis()->SetRangeUser(-0.1,1);
+      //_eff[is][ii]->GetYaxis()->SetRangeUser(0.,1.2);
+      string opt = "esame";
+      if(ii==0) opt = "e";
+      _utils->myDraw1d(_eff[is][ii],_c1,1,opt.c_str(),false,_col[ii],false,20);
+      _leg->AddEntry(_eff[is][ii], sCUT[ii].c_str(),"p");
+    }
+    _leg->Draw();
+    
+    string fName= "ZXstudy_JVFEff_recoil_" + label[is];
+    _c1->SaveAs((fName+".png").c_str());
+    
+  }
   
-
-
 
 
 }

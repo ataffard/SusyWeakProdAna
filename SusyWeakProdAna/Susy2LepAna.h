@@ -101,6 +101,7 @@ class Susy2LepAna: public SusyNtTools
     bool passMETRel(const Met *met, const LeptonVector* leptons, const JetVector* jets);
     bool passMET(const Met *met);
     bool passbJet(const JetVector* jets, float cutVal=MV1_85);
+    bool passeq1Jet(const JetVector* jets, int iSR);
     bool passge2Jet(const JetVector* jets, int iSR);
     bool passMT2(const LeptonVector* leptons, const Met* met);
     bool passMll(const LeptonVector* leptons);
@@ -242,6 +243,7 @@ class Susy2LepAna: public SusyNtTools
     bool                m_selB;         // sel  b-jet using m_btagPtMin;
     bool                m_vetoB;        // veto b-jet using m_btagPtMin
     bool                m_vetoJ;        // veto jet using m_jetPtMin
+    bool                m_sel1J;        // select 1 jet using m_jetPtMin
     bool                m_sel2J;        // select 2 jet using m_jetPtMin
     float               m_metMin;       // min Met
     float               m_metMax;       // max Met
@@ -283,6 +285,7 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_flav[ET_N][DIL_NSR];
     float                n_pass_Z[ET_N][DIL_NSR];
     float                n_pass_Jveto[ET_N][DIL_NSR];
+    float                n_pass_1Jet[ET_N][DIL_NSR];
     float                n_pass_2Jet[ET_N][DIL_NSR];
     float                n_pass_bJet[ET_N][DIL_NSR];
     float                n_pass_topTag[ET_N][DIL_NSR];

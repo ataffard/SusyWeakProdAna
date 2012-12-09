@@ -53,6 +53,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   BOOK_SRDG2L(DG2L_nSoftJets,"NSoftJets","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_qq,"","",syaxis,10,-0.5,1.5);
   BOOK_SRDG2L(DG2L_mll,"M_{ll}","GeV",syaxis,110,0,220); 
+  BOOK_SRDG2L(DG2L_mllcoarse,"M_{ll}","GeV",syaxis,40,0,200); 
   BOOK_SRDG2L(DG2L_mjj,"M_{jj}","GeV",syaxis,50,0,500);
   BOOK_SRDG2L(DG2L_pTll,"p_{T}^{ll}","GeV",syaxis,105,10,220);
   BOOK_SRDG2L(DG2L_mWWT,"m_{T}^{WW}","GeV",syaxis,50,0,500);

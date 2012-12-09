@@ -118,7 +118,8 @@ void SusyAnaLooper::printSettings()
   cout << "   pLUMI             " << pLUMI          << endl;
   cout << endl;
   cout << " 2L Settings " << endl;
-  cout << "   METREL40          " << METREL40       << endl;
+  cout << "   NBASELEPMIN       " << NBASELEPMIN       << endl;
+  cout << "   NBASELEPMAX       " << NBASELEPMAX       << endl;
   cout << endl;
   cout << "   BLIND_DATA        " << BLIND_DATA     << endl;
   cout << "   BLIND_MC          " << BLIND_MC       << endl;
@@ -132,6 +133,9 @@ void SusyAnaLooper::printSettings()
   cout << endl;
   cout << "   DO_SYS            " << DO_SYS         << endl;
   cout << "   FILL_HFT          " << FILL_HFT       << endl;
+  cout << endl;
+  cout << "   FILL_TOYNT        " << FILL_TOYNT     << endl;
+  cout << "   TOYNT_SR          " << TOYNT_iSR      << endl;
   cout << " ================================"       <<endl;
   cout << endl;
 

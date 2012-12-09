@@ -4,7 +4,7 @@
 #date="110812_13fb_n0111_DD_MMtrial9_SYS_HFT"
 #mth="rlep"
 
-date="112812_13fb_n0114_DD_MMtrial9_SYS"
+date="120912_13fb_n0114_DD_MMtrial9_SYS_HFT"
 mth="rlep"
 
 
@@ -19,7 +19,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-doMove=true
+#doMove=true
 
 doData=true
 doDataFake=true
@@ -49,10 +49,14 @@ doZTauTaujetSherpaIncl=true
 doZjetSherpaLFHF=true
 doZTauTaujetSherpaLFHF=true
 
+doZjetPowheg=true
+doZTauTaujetPowheg=true
+
 doZXSherpa=true
 doZXSherpaPowheg=true
 doZXSherpaLFHF=true
 doZXAlpgen=true
+doZXPowheg=true
 
 doWjetSherpa=true
 doWjetAlpgen=true
@@ -485,6 +489,50 @@ EOF
     chmod 755 $SCRIPT
 fi 
 
+
+
+if [ $doZjetPowheg ]; then
+#Z+jets Powheg
+    echo "Merge Z+jets Powheg "
+    rm -f ${histPath}/histo_Zjets_Powheg_${mth}.root
+    SCRIPT=${mergeJobDir}/Zjets_Powheg_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+     hadd -f ${histPath}/histo_ZeeJets_Powheg_${mth}.root  \
+	${histPath}/histo_Zee.147806_${mth}.root  \
+	${histPath}/histo_DYee.129501_${mth}.root  
+
+    hadd -f ${histPath}/histo_ZmumuJets_Powheg_${mth}.root  \
+	${histPath}/histo_Zmumu.147807_${mth}.root \
+	${histPath}/histo_DYmumu.129501_${mth}.root  
+
+    hadd -f ${histPath}/histo_Zjets_Powheg_${mth}.root  \
+	${histPath}/histo_ZeeJets_Powheg_${mth}.root \
+	${histPath}/histo_ZmumuJets_Powheg_${mth}.root  
+EOF
+    chmod 755 $SCRIPT
+fi
+
+if [ $doZTauTaujetPowheg ]; then
+#Z+jets Powheg - no low mass !!!
+    echo "Merge Ztautau+jets Powheg"
+    rm -f ${histPath}/histo_ZTauTaujets_Powheg_${mth}.root
+    SCRIPT=${mergeJobDir}/ZTauTaujets_Powheg_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_ZTauTaujets_Powheg_${mth}.root  \
+	${histPath}/histo_Ztautau.147808_${mth}.root  
+
+EOF
+    chmod 755 $SCRIPT
+fi
+
+
+
 #
 # Merge diBZ & ZJets (ee/mm)
 #
@@ -545,12 +593,27 @@ if [ $doZXAlpgen ]; then
     cat > $SCRIPT << "EOF"
 #!/bin/bash
     hadd -f ${histPath}/histo_ZX_Alpgen_${mth}.root \
-	${histPath}/histo_diBZX_Sherpa_${mth}.root   \
+	${histPath}/histo_diBZX_Sherpa_${mth}.root  \
 	${histPath}/histo_Zjets_Alpgen_${mth}.root 
 EOF
     chmod 755 $SCRIPT
 fi
 
+
+if [ $doZXPowheg ]; then
+    echo "Merge ZX+jets Powheg "
+    rm -f ${histPath}/histo_ZX_Powheg_${mth}.root
+    SCRIPT=${mergeJobDir}/ZX_Powheg_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_ZX_Powheg_${mth}.root \
+	${histPath}/histo_diBZX_Sherpa_${mth}.root  \
+	${histPath}/histo_Zjets_Powheg_${mth}.root 
+EOF
+    chmod 755 $SCRIPT
+fi
 
 if [ $doWjetSherpa ]; then
 #W+jets Sherpa

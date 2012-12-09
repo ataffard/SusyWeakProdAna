@@ -16,7 +16,7 @@ enum DIL_SR{DIL_SRjveto=0, DIL_SR2jets, DIL_SRmT2, DIL_SRmT2b,
 	    DIL_preSRjveto, DIL_preSR2jets, DIL_preSRmT2,
 	    DIL_CR2LepOS, DIL_CR2LepOS40,
 	    DIL_SRjveto2, DIL_VRjveto, DIL_VRjveto2,
-	    DIL_preSRSSjveto, DIL_SRSSjveto,
+	    DIL_preSRSSjveto, DIL_SRSSjveto, DIL_SRSS1j,DIL_SRSS1jcut,
 	    DIL_CR2LepSS, DIL_CR2LepSS40,DIL_VR1SS, 
 	    DIL_NSR
 };
@@ -28,7 +28,7 @@ const string DIL_SRNAME[] = {"SRjveto", "SR2jets", "SRmT2", "SRmT2b",
 			     "preSRjveto", "preSR2jets", "preSRmT2",
 			     "CR2LepOS", "CR2LepOS40",
 			     "SRjveto2", "VRjveto", "VRjveto2",
-			     "preSRSSjveto","SRSSjveto",
+			     "preSRSSjveto","SRSSjveto", "SRSS1j","SRSS1jcut",
 			     "CR2LepSS", "CR2LepSS40", "VR1SS" 		     
 };
 
@@ -62,6 +62,7 @@ class Histos_2L
   HDG2L DG2L_nSoftJets; //Not 2L jets
   HDG2L DG2L_qq; //SS: --/++; OS: -+/+-
   HDG2L DG2L_mll;
+  HDG2L DG2L_mllcoarse;
   HDG2L DG2L_mjj;
   HDG2L DG2L_pTll;
   HDG2L DG2L_mWWT;
