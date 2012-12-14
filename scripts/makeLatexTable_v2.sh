@@ -1,6 +1,7 @@
 # ./makeLatexTable.sh  
 
-date="112812_13fb_n0114_DD_MMtrial9_SYS"
+#date="112812_13fb_n0114_DD_MMtrial9_SYS"
+date="121012_13fb_n0115_DD_MMtrial9_SYS"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts
@@ -9,13 +10,14 @@ dir=${path}/Tables
 
 #Generate the latex table for each SR/CR
 
-#SR=(CR2LepSS40)
-SR=(CR2LepOS  CR2LepSS CR2LepOS40 CR2LepSS40 \
-    CRZ VR1SS NTOP NWW1\
-    ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
-    preSRjveto preSRSSjveto preSR2jets preSRmT2 \
-    SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
-    SRjveto2 VRjveto VRjveto2)
+SR=(SRSS1j SRSS1jcut)
+#SR=(CR2LepOS  CR2LepSS CR2LepOS40 CR2LepSS40 \
+#    CRZ VR1SS NTOP NWW1\
+#    ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
+#    preSRjveto preSRSSjveto preSR2jets preSRmT2 \
+#    SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
+#    SRjveto2 VRjveto VRjveto2 \
+#    SRSS1j SRSS1jcut)
 
 
 cd ${pathRun}

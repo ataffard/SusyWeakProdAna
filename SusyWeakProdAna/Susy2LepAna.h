@@ -97,7 +97,7 @@ class Susy2LepAna: public SusyNtTools
     bool passFlavor(const LeptonVector* leptons);
     bool passQQ(const LeptonVector* leptons);
     bool passJetVeto(const JetVector* jets);
-    bool passZVeto(const LeptonVector* leptons, float Zlow = MZ-10, float Zhigh = MZ+10);
+    bool passZVeto(const LeptonVector* leptons, float Zlow = MZ-10, float Zhigh = MZ+10, bool onOS=true, bool onSS=false);
     bool passMETRel(const Met *met, const LeptonVector* leptons, const JetVector* jets);
     bool passMET(const Met *met);
     bool passbJet(const JetVector* jets, float cutVal=MV1_85);
@@ -261,6 +261,7 @@ class Susy2LepAna: public SusyNtTools
     float               m_dPhiMetl1;    // dphi Met & l1
     float               m_lowMll;       // low Mll bound
     float               m_highMll;      // high Mll bound
+    bool                m_mllSS;        // to do mll cut on SS events
     
     DiLepEvtType        m_ET;           // Dilepton event type to store cf
     std::string         m_sel;          // event selection string

@@ -4,7 +4,7 @@ if [[ $# = 1 ]]; then
     sample=$1
 fi
 
-path=${WORKAREA}/histoAna/SusyAna/histos_120912_13fb_n0114_DD_MMtrial9_SYS_HFT
+path=${WORKAREA}/histoAna/SusyAna/histos_121012_13fb_n0115_DD_MMtrial9_SYS
 #path=${WORKAREA}/histoAna/SusyAna/
 
 if [ "$sample" == "EG" ] ; then
@@ -30,6 +30,10 @@ elif [ "$sample" == "ZMM" ] ; then
 
 elif [ "$sample" == "TOP105200" ] ; then
     hadd -f ${path}/histo_ttbar.105200_rlep.root ${path}/histo_ttbar.105200_rlep_*
+elif [ "$sample" == "TOP105861" ] ; then
+    hadd -f ${path}/histo_ttbar.105861_rlep.root ${path}/histo_ttbar.105861_rlep_*
+elif [ "$sample" == "TOP117209" ] ; then
+    hadd -f ${path}/histo_ttbar.117209_rlep.root ${path}/histo_ttbar.117209_rlep_*
 elif [ "$sample" == "TOP117210" ] ; then
     hadd -f ${path}/histo_ttbar.117210_rlep.root ${path}/histo_ttbar.117210_rlep_*
 elif [ "$sample" == "ZEEHF" ] ; then
@@ -42,6 +46,11 @@ elif [ "$sample" == "ZEENP0" ] ; then
 elif [ "$sample" == "ZMMNP0" ] ; then
     hadd -f ${path}/histo_ZmumuNp0.107660_rlep.root ${path}/histo_ZmumuNp0.107660_rlep_*
     hadd -f ${path}/histo_ZmumuNp0.117660_rlep.root ${path}/histo_ZmumuNp0.117660_rlep_*
+
+elif [ "$sample" == "ZEE147806" ] ; then
+    hadd -f ${path}/histo_Zee.147806_rlep.root ${path}/histo_Zee.147806_rlep_*
+elif [ "$sample" == "ZMM147807" ] ; then
+    hadd -f ${path}/histo_Zmumu.147807_rlep.root ${path}/histo_Zmumu.147807_rlep_*
 
 fi
 

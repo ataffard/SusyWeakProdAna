@@ -182,7 +182,6 @@ void study(int type){
     slep = "_mm";
     SLEP = "_MM_";
   }
-  string hName ="hZS"+slep;
 
   TCut EE("llType==0");
   TCut MM("llType==1");
@@ -193,8 +192,14 @@ void study(int type){
   bool logy=true;
   //TCut SJET(" ((j_pt<30 && j_jvf>0.25) || j_pt>30) && j_isOJ");
 
+  TCut LJET("j_pt>25 && j_jvf>0.20 && !j_isB20 && fabs(j_eta)<2.5");
+  TCut BJET("j_pt>20 && j_isB20 && fabs(j_eta)<2.5");
+  TCut FJET("j_pt>30 && fabs(j_eta>2.5  && fabs(j_eta)>4.5"); 
+  
 
-
+  //  TCut SEL("nSJets>=0 && pTll>80");
+  //TCut SEL("!(j_pt>25 && fabs(j_jvf)>0.5)");
+  //TCut SEL("!(j_pt>25 && fabs(j_jvf)>0.25)");
   //TCut SEL("nSJets==0 && npvCorr<12");
   //TCut SEL("nSJets==0 && pTll>80 && j_isOJ");
   //TCut SEL("nSJets==0 && pTll<40 && npvCorr>12");
@@ -204,13 +209,18 @@ void study(int type){
   //TCut SEL("nSJets==0 && pTll<40 && oj_jvf>0.25");
   //TCut SEL(!SJET && "nSJets==0");
 
+  //   TCut SEL(!LJET && !BJET && !FJET);
+  TCut SEL("jet.C+");
+
+  //  TCut SEL("!(j_isC25 || j_isB20 || j_isF30)");
+   //TCut SEL("nSJets==0");
+
   //TCut SEL("j_isRecoil");
   //  TCut SEL("j_isRecoil && dphi_Zj>2.5");
-  TCut SEL("dphi_Zj>2.5 && !j_isRecoil && !j_isSublead && j_isTruth");
-
+  //TCut SEL("dphi_Zj>2.5 && !j_isRecoil && !j_isSublead && j_isTruth");
 
   //string var = "met";
-  //string var = "metrel";
+  string var = "metrel";
   //  string var = "met_refEle";
   //string var = "met_refMuo";
   //string var = "met_refJet";
@@ -219,22 +229,41 @@ void study(int type){
   //string var = "nJets";
   //string var = "j_pt";
   //string var = "j_eta";
-  string var = "j_jvf";
+  //string var = "j_jvf";
   //  string var = "dphi_metl[1]";
   //string var = "j_pt/pTll";
   //string var = "dphi_Zj";
 
 
   //string sName = "CRZrecoil"+ SLEP + var;
-  //  string sName = "CRZrecoil_dphiZJ25"+ SLEP + var;
-  string sName = "CRZrecoil_dphiZJ25_TM"+ SLEP + var;
+  //string sName = "CRZrecoil_dphiZJ25"+ SLEP + var;
+  //string sName = "CRZrecoil_dphiZJ25_TM"+ SLEP + var;
   //string sName = "CRZjveto"+ SLEP + var;
   //string sName = "CRZjveto_pTll80"+ SLEP + var;
   //string sName = "CRZjveto_pTll80_ojPtGT30"+ SLEP + var;
-  //  string sName = "CRZjveto_pTll80_oj1JVFLT025"+ SLEP + var;
-  //  string sName = "CRZjveto_pTllLT40"+ SLEP + var;  
-  //  string sName = "CRZjveto_pTllLT40_ojJVFGT025"+ SLEP + var;  
+  //string sName = "CRZjveto_pTll80_oj1JVFLT025"+ SLEP + var;
+  //string sName = "CRZjveto_pTllLT40"+ SLEP + var;  
+  //string sName = "CRZjveto_pTllLT40_ojJVFGT025"+ SLEP + var;  
   //string sName = "CRZjveto_pTllLT40_npvLT12"+ SLEP + var;  
+  //string sName = "CRZ"+ SLEP + var;
+  //string sName = "CRZ_pTllLT40"+ SLEP + var;
+  //string sName = "CRZ_pTlGTT80"+ SLEP + var;
+  //string sName = "CRZ_noJetGT25JVF05_pTllLT40"+ SLEP + var;
+  //string sName = "CRZ_noJetGT25JVF025"+ SLEP + var;
+
+  string sName = "CRZ_noJetDG2L_v1"+ SLEP + var;
+
+  /*
+    SEL(!(LJET || BJET || FJET));
+    V1 veto:
+    TCut LJET("j_pt>25 && fabs(j_jvf)>0.25 && !j_isB20 && fabs(j_eta)<2.5");
+    TCut BJET("j_pt>20 && j_isB20 && fabs(j_eta)<2.5");
+    TCut FJET("j_pt>30 && fabs(j_eta)>2.5  && fabs(j_eta)>4.5"); 
+
+
+
+  */
+
 
   //
   //end modif
@@ -242,6 +271,7 @@ void study(int type){
 
 
   //No changes needed below
+  string hName ="hZS"+slep;
   TH1F* hZS = bookHist(var,hName);
   if(hZS==NULL) abort();
 

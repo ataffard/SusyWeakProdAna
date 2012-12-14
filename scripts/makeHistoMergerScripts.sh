@@ -4,9 +4,8 @@
 #date="110812_13fb_n0111_DD_MMtrial9_SYS_HFT"
 #mth="rlep"
 
-date="120912_13fb_n0114_DD_MMtrial9_SYS_HFT"
+date="121012_13fb_n0115_DD_MMtrial9_SYS"
 mth="rlep"
-
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 logPath=${WORKAREA}/SusyWeakProdAna/run/jobLogs

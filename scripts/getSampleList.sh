@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sub=_n0114
+sub=_n0115
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutPath=$WORKAREA/SusyWeakProdAna/scripts
@@ -24,8 +24,10 @@ if [[ $type == "mc12" ]]; then
 	
         #echo "Directory ${dir}"
 	DIS=( `echo $dir |cut -d'.' -f4-4`)
-	if [[ ${DIS} -ge 146830 && ${DIS} -le 146855 ]]; then
+	if [[ ${DIS} -ge 146830 && ${DIS} -le 146835 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-5`)
+	if [[ ${DIS} -ge 146840 && ${DIS} -le 146855 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-5`)
 	elif [[ ${DIS} -ge 126892 && ${DIS} -le 126895 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-4`)
 	elif [[ ${DIS} -ge 126928 && ${DIS} -le 126936 ]]; then
@@ -38,7 +40,7 @@ if [[ $type == "mc12" ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)
 	elif [[ ${DIS} -eq 119583 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)
-	elif [[ ${DIS} -ge 129134 && ${DIS} -le 129136 ]]; then
+	elif [[ ${DIS} -ge 129134 && ${DIS} -le 129139 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)
 	elif [[ ${DIS} -ge 147666 && ${DIS} -le 147668 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)

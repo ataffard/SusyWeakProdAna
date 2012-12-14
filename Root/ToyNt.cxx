@@ -34,6 +34,11 @@ ToyNt::ToyNt(TString MCID, TString suffix) {
   tree->Branch("l_phi",_b_l_phi,"l_phi[nlep]/F");
   tree->Branch("l_e",_b_l_e,"l_e[nlep]/F");
   tree->Branch("l_q",_b_l_q,"l_q[nlep]/I");
+  tree->Branch("l_ptcone30",_b_l_ptcone30,"l_ptcone30[nlep]/F");
+  tree->Branch("l_etcone30",_b_l_etcone30,"l_etcone30[nlep]/F");
+  tree->Branch("l_etconetopo30",_b_l_etconetopo30,"l_etconetopo30[nlep]/F");
+  tree->Branch("l_d0",_b_l_d0,"l_d0[nlep]/F");
+  tree->Branch("l_z0",_b_l_z0,"l_z0[nlep]/F");
   tree->Branch("l_isEle",_b_l_isEle,"l_isEle[nlep]/O");
   tree->Branch("dphi_metl",_b_dphi_metl,"dphi_metl[nlep]/F");
   tree->Branch("mTl",_b_mTl,"mTl[nlep]/F");
@@ -62,6 +67,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) {
   tree->Branch("j_phi",_b_j_phi,"j_phi[nJets]/F");
   tree->Branch("j_e",_b_j_e,"j_e[nJets]/F");
   tree->Branch("j_jvf",_b_j_jvf,"j_jvf[nJets]/F");
+  tree->Branch("j_mv1",_b_j_mv1,"j_mv1[nJets]/F");
   tree->Branch("j_isTruth",_b_j_isTruth,"j_isTruth[nJets]/O");
   tree->Branch("j_label",_b_j_label,"j_label[nJets]/I");
   tree->Branch("j_isRecoil",_b_j_isRecoil,"j_isRecoil[nJets]/O");
@@ -112,6 +118,11 @@ void ToyNt::clearOutputBranches(void) {
     _b_l_phi[i]=-999;
     _b_l_e[i]=-999;
     _b_l_q[i]=0;
+    _b_l_ptcone30[i]=-999;
+    _b_l_etcone30[i]=-999;
+    _b_l_etconetopo30[i]=-999;
+    _b_l_d0[i]=-999;
+    _b_l_z0[i]=-999;
     _b_l_isEle[i]=false;
     _b_dphi_metl[i]=-999; 
     _b_mTl[i]=-999;
@@ -142,6 +153,7 @@ void ToyNt::clearOutputBranches(void) {
     _b_j_phi[i]=-999;
     _b_j_e[i]=-999;
     _b_j_jvf[i]=-999;
+    _b_j_mv1[i]=-999;
     _b_j_isTruth[i]=false;
     _b_j_label[i]=-999;
 
@@ -217,7 +229,7 @@ void ToyNt::FillTreeEvent(int run, int event, float  npv, float npvCorr, int iSR
   
 }
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillTreeLeptons(const LeptonVector* leptons, const Met* met)
+void ToyNt::FillTreeLeptons(const LeptonVector* leptons, const Met* met, int nVtx, bool isMc)
 {
   if(leptons->size()==2) _b_nlep=2;
   else{ 
@@ -225,6 +237,8 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons, const Met* met)
     abort();
   }
   
+  SusyNtTools* _ntTools = new SusyNtTools();
+
   _b_dphi_metcl=999; 
   _b_dphi_ll=999; 
   int qqType=1;
@@ -238,6 +252,22 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons, const Met* met)
     _b_l_phi[ilep] = _l->Phi();
     _b_l_e[ilep] = _l->E();
     _b_l_q[ilep] = _l->q;
+    _b_l_d0[ilep] = _l->d0Unbiased;
+    _b_l_z0[ilep] = _l->z0Unbiased;
+    if(_l->isEle()){
+      Electron* _e = (Electron*) _l;
+      float etconetopo =  _ntTools->elEtTopoConeCorr(_e, nVtx, isMc);
+      _b_l_etcone30[ilep] = _e->etcone30Corr;
+      _b_l_etconetopo30[ilep] = etconetopo;
+      _b_l_ptcone30[ilep] = _l->ptcone30;
+    }
+    else{
+      Muon* _m = (Muon*) _l;
+      float ptcone =  _ntTools->muPtConeCorr(_m,nVtx,isMc);
+      _b_l_etcone30[ilep] = _m->etcone30;
+      _b_l_ptcone30[ilep] = ptcone;
+    }
+
     _b_l_isEle[ilep] = _l->isEle();
     _b_dphi_metl[ilep]=fabs(met->lv().DeltaPhi(*_l));
     _b_mTl[ilep] = mT(*_l, met->lv());
@@ -253,7 +283,8 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons, const Met* met)
   _b_mWWT = mT(_ll, met->lv());
   _b_dphi_ll = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
   _b_isOS = (qqType<0) ? true : false;
- 
+
+  delete _ntTools;
 }
 //-----------------------------------------------------------------------------------------------------------
 void ToyNt::FillTreeMet(const Met* met,float metrel, float mT2)
@@ -308,6 +339,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     _b_j_phi[ijet] = _j->Phi();
     _b_j_e[ijet]   = _j->E();
     _b_j_jvf[ijet] = _j->jvf;
+    _b_j_mv1[ijet] = _j->mv1;
     _b_j_isTruth[ijet] = _j->matchTruth;
     _b_j_label[ijet] = _j->truthLabel;
     
@@ -316,7 +348,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     _b_ST += _j->Pt();
     if(iSJ<2) _jj += (*jets->at(ijet));
     
-    cout << "SJ " << _j->Pt() << " " << ijet << " " << _b_j_pt[ijet] << endl;
+    //cout << "SJ " << _j->Pt() << " " << ijet << " " << _b_j_pt[ijet] << endl;
 
   }
 
@@ -347,18 +379,19 @@ void ToyNt::FillTreeOtherJets(JetVector* jets, const LeptonVector* leptons, cons
     _b_j_phi[iijet] = _j->Phi();
     _b_j_e[iijet]   = _j->E();
     _b_j_jvf[iijet] = _j->jvf;
+    _b_j_mv1[iijet] = _j->mv1;
     _b_j_isTruth[iijet] = _j->matchTruth;
     _b_j_label[iijet] = _j->truthLabel;
     _b_j_isOJ[iijet] = true;
 
-    cout << "OJ " << _j->Pt() << " " << iijet << " " << _b_j_pt[iijet] << endl;
+    //cout << "OJ " << _j->Pt() << " " << iijet << " " << _b_j_pt[iijet] << endl;
 
     float _dPhi=fabs(met->lv().DeltaPhi(*_j));
     if(_dPhi<_b_dphi_metcoj) _b_dphi_metcoj=_dPhi;
     iijet++;
 
   }
-  cout << endl;
+  //cout << endl;
 
   TLorentzVector _ll;
   for(uint ilep=0; ilep<leptons->size(); ilep++){
@@ -391,8 +424,8 @@ void ToyNt::findRecoilJet()
   //Find the 2 leading jets within |eta|<1.2
   //
   static const float maxEta = 2.5;
-  int idxj0  = -999;
-  int idxj1  = -999;
+  uint idxj0  = -999;
+  uint idxj1  = -999;
   float j0Pt = -999;
   float j1Pt = -999;
   for(uint ijet=0; ijet<_b_nJets; ijet++){

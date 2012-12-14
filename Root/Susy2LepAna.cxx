@@ -51,6 +51,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   m_dPhiMetl1   ( -1  ),
   m_lowMll      ( -1  ),
   m_highMll     ( -1  ),
+  m_mllSS       (false),
   m_ET(ET_Unknown)
 {
  
@@ -387,6 +388,7 @@ void Susy2LepAna::setSelection(std::string s)
   m_dPhiMetl1 =  -1;
   m_lowMll    =  MZ-10;
   m_highMll   =  MZ+10;
+  m_mllSS     =  false;
 
 
   if(m_sel == "SRjveto"){
@@ -420,16 +422,20 @@ void Susy2LepAna::setSelection(std::string s)
   else if(m_sel == "SRSS1j"){ //SS1jet w/ excess
     m_selSS=true;
     m_sel1J = true;
-    m_lepLeadPtMin = 30;
-    m_metMin=40;
+    //m_lepLeadPtMin = 30;
+    //m_metMin=40;
+    m_metRelMin=40;
   }
   else if(m_sel == "SRSS1jcut"){ //SS1jet w/ excess - peak
     m_selSS=true;
     m_sel1J = true;
-    m_lepLeadPtMin = 30;
-    m_metMin=40;
-    m_lowMll    =  102;
-    m_highMll   =  106;
+    //m_lepLeadPtMin = 30;
+    //m_metMin=40;
+    m_metRelMin=40;
+    m_selZ  = true;
+    m_lowMll    =  95;
+    m_highMll   =  110;
+    m_mllSS     =  true;
   }
   else if(m_sel == "SR2jets"){
     m_selOS = true;
@@ -642,23 +648,26 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     }
   if(SYST==DGSys_NOM) n_pass_mll20+=_inc;
 
-  /*
-    STD ANA -- NEEDED FOR FAKE
+  
   // Get Event Type to continue cutflow
   m_ET = getDiLepEvtType(*baseLeps);
   if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME together
   
   if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;
-  */
+  
 
   if( !passNLepCut(leptons) ){ 
     if(dbg()>10) cout<<"Fail Nlep " << endl; 
     return false;
   }
+  
+  /*
+    //Fudge SS with 3 baseline
   m_ET = getDiLepEvtType(*leptons);
   if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME together
   
   if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;
+  */
 
   /*
   cout << "NSigLep " << leptons->size() 
@@ -757,6 +766,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	  _inc = _ww;
 	  if(SYST==DGSys_NOM) n_pass_ss[m_ET][SR]+=_inc;
 	  allowZVeto=false;
+	  if(DIL_SRSS1jcut) allowZVeto=true; 
 	  //cout << "QFLup " << _ww_qFlip << " " << _wwSave << " " << _ww << endl;
 	}
       }
@@ -769,7 +779,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!passFlavor(leptons)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    if(!passZVeto(leptons,m_lowMll, m_highMll) && allowZVeto ) continue;
+    if(!passZVeto(leptons,m_lowMll, m_highMll,true,m_mllSS) && allowZVeto ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass Zveto " << sSR << endl;
     
@@ -777,7 +787,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(USE_BWEIGHT && nt->evt()->isMC) {
       if( ! ( iSR ==DIL_CR2LepOS || iSR==DIL_CR2LepSS || 
 	      iSR ==DIL_CR2LepOS40 || iSR==DIL_CR2LepSS40 || 
-	      iSR==DIL_CRZ || iSR==DIL_VR1SS ) )
+	      iSR==DIL_CRZ || iSR==DIL_VR1SS ||
+	      iSR==DIL_SRSS1j || iSR==DIL_SRSS1jcut) )
 	//	_ww = _wwSave * bTagWeight;
 	_ww *= bTagWeight;
 	if(WEIGHT_COUNT) _inc = _ww;
@@ -1346,8 +1357,7 @@ float Susy2LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passeq1Jet(const JetVector* jets, int iSR)
 {
-  int nJet  = numberOfCLJets(*jets) + numberOfCBJets(*jets);
-  //  int nFJet  = numberOfFJets(*jets);
+  int nJet  = numberOfCLJets(*jets) + numberOfCBJets(*jets) + numberOfFJets(*jets);
   if(m_sel1J && nJet != 1) return false;
   if(SYST==DGSys_NOM)  n_pass_1Jet[m_ET][SR]+=_inc;
   return true;
@@ -1363,7 +1373,7 @@ bool Susy2LepAna::passge2Jet(const JetVector* jets, int iSR)
   return true;
 }
 /*--------------------------------------------------------------------------------*/
-bool Susy2LepAna::passZVeto(const LeptonVector* leptons, float Zlow, float Zhigh)
+bool Susy2LepAna::passZVeto(const LeptonVector* leptons, float Zlow, float Zhigh, bool onOS, bool onSS)
 {
   if( leptons->size() < 2 ) return false;
   //bool hasz = hasZWindow(*leptons,Zlow, Zhigh); 
@@ -1372,7 +1382,10 @@ bool Susy2LepAna::passZVeto(const LeptonVector* leptons, float Zlow, float Zhigh
   bool hasz=false;
   bool OS = (leptons->at(0)->q*leptons->at(1)->q < 0) ? 1 : 0;
   float mll=Mll(leptons->at(0),leptons->at(1));
-  if(mll>Zlow && mll<Zhigh && OS) hasz=true;
+  if(mll>Zlow && mll<Zhigh){
+    if(onOS && OS) hasz=true;
+    if(onSS && !OS) hasz=true;
+  }
     
   if(m_vetoZ && hasz) return false;
   if(m_selZ){
@@ -2274,7 +2287,7 @@ void Susy2LepAna::fillToyNt(uint iSR,uint iSYS,
 			 iSR,
 			 m_ET,
 			 _ww);	 
-  m_toyNt->FillTreeLeptons(leptons,met);
+  m_toyNt->FillTreeLeptons(leptons,met,nt->evt()->nVtx,nt->evt()->isMC);
   m_toyNt->FillTreeMet(met,metRel,mT2);
   m_toyNt->FillTreeSignalJets(jets,leptons,met);
   m_toyNt->FillTreeOtherJets(v_baseJet,leptons,met);

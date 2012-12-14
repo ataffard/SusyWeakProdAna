@@ -47,11 +47,11 @@ int main(int argc, char *argv[]){
   //string sZX = "histo_ZX_SherpaLFHF";
   //string sZtt = "histo_ZTauTaujets_SherpaLFHF";  
   
-  //string sZX = "histo_ZX_Sherpa";
-  //string sZtt = "histo_ZTauTaujets_Sherpa";  
+  string sZX = "histo_ZX_Sherpa";
+  string sZtt = "histo_ZTauTaujets_Sherpa";  
 
-  string sZX = "histo_ZX_Alpgen";
-  string sZtt = "histo_ZTauTaujets_Alpgen";  
+  //  string sZX = "histo_ZX_Alpgen";
+  //string sZtt = "histo_ZTauTaujets_Alpgen";  
  
 
   string sr    = "";

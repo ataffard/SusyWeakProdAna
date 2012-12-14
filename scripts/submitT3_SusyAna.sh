@@ -50,7 +50,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-doSys=true
+#doSys=true
 
 ##
 ## Ana mode STD or DD
@@ -86,9 +86,6 @@ while read line; do
 	echo "  doMll:      $anaOpt2"
 	echo 
 
-#"$sName" == "ZeeNp0.107650" -o \
-#"$sName" == "ZmumuNp0.107660" -o \
-
 	if [ "$type" == "mc12" -o "$type" == "susy" ]; then
 	    if [ $doSys ]; then
 	        #For large sample - split the sys
@@ -96,15 +93,21 @@ while read line; do
 "$sName" == "Zmumu.147771" -o \
 "$sName" == "TtbarLeptLept.117800" -o \
 "$sName" == "llnunu_WW.126892" -o \
+"$sName" == "ttbar.117209" -o \
 "$sName" == "ttbar.117210" -o \
 "$sName" == "ZeeNp0.117650" -o \
 "$sName" == "ZmumuNp0.117660" -o \
 "$sName" == "ZeeHeavyJets.128975" -o \
 "$sName" == "ZmumuHeavyJets.128976"  -o \
-"$sName" == "ttbar.105200" \
+"$sName" == "ttbar.105200" -o \
+"$sName" == "ttbar.105861" -o \
+"$sName" == "Zee.147806" -o \
+"$sName" == "Zmumu.147807" \
 ]; then
-		    SYS1=("NOM"         "EES_MAT_DN" "EES_LOW_DN" "MS_DN"   "JES_DN"     "RESOST"       "TRIGSF_MU_DN" "BTag_BJet_UP" )
-		    SYS2=("EES_MAT_UP"  "EES_LOW_UP" "MS_UP"      "JES_UP"  "SCALEST_DN" "TRIGSF_MU_UP" "BTag_LJet_DN" "BKGMETHOD_DN")
+		    SYS1=("NOM"      "EES_Z_DN"    "EES_MAT_DN" "EES_PS_DN"  "EES_LOW_DN"  "EER_DN" "MS_DN" "ID_DN" \
+"JES_DN" "SCALEST_UP" "TRIGSF_EL_UP" "TRIGSF_MU_UP" "BTag_BJet_DN"  "BTag_LJet_DN""BTag_CJet_UP" "BKGMETHOD_UP" "XS_UP")
+		    SYS2=("EES_Z_UP" "EES_MAT_UP"  "EES_PS_DN"  "EES_LOW_UP" "EER_UP"      "MS_UP"  "ID_UP" "JES_UP" \
+"JER"   "RESOST"     "TRIGSF_EL_DN" "TRIGSF_MU_DN"  "BTag_CJet_DN" "BTag_BJet_UP" "BTag_LJet_UP" "BKGMETHOD_DN" "XS_DN" )
 		    
 		    echo "Submitting MC using Sys Range "
 		    index=0
@@ -188,13 +191,14 @@ while read line; do
 		    done  
 		    
 		else
+		    methodData=flep
 		    echo "Submitting DATA FAKE "
 		    echo "  method:     $methodData"
 		    
 		    cd ${pathRun}
-		    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh
+		    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
 		    echo ""
-		    echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit_wSys.sh "
+		    echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
 		    cd ${pathScript}
 		    echo ""
 		    sleep 1
