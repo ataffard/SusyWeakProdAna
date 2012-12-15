@@ -29,13 +29,13 @@ const std::string SUFF = "_n0115_DD_MMtrial9_SYS";
 const unsigned int  NBASELEPMAX      = 2;  //number of base lepton allowed - 2 for std analysis
 const unsigned int  NBASELEPMIN   = 2;  //number of base lepton allowed - 2 for std analysis
 
-const bool   FILL_TOYNT        = true;       //Write ToyNt
-const string TOYNT_SR          ="DIL_CRZ";    //SR used to fill ToyNt
-const unsigned int TOYNT_iSR   = DIL_CRZ;     //SR used to fill ToyNt
-
 //const bool   FILL_TOYNT        = true;       //Write ToyNt
-//const string TOYNT_SR          ="DIL_CR2LepSS";    //SR used to fill ToyNt
-//const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
+//const string TOYNT_SR          ="DIL_CRZ";    //SR used to fill ToyNt
+//const unsigned int TOYNT_iSR   = DIL_CRZ;     //SR used to fill ToyNt
+
+const bool   FILL_TOYNT        = true;       //Write ToyNt
+const string TOYNT_SR          ="DIL_CR2LepSS";    //SR used to fill ToyNt
+const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
 
 const bool DO_SYS         = false; //true;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree

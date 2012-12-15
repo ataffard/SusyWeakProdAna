@@ -63,6 +63,12 @@ int main(int argc, char *argv[]){
   c_data->AddFile(string(dir+"Muons.periodE_DATA_DIL_CR2LepSS.root").c_str());
 
   c_fake = new TChain("ToyNt");
+  c_fake->AddFile(string(dir+"Egamma.periodA_FAKE_DIL_CR2LepSS.root").c_str());
+  c_fake->AddFile(string(dir+"Egamma.periodB_FAKE_DIL_CR2LepSS.root").c_str());
+  c_fake->AddFile(string(dir+"Egamma.periodC_FAKE_DIL_CR2LepSS.root").c_str());
+  c_fake->AddFile(string(dir+"Egamma.periodD_FAKE_DIL_CR2LepSS.root").c_str());
+  c_fake->AddFile(string(dir+"Egamma.periodE_FAKE_DIL_CR2LepSS.root").c_str());
+
   c_fake->AddFile(string(dir+"Muons.periodA_FAKE_DIL_CR2LepSS.root").c_str());
   c_fake->AddFile(string(dir+"Muons.periodB_FAKE_DIL_CR2LepSS.root").c_str());
   c_fake->AddFile(string(dir+"Muons.periodC_FAKE_DIL_CR2LepSS.root").c_str());
