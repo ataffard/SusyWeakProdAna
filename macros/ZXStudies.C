@@ -14,13 +14,14 @@ DrawPlots* _ana;
 
 TChain* ZAP;  //Z+jets AlpgenPythia
 TChain* ZS;   //Z+jets Sherpa
+TChain* ZP;   //Z+jets Powheg
 TChain* data;
 vector<int> _col;
 vector<string> _name;
 
 
 void study(int type);
-void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hdata, string label, bool logy=true);
+void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hdata, string label, bool logy=true);
 
 TH1F* bookHist(string var, string name);
 
@@ -36,9 +37,9 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
   _ana = new DrawPlots(); 
 
-  string ver = "histos_112812_13fb_n0114_DD_MMtrial9_SYS/";
-  //string ver = "";
-  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/" +  ver + "ToyNtOutputs_v2/";
+  //string ver = "histos_112812_13fb_n0114_DD_MMtrial9_SYS/";
+  string ver = "";
+  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/" +  ver + "ToyNtOutputs/";
 
   ZAP = new TChain("ToyNt");
   ZAP->AddFile(string(dir+"117650_DIL_CRZ.root").c_str());
@@ -74,6 +75,12 @@ int main(int argc, char *argv[]){
   ZS = new TChain("ToyNt");
   ZS->AddFile(string(dir+"147770_DIL_CRZ.root").c_str());
   ZS->AddFile(string(dir+"147771_DIL_CRZ.root").c_str());
+  ZS->AddFile(string(dir+"147772_DIL_CRZ.root").c_str());
+
+  ZP = new TChain("ToyNt");
+  ZP->AddFile(string(dir+"147806_DIL_CRZ.root").c_str());
+  ZP->AddFile(string(dir+"147807_DIL_CRZ.root").c_str());
+  ZP->AddFile(string(dir+"147808_DIL_CRZ.root").c_str());
 
   data = new TChain("ToyNt");
   data->AddFile(string(dir+"Egamma.periodA_DATA_DIL_CRZ.root").c_str());
@@ -91,15 +98,16 @@ int main(int argc, char *argv[]){
 
 
   _col.push_back(kRed-4);     
-  _col.push_back(kViolet+1);  
+  _col.push_back(kViolet+1); 
+  _col.push_back(kGreen+3);      
   _col.push_back(kMagenta-4);
   _col.push_back(kBlue-3);          
   _col.push_back(kCyan-7);     
-  _col.push_back(kGreen+3);     
   _col.push_back(kOrange-4);     
 
   _name.push_back("Sherpa");     
   _name.push_back("Alpgen+Pythia6");
+  _name.push_back("PowhegPythia8");     
   _name.push_back("Data");     
 
 }
@@ -196,7 +204,7 @@ void study(int type){
   TCut BJET("j_pt>20 && j_isB20 && fabs(j_eta)<2.5");
   TCut FJET("j_pt>30 && fabs(j_eta>2.5  && fabs(j_eta)>4.5"); 
   
-
+  TCut SEL("");
   //  TCut SEL("nSJets>=0 && pTll>80");
   //TCut SEL("!(j_pt>25 && fabs(j_jvf)>0.5)");
   //TCut SEL("!(j_pt>25 && fabs(j_jvf)>0.25)");
@@ -210,7 +218,7 @@ void study(int type){
   //TCut SEL(!SJET && "nSJets==0");
 
   //   TCut SEL(!LJET && !BJET && !FJET);
-  TCut SEL("jet.C+");
+  //TCut SEL("jet.C+");
 
   //  TCut SEL("!(j_isC25 || j_isB20 || j_isF30)");
    //TCut SEL("nSJets==0");
@@ -245,13 +253,13 @@ void study(int type){
   //string sName = "CRZjveto_pTllLT40"+ SLEP + var;  
   //string sName = "CRZjveto_pTllLT40_ojJVFGT025"+ SLEP + var;  
   //string sName = "CRZjveto_pTllLT40_npvLT12"+ SLEP + var;  
-  //string sName = "CRZ"+ SLEP + var;
+  string sName = "CRZ"+ SLEP + var;
   //string sName = "CRZ_pTllLT40"+ SLEP + var;
   //string sName = "CRZ_pTlGTT80"+ SLEP + var;
   //string sName = "CRZ_noJetGT25JVF05_pTllLT40"+ SLEP + var;
   //string sName = "CRZ_noJetGT25JVF025"+ SLEP + var;
 
-  string sName = "CRZ_noJetDG2L_v1"+ SLEP + var;
+  //string sName = "CRZ_noJetDG2L_v1"+ SLEP + var;
 
   /*
     SEL(!(LJET || BJET || FJET));
@@ -283,6 +291,11 @@ void study(int type){
   hZAP->SetTitle(string("hZAP"+slep).c_str());
   hZAP->SetName(string("hZAP"+slep).c_str());
 
+  TH1F* hZP = (TH1F*)  hZS->Clone();
+  hZP->SetTitle(string("hZP"+slep).c_str());
+  hZP->SetName(string("hZP"+slep).c_str());
+
+
   TH1F* hdata = (TH1F*)  hZS->Clone();
   hdata->SetTitle(string("hdata"+slep).c_str());
   hdata->SetName(string("hdata"+slep).c_str());
@@ -291,27 +304,31 @@ void study(int type){
   if(type==0){
     string cmd1 = var + ">>hZS_ee";
     string cmd2 = var + ">>hZAP_ee";
+    string cmd4 = var + ">>hZP_ee";
     string cmd3 = var + ">>hdata_ee";
     ZS->Draw(cmd1.c_str(),CEE,"goff");
     ZAP->Draw(cmd2.c_str(),CEE,"goff");
+    ZP->Draw(cmd4.c_str(),CEE,"goff");
     data->Draw(cmd3.c_str(),CEE,"goff");
   }
   else{
     string cmd1 = var + ">>hZS_mm";
     string cmd2 = var + ">>hZAP_mm";
+    string cmd4 = var + ">>hZP_mm";
     string cmd3 = var + ">>hdata_mm";
     ZS->Draw(cmd1.c_str(),CMM,"goff");
     ZAP->Draw(cmd2.c_str(),CMM,"goff");
+    ZP->Draw(cmd4.c_str(),CMM,"goff");
     data->Draw(cmd3.c_str(),CMM,"goff");
   }
 
-  plot(hZS, hZAP, hdata,sName,logy);
+  plot(hZS, hZAP, hZP, hdata,sName,logy);
 
 }
 
 
 //_____________________________________________________________________________//
-void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hdata, string label, bool logy)
+void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hdata, string label, bool logy)
 {
 
   const float maxScaleLin=1.2;
@@ -324,6 +341,7 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hdata, string label, bool logy)
   //Get ratio data/SM
   TH1F*  _ratioH1=ratio(_hmc1, _hdata);
   TH1F*  _ratioH2=ratio(_hmc2, _hdata);
+  TH1F*  _ratioH3=ratio(_hmc3, _hdata);
 
   TCanvas* _c1  = _utils->myCanvas(label.c_str());
   TPad* _pTop = NULL;
@@ -357,10 +375,12 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hdata, string label, bool logy)
 
   _utils->myDraw1d(_hmc1,_pTop,1,"hist",logy,_col[0],false,20);
   _utils->myDraw1d(_hmc2,_pTop,1,"histsame",logy,_col[1],false,20);
+  _utils->myDraw1d(_hmc3,_pTop,1,"histsame",logy,_col[2],false,20);
   _utils->myDraw1d(_hdata,_pTop,1,"esame",logy,kBlack,false,20);
 
   _leg->AddEntry(_hmc1,_name[0].c_str(),"l");
   _leg->AddEntry(_hmc2,_name[1].c_str(),"l");
+  _leg->AddEntry(_hmc3,_name[2].c_str(),"l");
   _leg->AddEntry(_hdata,_name[2].c_str(),"p");
   _leg->Draw();
   _utils->myText(0.1,0.95,kBlack,label.c_str(),0.05);
@@ -376,8 +396,10 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hdata, string label, bool logy)
     _pBot->cd();
      _utils->myDraw1d(_ratioH1,_pBot,1,"pe0",false, _col[0], false,20);
      _utils->myDraw1d(_ratioH2,_pBot,1,"pe0same",false, _col[1], false,20);
+     _utils->myDraw1d(_ratioH3,_pBot,1,"pe0same",false, _col[2], false,20);
     _ratioH1->SetMarkerSize(0.3);
     _ratioH2->SetMarkerSize(0.3);
+    _ratioH3->SetMarkerSize(0.3);
 
     TLine* _line = new TLine(_ratioH1->GetBinCenter(1)-_ratioH1->GetBinWidth(1)/2,1,
 			     _ratioH1->GetBinCenter(_ratioH1->GetNbinsX())+
