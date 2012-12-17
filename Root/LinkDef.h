@@ -21,6 +21,8 @@
 #include "SusyWeakProdAna/Susy2LepAna.h"
 #include "SusyWeakProdAna/Susy3LepAna.h"
 #include "SusyWeakProdAna/SusyAnaLooper.h"
+#include "SusyWeakProdAna/ToyNtAna.h"
+#include "SusyWeakProdAna/ToyNt_ZXStudies.h"
 
 
 #ifdef __CINT__
@@ -46,6 +48,8 @@
 #pragma link C++ class Susy2LepAna+;
 #pragma link C++ class Susy3LepAna+;
 #pragma link C++ class SusyAnaLooper+;
+#pragma link C++ class ToyNtAna+;
+#pragma link C++ class ToyNt_ZXStudies+;
 
 #pragma link C++ class std::vector< TH1F* >+;
 #pragma link C++ class std::vector< std::vector< TH1F* > >+;

@@ -18,6 +18,7 @@ TChain* ZP;   //Z+jets Powheg
 TChain* data;
 vector<int> _col;
 vector<string> _name;
+vector<string> sLEP;
 
 
 void study(int type);
@@ -29,6 +30,8 @@ TH1F* ratio(TH1* _hmc, TH1* _hdata);
 
 void effJVF(int ilep);
 
+void plotToyAna(int ilep, string var, string cut, bool logy=true);
+TH1F* getHistoFromFile(string sample, string var);
 
 //_____________________________________________________________________________//
 int main(int argc, char *argv[]){
@@ -95,8 +98,6 @@ int main(int argc, char *argv[]){
   data->AddFile(string(dir+"Muons.periodE_DATA_DIL_CRZ.root").c_str());
 
 
-
-
   _col.push_back(kRed-4);     
   _col.push_back(kViolet+1); 
   _col.push_back(kGreen+3);      
@@ -107,8 +108,15 @@ int main(int argc, char *argv[]){
 
   _name.push_back("Sherpa");     
   _name.push_back("Alpgen+Pythia6");
-  _name.push_back("PowhegPythia8");     
+  _name.push_back("Powheg+Pythia8");     
   _name.push_back("Data");     
+
+  sLEP.push_back("EE");
+  sLEP.push_back("MM");
+  sLEP.push_back("EM");
+
+
+
 
 }
 //_____________________________________________________________________________//
@@ -356,7 +364,7 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hdata, string label, bool lo
   _pTop->SetRightMargin(0.05);
   _pTop->SetLeftMargin(0.15);
   _pTop->SetNumber(1);
-  if(hdata_ee){
+  if(_hdata){
     _pTop->SetBottomMargin(0.05);
     _pBot->SetTopMargin(0);
     _pBot->SetBottomMargin(0.4);
@@ -537,4 +545,32 @@ void effJVF(int ilep)
   
 
 
+}
+
+//_____________________________________________________________________________//
+void plotToyAna(int ilep, string var, string cut, bool logy){
+  
+  string hName=var + "_" + sLEP[ilep] + "_" + cut; 
+
+  TH1F* h_ZAP = getHistoFromFile("ZAlpgenPythia",hName);
+  TH1F* h_ZS = getHistoFromFile("ZSherpa",hName);
+  TH1F* h_ZP = getHistoFromFile("ZPowhegPythia",hName);
+  TH1F* h_data = getHistoFromFile("data",hName);
+
+  cout << "\t Plotting " << hName << endl;
+
+  plot(h_ZS, h_ZAP, h_ZP, h_data, hName, logy);
+
+}
+//_____________________________________________________________________________//
+TH1F* getHistoFromFile(string sample, string var){
+  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/ToyAna";
+  
+  string fileName  = dir + "/" + "histo_" + sample + ".root";
+  TFile* _f = new TFile(fileName.c_str(),"READ");
+
+  TH1F* _h = (TH1F*) _f->Get(var.c_str())->Clone();
+  _h->SetName(sample.c_str());   _h->SetTitle(sample.c_str()); 
+
+  return _h;
 }

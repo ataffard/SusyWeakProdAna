@@ -19,11 +19,15 @@ DrawPlots* _ana;
 
 void openHist(string mode="DD",
 	      string Top="histo_topDil_Sherpa",
-	      string WW="histo_WW_Sherpa",
+	      //	      string WW="histo_WW_Sherpa",
+	      string WW="histo_WW_Powheg",
 	      //string ZX="histo_ZX_Sherpa",		      
-	      //string Ztt="histo_ZTauTaujets_Sherpa",
+	      //string ZX="histo_ZX_SherpaLFHF",		      
+	      //string ZX="histo_ZX_SherpaPowheg",		      
 	      string ZX="histo_ZX_Alpgen",		      
-	      string Ztt="histo_ZTauTaujets_Alpgen",
+	      //string Ztt="histo_ZTauTaujets_Sherpa",
+	      //string Ztt="histo_ZTauTaujets_Alpgen",
+	      string Ztt="histo_ZTauTaujets_SherpaLFHF",
 	      string Fake="histo_data12_fake");
 		      
 void draw(string name, bool logy);

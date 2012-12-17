@@ -1,0 +1,10 @@
+$TOYNTDIR/Egamma.periodA_DATA_DIL_CRZ.root
+$TOYNTDIR/Egamma.periodB_DATA_DIL_CRZ.root
+$TOYNTDIR/Egamma.periodC_DATA_DIL_CRZ.root
+$TOYNTDIR/Egamma.periodD_DATA_DIL_CRZ.root
+$TOYNTDIR/Egamma.periodE_DATA_DIL_CRZ.root
+$TOYNTDIR/Muons.periodA_DATA_DIL_CRZ.root
+$TOYNTDIR/Muons.periodB_DATA_DIL_CRZ.root
+$TOYNTDIR/Muons.periodC_DATA_DIL_CRZ.root
+$TOYNTDIR/Muons.periodD_DATA_DIL_CRZ.root
+$TOYNTDIR/Muons.periodE_DATA_DIL_CRZ.root
