@@ -36,12 +36,20 @@ class ToyNt_ZXStudies : public ToyNtAna
   void bookHistograms(TDirectory* hDir);
   void saveHistograms(TDirectory* hDir);
   
+  static const int nCUT=30;
 
-  TH1F* h_pTll[3][20];
-  TH1F* h_met[3][20];
-  TH1F* h_metrel[3][20];
+  TH1F* h_pTll[3][nCUT];
+  TH1F* h_met[3][nCUT];
+  TH1F* h_metrel[3][nCUT];
   
+  TH1F* h_nJets[3][nCUT];
+  TH1F* h_nC25[3][nCUT];
+  TH1F* h_nB20[3][nCUT];
+  TH1F* h_nF30[3][nCUT];
 
+  TH1F* h_jPt[3][nCUT];
+  TH1F* h_j1Pt[3][nCUT];
+  
 
   int nCentralJ(float pTmin=25, float jvf=0.2, 
 		bool notBTag=true, bool useAbs=false);

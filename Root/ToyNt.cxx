@@ -54,7 +54,6 @@ ToyNt::ToyNt(TString MCID, TString suffix) {
   tree->Branch("nCJets",&_b_nCJets,"nCJets/I");
   tree->Branch("nBJets",&_b_nBJets,"nBJets/I");
   tree->Branch("nFJets",&_b_nFJets,"nFJets/I");
-  tree->Branch("nFJets",&_b_nFJets,"nFJets/I");
   tree->Branch("nOJets",&_b_nOJets,"nOJets/I");
 
   tree->Branch("j_isC25",_b_j_isC25,"j_isC25[nJets]/O");
@@ -424,11 +423,11 @@ void ToyNt::findRecoilJet()
   //Find the 2 leading jets within |eta|<1.2
   //
   static const float maxEta = 2.5;
-  uint idxj0  = -999;
-  uint idxj1  = -999;
+  int idxj0  = -999;
+  int idxj1  = -999;
   float j0Pt = -999;
   float j1Pt = -999;
-  for(uint ijet=0; ijet<_b_nJets; ijet++){
+  for(int ijet=0; ijet<_b_nJets; ijet++){
     if(fabs(_b_j_eta[ijet])>maxEta) continue;
     if(_b_j_pt[ijet]>j0Pt){
       idxj0=ijet;
@@ -436,7 +435,7 @@ void ToyNt::findRecoilJet()
       //cout << "found lead " << idxj0 << " " <<_b_j_pt[ijet] << endl;
     }
   }
-  for(uint ijet=0; ijet<_b_nJets; ijet++){
+  for(int ijet=0; ijet<_b_nJets; ijet++){
     if(fabs(_b_j_eta[ijet])>maxEta) continue;
     if(ijet == idxj0) continue;
     if(_b_j_pt[ijet]>j1Pt){

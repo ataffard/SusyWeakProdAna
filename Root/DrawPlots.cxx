@@ -567,7 +567,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig)
   //Decoration
   drawChannelText(name,0.7,0.40);
   drawLumi();
-  drawATLAS();
+  //drawATLAS();
   _c0->Update();
 
   //Bottom ratio band
@@ -575,7 +575,9 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig)
   if(ratioBand) ratioBand->Draw("same && E2");
  _pBot->Update();
 
-  string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
+ //  string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
+  string fName=  "pred_" + name + _sLogy;
+  cout << "Save plot in " << fName << endl; 
   _c0->SaveAs((fName+".png").c_str());
 
 }

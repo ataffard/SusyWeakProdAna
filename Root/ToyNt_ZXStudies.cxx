@@ -1,7 +1,10 @@
 #include <iomanip>
 #include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include "TCanvas.h"
+#include "TSystem.h"
 #include "SusyWeakProdAna/ToyNt_ZXStudies.h"
 
 using namespace std;
@@ -35,6 +38,9 @@ Bool_t ToyNt_ZXStudies::Process(Long64_t entry)
   // Chain entry not the same as tree entry
   //static Long64_t chainEntry = -1;
   m_chainEntry++;
+  
+  if(m_dbgEvt && !processThisEvent(run, event)) return kFALSE;
+
 
   Analyze();
   
@@ -56,6 +62,7 @@ void ToyNt_ZXStudies::Terminate()
 void ToyNt_ZXStudies::saveHistograms(TDirectory* hDir)
 {
   string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/ToyAna";
+  gSystem->mkdir(dir.c_str(),kTRUE);
   string fileName  = dir + "/" + "histo_" + m_sample + ".root";
   
   string title     = m_sample + " histo file";
@@ -87,46 +94,91 @@ void ToyNt_ZXStudies::bookHistograms(TDirectory* hDir)
 
   vector<string> CUTS;
   CUTS.push_back("Inc");  //[0]
-  
-  CUTS.push_back("jVeto");        //DG2L jet veto [1]
-  CUTS.push_back("jVetoPTll40");  //DG2L jet veto [2]
-  CUTS.push_back("jVetoPTll80");  //DG2L jet veto [3]
+  CUTS.push_back("IncPTll40");  //DG2L jet veto [1]
+  CUTS.push_back("IncPTll80");  //DG2L jet veto [2]
 
-  CUTS.push_back("j30NoJvf");              //jet veto pT>30 - no JVF [4]
-  CUTS.push_back("j30NoJvfPTll40");        //jet veto pT>30 - no JVF [5]
-  CUTS.push_back("j30NoJvfPTll80");        //jet veto pT>30 - no JVF [6]
+  CUTS.push_back("jVeto");        //DG2L jet veto [3]
+  CUTS.push_back("jVetoPTll40");  //DG2L jet veto [4]
+  CUTS.push_back("jVetoPTll80");  //DG2L jet veto [5]
 
-  CUTS.push_back("j25Jvf05");       //HWW jet veto [7]
-  CUTS.push_back("j25Jvf05PTll40"); //HWW jet veto [8]
-  CUTS.push_back("j25Jvf05PTll80"); //HWW jet veto [9]
+  CUTS.push_back("j30NoJvf");              //jet veto pT>30 - no JVF [6]
+  CUTS.push_back("j30NoJvfPTll40");        //jet veto pT>30 - no JVF [7]
+  CUTS.push_back("j30NoJvfPTll80");        //jet veto pT>30 - no JVF [8]
 
-  CUTS.push_back("BjVeto");        //b-jet veto [10]
-  CUTS.push_back("BjVetoPTll40");  //b-jet veto [11]
-  CUTS.push_back("BjVetoPTll80");  //b-jet veto [12]
+  CUTS.push_back("j25Jvf05");       //HWW jet veto [9]
+  CUTS.push_back("j25Jvf05PTll40"); //HWW jet veto [10]
+  CUTS.push_back("j25Jvf05PTll80"); //HWW jet veto [11]
 
+  CUTS.push_back("BjVeto");        //b-jet veto [12]
+  CUTS.push_back("BjVetoPTll40");  //b-jet veto [13]
+  CUTS.push_back("BjVetoPTll80");  //b-jet veto [14]
+
+  CUTS.push_back("BjFJVeto");        //b-jet+F-jet veto [15]
+  CUTS.push_back("BjFjVetoPTll40");  //b-jet+F-jet veto [16]
+  CUTS.push_back("BjFjVetoPTll80");  //b-jet+F-jet veto [17]
+
+  CUTS.push_back("j25AbsJvf025BjFJVeto");        //b-jet+F-jet veto [18]
+  CUTS.push_back("j25AbsJvf025BjFjVetoPTll40");  //b-jet+F-jet veto [19]
+  CUTS.push_back("j25AbsJvf025BjFjVetoPTll80");  //b-jet+F-jet veto [20]
+
+  cout << "nCUTS " << CUTS.size() << endl;
 
   for(uint ilep=0; ilep<LEP.size(); ilep++){
     for(uint i=0; i<CUTS.size(); i++){
       
       h_pTll[ilep][i] = _utils->myTH1F(string("pTll_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
 				 string("pTll_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
-				 50,0,200,
+				 20,0,200,
 				 "p_{T}^{ll} [GeV]","Entries/bin");
 
       h_met[ilep][i] = _utils->myTH1F(string("met_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
 				 string("met_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
-				 50,0,200,
+				 20,0,200,
 				 "#slash{E}_{T} [GeV]","Entries/bin");
 
       h_metrel[ilep][i] = _utils->myTH1F(string("metrel_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
 				 string("metrel_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
-				 50,0,200,
+				 20,0,200,
 				 "#slash{E}_{T}^{rel} [GeV]","Entries/bin");
+
+
+      h_nJets[ilep][i] = _utils->myTH1F(string("nJets_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 string("nJets_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 25,-0.5,24.5,
+				 "nJets","Entries/bin");
+
+      h_nC25[ilep][i] = _utils->myTH1F(string("nC25_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 string("nC25_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 25,-0.5,24.5,
+				 "nC25","Entries/bin");
+      
+      h_nB20[ilep][i] = _utils->myTH1F(string("nB20_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 string("nB20_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 25,-0.5,24.5,
+				 "nB20","Entries/bin");
+      
+      h_nF30[ilep][i] = _utils->myTH1F(string("nF30_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 string("nF30_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 25,-0.5,24.5,
+				 "nF30","Entries/bin");
+
+      h_jPt[ilep][i] = _utils->myTH1F(string("jPt_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 string("jpT_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 50,0,200,
+				 "p_{T}^{j} [GeV]","Entries/bin");
+
+      h_j1Pt[ilep][i] = _utils->myTH1F(string("j1Pt_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 string("j1pT_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 50,0,200,
+				 "p_{T}^{j} [GeV]","Entries/bin");
 
 
     }
     
   }
+
+  cout << "Done booking " << endl;
+
 
 }
 
@@ -136,23 +188,188 @@ void ToyNt_ZXStudies::bookHistograms(TDirectory* hDir)
 /*--------------------------------------------------------------------------------*/
 void ToyNt_ZXStudies::Analyze()
 {
-  int icut=0;
   
-  //Inclusive
-  h_pTll[llType][icut]->Fill(pTll,w);
-  h_met[llType][icut]->Fill(met,w);
-  h_metrel[llType][icut]->Fill(metrel,w);
-
   //DG2L std jet selection
   int nCJ=nCentralJ();
   int nBJ=nBJet();
   int nFJ=nFwdJ();
-  if(nCJ-nCJets !=0) cout << "nC mismatch " << run << " " << event << endl;
-  if(nBJ-nBJets !=0) cout << "nB mismatch " << run << " " << event << endl;
-  if(nFJ-nFJets !=0) cout << "nF mismatch " << run << " " << event << endl;
-    
-  icut++;
+  if(dbg()>1){
+    if(nCJ-nCJets !=0) cout << "nC mismatch " << run << " " << event << endl;
+    if(nBJ-nBJets !=0) cout << "nB mismatch " << run << " " << event << endl;
+    if(nFJ-nFJets !=0) cout << "nF mismatch " << run << " " << event << endl;
+  }
 
+  //Inclusive
+  int icut=0;
+  h_pTll[llType][icut]->Fill(pTll,w);
+  h_met[llType][icut]->Fill(met,w);
+  h_metrel[llType][icut]->Fill(metrel,w);
+  h_nJets[llType][icut]->Fill(nJets,w);
+  h_nC25[llType][icut]->Fill(nCJ,w);
+  h_nB20[llType][icut]->Fill(nBJ,w);
+  h_nF30[llType][icut]->Fill(nFJ,w);
+  float maxjPt=-999;
+  for(int j=0; j<nJets; j++){
+    if(j_pt[j]>maxjPt) maxjPt=j_pt[j];
+    h_jPt[llType][icut]->Fill(j_pt[j],w);
+  }
+  h_j1Pt[llType][icut]->Fill(maxjPt,w);
+  if(pTll>40){
+    h_pTll[llType][icut+1]->Fill(pTll,w);
+    h_met[llType][icut+1]->Fill(met,w);
+    h_metrel[llType][icut+1]->Fill(metrel,w);
+  }
+  if(pTll>80){
+    h_pTll[llType][icut+2]->Fill(pTll,w);
+    h_met[llType][icut+2]->Fill(met,w);
+    h_metrel[llType][icut+2]->Fill(metrel,w);
+  }
+
+
+  //DG2L 
+  icut=3;
+  if((nCJ+nBJ+nFJ)==0){
+    h_pTll[llType][icut]->Fill(pTll,w);
+    h_met[llType][icut]->Fill(met,w);
+    h_metrel[llType][icut]->Fill(metrel,w);
+    h_nJets[llType][icut]->Fill(nJets,w);
+    h_nC25[llType][icut]->Fill(nCJ,w);
+    h_nB20[llType][icut]->Fill(nBJ,w);
+    h_nF30[llType][icut]->Fill(nFJ,w);
+    maxjPt=-999;
+    for(int j=0; j<nJets; j++){
+      if(j_pt[j]>maxjPt) maxjPt=j_pt[j];
+      h_jPt[llType][icut]->Fill(j_pt[j],w);
+    }
+    h_j1Pt[llType][icut]->Fill(maxjPt,w);
+
+    if(pTll>40){
+      h_pTll[llType][icut+1]->Fill(pTll,w);
+      h_met[llType][icut+1]->Fill(met,w);
+      h_metrel[llType][icut+1]->Fill(metrel,w);
+    }
+    if(pTll>80){
+      h_pTll[llType][icut+2]->Fill(pTll,w);
+      h_met[llType][icut+2]->Fill(met,w);
+      h_metrel[llType][icut+2]->Fill(metrel,w);
+    }
+  }
+
+  //J30 no JVF
+  icut=6;
+  nCJ=nCentralJ(30, -99, false, false);
+  if(nCJ==0){
+    h_pTll[llType][icut]->Fill(pTll,w);
+    h_met[llType][icut]->Fill(met,w);
+    h_metrel[llType][icut]->Fill(metrel,w);
+    h_nJets[llType][icut]->Fill(nJets,w);
+    h_nC25[llType][icut]->Fill(nCJ,w);
+    h_nB20[llType][icut]->Fill(nBJ,w);
+    h_nF30[llType][icut]->Fill(nFJ,w);
+    float maxjPt=-999;
+    for(int j=0; j<nJets; j++){
+      if(j_pt[j]>maxjPt) maxjPt=j_pt[j];
+      h_jPt[llType][icut]->Fill(j_pt[j],w);
+    }
+    h_j1Pt[llType][icut]->Fill(maxjPt,w);
+    
+
+    if(pTll>40){
+      h_pTll[llType][icut+1]->Fill(pTll,w);
+      h_met[llType][icut+1]->Fill(met,w);
+      h_metrel[llType][icut+1]->Fill(metrel,w);
+    }
+    if(pTll>80){
+      h_pTll[llType][icut+2]->Fill(pTll,w);
+      h_met[llType][icut+2]->Fill(met,w);
+      h_metrel[llType][icut+2]->Fill(metrel,w);
+    }
+  }
+
+  //J25 JVF 50
+  icut=9;
+  nCJ=nCentralJ(25, 0.5, false, true);
+  if(nCJ==0){
+    h_pTll[llType][icut]->Fill(pTll,w);
+    h_met[llType][icut]->Fill(met,w);
+    h_metrel[llType][icut]->Fill(metrel,w);
+    h_nJets[llType][icut]->Fill(nJets,w);
+    h_nC25[llType][icut]->Fill(nCJ,w);
+    h_nB20[llType][icut]->Fill(nBJ,w);
+    h_nF30[llType][icut]->Fill(nFJ,w);
+    float maxjPt=-999;
+    for(int j=0; j<nJets; j++){
+      if(j_pt[j]>maxjPt) maxjPt=j_pt[j];
+      h_jPt[llType][icut]->Fill(j_pt[j],w);
+    }
+    h_j1Pt[llType][icut]->Fill(maxjPt,w);
+    
+    if(pTll>40){
+      h_pTll[llType][icut+1]->Fill(pTll,w);
+      h_met[llType][icut+1]->Fill(met,w);
+      h_metrel[llType][icut+1]->Fill(metrel,w);
+    }
+    if(pTll>80){
+      h_pTll[llType][icut+2]->Fill(pTll,w);
+      h_met[llType][icut+2]->Fill(met,w);
+      h_metrel[llType][icut+2]->Fill(metrel,w);
+    }
+  }
+  
+
+  //B-jet veto 
+  icut=12;
+  if(nBJ==0){
+    h_pTll[llType][icut]->Fill(pTll,w);
+    h_met[llType][icut]->Fill(met,w);
+    h_metrel[llType][icut]->Fill(metrel,w);
+    h_nJets[llType][icut]->Fill(nJets,w);
+    h_nC25[llType][icut]->Fill(nCJ,w);
+    h_nB20[llType][icut]->Fill(nBJ,w);
+    h_nF30[llType][icut]->Fill(nFJ,w);
+    float maxjPt=-999;
+    for(int j=0; j<nJets; j++){
+      if(j_pt[j]>maxjPt) maxjPt=j_pt[j];
+      h_jPt[llType][icut]->Fill(j_pt[j],w);
+    }
+    h_j1Pt[llType][icut]->Fill(maxjPt,w);
+    
+    if(pTll>40){
+      h_pTll[llType][icut+1]->Fill(pTll,w);
+      h_met[llType][icut+1]->Fill(met,w);
+      h_metrel[llType][icut+1]->Fill(metrel,w);
+    }
+    if(pTll>80){
+      h_pTll[llType][icut+2]->Fill(pTll,w);
+      h_met[llType][icut+2]->Fill(met,w);
+      h_metrel[llType][icut+2]->Fill(metrel,w);
+    }
+  }
+
+  //Veto B-jet & forward
+  icut=15;
+  if((nBJ+nFJ)==0){
+    h_pTll[llType][icut]->Fill(pTll,w);
+    h_met[llType][icut]->Fill(met,w);
+    h_metrel[llType][icut]->Fill(metrel,w);
+    if(pTll>40){
+      h_pTll[llType][icut+1]->Fill(pTll,w);
+      h_met[llType][icut+1]->Fill(met,w);
+      h_metrel[llType][icut+1]->Fill(metrel,w);
+    }
+    if(pTll>80){
+      h_pTll[llType][icut+2]->Fill(pTll,w);
+      h_met[llType][icut+2]->Fill(met,w);
+      h_metrel[llType][icut+2]->Fill(metrel,w);
+    }
+  }
+
+  //DG2L test: Pt25 |jvf|>0.2/0.25 - same B/F jet veto
+
+  nCJ=nCentralJ(25,0.25,true,true);
+  nBJ=nBJet();
+  nFJ=nFwdJ();
+  icut=18;
   if((nCJ+nBJ+nFJ)==0){
     h_pTll[llType][icut]->Fill(pTll,w);
     h_met[llType][icut]->Fill(met,w);
@@ -169,64 +386,6 @@ void ToyNt_ZXStudies::Analyze()
     }
   }
 
-  //J30 no JVF
-  icut=4;
-  nCJ=nCentralJ(30, -99, false, false);
-  if(nCJ==0){
-    h_pTll[llType][icut]->Fill(pTll,w);
-    h_met[llType][icut]->Fill(met,w);
-    h_metrel[llType][icut]->Fill(metrel,w);
-    if(pTll>40){
-      h_pTll[llType][icut+1]->Fill(pTll,w);
-      h_met[llType][icut+1]->Fill(met,w);
-      h_metrel[llType][icut+1]->Fill(metrel,w);
-    }
-    if(pTll>80){
-      h_pTll[llType][icut+2]->Fill(pTll,w);
-      h_met[llType][icut+2]->Fill(met,w);
-      h_metrel[llType][icut+2]->Fill(metrel,w);
-    }
-  }
-
-  //J25 JVF 50
-  icut=7;
-  nCJ=nCentralJ(25, 0.5, false, true);
-  if(nCJ==0){
-    h_pTll[llType][icut]->Fill(pTll,w);
-    h_met[llType][icut]->Fill(met,w);
-    h_metrel[llType][icut]->Fill(metrel,w);
-    if(pTll>40){
-      h_pTll[llType][icut+1]->Fill(pTll,w);
-      h_met[llType][icut+1]->Fill(met,w);
-      h_metrel[llType][icut+1]->Fill(metrel,w);
-    }
-    if(pTll>80){
-      h_pTll[llType][icut+2]->Fill(pTll,w);
-      h_met[llType][icut+2]->Fill(met,w);
-      h_metrel[llType][icut+2]->Fill(metrel,w);
-    }
-  }
-  
-
-  //B-jet veto 
-  icut=10;
-  if(nBJ==0){
-    h_pTll[llType][icut]->Fill(pTll,w);
-    h_met[llType][icut]->Fill(met,w);
-    h_metrel[llType][icut]->Fill(metrel,w);
-    if(pTll>40){
-      h_pTll[llType][icut+1]->Fill(pTll,w);
-      h_met[llType][icut+1]->Fill(met,w);
-      h_metrel[llType][icut+1]->Fill(metrel,w);
-    }
-    if(pTll>80){
-      h_pTll[llType][icut+2]->Fill(pTll,w);
-      h_met[llType][icut+2]->Fill(met,w);
-      h_metrel[llType][icut+2]->Fill(metrel,w);
-    }
-  }
-
-
 
 }
 
@@ -240,17 +399,21 @@ int ToyNt_ZXStudies::nCentralJ(float pTmin, float jvf,
 
   int nCJ=0;
   for(int j=0; j<nJets; j++){
+    if(dbg()>2) cout << "Jet " << j_pt[j] << " " << j_eta[j] << " " << j_jvf[j] << " " << j_mv1[j] << endl;
     if(j_pt[j]<pTmin) continue;
     if(fabs(j_eta[j])>2.5) continue;
-    if(useAbs)
+    if(useAbs){
       if(fabs(j_jvf[j])<jvf) continue;
-    else
+    }
+    else{
       if(j_jvf[j]<jvf) continue;
+    }
     if(notBTag && j_mv1[j]>MV1_85) continue;
 
     nCJ++;
   }
-  
+  if(dbg()>2) cout << "Counted Cjets " << nCJ << " " << nCJets << endl;
+
   /*
  if(jet->Pt() < JET_PT_L25_CUT     )  return false;
   if(fabs(jet->Eta()) > JET_ETA_CUT )  return false;
@@ -272,7 +435,9 @@ int ToyNt_ZXStudies::nBJet(float pTmin)
     if(j_mv1[j]<MV1_85) continue;
     nBJ++;
   }
+  if(dbg()>2) cout << "Counted Bjets " << nBJ << " " << nBJets << endl;
   return nBJ;
+
 }
 
 int ToyNt_ZXStudies::nFwdJ(float pTmin)
@@ -284,5 +449,6 @@ int ToyNt_ZXStudies::nFwdJ(float pTmin)
     if(j_pt[j]<pTmin) continue;
     nFJ++;
   }
+  if(dbg()>2) cout << "Counted Fjets " << nFJ << " " << nFJets << endl;
   return nFJ;
 }

@@ -12,13 +12,17 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //#define LUMI_5FB  //A->B14
 #define LUMI_13FB  //A->E5
 
-//Note V5.0
+//Note V5.0 HCP
 //const std::string TAG  = "110812";
 //const std::string SUFF = "_n0111_DD_MMtrial9_SYS_HFT"; 
 
+const std::string TAG  = "112812";
+const std::string SUFF = "_n0114_DD_MMtrial9_SYS"; 
+
+
 //New vars, reorder SR 
-const std::string TAG  = "121012";
-const std::string SUFF = "_n0115_DD_MMtrial9_SYS"; 
+//const std::string TAG  = "122012";
+//const std::string SUFF = "_n0115_DD_MMtrial9_newJVeto_SYS"; 
 
 
 //
@@ -29,15 +33,15 @@ const std::string SUFF = "_n0115_DD_MMtrial9_SYS";
 const unsigned int  NBASELEPMAX      = 2;  //number of base lepton allowed - 2 for std analysis
 const unsigned int  NBASELEPMIN   = 2;  //number of base lepton allowed - 2 for std analysis
 
-//const bool   FILL_TOYNT        = true;       //Write ToyNt
-//const string TOYNT_SR          ="DIL_CRZ";    //SR used to fill ToyNt
-//const unsigned int TOYNT_iSR   = DIL_CRZ;     //SR used to fill ToyNt
-
 const bool   FILL_TOYNT        = true;       //Write ToyNt
-const string TOYNT_SR          ="DIL_CR2LepSS";    //SR used to fill ToyNt
-const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
+const string TOYNT_SR          ="DIL_CRZ";    //SR used to fill ToyNt
+const unsigned int TOYNT_iSR   = DIL_CRZ;     //SR used to fill ToyNt
 
-const bool DO_SYS         = false; //true;    //Toggles systematics looper
+//const bool   FILL_TOYNT        = false;       //Write ToyNt
+//const string TOYNT_SR          ="DIL_CR2LepSS";    //SR used to fill ToyNt
+//const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
+
+const bool DO_SYS         = true;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied

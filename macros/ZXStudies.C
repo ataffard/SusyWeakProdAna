@@ -13,6 +13,7 @@ TGuiUtils* _utils;
 DrawPlots* _ana;
 
 TChain* ZAP;  //Z+jets AlpgenPythia
+TChain* ZAJ;  //Z+jets AlpgenJimmy
 TChain* ZS;   //Z+jets Sherpa
 TChain* ZP;   //Z+jets Powheg
 TChain* data;
@@ -22,7 +23,7 @@ vector<string> sLEP;
 
 
 void study(int type);
-void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hdata, string label, bool logy=true);
+void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3,  TH1* _hmc4, TH1* _hdata, string label, bool logy=true);
 
 TH1F* bookHist(string var, string name);
 
@@ -40,8 +41,8 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
   _ana = new DrawPlots(); 
 
-  //string ver = "histos_112812_13fb_n0114_DD_MMtrial9_SYS/";
-  string ver = "";
+  string ver = "histos_121712_13fb_n0115_DD_MMtrial9_SYS/";
+  //string ver = "";
   string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/" +  ver + "ToyNtOutputs/";
 
   ZAP = new TChain("ToyNt");
@@ -74,6 +75,49 @@ int main(int argc, char *argv[]){
   ZAP->AddFile(string(dir+"110823_DIL_CRZ.root").c_str());
   ZAP->AddFile(string(dir+"110824_DIL_CRZ.root").c_str());
 
+  
+  ZAJ = new TChain("ToyNt");
+  ZAJ->AddFile(string(dir+"107650_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107651_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107652_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107653_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107654_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107655_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107660_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107661_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107662_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107663_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107664_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107665_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107670_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107671_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107672_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107673_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107674_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"107675_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109300_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109301_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109302_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109303_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"126415_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"126416_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"126417_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109306_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109307_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109308_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"126418_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"126419_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"126420_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"126421_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109310_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109311_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109312_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"109313_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"117706_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"117707_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"117708_DIL_CRZ.root").c_str());
+  ZAJ->AddFile(string(dir+"117709_DIL_CRZ.root").c_str());
+
 
   ZS = new TChain("ToyNt");
   ZS->AddFile(string(dir+"147770_DIL_CRZ.root").c_str());
@@ -100,14 +144,15 @@ int main(int argc, char *argv[]){
 
   _col.push_back(kRed-4);     
   _col.push_back(kViolet+1); 
+  _col.push_back(kCyan-2);     
   _col.push_back(kGreen+3);      
   _col.push_back(kMagenta-4);
   _col.push_back(kBlue-3);          
-  _col.push_back(kCyan-7);     
   _col.push_back(kOrange-4);     
 
   _name.push_back("Sherpa");     
   _name.push_back("Alpgen+Pythia6");
+  _name.push_back("Alpgen+Jimmy");
   _name.push_back("Powheg+Pythia8");     
   _name.push_back("Data");     
 
@@ -205,14 +250,14 @@ void study(int type){
   //
   //start modif
   //
-  bool logy=true;
+  bool logy=false;
   //TCut SJET(" ((j_pt<30 && j_jvf>0.25) || j_pt>30) && j_isOJ");
 
   TCut LJET("j_pt>25 && j_jvf>0.20 && !j_isB20 && fabs(j_eta)<2.5");
   TCut BJET("j_pt>20 && j_isB20 && fabs(j_eta)<2.5");
   TCut FJET("j_pt>30 && fabs(j_eta>2.5  && fabs(j_eta)>4.5"); 
   
-  TCut SEL("");
+  //TCut SEL("");
   //  TCut SEL("nSJets>=0 && pTll>80");
   //TCut SEL("!(j_pt>25 && fabs(j_jvf)>0.5)");
   //TCut SEL("!(j_pt>25 && fabs(j_jvf)>0.25)");
@@ -232,18 +277,18 @@ void study(int type){
    //TCut SEL("nSJets==0");
 
   //TCut SEL("j_isRecoil");
-  //  TCut SEL("j_isRecoil && dphi_Zj>2.5");
+  TCut SEL("j_isRecoil && dphi_Zj>2.5 && fabs(j_pt/pTll-1)<0.2");
   //TCut SEL("dphi_Zj>2.5 && !j_isRecoil && !j_isSublead && j_isTruth");
 
   //string var = "met";
-  string var = "metrel";
+  //string var = "metrel";
   //  string var = "met_refEle";
   //string var = "met_refMuo";
   //string var = "met_refJet";
   //string var = "met_cellout";
   //string var = "pTll";
   //string var = "nJets";
-  //string var = "j_pt";
+  string var = "j_pt";
   //string var = "j_eta";
   //string var = "j_jvf";
   //  string var = "dphi_metl[1]";
@@ -254,6 +299,7 @@ void study(int type){
   //string sName = "CRZrecoil"+ SLEP + var;
   //string sName = "CRZrecoil_dphiZJ25"+ SLEP + var;
   //string sName = "CRZrecoil_dphiZJ25_TM"+ SLEP + var;
+  string sName = "CRZrecoil_dphiZJ25PTBal20"+ SLEP + var;
   //string sName = "CRZjveto"+ SLEP + var;
   //string sName = "CRZjveto_pTll80"+ SLEP + var;
   //string sName = "CRZjveto_pTll80_ojPtGT30"+ SLEP + var;
@@ -261,7 +307,7 @@ void study(int type){
   //string sName = "CRZjveto_pTllLT40"+ SLEP + var;  
   //string sName = "CRZjveto_pTllLT40_ojJVFGT025"+ SLEP + var;  
   //string sName = "CRZjveto_pTllLT40_npvLT12"+ SLEP + var;  
-  string sName = "CRZ"+ SLEP + var;
+  //string sName = "CRZ"+ SLEP + var;
   //string sName = "CRZ_pTllLT40"+ SLEP + var;
   //string sName = "CRZ_pTlGTT80"+ SLEP + var;
   //string sName = "CRZ_noJetGT25JVF05_pTllLT40"+ SLEP + var;
@@ -299,10 +345,13 @@ void study(int type){
   hZAP->SetTitle(string("hZAP"+slep).c_str());
   hZAP->SetName(string("hZAP"+slep).c_str());
 
+  TH1F* hZAJ = (TH1F*)  hZS->Clone();
+  hZAJ->SetTitle(string("hZAJ"+slep).c_str());
+  hZAJ->SetName(string("hZAJ"+slep).c_str());
+
   TH1F* hZP = (TH1F*)  hZS->Clone();
   hZP->SetTitle(string("hZP"+slep).c_str());
   hZP->SetName(string("hZP"+slep).c_str());
-
 
   TH1F* hdata = (TH1F*)  hZS->Clone();
   hdata->SetTitle(string("hdata"+slep).c_str());
@@ -312,31 +361,35 @@ void study(int type){
   if(type==0){
     string cmd1 = var + ">>hZS_ee";
     string cmd2 = var + ">>hZAP_ee";
+    string cmd3 = var + ">>hZAJ_ee";
     string cmd4 = var + ">>hZP_ee";
-    string cmd3 = var + ">>hdata_ee";
+    string cmd5 = var + ">>hdata_ee";
     ZS->Draw(cmd1.c_str(),CEE,"goff");
     ZAP->Draw(cmd2.c_str(),CEE,"goff");
+    ZAJ->Draw(cmd3.c_str(),CEE,"goff");
     ZP->Draw(cmd4.c_str(),CEE,"goff");
-    data->Draw(cmd3.c_str(),CEE,"goff");
+    data->Draw(cmd5.c_str(),CEE,"goff");
   }
   else{
     string cmd1 = var + ">>hZS_mm";
     string cmd2 = var + ">>hZAP_mm";
+    string cmd3 = var + ">>hZAJ_mm";
     string cmd4 = var + ">>hZP_mm";
-    string cmd3 = var + ">>hdata_mm";
+    string cmd5 = var + ">>hdata_mm";
     ZS->Draw(cmd1.c_str(),CMM,"goff");
     ZAP->Draw(cmd2.c_str(),CMM,"goff");
+    ZAJ->Draw(cmd3.c_str(),CMM,"goff");
     ZP->Draw(cmd4.c_str(),CMM,"goff");
-    data->Draw(cmd3.c_str(),CMM,"goff");
+    data->Draw(cmd5.c_str(),CMM,"goff");
   }
 
-  plot(hZS, hZAP, hZP, hdata,sName,logy);
+  plot(hZS, hZAP, hZAJ, hZP, hdata,sName,logy);
 
 }
 
 
 //_____________________________________________________________________________//
-void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hdata, string label, bool logy)
+void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hmc4, TH1* _hdata, string label, bool logy)
 {
 
   const float maxScaleLin=1.2;
@@ -350,6 +403,7 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hdata, string label, bool lo
   TH1F*  _ratioH1=ratio(_hmc1, _hdata);
   TH1F*  _ratioH2=ratio(_hmc2, _hdata);
   TH1F*  _ratioH3=ratio(_hmc3, _hdata);
+  TH1F*  _ratioH4=ratio(_hmc4, _hdata);
 
   TCanvas* _c1  = _utils->myCanvas(label.c_str());
   TPad* _pTop = NULL;
@@ -384,12 +438,14 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hdata, string label, bool lo
   _utils->myDraw1d(_hmc1,_pTop,1,"hist",logy,_col[0],false,20);
   _utils->myDraw1d(_hmc2,_pTop,1,"histsame",logy,_col[1],false,20);
   _utils->myDraw1d(_hmc3,_pTop,1,"histsame",logy,_col[2],false,20);
+  _utils->myDraw1d(_hmc4,_pTop,1,"histsame",logy,_col[3],false,20);
   _utils->myDraw1d(_hdata,_pTop,1,"esame",logy,kBlack,false,20);
 
   _leg->AddEntry(_hmc1,_name[0].c_str(),"l");
   _leg->AddEntry(_hmc2,_name[1].c_str(),"l");
   _leg->AddEntry(_hmc3,_name[2].c_str(),"l");
-  _leg->AddEntry(_hdata,_name[2].c_str(),"p");
+  _leg->AddEntry(_hmc4,_name[3].c_str(),"l");
+  _leg->AddEntry(_hdata,_name[4].c_str(),"p");
   _leg->Draw();
   _utils->myText(0.1,0.95,kBlack,label.c_str(),0.05);
 
@@ -405,9 +461,11 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hdata, string label, bool lo
      _utils->myDraw1d(_ratioH1,_pBot,1,"pe0",false, _col[0], false,20);
      _utils->myDraw1d(_ratioH2,_pBot,1,"pe0same",false, _col[1], false,20);
      _utils->myDraw1d(_ratioH3,_pBot,1,"pe0same",false, _col[2], false,20);
+     _utils->myDraw1d(_ratioH4,_pBot,1,"pe0same",false, _col[3], false,20);
     _ratioH1->SetMarkerSize(0.3);
     _ratioH2->SetMarkerSize(0.3);
     _ratioH3->SetMarkerSize(0.3);
+    _ratioH4->SetMarkerSize(0.3);
 
     TLine* _line = new TLine(_ratioH1->GetBinCenter(1)-_ratioH1->GetBinWidth(1)/2,1,
 			     _ratioH1->GetBinCenter(_ratioH1->GetNbinsX())+
@@ -472,9 +530,11 @@ void effJVF(int ilep)
   vector<string> label;
   label.push_back("Sherpa");
   label.push_back("AlpgenPythia");
+  label.push_back("AlpgenJimmy");
+  label.push_back("PowhegPythia");
   label.push_back("Data");
 
-  TCut SEL("j_isRecoil && dphi_Zj>2.5");
+  TCut SEL("j_isRecoil && dphi_Zj>2.5 && fabs(j_pt/pTll-1)<0.2 ");
   
   vector<string> sCUT;
   sCUT.push_back("p_{T} > 200 GeV");
@@ -505,13 +565,18 @@ void effJVF(int ilep)
   h[5] = bookHist("j_jvf","h_25");
   h[6] = bookHist("j_jvf","h_20");
 
-  TH1F* _eff[3][7];
+  TH1F* _eff[5][7];
   for(uint is=0; is<label.size(); is++){
+    cout << "MC " << label[is] << endl;
+    cout << "\t JVF Eff \t\t 0.2 \t 0.5" <<endl; 
     TChain* _cc;
     if(is==0) _cc = ZS;
     else if(is==1) _cc = ZAP;
-    else if(is==2) _cc = data;
-    
+    else if(is==2) _cc = ZAJ;
+    else if(is==3) _cc = ZP;
+    else if(is==4) _cc = data;
+
+
     _cc->Draw("j_jvf>>h_200",JXX[0],"goff");
     _cc->Draw("j_jvf>>h_100",JXX[1],"goff");
     _cc->Draw("j_jvf>>h_80",JXX[2],"goff");
@@ -535,10 +600,20 @@ void effJVF(int ilep)
       if(ii==0) opt = "e";
       _utils->myDraw1d(_eff[is][ii],_c1,1,opt.c_str(),false,_col[ii],false,20);
       _leg->AddEntry(_eff[is][ii], sCUT[ii].c_str(),"p");
+
+      float binVal1=0.2; 
+      float binVal2=0.5; 
+      int binX1= _eff[is][ii]->FindBin(binVal1);
+      int binX2= _eff[is][ii]->FindBin(binVal2);
+      float effX1 = _eff[is][ii]->GetBinContent(binX1);
+      float effX2 = _eff[is][ii]->GetBinContent(binX2);
+      cout << sCUT[ii] << "\t\t " << std::setprecision(3) << std::fixed << effX1 << "\t " << effX2 << endl;
+      
+
     }
     _leg->Draw();
     
-    string fName= "ZXstudy_JVFEff_recoil_" + label[is];
+    string fName= "ZXstudy_JVFEff_" + sLEP[ilep] + "_recoil_" + label[is];
     _c1->SaveAs((fName+".png").c_str());
     
   }
@@ -553,13 +628,14 @@ void plotToyAna(int ilep, string var, string cut, bool logy){
   string hName=var + "_" + sLEP[ilep] + "_" + cut; 
 
   TH1F* h_ZAP = getHistoFromFile("ZAlpgenPythia",hName);
+  TH1F* h_ZAJ = getHistoFromFile("ZAlpgenJimmy",hName);
   TH1F* h_ZS = getHistoFromFile("ZSherpa",hName);
   TH1F* h_ZP = getHistoFromFile("ZPowhegPythia",hName);
   TH1F* h_data = getHistoFromFile("data",hName);
 
   cout << "\t Plotting " << hName << endl;
 
-  plot(h_ZS, h_ZAP, h_ZP, h_data, hName, logy);
+  plot(h_ZS, h_ZAP, h_ZAJ, h_ZP, h_data, hName, logy);
 
 }
 //_____________________________________________________________________________//

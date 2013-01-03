@@ -13,8 +13,8 @@ fi
 #Update SusyAnaCommon.h to pick correct path for .root files
 
 #OPT="-logy -mode STD"
-#OPT="-logy -mode DD"
-OPT="-mode DD"
+OPT="-logy -mode DD"
+#OPT="-mode DD"
 #OPT="-logy -mode STD -ZX histo_ZX_SherpaLFHF -Top histo_top_PowHeg  "
 #OPT="-logy -mode DD -Top histo_topDil_Sherpa -WW histo_WW_Sherpa -ZX histo_ZX_Sherpa -Ztt histo_ZTauTaujets_Sherpa "
 #OPT="-logy -mode STD -ZX histo_ZX_SherpaLFHF -Fake histo_mcfake_Sherpa"
@@ -26,7 +26,7 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #Add back tothe list 
 
-#    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1 \
+#    SR=(CR2LepOS CR2LepSS CR2LepOS40 CR2LepSS40 CRZ CRZjveto VR1SS NTOP NWW1 \
 #	ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
 #	SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
 #        preSRjveto preSRSSjveto preSR2jets preSRmT2)
@@ -36,15 +36,25 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #    SR=(SRjveto SRjveto2 VRjveto VRjveto2 NTOP NWW1)
 #    SR=(CR2LepSS)
 #    SR=(VR1SS)
-    SR=(SRSS1j SRSS1jcut)
-    DIL=(EE MM EM)
-    PLOTS=(mllcoarse)
+#    SR=(SRSS1j SRSS1jcut)
+#     SR=(CRZ ZXCR1 ZXCR4)
+    SR=(CRZjveto)
+    DIL=(EE MM )
+    PLOTS=(metrel)
 #    PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
 #	ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \
 #	ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
 #	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout      
 #	dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT
 #	nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2)
+
+#    PLOTS=(pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
+#	ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \
+#	ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
+#	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout      
+#	dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT
+#	nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2)
+
 
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do

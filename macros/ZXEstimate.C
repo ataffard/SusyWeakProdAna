@@ -66,7 +66,7 @@ void  get_ZX_BkgErr(int ilep, int ireg,
 void get_ZX_oBkg(int ilep, int ireg, int isys, 
 		 Double_t& _pred, Double_t& _pred_err);
 
-void  make_ZXPlots();
+void  make_ZXPlots(int ilep, int ireg);
 
 
 //_____________________________________________________________________________//
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]){
   ZXSR.push_back("SRmT2");
   ZXSR.push_back("SRmT2b");
 
-  get_ZX_Est();
+  //get_ZX_Est();
 
 }
 //--------------------------------------------------------------------------------
@@ -915,7 +915,7 @@ void  make_ZXPlots(int ilep, int ireg){
     if(ilep==1) name = "DG2L_ZXCR1_MM_DG2L_metrel";
   }
   else if(ireg==3){  // ZXCR3
-    if(ilep==0) name = "DG2L_ZXCR3_EE_DG2L_metrel";
+    if(ilep==0) name = "DG2L_ZXCR3_EE_DG2L_metrel"; 
     if(ilep==1) name = "DG2L_ZXCR3_MM_DG2L_metrel";
   }
   else if(ireg==4){  // ZXCR4

@@ -4,7 +4,7 @@
 #date="110812_13fb_n0111_DD_MMtrial9_SYS_HFT"
 #mth="rlep"
 
-date="121012_13fb_n0115_DD_MMtrial9_SYS"
+date="122012_13fb_n0115_DD_MMtrial9_newJVeto_SYS"
 mth="rlep"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -18,7 +18,7 @@ echo "Output dir set to ${histPath}"
 
 #################
 
-#doMove=true
+doMove=true
 
 doData=true
 doDataFake=true
@@ -505,7 +505,7 @@ if [ $doZjetPowheg ]; then
 
     hadd -f ${histPath}/histo_ZmumuJets_Powheg_${mth}.root  \
 	${histPath}/histo_Zmumu.147807_${mth}.root \
-	${histPath}/histo_DYmumu.129501_${mth}.root  
+	${histPath}/histo_DYmumu.129521_${mth}.root  
 
     hadd -f ${histPath}/histo_Zjets_Powheg_${mth}.root  \
 	${histPath}/histo_ZeeJets_Powheg_${mth}.root \

@@ -26,6 +26,10 @@
 #include "SusyWeakProdAna/ToyNtAna.h"
 #include <TH2.h>
 #include <TStyle.h>
+#include <iomanip>
+#include <iostream>
+
+using namespace std;
 
 /*--------------------------------------------------------------------------------*/
 // SusyNtAna Constructor
@@ -33,7 +37,8 @@
 ToyNtAna::ToyNtAna(TTree * /*tree*/) : 
   fChain(0),
   m_entry(0), 
-  m_dbg(0) 
+  m_dbg(0),
+  m_dbgEvt(false)
 {
   _histoDir = new TDirectory("Ana","Ana");
 
@@ -47,6 +52,9 @@ void ToyNtAna::Begin(TTree * /*tree*/)
 
    TString option = GetOption();
    m_chainEntry = -1;
+
+   if(m_dbgEvt) loadEventList();
+
 }
 
 void ToyNtAna::SlaveBegin(TTree * /*tree*/)
@@ -79,6 +87,8 @@ Bool_t ToyNtAna::Process(Long64_t entry)
    //
    // The return value is currently not used.
 
+  //Debug this event - check if should be processed
+  if(m_dbgEvt && !processThisEvent(run, event)) return kFALSE;
 
    return kTRUE;
 }
@@ -97,4 +107,41 @@ void ToyNtAna::Terminate()
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
 
+}
+
+/*--------------------------------------------------------------------------------*/
+// Load Event list of run/event to process. Use to debug events
+/*--------------------------------------------------------------------------------*/
+void ToyNtAna::loadEventList()
+{
+  int run, event;
+  FILE* eventsFile=fopen("debugEvents.txt","r");
+  int nEvtDbg=0;
+  while(fscanf(eventsFile,"%i %i \n",&run, &event) != EOF){
+    cout << "Adding run-event " << run << " " << event << endl; 
+    addRunEvent(m_eventList, run, event);
+    nEvtDbg++;
+  }
+  std::cout << " >>> Debuging " << nEvtDbg << " events " << std::endl;
+}
+/*--------------------------------------------------------------------------------*/
+// Process selected events only
+/*--------------------------------------------------------------------------------*/
+bool ToyNtAna::processThisEvent(unsigned int run, unsigned int event)
+{
+  if(m_eventList.size()==0) return true;
+  return checkRunEvent(m_eventList, run, event);
+}
+bool ToyNtAna::checkRunEvent(const RunEventMap &runEventMap, unsigned int run, unsigned int event)
+{
+  RunEventMap::const_iterator eventSetIter = runEventMap.find(run);
+  return eventSetIter != runEventMap.end() && 
+    eventSetIter->second->find(event) != eventSetIter->second->end();
+}
+bool ToyNtAna::checkAndAddRunEvent(RunEventMap &runEventMap, unsigned int run, unsigned int event)
+{
+  set<unsigned int> *&eventSet = runEventMap[run];
+  if ( !eventSet )
+    eventSet = new set<unsigned int>();
+  return !eventSet->insert(event).second;
 }

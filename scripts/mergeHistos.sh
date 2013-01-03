@@ -61,7 +61,7 @@ elif [ "$job" == "ZX"  -a  "$mode" ==  "MERGE" ] ; then
     MergeJobsScripts/ZX_SherpaLFHF_${mth}_job.sh
     MergeJobsScripts/ZX_Alpgen_${mth}_job.sh
     MergeJobsScripts/ZX_SherpaPowheg_${mth}_job.sh
-#    MergeJobsScripts/ZX_Powheg_${mth}_job.sh
+    MergeJobsScripts/ZX_Powheg_${mth}_job.sh
 
 elif [ "$job" == "BKG"  -a  "$mode" ==  "MERGE" ] ; then
     MergeJobsScripts/Bkg_${mth}_job.sh

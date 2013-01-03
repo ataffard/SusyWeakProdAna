@@ -12,9 +12,14 @@
 #include <TFile.h>
 #include <TSelector.h>
 
+#include <fstream>
+#include <map>
+#include <set>
+
 // Header file for the classes stored in the TTree if any.
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
+typedef std::map< unsigned int, std::set<unsigned int>* > RunEventMap;
 
 class ToyNtAna : public TSelector {
  public :
@@ -47,6 +52,17 @@ class ToyNtAna : public TSelector {
   void setDebug(int dbg) { m_dbg = dbg; }
   int dbg() { return m_dbg; }
 
+  void setEvtDebug() { m_dbgEvt = true; }
+  bool dbgEvt() const { return m_dbgEvt; }
+  void loadEventList();
+  bool processThisEvent(unsigned int run, unsigned int event);
+  bool checkRunEvent(const RunEventMap &runEventMap, unsigned int run, unsigned int event);
+  bool checkAndAddRunEvent(RunEventMap &runEventMap, unsigned int run, unsigned int event);
+  void addRunEvent(RunEventMap &runEventMap, unsigned int run, unsigned int event) 
+  { checkAndAddRunEvent(runEventMap, run, event); }
+  
+
+
   TDirectory* _histoDir;
   std::string m_sample;       // sample name string
 
@@ -55,8 +71,13 @@ class ToyNtAna : public TSelector {
   Long64_t m_entry;           // Current entry in the current tree (not chain index!)
   Long64_t m_chainEntry;      // Current entry in the full TChain
   int   m_dbg;                // debug level
-    
- 
+  bool  m_dbgEvt;             // debug events
+  
+  // To debug events in input file 
+  RunEventMap m_eventList;          //run:event to debug 
+  RunEventMap m_eventListDuplicate; //Checks for duplicate run/event
+
+
   // Declaration of leaf types
   Int_t           run;
   Int_t           event;
@@ -89,7 +110,6 @@ class ToyNtAna : public TSelector {
   Int_t           nCJets;
   Int_t           nBJets;
   Int_t           nFJets;
-  //   Int_t           nFJets;
   Int_t           nOJets;
   Bool_t          j_isC25[26];   //[nJets]
   Bool_t          j_isB20[26];   //[nJets]
@@ -156,7 +176,6 @@ class ToyNtAna : public TSelector {
   TBranch        *b_nCJets;   //!
   TBranch        *b_nBJets;   //!
   TBranch        *b_nFJets;   //!
-  //   TBranch        *b_nFJets;   //!
   TBranch        *b_nOJets;   //!
   TBranch        *b_j_isC25;   //!
   TBranch        *b_j_isB20;   //!
@@ -245,7 +264,6 @@ void ToyNtAna::Init(TTree *tree)
    fChain->SetBranchAddress("nCJets", &nCJets, &b_nCJets);
    fChain->SetBranchAddress("nBJets", &nBJets, &b_nBJets);
    fChain->SetBranchAddress("nFJets", &nFJets, &b_nFJets);
-//    fChain->SetBranchAddress("nFJets", &nFJets, &b_nFJets);
    fChain->SetBranchAddress("nOJets", &nOJets, &b_nOJets);
    fChain->SetBranchAddress("j_isC25", j_isC25, &b_j_isC25);
    fChain->SetBranchAddress("j_isB20", j_isB20, &b_j_isB20);
