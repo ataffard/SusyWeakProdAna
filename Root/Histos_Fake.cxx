@@ -42,7 +42,7 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
   }
 
   //Muons  
-  BOOK1(m_org,"","",syaxis,43,-0.5,42.5);
+  BOOK1(m_org,"","",syaxis,45,-0.5,44.5);
   BOOK1(m_type,"","",syaxis,5,-0.5,4.5);
   BOOK1(m_pt,"P_{T}","GeV",syaxis,50,0,100);
   BOOK1(m_eta,"#eta","",syaxis,10,-2.5,2.5);
@@ -70,6 +70,8 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
   BOOK1(m_etCone20Rel,"EtCone20/Pt","",syaxis,150,-0.5,2.5);
   BOOK1(m_etCone30Rel,"EtCone30/Pt","",syaxis,150,-0.5,2.5);
   BOOK1(m_etCone40Rel,"EtCone40/Pt","",syaxis,150,-0.5,2.5);
+  BOOK1(m_ptConeEl30,"PtCone30 (500MeV)","GeV",syaxis,24,-1,5);
+  BOOK1(m_ptConeEl30Rel,"PtCone30/Pt (500MeV)","",syaxis,150,-0.5,2.5);
 
   BOOK1(m_ptCone20_Eff,"PtCone20","GeV","Eff [%]",24,-1,5);
   BOOK1(m_ptCone30_Eff,"PtCone30","GeV","Eff [%]",24,-1,5);
@@ -87,7 +89,7 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
 
 
   //Electrons
-  BOOK1(e_org,"","",syaxis,43,-0.5,42.5);
+  BOOK1(e_org,"","",syaxis,45,-0.5,44.5);
   BOOK1(e_type,"","",syaxis,5,-0.5,3.5);
   BOOK1(e_pt,"P_{T}","GeV",syaxis,50,0,100);
   BOOK1(e_eta,"#eta","",syaxis,10,-2.5,2.5);
@@ -251,7 +253,8 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
   BOOK3(m_etCone20Rel_npv,"EtCone20Rel","","p_{T}","GeV","N_{pv}","",150,-0.5,2.5,6,10,80,30,-0.5,29.5);
   BOOK3(m_etCone30Rel_npv,"EtCone30Rel","","p_{T}","GeV","N_{pv}","",150,-0.5,2.5,6,10,80,30,-0.5,29.5);
   BOOK3(m_etCone40Rel_npv,"EtCone40Rel","","p_{T}","GeV","N_{pv}","",150,-0.5,2.5,6,10,80,30,-0.5,29.5);
-
+  BOOK3(m_ptConeEl30_npv,"PtCone30 (500MeV)","GeV","p_{T}","GeV","N_{pv}","",24,-1,5,6,10,80,30,-0.5,29.5);
+  BOOK3(m_ptConeEl30Rel_npv,"PtCone30Rel (500MeV)","","p_{T}","GeV","N_{pv}","",150,-0.5,2.5,6,10,80,30,-0.5,29.5);
 
   //Electrons
   BOOK3(e_ptCone20_npv,"PtCone20","GeV","p_{T}","GeV","N_{pv}","",24,-1,5,6,10,80,30,-0.5,29.5);
@@ -292,6 +295,8 @@ void Histos_Fake::BookFakeHistograms(TDirectory* _hDir)
   BOOK3(m_etCone20Rel_mu,"EtCone20Rel","","p_{T}","GeV","<#mu>","",150,-0.5,2.5,6,10,80,40,-0.5,39.5);
   BOOK3(m_etCone30Rel_mu,"EtCone30Rel","","p_{T}","GeV","<#mu>","",150,-0.5,2.5,6,10,80,40,-0.5,39.5);
   BOOK3(m_etCone40Rel_mu,"EtCone40Rel","","p_{T}","GeV","<#mu>","",150,-0.5,2.5,6,10,80,40,-0.5,39.5);
+  BOOK3(m_ptConeEl30_mu,"PtCone30 (500MeV)","GeV","p_{T}","GeV","<#mu>","",24,-1,5,6,10,80,40,-0.5,39.5);
+  BOOK3(m_ptConeEl30Rel_mu,"PtCone30Rel (500MeV)","","p_{T}","GeV","<#mu>","",150,-0.5,2.5,6,10,80,40,-0.5,39.5);
 
 
   //Electrons

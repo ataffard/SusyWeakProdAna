@@ -42,15 +42,16 @@ pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 ana=SusyAnaLooperExec
 #anaOpt1=doAll
-anaOpt1=do2L
-anaOpt2=true #doMll 
-#anaOpt2=false #doMll 
+#anaOpt1=do2L
+anaOpt1=doFake
+#anaOpt2=true #doMll 
+anaOpt2=false #doMll 
 methodMC=std
 sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-doSys=true
+#doSys=true
 
 ##
 ## Ana mode STD or DD

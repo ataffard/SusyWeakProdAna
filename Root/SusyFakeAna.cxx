@@ -324,6 +324,7 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   
   float PtCone20 = _m->ptcone20;
   float PtCone30 = _m->ptcone30;
+  float PtConeEl30 = _m->ptcone30ElStyle;
   float EtCone30 = _m->etcone30;
   float PtIso30  = muPtConeCorr(_m, nt->evt()->nVtx, nt->evt()->isMC);
   float EtIso30  = muEtConeCorr(_m, nt->evt()->nVtx, nt->evt()->isMC);
@@ -340,6 +341,8 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   _hh->H1FILL(_hh->m_ptCone20Rel[m][t],PtCone20/_m->Pt(),_ww);
   _hh->H1FILL(_hh->m_ptCone30Rel[m][t],PtCone30/_m->Pt(),_ww);
   _hh->H1FILL(_hh->m_etCone30Rel[m][t],EtCone30/_m->Pt(),_ww);
+  _hh->H1FILL(_hh->m_ptConeEl30[m][t],PtConeEl30,_ww);
+  _hh->H1FILL(_hh->m_ptConeEl30Rel[m][t],PtConeEl30/_m->Pt(),_ww);
 
   if(passIP){
     _hh->H2FILL(_hh->m_ptCone30Pt[m][t],_m->Pt(),PtIso30,_ww);
@@ -360,6 +363,8 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   _hh->H3FILL(_hh->m_ptCone20Rel_npv[m][t],PtCone20/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
   _hh->H3FILL(_hh->m_ptCone30Rel_npv[m][t],PtCone30/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
   _hh->H3FILL(_hh->m_etCone30Rel_npv[m][t],EtCone30/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
+  _hh->H3FILL(_hh->m_ptConeEl30_npv[m][t],PtConeEl30,_m->Pt(),nt->evt()->nVtx,_ww);
+  _hh->H3FILL(_hh->m_ptConeEl30Rel_npv[m][t],PtConeEl30/_m->Pt(),_m->Pt(),nt->evt()->nVtx,_ww);
 
   _hh->H3FILL(_hh->m_ptCone20_mu[m][t],PtCone20,_m->Pt(),nt->evt()->avgMu,_ww);
   _hh->H3FILL(_hh->m_ptCone30_mu[m][t],PtCone30,_m->Pt(),nt->evt()->avgMu,_ww);
@@ -367,7 +372,9 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   _hh->H3FILL(_hh->m_ptCone20Rel_mu[m][t],PtCone20/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
   _hh->H3FILL(_hh->m_ptCone30Rel_mu[m][t],PtCone30/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
   _hh->H3FILL(_hh->m_etCone30Rel_mu[m][t],EtCone30/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
-  
+  _hh->H3FILL(_hh->m_ptConeEl30_mu[m][t],PtConeEl30,_m->Pt(),nt->evt()->avgMu,_ww);
+  _hh->H3FILL(_hh->m_ptConeEl30Rel_mu[m][t],PtConeEl30/_m->Pt(),_m->Pt(),nt->evt()->avgMu,_ww);
+
   //Fill histo to compute real_eff & fake
   for(uint k=0; k<nCR; k++){
     int iCR=999;

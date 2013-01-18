@@ -75,6 +75,9 @@ class Histos_Fake
   TH1F* DEF_HPROBE( m_etCone20Rel );
   TH1F* DEF_HPROBE( m_etCone30Rel );  
   TH1F* DEF_HPROBE( m_etCone40Rel );
+  TH1F* DEF_HPROBE( m_ptConeEl30 );
+  TH1F* DEF_HPROBE( m_ptConeEl30Rel );
+
 
   TH2F* DEF_HPROBE( m_ptCone30Pt );
   TH2F* DEF_HPROBE( m_ptCone30RelPt );
@@ -93,7 +96,9 @@ class Histos_Fake
   TH3F* DEF_HPROBE( m_etCone20Rel_npv );
   TH3F* DEF_HPROBE( m_etCone30Rel_npv );  
   TH3F* DEF_HPROBE( m_etCone40Rel_npv );
-  
+  TH3F* DEF_HPROBE( m_ptConeEl30_npv );
+  TH3F* DEF_HPROBE( m_ptConeEl30Rel_npv );  
+
   TH3F* DEF_HPROBE( m_ptCone20_mu );
   TH3F* DEF_HPROBE( m_ptCone30_mu );
   TH3F* DEF_HPROBE( m_ptCone40_mu );
@@ -106,6 +111,8 @@ class Histos_Fake
   TH3F* DEF_HPROBE( m_etCone20Rel_mu );
   TH3F* DEF_HPROBE( m_etCone30Rel_mu );  
   TH3F* DEF_HPROBE( m_etCone40Rel_mu );
+  TH3F* DEF_HPROBE( m_ptConeEl30_mu );
+  TH3F* DEF_HPROBE( m_ptConeEl30Rel_mu );  
   
   TH1F* DEF_HPROBE( m_ptCone20_Eff );
   TH1F* DEF_HPROBE( m_ptCone30_Eff );

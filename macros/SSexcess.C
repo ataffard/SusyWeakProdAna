@@ -175,8 +175,8 @@ TH1F* bookHist(string var,string name)
       sX="#slash{E}_{T}^{Rel} [GeV]";
   }
   else if(VAR.CompareTo("mll")==0){
-    //nbin=20; xL=0; xH=200; //10GeV
-    nbin=40; xL=0; xH=200; //5GeV
+    nbin=20; xL=0; xH=200; //10GeV
+    //nbin=40; xL=0; xH=200; //5GeV
     //nbin=30; xL=0; xH=300; ///10GeV
     //    nbin=25; xL=50; xH=150; //4GeV - Kanisha binning
     sX="m_{ll} [GeV]";
@@ -238,9 +238,9 @@ void study(int type, bool wBkg){
 
   TCut SJ("j_isC25 ||j_isB20 ||j_isF30");
 
-  TCut SEL("metrel>40 ");
+  //TCut SEL("metrel>40 ");
   //TCut SEL(SJ && "nSJets==1 && (mll>100 & mll<110) && l_pt[0]>30 ");
-  //TCut SEL("nSJets==1 && metrel>40 ");
+  TCut SEL("nSJets==1 && metrel>40 && (mll>100 & mll<110) ");
   //TCut SEL("nSJets==1 && met>40 && l_pt[0]>30");
   //TCut SEL("nSJets==1 && metrel>40");
   //TCut SEL("nSJets==1 && metrel>40 && l_pt[0]>30");
@@ -266,12 +266,12 @@ void study(int type, bool wBkg){
   //string var = "j_eta";
   //string var = "j_jvf";
 
-  string sName = "CR2LepSS_VR1SS"+ SLEP + var;
+  //string sName = "CR2LepSS_VR1SS"+ SLEP + var;
   //string sName = "CR2LepSS_Jveto"+ SLEP + var;
   //  string sName = "CR2LepSS_1J"+ SLEP + var;
   //string sName = "CR2LepSS_1Jptl030Mll100-110"+ SLEP + var;
   //string sName = "CR2LepSS_1JMetrel40"+ SLEP + var;
-  //string sName = "CR2LepSS_Metrel40Mll90-120"+ SLEP + var;
+  string sName = "CR2LepSS_Metrel40Mll100-110"+ SLEP + var;
   //string sName = "CR2LepSS_1JMet40ptl030"+ SLEP + var;
   //  string sName = "CR2LepSS_1JMetrel40"+ SLEP + var;
   //string sName = "CR2LepSS_1JMetrel40ptl030"+ SLEP + var;

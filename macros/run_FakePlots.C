@@ -4,6 +4,14 @@ To run
 .L ../util/run_ FakePlots.C
 main();
 
+Get FR as function of m pT for HF
+  fr("CR0","hf","m","pt")
+
+Compare the eff/FR as as cuts are added
+  compFr("CR0","pr","e","pt");
+
+  NB: need to change the sample inside the function.
+
 */
 
 #include "SusyNtuple/TGuiUtils.h"
@@ -11,6 +19,17 @@ main();
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
+
+string sData = "data12_std";
+string sTop  = "top_Sherpa";
+//string sZjet = "histo_Zjets_Sherpa";  
+//string sWjet = "histo_Wjets_Sherpa";  
+string sZjets = "Zjets_AlpgenPythia";  
+string sWjets = "Wjets_AlpgenPythia";  
+string sdiB  = "diBoson_Sherpa";
+string sFake = "mcFake_Sherpa";
+string sBB   = "bbcc";   //TO UPDATE TO BB/CC
+
 
 void comp();
 void fr(string cr="CR0",string type="hf", string lep="m", string var="pt");
@@ -55,38 +74,39 @@ void fr(string cr, string type, string lep, string var)
   
   //Draw trm from top & bb, Wjets, Zjets
   std::cout << "Building Truth FR" << std::endl;
-  TH1F* _h_top_FR   = _ana->getFakeRate("top","trm",cr,type,lep,var); 
-  TH1F* _h_Wjets_FR = _ana->getFakeRate("Wjets","trm",cr,type,lep,var); 
-  TH1F* _h_Zjets_FR = _ana->getFakeRate("Zjets","trm",cr,type,lep,var); 
-  //  TH1F* _h_bb_FR    = _ana->getFakeRate("BB","trm",cr,type,lep,var); 
+  TH1F* _h_top_FR   = _ana->getFakeRate(sTop,"trm",cr,type,lep,var); 
+  TH1F* _h_Wjets_FR = _ana->getFakeRate(sWjets,"trm",cr,type,lep,var); 
+  TH1F* _h_Zjets_FR = _ana->getFakeRate(sZjets,"trm",cr,type,lep,var); 
+  TH1F* _h_bb_FR    = _ana->getFakeRate(sBB,"trm",cr,type,lep,var); 
 
   TLegend*  _leg = new TLegend(0.7,0.6,0.8,0.80);
   _utils->legendSetting(_leg); 
   TCanvas* _c0  = _utils->myCanvas("FR Truth match");
   _utils->myDraw1d(_h_top_FR,_c0,1,"e",false,kOrange-2,false,20);
-  //  _utils->myDraw1d(_h_bb_FR,_c0,1,"esame",false,kRed+2,false,27);
+  _utils->myDraw1d(_h_bb_FR,_c0,1,"esame",false,kRed+2,false,27);
   _utils->myDraw1d(_h_Wjets_FR,_c0,1,"esame",false,kViolet-7,false,24);
   _utils->myDraw1d(_h_Zjets_FR,_c0,1,"esame",false,kRed+2,false,26);
   _leg->AddEntry(_h_top_FR,"Top","p");
   _leg->AddEntry(_h_Wjets_FR,"Wjets","p");
   _leg->AddEntry(_h_Zjets_FR,"Zjets","p");
-  //  _leg->AddEntry(_h_bb_FR,"b#bar b","p");
+  _leg->AddEntry(_h_bb_FR,"b#bar b","p");
   _leg->Draw();
 
 
   //Draw sel FR - data: EWK bkg remove in getFakeRate
   std::cout << "Building Data/MC SF-FR" << std::endl;
-  //  TH1F* _h_bb_FR    = _ana->getFakeRate("BB","sel",cr,type,lep,var); 
-  TH1F* _h_data_FR  = _ana->getFakeRate("DATA","sel",cr,type,lep,var); 
+  TH1F* _h_bb_sel_FR  = _ana->getFakeRate(sBB,"sel",cr,type,lep,var); 
+  TH1F* _h_data_FR    = _ana->getFakeRate(sData,"sel",cr,type,lep,var); 
 
+  cout << "bb " << _h_bb_sel_FR << endl;
   TLegend*  _leg2 = new TLegend(0.7,0.6,0.8,0.80);
   _utils->legendSetting(_leg2); 
   TCanvas* _c1  = _utils->myCanvas("FR selected");
   
   _utils->myDraw1d(_h_data_FR,_c1,1,"e",false,kBlack,false,20);
-  //  _utils->myDraw1d(_h_bb_FR,_c1,1,"esame",false,kRed+2,false,27);
+  _utils->myDraw1d(_h_bb_sel_FR,_c1,1,"esame",false,kRed+2,false,27);
   _leg2->AddEntry(_h_data_FR,"Data","p");
-  //  _leg2->AddEntry(_h_bb_FR,"b#bar b","p");
+  _leg2->AddEntry(_h_bb_sel_FR,"b#bar b","p");
   _leg2->Draw();
 
   //Compte SF
@@ -111,13 +131,13 @@ void compFr(string cr,string type, string lep, string var)
     sel_CR0_hf_m_tightNIIP_pt
   */
   
-  //string sel = "sel";
-  string sel = "trm";
+  string sel = "sel";
+  //string sel = "trm";
 
-  //string sFile1 = "data12";
-  //string sFile1 = "top";
-  //string sFile1 = "Zjets_Alpgen";
-  string sFile1 = "SimplifiedModel_wA_slep";
+  string sFile1 = sData;
+  //string sFile1 = sTop;
+  //string sFile1 = sZjets;
+  //string sFile1 = "SimplifiedModel_wA_slep";
       
   string loose = sel + "_" + cr + "_" + type + "_" + lep + "_loose_" + var;
   string tightPP = sel + "_" + cr + "_" + type + "_" + lep + "_tightPP_" + var; //e tight PP
@@ -126,7 +146,7 @@ void compFr(string cr,string type, string lep, string var)
   string tightNIIP = sel + "_" + cr + "_" + type + "_" + lep + "_tightNIIP_" + var;
   string tightNI2 = sel + "_" +  cr + "_" + type + "_" + lep + "_tightNI2_" + var;
 
-
+  cout << "Using histo " << loose << endl;
 
 
   TH1F* _h_loose   = (TH1F*) _ana->getHisto(sFile1,loose);
@@ -174,13 +194,14 @@ void compFr(string cr,string type, string lep, string var)
   _utils->legendSetting(_leg1,0.03); 
   TCanvas* _c1  = _utils->myCanvas("FR");
   
-  _h_fr_0->GetXaxis()->SetRangeUser(0,100);
+
   _utils->myDraw1d(_h_fr_0,_c1,1,"e",false,kBlack,false,20);
   if(lep=="e") _utils->myDraw1d(_h_fr_4,_c1,1,"esame",false,kCyan-3,false,24);
   _utils->myDraw1d(_h_fr_1,_c1,1,"esame",false,kBlue,false,22);
   _utils->myDraw1d(_h_fr_2,_c1,1,"esame",false,kRed,false,33);
   _utils->myDraw1d(_h_fr_3,_c1,1,"esame",false,kGreen+3,false,27);
-  if(type == "pr" /*|| type=="lf"*/) _h_fr_0->GetYaxis()->SetRangeUser(0.6,1.05);
+  if(var=="pt") _h_fr_0->GetXaxis()->SetRangeUser(0,100);
+  if(type == "pr" /*|| type=="lf"*/) _h_fr_0->GetYaxis()->SetRangeUser(0.5,1.05);
   else _h_fr_0->GetYaxis()->SetRangeUser(0,1.0);
   _c1->Update();
 

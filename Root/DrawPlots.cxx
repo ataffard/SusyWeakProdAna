@@ -1278,28 +1278,28 @@ TH1F* DrawPlots::getFakeRate(string sample, string sel, string cr,
   TH1F* _h_tight = NULL;
   
   //Truth match FR
-  if(SEL.Contains("trm") || (SEL.Contains("sel") && SAMPLE.Contains("BB"))){
-    string _name = "/histo_" + sample + ".root";
+  if(SEL.Contains("trm") || (SEL.Contains("sel") && SAMPLE.Contains("bb"))){
+    string _name = "/histo_" + sample + "_std.root";
     string _fileName = _pathHisto + _name;
     std::cout << "Loading " << _fileName.c_str() << std::endl;
     TFile* _f = new TFile(_fileName.c_str(),"READ",sample.c_str());
     _h_loose = (TH1F*) _f->Get(loose.c_str());
     _h_tight = (TH1F*) _f->Get(tight.c_str());
   }
-  else if(SAMPLE.Contains("DATA")){
+  else if(SAMPLE.Contains("data")){
     //If sel & data - DO EWK bkg substraction Top, Wjets, Zjets
-    TFile* _f_top   = new TFile((s=_pathHisto+string("/histo_top.root")).c_str(),"READ","top");
-    TFile* _f_wjets = new TFile((s=_pathHisto+string("/histo_Wjets.root")).c_str(),"READ","Wjets");
-    TFile* _f_zjets = new TFile((s=_pathHisto+string("/histo_Zjets.root")).c_str(),"READ","Zjets");
-    TFile* _f_diB   = new TFile((s=_pathHisto+string("/histo_diBoson.root")).c_str(),"READ","diBoson");
+    TFile* _f_top   = new TFile((s=_pathHisto+string("/histo_top_Sherpa_std.root")).c_str(),"READ","top");
+    TFile* _f_wjets = new TFile((s=_pathHisto+string("/histo_Wjets_AlpgenPythia_std.root")).c_str(),"READ","Wjets");
+    TFile* _f_zjets = new TFile((s=_pathHisto+string("/histo_Zjets_AlpgenPythia_std.root")).c_str(),"READ","Zjets");
+    TFile* _f_diB   = new TFile((s=_pathHisto+string("/histo_diBoson_Sherpa_std.root")).c_str(),"READ","diBoson");
     
     TFile* _f_data = NULL;
     if(LEP.Contains("e")){
-      _f_data = new TFile((s=_pathHisto+string("/histo_data12.root")).c_str(),"READ","Egamma");
+      _f_data = new TFile((s=_pathHisto+string("/histo_data12_std.root")).c_str(),"READ","Egamma");
       std::cout << "Retreiving Egamma file" <<std::endl;
     }
     if(LEP.Contains("m")){
-      _f_data = new TFile((s=_pathHisto+string("/histo_data12.root")).c_str(),"READ","Muons");
+      _f_data = new TFile((s=_pathHisto+string("/histo_data12_std.root")).c_str(),"READ","Muons");
       std::cout << "Retreiving Muon file" <<std::endl;
     }
        
@@ -1335,20 +1335,21 @@ TH1F* DrawPlots::getFakeRate(string sample, string sel, string cr,
     _utils->myDraw1d(_h_corr_loose,_c3,1,"e",false,kRed,false,20);
     _utils->myDraw1d(_h_corr_tight,_c3,1,"esame",false,kBlue,false,20);
 
-
     _h_loose = (TH1F*) _h_corr_loose->Clone();
     _h_tight = (TH1F*) _h_corr_tight->Clone();
 
   }
 
   //Compute FR
-  TH1F* _h_FR = (TH1F*) _h_loose->Clone();
-  _h_FR->Reset();
-  _h_FR->GetYaxis()->SetTitle("Efficiency");
-  _h_FR->Divide(_h_tight,_h_loose,1,1,"B");
+  TH1F* _h_FR=NULL;
+  if(_h_loose && _h_tight){
+    _h_FR = (TH1F*) _h_loose->Clone();
+    _h_FR->Reset();
+    _h_FR->GetYaxis()->SetTitle("Efficiency");
+    _h_FR->Divide(_h_tight,_h_loose,1,1,"B");
+  }
 
   return _h_FR;
-
 }
 
 

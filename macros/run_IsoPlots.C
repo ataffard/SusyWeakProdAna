@@ -5,6 +5,13 @@ To run
 main();
 
 
+Check dependency of iso var vs Npv/mu
+  iso_Pileup2("m","npv", "ptCone30") 
+  iso_Pileup2("e","npv", "ptCone30") 
+
+ROC curve:
+  perf_IsoCutRange("e","ptCone","npv")     
+
 
 */
 
@@ -16,14 +23,20 @@ typedef unsigned uint;
 TGuiUtils* _utils;
 DrawPlots* _ana;
 
+const std::string TAG  = "011613";
+const std::string SUFF = "_n0115_Fake";
+const std::string DATE=TAG+"_13fb" + SUFF;
+
 string mode  = "STD";
-string sData = "histo_data12_std";
-string sTop  = "histo_top_Sherpa";
-string sZjet = "histo_Zjets_Sherpa";  
-string sWjet = "histo_Wjets_Sherpa";  
-string sdiB  = "histo_diBoson_Sherpa";
-string sFake = "histo_mcFake_Sherpa";
-string sBB   = "histo_dummy";   //TO UPDATE TO BB/CC
+string sData = "data12_std";
+string sTop  = "top_Sherpa";
+//string sZjet = "histo_Zjets_Sherpa";  
+//string sWjet = "histo_Wjets_Sherpa";  
+string sZjets = "Zjets_AlpgenPythia";  
+string sWjets = "Wjets_AlpgenPythia";  
+string sdiB  = "diBoson_Sherpa";
+string sFake = "mcFake_Sherpa";
+string sBB   = "bbcc";   //TO UPDATE TO BB/CC
 
 
 bool delCanvas=false;
@@ -52,16 +65,16 @@ int main(int argc, char *argv[]){
   _ana = new DrawPlots(); 
 
   TString MODE = mode;
-  string mth = "_std";
-  if(MODE.Contains("DD")) mth = "_rlep";
+  string mth = "std";
+  if(MODE.Contains("DD")) mth = "rlep";
   sTop  = sTop + "_" + mth;
-  sZjet = sZjet + "_" + mth;
-  sWjet = sWjet + "_" + mth;
+  sZjets = sZjets + "_" + mth;
+  sWjets = sWjets + "_" + mth;
   sdiB  = sdiB + "_" + mth;
   sFake = sFake + "_" + mth;
   sBB   = sBB + "_" + mth;
     
-  _ana->openHistoFiles(mode,sTop,sWW, sZX, sZJet, sFake);
+  //  _ana->openHistoFiles(mode,sTop,sdiB, sZX, sZJet, sFake);
 
 }
 
@@ -92,29 +105,34 @@ void make_All(int opt, int type){
 	std::vector<string> varA;
 	varA.push_back("ptCone20");
 	varA.push_back("ptCone30");
-	varA.push_back("ptCone40");
+	//varA.push_back("ptCone40");
 	varA.push_back("ptCone20Rel");
 	varA.push_back("ptCone30Rel");
-	varA.push_back("ptCone40Rel");
-	varA.push_back("etCone20");
-	varA.push_back("etCone30");
-	varA.push_back("etCone40");
-	varA.push_back("etCone20Rel");
-	varA.push_back("etCone30Rel");
-	varA.push_back("etCone40Rel");
+	//varA.push_back("ptCone40Rel");
+
 	if(ilep==0){//Electron only
-	  varA.push_back("etConeCorr20");
-	  varA.push_back("etConeCorr30");
-	  varA.push_back("etConeCorr40");
-	  varA.push_back("etConeCorr20Rel");
-	  varA.push_back("etConeCorr30Rel");
-	  varA.push_back("etConeCorr40Rel");
-	  varA.push_back("etConeTopoCorr20");
+	  //varA.push_back("etConeCorr20");
+	  //varA.push_back("etConeCorr30");
+	  //varA.push_back("etConeCorr40");
+	  //varA.push_back("etConeCorr20Rel");
+	  //varA.push_back("etConeCorr30Rel");
+	  //varA.push_back("etConeCorr40Rel");
+	  //varA.push_back("etConeTopoCorr20");
 	  varA.push_back("etConeTopoCorr30");
-	  varA.push_back("etConeTopoCorr40");
-	  varA.push_back("etConeTopoCorr20Rel");
+	  //varA.push_back("etConeTopoCorr40");
+	  //varA.push_back("etConeTopoCorr20Rel");
 	  varA.push_back("etConeTopoCorr30Rel");
-	  varA.push_back("etConeTopoCorr40Rel");
+	  //varA.push_back("etConeTopoCorr40Rel");
+	}
+	else if(ilep==1){
+	  varA.push_back("ptConeEl30");
+	  varA.push_back("ptConeEl30Rel");
+	  //varA.push_back("etCone20");
+	  varA.push_back("etCone30");
+	  //varA.push_back("etCone40");
+	  //varA.push_back("etCone20Rel");
+	  varA.push_back("etCone30Rel");
+	  //varA.push_back("etCone40Rel");
 	}
 	
 	for(int iVar=0; iVar<varA.size(); iVar++){
@@ -124,20 +142,6 @@ void make_All(int opt, int type){
       }
     }
   }
-
-  //
-  //Signal Eff -vs Bkg rejection  //obsolete
-  //
-  //perf_IsoCut("m","ptCone");
-  //perf_IsoCut("m","etCone");
-  //perf_IsoCut("e","ptCone");
-  //perf_IsoCut("e","etCone");
-  ////relative iso
-  //perf_IsoCut("m","ptCone",true);
-  //perf_IsoCut("m","etCone",true);
-  //perf_IsoCut("e","ptCone",true);
-  //perf_IsoCut("e","etCone",true);
-
 
   //
   //Signal Eff -vs Bkg rejection - split pt bins and Npv/mu
@@ -155,10 +159,13 @@ void make_All(int opt, int type){
 	if(ix==1) sX="mu";
 	std::vector<string> varA;
 	varA.push_back("ptCone");
-	varA.push_back("etCone");
 	if(ilep==0){//Electron only
-	  varA.push_back("etConeCorr");
+	  //varA.push_back("etConeCorr");
 	  varA.push_back("etConeTopoCorr");
+	}
+	else if(ilep==1){
+	  varA.push_back("etCone");
+	  varA.push_back("ptConeEl");
 	}
 	for(int iVar=0; iVar<varA.size(); iVar++){
 	  std::cout << "Isolation ROC curves " << std::endl;
@@ -267,6 +274,7 @@ void iso_Pileup(string lep, string dep, string iso)
     _c2->SaveAs((fName+".png").c_str());
   }
   
+
   //
   //Data Z tag probe
   //
@@ -365,7 +373,7 @@ void iso_Pileup2(string lep, string dep, string iso)
     //Signal lepton MC truth 
     //
     _h3_top       = (TH3F*) _ana->getHisto(sTop,_hName);
-    _h3_diBoson   = (TH3F*) _ana->getHisto(sdiBoson,_hName);
+    _h3_diBoson   = (TH3F*) _ana->getHisto(sdiB,_hName);
     _h3_Wjets     = (TH3F*) _ana->getHisto(sWjets,_hName);
     _h3_Zjets     = (TH3F*) _ana->getHisto(sZjets,_hName);
     
@@ -390,7 +398,7 @@ void iso_Pileup2(string lep, string dep, string iso)
     _h_top->GetYaxis()->SetTitle(iso.c_str());
     _h_top->SetMaximum(max_mc_pr*scale);
     _leg0->AddEntry(_h_top,"Top","p");
-    _leg0->AddEntry(_h_diBoson,"siBoson","p");
+    _leg0->AddEntry(_h_diBoson,"diBoson","p");
     _leg0->AddEntry(_h_Wjets,"Wjets","p");
     _leg0->AddEntry(_h_Zjets,"Zjets","p");
     _leg0->Draw();
@@ -405,6 +413,8 @@ void iso_Pileup2(string lep, string dep, string iso)
 
     //
     //Fake lepton MC truth  (BB) & HF tag probe 
+    // Use 3D histo iso - pt - Npv/mu
+    // No correction applied fro pileup.
     //
     _hName = "trm_hf_" + lep + "_" + iso +  "_" + dep;
 
@@ -465,6 +475,10 @@ void iso_Pileup2(string lep, string dep, string iso)
   _h_Zjets->SetTitle("Zjets_pr");  _h_Zjets->SetName("Zjets_pr");
   max_mc_pr = _h_data->GetMaximum();
 
+
+  TLegend*  _leg1 = new TLegend(0.2,0.2,0.35,0.35); _utils->legendSetting(_leg1); 
+  TCanvas* _c1  = _utils->myCanvas(string("Data Z tag-probe: Iso -vs- "+dep).c_str());
+
   string _sFunc = "pol1";
   if(LEP.CompareTo("m")==0 && ISO.Contains("etCone")) _sFunc="pol2";
   TF1* _f_data = new TF1("f_data",_sFunc.c_str());
@@ -474,14 +488,12 @@ void iso_Pileup2(string lep, string dep, string iso)
   _h_Zjets->Fit("f_Zjets");
 
 
-  TLegend*  _leg1 = new TLegend(0.2,0.2,0.35,0.35); _utils->legendSetting(_leg1); 
-  TCanvas* _c1  = _utils->myCanvas(string("Data Z tag-probe: Iso -vs- "+dep).c_str());
   _utils->myDraw1d(_h_data,_c1,1,"e",false,kBlack,false,20);
   _utils->myDraw1d(_h_Zjets,_c1,1,"esame",false,kViolet-9,false,26);
   _h_data->GetYaxis()->SetTitle(iso.c_str());
   _h_data->SetMaximum(max_mc_pr*scale);
   _leg1->AddEntry(_h_data,"Data","p");
-  _leg1->AddEntry(_h_Zjets,"Zjets_Sherpa","p");
+  _leg1->AddEntry(_h_Zjets,"Zjets","p");
   _leg1->Draw();
   _utils->myText(0.15,0.9,kBlack,"Data MC comparison. Z TP",0.03);
   gPad->Modified();
@@ -699,8 +711,14 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
   TString LEP(lep);
   TString ISO(iso);
   TString DEP(dep);
-  //  string cone[3]={"20", "30", "40"};
-  string cone[3]={"30"};
+  string cone[3];
+  int iConeMax=1;
+  if(iso=="ptCone") {
+    cone[0]="20";
+    cone[1]="30";
+    iConeMax=2;
+  }
+  else cone[0]="30";
   int hMarker[3]={20,24,27};
   string _hNameR, _hNameF;
 
@@ -784,7 +802,7 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
       TMultiGraph *mg0 = new TMultiGraph();
       TLegend*  _leg0 = new TLegend(lx1,ly1,lx1+lxo,ly1+lyo); _utils->legendSetting(_leg0); 
       
-      for(uint i=0; i<1; i++){
+      for(uint i=0; i<iConeMax; i++){
 	string _iTitle = iso + cone[i];
 	_hNameR = sSel + "_pr_" + lep + "_" + iso + cone[i] + "_" + dep;
 	_hNameF = sSel + "_hf_" + lep + "_" + iso + cone[i] + "_" + dep;
@@ -917,7 +935,16 @@ void compIso(string lep, string iso, bool relative){
 
   TString LEP(lep);
   TString ISO(iso);
-  string cone[3]={"20", "30", "40"};
+  string cone[3];
+  
+  int iConeMax=1;
+  if(iso=="ptCone") {
+    cone[0]="20";
+    cone[1]="30";
+    iConeMax=2;
+  }
+  else cone[0]="30";
+
 
   _pathPlots =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_" +
     DATE +"/Plots/PerfIso";
@@ -928,7 +955,7 @@ void compIso(string lep, string iso, bool relative){
   TH1F* _h_hf_bb_iso[2];
   TH1F* _h_hf_top_iso[2];
 
-  for(uint i=0; i<3; i++){//Cone size 
+  for(uint i=0; i<iConeMax; i++){//Cone size 
     string sTitle;
     
     for(uint k=0; k<2; k++){//MC-Data
