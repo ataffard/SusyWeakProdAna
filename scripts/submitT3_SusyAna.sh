@@ -8,6 +8,7 @@
 #
 # ./submitT3_SusyAna <type> <pattern>
 #     type=mc or data
+#     mode= STD or DD
 # ./submitT3_SusyAna mc12                   // submit all MC
 # ./submitT3_SusyAna data12                 // submit all data
 # ./submitT3_SusyAna mc12 ttbar             // submit all mc ttbar
@@ -42,8 +43,8 @@ pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 ana=SusyAnaLooperExec
 #anaOpt1=doAll
-#anaOpt1=do2L
-anaOpt1=doFake
+anaOpt1=do2L
+#anaOpt1=doFake
 #anaOpt2=true #doMll 
 anaOpt2=false #doMll 
 methodMC=std

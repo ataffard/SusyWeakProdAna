@@ -63,7 +63,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseMuons, &m_signalMuons,
 			       &m_baseLeptons, &m_signalLeptons,
 			       &m_baseJets, &m_signalJets2Lep);
-    _susyHistos->Book2LHistograms(_histoDir);
+    _susyHistos->Book2LHistograms(_histoDir,DO_SYS);
     
     if(DO_SYS){
       if(_runOneSys || _runSysRange){
@@ -116,6 +116,8 @@ void SusyAnaLooper::printSettings()
   cout << "   LUMIMODE          " << LUMIMODE       << endl;
   cout << "   LUMI              " << LUMW           << endl;
   cout << "   pLUMI             " << pLUMI          << endl;
+  cout << "   MINRUM            " << MINRUN         << endl; 
+  cout << "   MAXRUM            " << MAXRUN         << endl; 
   cout << endl;
   cout << " 2L Settings " << endl;
   cout << "   NBASELEPMIN       " << NBASELEPMIN       << endl;
@@ -161,6 +163,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   //Debug this event - check if should be processed
   if(m_dbgEvt && !processThisEvent(nt.evt()->run, nt.evt()->event))  return kFALSE;
   
+  if(!nt.evt()->isMC && nt.evt()->run < MINRUN) return kFALSE;
   if(!nt.evt()->isMC && nt.evt()->run > MAXRUN) return kFALSE;
 
   if(nt.evt()->hfor==4){

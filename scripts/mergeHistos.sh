@@ -11,35 +11,36 @@ if [ "$job" == "DATA"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/data12_std_job.sh
 
 elif [ "$job" == "TOP" -a  "$mode" ==  "ALL" ] ; then
-    MergeJobsScripts/top_MCNLO_${mth}_job.sh
-    MergeJobsScripts/top_PowHeg_${mth}_job.shs
-    MergeJobsScripts/top_Sherpa_${mth}_job.sh
-    MergeJobsScripts/topDil_Sherpa_${mth}_job.sh
+#    MergeJobsScripts/top_MCNLO_${mth}_job.sh
+    MergeJobsScripts/top_PowHeg_${mth}_job.sh
+    MergeJobsScripts/top_Alpgen_${mth}_job.sh
+#    MergeJobsScripts/top_Sherpa_${mth}_job.sh
+#    MergeJobsScripts/topDil_Sherpa_${mth}_job.sh
 
 elif [ "$job" == "WW"  -a  "$mode" ==  "ALL" ] ; then
-    MergeJobsScripts/WW_Powheg_${mth}_job.sh
+#    MergeJobsScripts/WW_Powheg_${mth}_job.sh
     MergeJobsScripts/WW_Sherpa_${mth}_job.sh
 
 elif [ "$job" == "DIB"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/diBZX_Sherpa_${mth}_job.sh
     MergeJobsScripts/diBoson_Sherpa_${mth}_job.sh
-    MergeJobsScripts/diBZX_Powheg_${mth}_job.sh
+#    MergeJobsScripts/diBZX_Powheg_${mth}_job.sh
 
 elif [ "$job" == "ZJ"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/Zjets_Sherpa_${mth}_job.sh
     MergeJobsScripts/Zjets_SherpaLFHF_${mth}_job.sh
     MergeJobsScripts/Zjets_Alpgen_${mth}_job.sh
-    MergeJobsScripts/Zjets_Powheg_${mth}_job.sh
+#    MergeJobsScripts/Zjets_Powheg_${mth}_job.sh
 
 elif [ "$job" == "ZTT"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/ZTauTaujets_Alpgen_${mth}_job.sh
     MergeJobsScripts/ZTauTaujets_SherpaLFHF_${mth}_job.sh
     MergeJobsScripts/ZTauTaujets_Sherpa_${mth}_job.sh
-    MergeJobsScripts/ZTauTaujets_Powheg_${mth}_job.sh
+#    MergeJobsScripts/ZTauTaujets_Powheg_${mth}_job.sh
 
 elif [ "$job" == "WJ"  -a  "$mode" ==  "ALL" ] ; then
     MergeJobsScripts/Wjets_Alpgen_${mth}_job.sh
-    MergeJobsScripts/Wjets_Sherpa_${mth}_job.sh
+#    MergeJobsScripts/Wjets_Sherpa_${mth}_job.sh
 
 
 elif [ "$job" == "MODA"  -a  "$mode" ==  "SUSY" ] ; then
@@ -60,11 +61,12 @@ elif [ "$job" == "ZX"  -a  "$mode" ==  "MERGE" ] ; then
     MergeJobsScripts/ZX_Sherpa_${mth}_job.sh
     MergeJobsScripts/ZX_SherpaLFHF_${mth}_job.sh
     MergeJobsScripts/ZX_Alpgen_${mth}_job.sh
-    MergeJobsScripts/ZX_SherpaPowheg_${mth}_job.sh
-    MergeJobsScripts/ZX_Powheg_${mth}_job.sh
+#    MergeJobsScripts/ZX_SherpaPowheg_${mth}_job.sh
+#    MergeJobsScripts/ZX_Powheg_${mth}_job.sh
 
 elif [ "$job" == "BKG"  -a  "$mode" ==  "MERGE" ] ; then
-    MergeJobsScripts/Bkg_${mth}_job.sh
+    MergeJobsScripts/BkgAlpgen_${mth}_job.sh
+    MergeJobsScripts/BkgSherpa_${mth}_job.sh
 fi
 
 

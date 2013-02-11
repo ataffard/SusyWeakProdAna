@@ -1,10 +1,15 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-#date="110812_13fb_n0111_DD_MMtrial9_SYS_HFT"
-#mth="rlep"
+date="020813_13fb_n0124_HCP_DD_NEWJET025"
 
-date="122012_13fb_n0115_DD_MMtrial9_newJVeto_SYS"
+#date="020813_21fb_n0123_Moriond_Fake_DD"
+
+#date="020613_13fb_n0123_HCP_DD"
+#date="020613_13fb_n0124_HCP_DD"
+
+#date="020413_5fb_n0123_IJL_DD"
+
 mth="rlep"
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -24,12 +29,13 @@ doData=true
 doDataFake=true
 
 doTopPowHeg=true
-doTopMCNLO=true
-doTopSherpa=true
-doTopDilSherpa=true
+doTopAlpgen=true
+#doTopMCNLO=true
+#doTopSherpa=true
+#doTopDilSherpa=true
 
 doWWSherpa=true;
-doWWPowHeg=true;
+#doWWPowHeg=true;
 
 ##doDiBHerwig=false
 ##doDiBMCNLO=false
@@ -37,7 +43,7 @@ doWWPowHeg=true;
 dodiBosonSherpa=true
 
 dodiBZSherpa=true
-dodiBZPowHeg=true
+#dodiBZPowHeg=true
 
 doZjetAlpgen=true
 doZTauTaujetAlpgen=true
@@ -48,16 +54,16 @@ doZTauTaujetSherpaIncl=true
 doZjetSherpaLFHF=true
 doZTauTaujetSherpaLFHF=true
 
-doZjetPowheg=true
-doZTauTaujetPowheg=true
+#doZjetPowheg=true
+#doZTauTaujetPowheg=true
 
 doZXSherpa=true
-doZXSherpaPowheg=true
+#doZXSherpaPowheg=true
 doZXSherpaLFHF=true
 doZXAlpgen=true
-doZXPowheg=true
+#doZXPowheg=true
 
-doWjetSherpa=true
+#doWjetSherpa=true
 doWjetAlpgen=true
 
 doMergeWjetBB=true
@@ -99,16 +105,8 @@ if [ $doData ]; then
     cat > $SCRIPT << "EOF"
 #!/bin/bash
 hadd -f ${histPath}/histo_data12_std.root \
-	${histPath}/histo_Egamma.periodA_std.root \
-    	${histPath}/histo_Muons.periodA_std.root \
-    	${histPath}/histo_Egamma.periodB_std.root \
-    	${histPath}/histo_Muons.periodB_std.root  \
-    	${histPath}/histo_Egamma.periodC_std.root \
-    	${histPath}/histo_Muons.periodC_std.root \
-    	${histPath}/histo_Egamma.periodD_std.root \
-    	${histPath}/histo_Muons.periodD_std.root \
-    	${histPath}/histo_Egamma.periodE_std.root \
-    	${histPath}/histo_Muons.periodE_std.root 
+	${histPath}/histo_Egamma.period?_std.root \
+    	${histPath}/histo_Muons.period?_std.root 
 EOF
     chmod 755 $SCRIPT
 fi 
@@ -122,16 +120,8 @@ if [ $doDataFake ]; then
     cat > $SCRIPT << "EOF"
 #!/bin/bash
 hadd -f ${histPath}/histo_data12_fake.root \
-	${histPath}/histo_Egamma.periodA_flep.root \
-	${histPath}/histo_Muons.periodA_flep.root \
-	${histPath}/histo_Egamma.periodB_flep.root \
-	${histPath}/histo_Muons.periodB_flep.root  \
-	${histPath}/histo_Egamma.periodC_flep.root \
-	${histPath}/histo_Muons.periodC_flep.root \
-	${histPath}/histo_Egamma.periodD_flep.root \
-	${histPath}/histo_Muons.periodD_flep.root \
-	${histPath}/histo_Egamma.periodE_flep.root \
-	${histPath}/histo_Muons.periodE_flep.root 
+	${histPath}/histo_Egamma.period?_flep.root \
+	${histPath}/histo_Muons.period?_flep.root 
 EOF
     chmod 755 $SCRIPT
 fi 
@@ -173,17 +163,44 @@ if [ $doTopPowHeg ]; then
 #!/bin/bash
     hadd -f ${histPath}/histo_top_PowHeg_${mth}.root   \
 	${histPath}/histo_ttbar.105861_${mth}.root \
-	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
-	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
-	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root  \
 	${histPath}/histo_ttbarW.119353_${mth}.root \
 	${histPath}/histo_ttbarWj.119354_${mth}.root \
 	${histPath}/histo_ttbarZ.119355_${mth}.root \
 	${histPath}/histo_ttbarZj.119356_${mth}.root \
-	${histPath}/histo_ttbarWW.119583_${mth}.root 
+	${histPath}/histo_ttbarWW.119583_${mth}.root \
+	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root  
 EOF
+#	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
+#	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
+
+
     chmod 755 $SCRIPT
 fi
+
+if [ $doTopAlpgen ]; then
+    echo "Merge Top ALPGEN"
+    rm -f ${histPath}/histo_top_Alpgen_${mth}.root
+    SCRIPT=${mergeJobDir}/top_Alpgen_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_top_Alpgen_${mth}.root   \
+        ${histPath}/histo_ttbarln*.1644*_rlep.root \
+	${histPath}/histo_ttbarW.119353_${mth}.root \
+	${histPath}/histo_ttbarWj.119354_${mth}.root \
+	${histPath}/histo_ttbarZ.119355_${mth}.root \
+	${histPath}/histo_ttbarZj.119356_${mth}.root \
+	${histPath}/histo_ttbarWW.119583_${mth}.root \
+	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root  
+EOF
+#	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
+#	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
+
+
+    chmod 755 $SCRIPT
+fi
+
 
 if [ $doTopSherpa ]; then
     echo "Merge Top Sherpa"
@@ -195,8 +212,6 @@ if [ $doTopSherpa ]; then
 #!/bin/bash
     hadd -f ${histPath}/histo_top_Sherpa_${mth}.root   \
 	${histPath}/histo_Ttbar*.11780?_${mth}.root \
-	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
-	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
 	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root  \
 	${histPath}/histo_ttbarW.119353_${mth}.root \
 	${histPath}/histo_ttbarWj.119354_${mth}.root \
@@ -205,6 +220,10 @@ if [ $doTopSherpa ]; then
 	${histPath}/histo_ttbarWW.119583_${mth}.root 
 EOF
     chmod 755 $SCRIPT
+#Included in fake lepton bkg
+#	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
+#	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
+
 fi
 
 if [ $doTopDilSherpa ]; then
@@ -422,12 +441,15 @@ if [ $doZjetSherpaIncl ]; then
     hadd -f ${histPath}/histo_Zjets_Sherpa_${mth}.root  \
 	${histPath}/histo_Zee.147770_${mth}.root \
 	${histPath}/histo_Zmumu.147771_${mth}.root \
-	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll40_${mth}.root  \
-	${histPath}/histo_ZeeNp5Incl_Mll10to60.*_mll40_${mth}.root  \
-	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll40_${mth}.root  \
-	${histPath}/histo_ZmumuNp5Incl_Mll10to60.*_mll40_${mth}.root  
+        ${histPath}/histo_DYee*_${mth}.root \
+        ${histPath}/histo_DYmumu*_${mth}.root 
 EOF
     chmod 755 $SCRIPT
+#	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll40_${mth}.root  \
+#	${histPath}/histo_ZeeNp5Incl_Mll10to60.*_mll40_${mth}.root  \
+#	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll40_${mth}.root  \
+#	${histPath}/histo_ZmumuNp5Incl_Mll10to60.*_mll40_${mth}.root  
+
 fi    
 
 if [ $doZTauTaujetSherpaIncl ]; then
@@ -441,11 +463,13 @@ if [ $doZTauTaujetSherpaIncl ]; then
 #!/bin/bash
     hadd -f ${histPath}/histo_ZTauTaujets_Sherpa_${mth}.root  \
 	${histPath}/histo_Ztautau.147772_${mth}.root \
-	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll40_${mth}.root \
-	${histPath}/histo_ZtautauNp5Incl_Mll10to60.*_mll40_${mth}.root  
+        ${histPath}/histo_DYtautau*_${mth}.root 
 EOF
     chmod 755 $SCRIPT
+#	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll40_${mth}.root \
+#	${histPath}/histo_ZtautauNp5Incl_Mll10to60.*_mll40_${mth}.root  
 fi 
+
 
 
 if [ $doZjetSherpaLFHF ]; then
@@ -462,12 +486,14 @@ if [ $doZjetSherpaLFHF ]; then
 	${histPath}/histo_ZeeHeavyJets.128975_${mth}.root \
 	${histPath}/histo_ZmumuLightJets.146821_${mth}.root \
 	${histPath}/histo_ZmumuHeavyJets.128976_${mth}.root \
-	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll40_${mth}.root  \
-	${histPath}/histo_ZeeNp5Incl_Mll10to60.*_mll40_${mth}.root  \
-	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll40_${mth}.root \
-	${histPath}/histo_ZmumuNp5Incl_Mll10to60.*_mll40_${mth}.root   
+        ${histPath}/histo_DYee*_${mth}.root \
+        ${histPath}/histo_DYmumu*_${mth}.root 
 EOF
     chmod 755 $SCRIPT
+#	${histPath}/histo_ZeeNp?Excl_Mll10to60.*_mll40_${mth}.root  \
+#	${histPath}/histo_ZeeNp5Incl_Mll10to60.*_mll40_${mth}.root  \
+#	${histPath}/histo_ZmumuNp?Excl_Mll10to60.*_mll40_${mth}.root \
+#	${histPath}/histo_ZmumuNp5Incl_Mll10to60.*_mll40_${mth}.root   
 fi 
 
 if [ $doZTauTaujetSherpaLFHF ]; then
@@ -482,10 +508,12 @@ if [ $doZTauTaujetSherpaLFHF ]; then
     hadd -f ${histPath}/histo_ZTauTaujets_SherpaLFHF_${mth}.root  \
 	${histPath}/histo_ZtautauLightJets.146822_${mth}.root \
 	${histPath}/histo_ZtautauHeavyJets.128977_${mth}.root \
-	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll40_${mth}.root \
-	${histPath}/histo_ZtautauNp5Incl_Mll10to60.*_mll40_${mth}.root  
+        ${histPath}/histo_DYtautau*_${mth}.root 
 EOF
     chmod 755 $SCRIPT
+#	${histPath}/histo_ZtautauNp?Excl_Mll10to60.*_mll40_${mth}.root \
+#	${histPath}/histo_ZtautauNp5Incl_Mll10to60.*_mll40_${mth}.root  
+
 fi 
 
 
@@ -697,21 +725,39 @@ fi
 #
 
 if [ $doBkgDD ]; then
-    echo "Merge DD Bkg "
-    rm -f ${histPath}/histo_Bkg_${mth}.root
+    echo "Merge DD Bkg Alpgen"
+    rm -f ${histPath}/histo_BkgAlpgen_${mth}.root
     SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
     
     cat > $SCRIPT << "EOF"
 #!/bin/bash
     hadd -f ${histPath}/histo_Bkg_${mth}.root \
-          ${histPath}/histo_topDil_Sherpa_${mth}.root \
+          ${histPath}/histo_top_PowHeg_${mth}.root \
+          ${histPath}/histo_data12_fake.root \
+          ${histPath}/histo_WW_Sherpa_${mth}.root \
+  	  ${histPath}/histo_ZX_Alpgen_${mth}.root   \
+	  ${histPath}/histo_ZTauTaujets_Alpgen_${mth}.root 
+EOF
+    chmod 755 $SCRIPT
+
+    echo "Merge DD Bkg Sherpa"
+    rm -f ${histPath}/histo_BkgSherpa_${mth}.root
+    SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_Bkg_${mth}.root \
+          ${histPath}/histo_top_PowHeg_${mth}.root \
           ${histPath}/histo_data12_fake.root \
           ${histPath}/histo_WW_Sherpa_${mth}.root \
   	  ${histPath}/histo_ZX_Sherpa_${mth}.root   \
 	  ${histPath}/histo_ZTauTaujets_Sherpa_${mth}.root 
 EOF
     chmod 755 $SCRIPT
+
+
 fi
 
 

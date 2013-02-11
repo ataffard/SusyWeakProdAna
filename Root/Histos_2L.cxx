@@ -8,7 +8,7 @@
 /*--------------------------------------------------------------------------------*/
 // SusyHistos Book2LHistograms
 /*--------------------------------------------------------------------------------*/
-void Histos_2L::Book2LHistograms(TDirectory* _hDir)
+void Histos_2L::Book2LHistograms(TDirectory* _hDir, bool useSys)
 {
   std::cout << "Booking 2L histos " << std::endl;
   std::cout << "Number of Signal regions " << DIL_NSR << endl;
@@ -19,7 +19,11 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   char      syaxis[200];
   sprintf(syaxis,"Entries");
 
-
+  int maxSys = DGSys_N;
+  if(useSys==false){
+    maxSys=1;
+    cout << "\t No systematics histos booked " << endl;
+  }
   //
   //SR histogram
   //
@@ -31,7 +35,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     if(i==1) sFlav="MM_";						\
     if(i==2) sFlav="EM_";						\
     for(int j=0; j<DIL_NSR; j++){					\
-      for(int isys=0; isys<DGSys_N; isys++){				\
+      for(int isys=0; isys<maxSys; isys++){				\
 	if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
 	else sx = 	string(xT);					\
 	string stype = "DG2L_" + DIL_SRNAME[j] + "_" + sFlav + #hN + "_" + DG2LSystNames[isys];	\
@@ -44,7 +48,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   }
   
   BOOK_SRDG2L(DG2L_pred,"","",syaxis,1,-0.5,0.5);
-  BOOK_SRDG2L(DG2L_Zcount,"","",syaxis,183,1,183);
+  BOOK_SRDG2L(DG2L_Zcount,"","",syaxis,520,1,520);
   BOOK_SRDG2L(DG2L_cutflow,"","",syaxis,20,-0.5,19.5);
   BOOK_SRDG2L(DG2L_nJets,"NJets","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nCJets,"NJets - central","",syaxis,10,-0.5,9.5);
@@ -126,7 +130,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   for(uint i=0; i<DIL_NSR; i++){
     for(int ilep=0; ilep<3; ilep++){			
       for(uint j=0; j<LepType.size(); j++){
-	for(int isys=0; isys<DGSys_N; isys++){				
+	for(int isys=0; isys<maxSys; isys++){				
 	  DG2L_orgl1[i][ilep][isys]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
 	  DG2L_orgl2[i][ilep][isys]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
 	}
@@ -135,7 +139,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
   }
   
   string dir =  string(getenv("WORKAREA")) + "/SusyWeakProdAna/data";
-  string fileName  = dir + "/" + "HCP_lumi_GRL_v53.txt";
+  string fileName  = dir + "/" + "Moriond_lumi_GRL_v58.txt";
 
   ifstream _file;
   _file.open(fileName.c_str());
@@ -157,7 +161,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir)
     runBins.insert(runBins.end(),make_pair(run,ibin));
     for(uint i=0; i<DIL_NSR; i++){
       for(int ilep=0; ilep<3; ilep++){	
-	for(int isys=0; isys<DGSys_N; isys++){
+	for(int isys=0; isys<maxSys; isys++){
 	  DG2L_Zcount[i][ilep][isys]->GetXaxis()->SetBinLabel(ibin,sRun.c_str());
 	}
       }

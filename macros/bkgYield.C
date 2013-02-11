@@ -130,17 +130,22 @@ void  bkgYield(string sReg){
 
 
 
-  
-  loadBkg("histo_topDil_Sherpa_rlep",sReg,_mcTopDil);
-  loadBkg("histo_WW_Sherpa_rlep",sReg,_mcWW);
-  //loadBkg("histo_ZX_Sherpa_rlep",sReg,_mcZX);
-  loadBkg("histo_ZX_Alpgen_rlep",sReg,_mcZX);
-  //loadBkg("histo_ZTauTaujets_Sherpa_rlep",sReg,_mcZtt);  
-  loadBkg("histo_ZTauTaujets_Alpgen_rlep",sReg,_mcZtt);  
-  loadBkg("histo_data12_fake",sReg,_mcFake);
-  loadBkg("histo_Bkg_rlep",sReg,_mcAll);
   loadBkg("histo_data12_std",sReg,_data);
+  loadBkg("histo_data12_fake",sReg,_mcFake);
 
+  //  loadBkg("histo_topDil_Sherpa_rlep",sReg,_mcTopDil);
+  loadBkg("histo_top_PowHeg_rlep",sReg,_mcTopDil);
+  loadBkg("histo_WW_Sherpa_rlep",sReg,_mcWW);
+
+  /*
+  loadBkg("histo_ZX_Sherpa_rlep",sReg,_mcZX);
+  loadBkg("histo_ZTauTaujets_Sherpa_rlep",sReg,_mcZtt);  
+  loadBkg("histo_BkgSherpa_rlep",sReg,_mcAll);
+  */
+
+  loadBkg("histo_ZX_Alpgen_rlep",sReg,_mcZX);
+  loadBkg("histo_ZTauTaujets_Alpgen_rlep",sReg,_mcZtt);  
+  loadBkg("histo_BkgAlpgen_rlep",sReg,_mcAll);
 
   string fileName= _ana->_pathTables + "/BkgYield_" + sReg + ".txt";
   std::ofstream outFile;

@@ -18,9 +18,10 @@ TGuiUtils* _utils;
 DrawPlots* _ana;
 
 void openHist(string mode="DD",
-	      string Top="histo_topDil_Sherpa",
-	      //	      string WW="histo_WW_Sherpa",
-	      string WW="histo_WW_Powheg",
+	      string Top="histo_top_PowHeg",
+	      //	      string Top="histo_topDil_Sherpa",
+	      string WW="histo_WW_Sherpa",
+	      //string WW="histo_WW_Powheg",
 	      string ZX="histo_ZX_Sherpa",		      
 	      //string ZX="histo_ZX_SherpaLFHF",		      
 	      //string ZX="histo_ZX_SherpaPowheg",		      
@@ -58,7 +59,7 @@ void openHist(string mode,string Top,string WW,string ZX,string Ztt,string Fake)
 //--------------------------------------------------------------------------------
 void draw(string name, bool logy)
 {
-  _ana->drawPlotErrBand(name,logy);   
+  _ana->drawPlotErrBand(name,logy,true,false);   
 }
 
 

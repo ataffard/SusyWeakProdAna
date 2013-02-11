@@ -4,7 +4,7 @@ typedef unsigned uint;
 
 static const float sigLumi=0.039;
 
-string dir = "histos_112812_13fb_n0114_DD_MMtrial9_SYS/";
+string dir = "histos_020413_13fb_n0124_HCP_DD/";
 string sFile = "histo_data12_std.root";
 
 TGuiUtils* _utils;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
 
   //Open the run - lumi file
   string path =  string(getenv("WORKAREA")) + "/SusyWeakProdAna/data";
-  string fileName  = path + "/" + "HCP_lumi_GRL_v53.txt";
+  string fileName  = path + "/" + "Moriond_lumi_GRL_v58.txt";
 
   FILE* eventsFile=fopen(fileName.c_str(),"r");
   int run;

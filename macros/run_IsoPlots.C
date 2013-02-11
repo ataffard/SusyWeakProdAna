@@ -23,20 +23,20 @@ typedef unsigned uint;
 TGuiUtils* _utils;
 DrawPlots* _ana;
 
-const std::string TAG  = "011613";
-const std::string SUFF = "_n0115_Fake";
-const std::string DATE=TAG+"_13fb" + SUFF;
+const std::string TAG  = "020713";
+const std::string SUFF = "_n0123_Moriond_Fake_DD";
+const std::string DATE=TAG+"_21fb" + SUFF;
 
-string mode  = "STD";
+string mode  = "DD";
 string sData = "data12_std";
-string sTop  = "top_Sherpa";
+string sTop  = "top_PowHeg";
 //string sZjet = "histo_Zjets_Sherpa";  
 //string sWjet = "histo_Wjets_Sherpa";  
-string sZjets = "Zjets_AlpgenPythia";  
-string sWjets = "Wjets_AlpgenPythia";  
+string sZjets = "Zjets_Alpgen";  
+string sWjets = "Wjets_Alpgen";  
 string sdiB  = "diBoson_Sherpa";
 string sFake = "mcFake_Sherpa";
-string sBB   = "bbcc";   //TO UPDATE TO BB/CC
+string sBB   = "bbTomu20.129136";   //TO UPDATE TO BB/CC
 
 
 bool delCanvas=false;

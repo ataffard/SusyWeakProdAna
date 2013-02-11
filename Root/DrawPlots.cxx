@@ -108,7 +108,7 @@ void DrawPlots::openHistoFiles(string mode,
 //-------------------------------------------//
 // Grab TH1 histo from files
 //-------------------------------------------//
-void DrawPlots::grabHisto(string name, bool quiet)
+void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
 {
   for(uint i=0; i<_mcH1.size(); i++){
     for(uint j=0; j<_mcH1[i].size(); j++){
@@ -169,6 +169,7 @@ void DrawPlots::grabHisto(string name, bool quiet)
     
     vector<TH1F*> _hArray;
     for(int isys=0; isys<DGSys_N; isys++){
+      if(!sysHistos && isys>0) continue;
       string hName = name + "_" + DG2LSystNames[isys];
       _h = (TH1F*) _f->Get(hName.c_str());
       _hArray.push_back(_h);
@@ -483,7 +484,7 @@ void DrawPlots::drawPlot(string name, bool logy)
 //-------------------------------------------//
 // Compare bkg estimate & data w/ sys band
 //-------------------------------------------//
-void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig)
+void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
 {
   const float maxScaleLin=1.2;
   const float maxScaleLog=11;
@@ -500,7 +501,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig)
   _utils->legendSetting(_leg); 
 
   //Grabs all histos: data, MC, signal points including the sys histos
-  grabHisto(name,false);
+  grabHisto(name,false,sysBand);
 
   //Build the mc stack and retrieve histo of the total. Add entry to legend
   buildStack(name,_leg);
@@ -521,7 +522,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig)
   //
   //Error band on prediction
   //
-  TGraphAsymmErrors* _nomAsymErrors = getSysErrorBand(_mcStackH);
+  TGraphAsymmErrors* _nomAsymErrors = getSysErrorBand(_mcStackH,sysBand);
   _leg->AddEntry(_nomAsymErrors,"Bkg. Uncert.","f");
 
   //
@@ -575,8 +576,8 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig)
   if(ratioBand) ratioBand->Draw("same && E2");
  _pBot->Update();
 
- //  string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
-  string fName=  "pred_" + name + _sLogy;
+ string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
+ // string fName=  "pred_" + name + _sLogy;
   cout << "Save plot in " << fName << endl; 
   _c0->SaveAs((fName+".png").c_str());
 
@@ -584,10 +585,12 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig)
 //-------------------------------------------//
 // Get systematic error band for loaded histo
 //-------------------------------------------//
-TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist)
+TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
 {
   TGraphAsymmErrors* _asymErrors = _utils->TH1TOTGraphAsymErrors(_hist);
-  
+  if(!sysBand) return _asymErrors; //Skip the sys, return just the stat error
+
+
   TH1F* totalSysHisto = (TH1F*) _hist->Clone();
   totalSysHisto->Reset();
   TGraphAsymmErrors* transient; 
@@ -721,6 +724,7 @@ void DrawPlots::drawChannelText(string name, float x, float y)
     else if(hName.Contains("SR2jets"))   _text = "SR2jets ";
     else if(hName.Contains("SRmT2b"))    _text = "SRmT2b ";
     else if(hName.Contains("SRmT2"))     _text = "SRmT2 ";
+    else if(hName.Contains("CRZjveto"))  _text = "CRZjveto ";
     else if(hName.Contains("CRZ"))       _text = "CRZ ";
     else if(hName.Contains("NTOP"))      _text = "NTOP ";
     else if(hName.Contains("NWW1"))      _text = "NWW1 ";
@@ -791,12 +795,9 @@ std::vector<TH1F*> DrawPlots::loadHisto(TFile* file,string DSId,
   for(int isys=0; isys<DGSys_N; isys++){
     string _hName = name + "_" + DG2LSystNames[isys];
     _h = (TH1F*) file->Get(_hName.c_str());
+    if(_h==NULL)    continue;
+
     _hArray.push_back(_h);
-    if(_hArray[isys]==NULL){ 
-      cerr <<" Could not find histo " << _hName << " in file " 
-	   << file->GetName() << endl;
-      abort();
-    }
     _utils->moveUnderOverFlow(_hArray[isys]);
     
     title = DSId + "_" + _hName;
@@ -819,11 +820,11 @@ std::vector<TH1F*> DrawPlots::sumChannels(std::vector<TH1F*> _histEE,
   TH1F* _h;
 
   _hArray.reserve(DGSys_N);
-  for(int isys=0; isys<DGSys_N; isys++){
+  for(int isys=0; isys<_histEE.size() /*DGSys_N*/; isys++){
     if(_histEE[isys]==NULL) continue;
     if(_histMM[isys]==NULL) continue;
     if(_histEM[isys]==NULL) continue;
-
+    
     TString _hName = _histEE[isys]->GetName();
     _hName.ReplaceAll("EE","ALL");
     _h = (TH1F*) _histEE[isys]->Clone();
@@ -861,6 +862,8 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
   }
 
   nom = histV[DGSys_NOM]->IntegralAndError(0,-1,stat_err);
+
+  if(histV.size()==1) return; //No sys available 
 
   for(uint isys=DGSys_NOM+1; isys<DGSys_N; isys++){
     if(histV[isys]==NULL) continue;
@@ -915,9 +918,12 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
 
   nom = _hSum->IntegralAndError(0,-1,stat_err);
 
+
+  
   float mcSysUp=0;
   float mcSysDn=0;
-  for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
+  
+  for(uint isys=DGSys_NOM; isys< histZXV.size() /*DGSys_N*/; isys++){
     Double_t val = 0;
     if(histZttV[isys]->Integral(0,-1)>0) 
       val += histZttV[isys]->Integral(0,-1)-histZttV[DGSys_NOM]->Integral(0,-1);
@@ -946,18 +952,20 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
   //Add fake sys
   float fakeSysUp=0;
   float fakeSysDn=0;
-  for(uint isys=DGSys_FAKE_EL_RE_UP; isys<DGSys_FAKE_MU_FR_DN+1; isys++){
-    if(histFakeV[isys]==NULL) continue;
-    Double_t val=0;
-    if(histFakeV[isys]->Integral(0,-1)>0)
-      val = histFakeV[isys]->Integral(0,-1) - histFakeV[DGSys_NOM]->Integral(0,-1);
-    if(val>0) fakeSysUp += pow(val,2);
-    else      fakeSysDn += pow(val,2);
+  if(histFakeV.size()>1){
+    for(uint isys=DGSys_FAKE_EL_RE_UP; isys<DGSys_FAKE_MU_FR_DN+1; isys++){
+      if(histFakeV[isys]==NULL) continue;
+      Double_t val=0;
+      if(histFakeV[isys]->Integral(0,-1)>0)
+	val = histFakeV[isys]->Integral(0,-1) - histFakeV[DGSys_NOM]->Integral(0,-1);
+      if(val>0) fakeSysUp += pow(val,2);
+      else      fakeSysDn += pow(val,2);
+    }
+    fakeSysUp = sqrt(fakeSysUp);
+    fakeSysDn = sqrt(fakeSysDn);
+    // cout << "Fake sys " << fakeSysUp << " " << fakeSysDn << endl;
   }
-  fakeSysUp = sqrt(fakeSysUp);
-  fakeSysDn = sqrt(fakeSysDn);
-  //cout << "Fake sys " << fakeSysUp << " " << fakeSysDn << endl;
-  
+
   //
   //Add MC & fake sys in quad
   //

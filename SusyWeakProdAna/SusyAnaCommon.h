@@ -5,12 +5,12 @@
 
 #include "SusyWeakProdAna/Histos_2L.h"
 
-enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
+enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 
 //#define LUMI_RAW  //Raw count
 //#define LUMI_1FB  //A->B3
 //#define LUMI_5FB  //A->B14
-#define LUMI_13FB  //A->E5
+
 
 //Note V5.0 HCP
 //const std::string TAG  = "110812";
@@ -19,13 +19,35 @@ enum LUMISET {NOLUMI=0, LUMI1FB, LUMI5FB, LUMI13FB};
 //const std::string TAG  = "112812";
 //const std::string SUFF = "_n0114_DD_MMtrial9_SYS"; 
 
-const std::string TAG  = "011613";
-const std::string SUFF = "_n0115_Fake";
+//const std::string TAG  = "011613";
+//const std::string SUFF = "_n0115_Fake";
 
 //New vars, reorder SR 
 //const std::string TAG  = "122012";
 //const std::string SUFF = "_n0115_DD_MMtrial9_newJVeto_SYS"; 
 
+//const std::string TAG  = "012813";
+//const std::string SUFF = "_n0121_IJL_DD";
+
+//#define LUMI_13FB  //A->E5
+//const std::string TAG  = "020613";
+//const std::string SUFF = "_n0123_HCP_DD";
+
+//#define LUMI_13FB  //A->E5
+//const std::string TAG  = "020813";
+//const std::string SUFF = "_n0124_HCP_DD_NEWJET";
+
+#define LUMI_13FB  //A->E5
+const std::string TAG  = "020813";
+const std::string SUFF = "_n0124_HCP_DD_NEWJET025";
+
+//#define LUMI_21FB  //A->E5
+//const std::string TAG  = "020713";
+//const std::string SUFF = "_n0123_Moriond_Fake_DD";
+
+//#define LUMI_PeriodIJL
+//const std::string TAG  = "020113";
+//const std::string SUFF = "_n0123_IJL_DD";
 
 //
 //Normal mode - all these are true
@@ -43,7 +65,7 @@ const unsigned int TOYNT_iSR   = DIL_CRZ;     //SR used to fill ToyNt
 //const string TOYNT_SR          ="DIL_CR2LepSS";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
 
-const bool DO_SYS         = true;    //Toggles systematics looper
+const bool DO_SYS         = false;//true;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
@@ -76,33 +98,48 @@ const unsigned int   MAXRUN = 9999999;
 const bool BLIND_DATA=false;
 #endif
 
-#ifdef LUMI_1FB
-const int LUMIMODE =LUMI1FB;
-const string LUMW  = "A-B3";
-const std::string DATE=TAG+"_1fb"+ SUFF;
-const float pLUMI = 1.04; //A->B3
-const unsigned int   MAXRUN = 203195;
-const bool BLIND_DATA=false;
-#endif
-
-#ifdef LUMI_5FB
-const int LUMIMODE =LUMI5FB;
-const string LUMW  = "A-B";
-const std::string DATE=TAG+"_5fb" + SUFF;
-const float pLUMI = 5.83; //A+B
-const unsigned int   MAXRUN = 205113;
-const bool BLIND_DATA=true;
-#endif
 
 #ifdef LUMI_13FB  //HCP dataset
 const int LUMIMODE =LUMI13FB;
 const string LUMW  = "HCP";
 const std::string DATE=TAG+"_13fb" + SUFF;
-const float pLUMI = 13; //A->E5
+const float pLUMI =  13.38479; //A->E5
+const unsigned int   MINRUN = 200842;
 const unsigned int   MAXRUN = 210308;
 const bool BLIND_DATA=false;//true;
 #endif
 
+
+#ifdef LUMI_PeriodIJL
+const int LUMIMODE =LUMI_IJL;
+const string LUMW  = "I-L";//"IJL";
+const std::string DATE=TAG+"_5fb"+ SUFF;
+const float pLUMI = 4.528; //I->J
+const unsigned int   MINRUN = 213431;
+const unsigned int   MAXRUN = 215643;
+const bool BLIND_DATA=false;
+#endif
+
+
+#ifdef LUMI_PeriodE
+const int LUMIMODE =LUMI_E;
+const string LUMW  = "E";
+const std::string DATE=TAG+"_2fbPeriodE"+ SUFF;
+const float pLUMI = 2.58; //Period E
+const unsigned int   MINRUN = 209074;
+const unsigned int   MAXRUN = 210308;
+const bool BLIND_DATA=false;
+#endif
+
+#ifdef LUMI_21FB
+const int LUMIMODE =LUMI21FB;
+const string LUMW  = "Moriond";
+const std::string DATE=TAG+"_21fb"+ SUFF;
+const float pLUMI = 20.690; //I->J
+const unsigned int   MINRUN = 200804;
+const unsigned int   MAXRUN = 215643;
+const bool BLIND_DATA=false;
+#endif
 
 const bool USE_NOJVF_bSF=true;
 

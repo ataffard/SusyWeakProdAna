@@ -45,7 +45,7 @@ class Histos_2L
   };
   virtual ~Histos_2L(){};
   
-  void Book2LHistograms(TDirectory* _hDir);
+  void Book2LHistograms(TDirectory* _hDir, bool useSys=true);
 
   TGuiUtils* _utils;
 

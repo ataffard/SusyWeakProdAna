@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
   _ana = new DrawPlots(); 
 
-  string ver = "histos_121712_13fb_n0115_DD_MMtrial9_SYS/";
+  string ver = "histos_020613_13fb_n0124_HCP_DD/";
   //string ver = "";
   string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/" +  ver + "ToyNtOutputs/";
 
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]){
   ZAJ->AddFile(string(dir+"109301_DIL_CRZ.root").c_str());
   ZAJ->AddFile(string(dir+"109302_DIL_CRZ.root").c_str());
   ZAJ->AddFile(string(dir+"109303_DIL_CRZ.root").c_str());
-  ZAJ->AddFile(string(dir+"126415_DIL_CRZ.root").c_str());
+  //  ZAJ->AddFile(string(dir+"126415_DIL_CRZ.root").c_str());
   ZAJ->AddFile(string(dir+"126416_DIL_CRZ.root").c_str());
   ZAJ->AddFile(string(dir+"126417_DIL_CRZ.root").c_str());
   ZAJ->AddFile(string(dir+"109306_DIL_CRZ.root").c_str());
@@ -124,10 +124,12 @@ int main(int argc, char *argv[]){
   ZS->AddFile(string(dir+"147771_DIL_CRZ.root").c_str());
   ZS->AddFile(string(dir+"147772_DIL_CRZ.root").c_str());
 
+  /*
   ZP = new TChain("ToyNt");
   ZP->AddFile(string(dir+"147806_DIL_CRZ.root").c_str());
   ZP->AddFile(string(dir+"147807_DIL_CRZ.root").c_str());
   ZP->AddFile(string(dir+"147808_DIL_CRZ.root").c_str());
+  */
 
   data = new TChain("ToyNt");
   data->AddFile(string(dir+"Egamma.periodA_DATA_DIL_CRZ.root").c_str());
@@ -140,6 +142,7 @@ int main(int argc, char *argv[]){
   data->AddFile(string(dir+"Muons.periodC_DATA_DIL_CRZ.root").c_str());
   data->AddFile(string(dir+"Muons.periodD_DATA_DIL_CRZ.root").c_str());
   data->AddFile(string(dir+"Muons.periodE_DATA_DIL_CRZ.root").c_str());
+  data->AddFile(string(dir+"Muons.periodE_INCOMPLETE_DATA_DIL_CRZ.root").c_str());
 
 
   _col.push_back(kRed-4);     
@@ -211,7 +214,8 @@ TH1F* bookHist(string var,string name)
     sX="#eta";
   }
   else if(VAR.Contains("j_jvf")){
-    nbin=40; xL=-1; xH=1;
+    //    nbin=40; xL=-1; xH=1;
+    nbin=80; xL=-1; xH=1;
     sX="JVF";
   }
   else if(VAR.Contains("dphi_metl") ||
@@ -288,9 +292,9 @@ void study(int type){
   //string var = "met_cellout";
   //string var = "pTll";
   //string var = "nJets";
-  string var = "j_pt";
+  //string var = "j_pt";
   //string var = "j_eta";
-  //string var = "j_jvf";
+  string var = "j_jvf";
   //  string var = "dphi_metl[1]";
   //string var = "j_pt/pTll";
   //string var = "dphi_Zj";
@@ -349,9 +353,11 @@ void study(int type){
   hZAJ->SetTitle(string("hZAJ"+slep).c_str());
   hZAJ->SetName(string("hZAJ"+slep).c_str());
 
+  /*
   TH1F* hZP = (TH1F*)  hZS->Clone();
   hZP->SetTitle(string("hZP"+slep).c_str());
   hZP->SetName(string("hZP"+slep).c_str());
+  */
 
   TH1F* hdata = (TH1F*)  hZS->Clone();
   hdata->SetTitle(string("hdata"+slep).c_str());
@@ -362,28 +368,29 @@ void study(int type){
     string cmd1 = var + ">>hZS_ee";
     string cmd2 = var + ">>hZAP_ee";
     string cmd3 = var + ">>hZAJ_ee";
-    string cmd4 = var + ">>hZP_ee";
+    //    string cmd4 = var + ">>hZP_ee";
     string cmd5 = var + ">>hdata_ee";
     ZS->Draw(cmd1.c_str(),CEE,"goff");
     ZAP->Draw(cmd2.c_str(),CEE,"goff");
     ZAJ->Draw(cmd3.c_str(),CEE,"goff");
-    ZP->Draw(cmd4.c_str(),CEE,"goff");
+    //ZP->Draw(cmd4.c_str(),CEE,"goff");
     data->Draw(cmd5.c_str(),CEE,"goff");
   }
   else{
     string cmd1 = var + ">>hZS_mm";
     string cmd2 = var + ">>hZAP_mm";
     string cmd3 = var + ">>hZAJ_mm";
-    string cmd4 = var + ">>hZP_mm";
+    //string cmd4 = var + ">>hZP_mm";
     string cmd5 = var + ">>hdata_mm";
     ZS->Draw(cmd1.c_str(),CMM,"goff");
     ZAP->Draw(cmd2.c_str(),CMM,"goff");
     ZAJ->Draw(cmd3.c_str(),CMM,"goff");
-    ZP->Draw(cmd4.c_str(),CMM,"goff");
+    //ZP->Draw(cmd4.c_str(),CMM,"goff");
     data->Draw(cmd5.c_str(),CMM,"goff");
   }
 
-  plot(hZS, hZAP, hZAJ, hZP, hdata,sName,logy);
+  //  plot(hZS, hZAP, hZAJ, hZP, hdata,sName,logy);
+  plot(hZS, hZAP, hZAJ, NULL, hdata,sName,logy);
 
 }
 
@@ -403,7 +410,7 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hmc4, TH1* _hdata, string la
   TH1F*  _ratioH1=ratio(_hmc1, _hdata);
   TH1F*  _ratioH2=ratio(_hmc2, _hdata);
   TH1F*  _ratioH3=ratio(_hmc3, _hdata);
-  TH1F*  _ratioH4=ratio(_hmc4, _hdata);
+  //  TH1F*  _ratioH4=ratio(_hmc4, _hdata);
 
   TCanvas* _c1  = _utils->myCanvas(label.c_str());
   TPad* _pTop = NULL;
@@ -438,13 +445,13 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hmc4, TH1* _hdata, string la
   _utils->myDraw1d(_hmc1,_pTop,1,"hist",logy,_col[0],false,20);
   _utils->myDraw1d(_hmc2,_pTop,1,"histsame",logy,_col[1],false,20);
   _utils->myDraw1d(_hmc3,_pTop,1,"histsame",logy,_col[2],false,20);
-  _utils->myDraw1d(_hmc4,_pTop,1,"histsame",logy,_col[3],false,20);
+  //  _utils->myDraw1d(_hmc4,_pTop,1,"histsame",logy,_col[3],false,20);
   _utils->myDraw1d(_hdata,_pTop,1,"esame",logy,kBlack,false,20);
 
   _leg->AddEntry(_hmc1,_name[0].c_str(),"l");
   _leg->AddEntry(_hmc2,_name[1].c_str(),"l");
   _leg->AddEntry(_hmc3,_name[2].c_str(),"l");
-  _leg->AddEntry(_hmc4,_name[3].c_str(),"l");
+  //  _leg->AddEntry(_hmc4,_name[3].c_str(),"l");
   _leg->AddEntry(_hdata,_name[4].c_str(),"p");
   _leg->Draw();
   _utils->myText(0.1,0.95,kBlack,label.c_str(),0.05);
@@ -461,11 +468,11 @@ void plot(TH1* _hmc1, TH1* _hmc2, TH1* _hmc3, TH1* _hmc4, TH1* _hdata, string la
      _utils->myDraw1d(_ratioH1,_pBot,1,"pe0",false, _col[0], false,20);
      _utils->myDraw1d(_ratioH2,_pBot,1,"pe0same",false, _col[1], false,20);
      _utils->myDraw1d(_ratioH3,_pBot,1,"pe0same",false, _col[2], false,20);
-     _utils->myDraw1d(_ratioH4,_pBot,1,"pe0same",false, _col[3], false,20);
+     //     _utils->myDraw1d(_ratioH4,_pBot,1,"pe0same",false, _col[3], false,20);
     _ratioH1->SetMarkerSize(0.3);
     _ratioH2->SetMarkerSize(0.3);
     _ratioH3->SetMarkerSize(0.3);
-    _ratioH4->SetMarkerSize(0.3);
+    //    _ratioH4->SetMarkerSize(0.3);
 
     TLine* _line = new TLine(_ratioH1->GetBinCenter(1)-_ratioH1->GetBinWidth(1)/2,1,
 			     _ratioH1->GetBinCenter(_ratioH1->GetNbinsX())+
@@ -567,8 +574,9 @@ void effJVF(int ilep)
 
   TH1F* _eff[5][7];
   for(uint is=0; is<label.size(); is++){
+    if (is==3) continue; //Skip ZP
     cout << "MC " << label[is] << endl;
-    cout << "\t JVF Eff \t\t 0.2 \t 0.5" <<endl; 
+    cout << "\t JVF Eff \t 0 \t 0.2 \t 0.5" <<endl; 
     TChain* _cc;
     if(is==0) _cc = ZS;
     else if(is==1) _cc = ZAP;
@@ -601,13 +609,17 @@ void effJVF(int ilep)
       _utils->myDraw1d(_eff[is][ii],_c1,1,opt.c_str(),false,_col[ii],false,20);
       _leg->AddEntry(_eff[is][ii], sCUT[ii].c_str(),"p");
 
-      float binVal1=0.2; 
+      float binVal0=0.28;//to exclude 0 bin 
+      float binVal1=0.25; 
       float binVal2=0.5; 
+      int binX0= _eff[is][ii]->FindBin(binVal0);
       int binX1= _eff[is][ii]->FindBin(binVal1);
       int binX2= _eff[is][ii]->FindBin(binVal2);
+      float effX0 = _eff[is][ii]->GetBinContent(binX0);
       float effX1 = _eff[is][ii]->GetBinContent(binX1);
       float effX2 = _eff[is][ii]->GetBinContent(binX2);
-      cout << sCUT[ii] << "\t\t " << std::setprecision(3) << std::fixed << effX1 << "\t " << effX2 << endl;
+      cout << sCUT[ii] << "\t\t " << std::setprecision(3) 
+	   << std::fixed << effX0 << "\t "  << effX1 << "\t " << effX2 << endl;
       
 
     }

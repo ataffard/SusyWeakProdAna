@@ -35,7 +35,9 @@ class ToyNt  {
   string getFilename() const {return filename.Data();}
 
   void FillTreeEvent(int run, int event, float npv, float npvCorr, int iSR, int llType, double w);
-  void FillTreeLeptons(const LeptonVector* leptons, const Met* met, int nVtx, bool isMc);
+  void FillTreeLeptons(const LeptonVector* leptons, 
+		       ElectronVector& baseElectrons, MuonVector& baseMuons, 
+		       const Met* met, int nVtx, bool isMc);
   void FillTreeMet(const Met* met,float metrel, float mT2);
   void FillTreeSignalJets(const JetVector* jets, const LeptonVector* leptons, const Met* met);
   void FillTreeOtherJets(JetVector* jets, const LeptonVector* leptons, const Met* met);

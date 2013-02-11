@@ -207,7 +207,7 @@ bool Susy3LepAna::selectEvent(const LeptonVector* leptons,
       if(dbg()==-99 && hasSFOS(*v_sigLep)){
 	uint zl1, zl2;
 	float mT=0;
-	bestZ(zl1, zl2, *v_sigLep);
+	findBestZ(zl1, zl2, *v_sigLep);
 	for(uint iL=0; iL<v_sigLep->size(); iL++)	{
 	  if(iL!=zl1 && iL!=zl2)  mT= Mt(v_sigLep->at(iL),m_met);
 	}
@@ -343,13 +343,7 @@ void Susy3LepAna::setEventWeight(int mode)
 {
   _ww=1;
   if(mode==NOLUMI) _ww= 1;
-  else if(mode==LUMI1FB){
-    _ww=getEventWeightAB3(nt->evt());
-  }
-  else if(mode==LUMI5FB){
-    _ww=getEventWeightAB(nt->evt());
-  }
-  else if(mode==LUMI13FB){
+  else if(mode==LUMI21FB){
     _ww=getEventWeight(nt->evt());
   }
   
@@ -420,7 +414,9 @@ bool Susy3LepAna::passNLep4Cut(const LeptonVector* leptons)
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::passTrigger(const LeptonVector* leptons) 
 {
-  if(!m_trigObj->passTriggerMatching(*leptons, nt->evt())) return false;
+  //Fudge !!!!
+  TauVector taus;
+  if(!m_trigObj->passTriggerMatching(*leptons,taus, nt->evt())) return false;
   n_pass_trig[SR]++;
   return true;
 }
@@ -483,7 +479,7 @@ bool Susy3LepAna::passMtCut(const LeptonVector* leptons, const Met* met)
   // Find the best Z candidate pair, use remaining lepton to form Mt
   if(m_minMt > 0){
     uint zl1, zl2;
-    bestZ(zl1, zl2, *leptons);
+    findBestZ(zl1, zl2, *leptons);
     for(uint iL=0; iL<leptons->size(); iL++){
       if(iL!=zl1 && iL!=zl2){
         if( Mt(leptons->at(iL),met) < m_minMt ) return false;
@@ -535,7 +531,7 @@ void Susy3LepAna::fillHistograms(uint iSR,
 			     _l->mcType,
 			     _hh->sampleName(),
 			     nt->evt()->mcChannel,
-			     _l->truthMatchType,
+			     _l->truthType,
 			     _l->isEle(),
 			     isChargeFlip);
     if(ilep==0){
@@ -577,7 +573,7 @@ void Susy3LepAna::fillHistograms(uint iSR,
     //Use the 3rd one to reco MT
     uint zl1, zl2;
     float mT=0;
-    bestZ(zl1, zl2, *leptons);
+    findBestZ(zl1, zl2, *leptons);
     for(uint iL=0; iL<leptons->size(); iL++)	{
       if(iL!=zl1 && iL!=zl2)  mT= Mt(leptons->at(iL),met);
     }

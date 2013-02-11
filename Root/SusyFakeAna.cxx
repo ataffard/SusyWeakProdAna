@@ -123,7 +123,7 @@ void SusyFakeAna::doMuonAnalysis()
 			       v_baseMu->at(i)->mcType,
 			       _hh->sampleName(),
 			       nt->evt()->mcChannel,
-			       v_baseMu->at(i)->truthMatchType,
+			       v_baseMu->at(i)->truthType,
 			       false,
 			       false);
       //cout << "sample " <<_hh->sampleName() << " type " << lType << endl;
@@ -172,7 +172,7 @@ void SusyFakeAna::doElectronAnalysis()
 			       v_baseEle->at(i)->mcType,
 			       _hh->sampleName(),
 			       nt->evt()->mcChannel,
-			       v_baseEle->at(i)->truthMatchType,
+			       v_baseEle->at(i)->truthType,
 			       v_baseEle->at(i)->isEle(),
 			       v_baseEle->at(i)->isChargeFlip);
       fillElectronHisto(v_baseEle->at(i),lType,_method);
@@ -209,13 +209,7 @@ void SusyFakeAna::setEventWeight(int mode)
 {
   _ww=1;
   if(mode==NOLUMI) _ww= 1; //raw weight
-  else if(mode==LUMI1FB){
-    _ww=getEventWeightAB3(nt->evt());
-  }
-  else if(mode==LUMI5FB){
-    _ww=getEventWeightAB(nt->evt());
-  }
-  else if(mode==LUMI13FB){
+  else if(mode==LUMI21FB){
     _ww=getEventWeight(nt->evt());
   }
   
@@ -280,7 +274,7 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
 			     _m->mcType,
 			     _hh->sampleName(),
 			     nt->evt()->mcChannel,
-			     _m->truthMatchType,
+			     _m->truthType,
 			     false,
 			     false);
     _hh->H1FILL(_hh->m_type[m][t],lType,_ww);
@@ -326,8 +320,8 @@ void SusyFakeAna::fillMuonHisto(const Lepton* _mProbe, LEP_TYPE t, int m, const 
   float PtCone30 = _m->ptcone30;
   float PtConeEl30 = _m->ptcone30ElStyle;
   float EtCone30 = _m->etcone30;
-  float PtIso30  = muPtConeCorr(_m, nt->evt()->nVtx, nt->evt()->isMC);
-  float EtIso30  = muEtConeCorr(_m, nt->evt()->nVtx, nt->evt()->isMC);
+  float PtIso30  = muPtConeCorr(_m,*v_baseEle,*v_baseMu, nt->evt()->nVtx, nt->evt()->isMC);
+  float EtIso30  = muEtConeCorr(_m,*v_baseEle,*v_baseMu, nt->evt()->nVtx, nt->evt()->isMC);
   
   if(PtIso30/_m->Pt()>MUON_PTCONE30_PT_CUT) passNI1=false;
   if(EtIso30/_m->Pt()>MUON_ETCONE30_PT_CUT) passNI2=false;
@@ -483,7 +477,7 @@ void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, co
 			     _e->mcType,
 			     _hh->sampleName(),
 			     nt->evt()->mcChannel,
-			     _e->truthMatchType,
+			     _e->truthType,
 			     _e->isEle(),
 			     _e->isChargeFlip);
     _hh->H1FILL(_hh->e_type[m][t],lType,_ww);
@@ -526,7 +520,7 @@ void SusyFakeAna::fillElectronHisto(const Lepton* _eProbe, LEP_TYPE t, int m, co
 
   float PtIso20 = _e->ptcone20;
   float PtIso30 = _e->ptcone30;
-  float EtIso30 = elEtTopoConeCorr(_e, nt->evt()->nVtx, nt->evt()->isMC);
+  float EtIso30 = elEtTopoConeCorr(_e, *v_baseEle,*v_baseMu,nt->evt()->nVtx, nt->evt()->isMC);
   float EtConeTopo30 = _e->topoEtcone30Corr;
 
   if(PtIso30/_e->Pt()>ELECTRON_PTCONE30_PT_CUT) passNI1=false;
@@ -671,8 +665,8 @@ void SusyFakeAna::ZTagProbe(const Lepton* &_tag, const Lepton* &_probe, int &cat
       if(!isSFOS(_l1, _l2)) continue;
       if(!isZ(_l1, _l2))    continue;
 
-      bool l1_isTight=isSignalLepton(_l1,nt->evt()->nVtx,nt->evt()->isMC);
-      bool l2_isTight=isSignalLepton(_l2,nt->evt()->nVtx,nt->evt()->isMC);
+      bool l1_isTight=isSignalLepton(_l1,*v_baseEle,*v_baseMu,nt->evt()->nVtx,nt->evt()->isMC);
+      bool l2_isTight=isSignalLepton(_l2,*v_baseEle,*v_baseMu,nt->evt()->nVtx,nt->evt()->isMC);
 
       llType = getTL(l1_isTight, l2_isTight);
       if( llType == LL ) continue;

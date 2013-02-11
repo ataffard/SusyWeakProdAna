@@ -228,7 +228,9 @@ void ToyNt::FillTreeEvent(int run, int event, float  npv, float npvCorr, int iSR
   
 }
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillTreeLeptons(const LeptonVector* leptons, const Met* met, int nVtx, bool isMc)
+void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
+			    ElectronVector& baseElectrons, MuonVector& baseMuons, 
+			    const Met* met, int nVtx, bool isMc)
 {
   if(leptons->size()==2) _b_nlep=2;
   else{ 
@@ -255,14 +257,14 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons, const Met* met, int nVt
     _b_l_z0[ilep] = _l->z0Unbiased;
     if(_l->isEle()){
       Electron* _e = (Electron*) _l;
-      float etconetopo =  _ntTools->elEtTopoConeCorr(_e, nVtx, isMc);
+      float etconetopo =  _ntTools->elEtTopoConeCorr(_e, baseElectrons, baseMuons,nVtx, isMc);
       _b_l_etcone30[ilep] = _e->etcone30Corr;
       _b_l_etconetopo30[ilep] = etconetopo;
       _b_l_ptcone30[ilep] = _l->ptcone30;
     }
     else{
       Muon* _m = (Muon*) _l;
-      float ptcone =  _ntTools->muPtConeCorr(_m,nVtx,isMc);
+      float ptcone =  _ntTools->muPtConeCorr(_m, baseElectrons, baseMuons, nVtx,isMc);
       _b_l_etcone30[ilep] = _m->etcone30;
       _b_l_ptcone30[ilep] = ptcone;
     }

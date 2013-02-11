@@ -7,7 +7,7 @@ awk '/group/ {print $18,'\t', $7}' subperiods_p1181.txt > subperiods_p1181.test
 #include "SusyNtuple/TGuiUtils.h"
 typedef unsigned uint;
 
-string pass = "n0111/";
+string pass = "n0124_v2/";
 string dir = "SusyNt_merge/"+pass;
 
 TGuiUtils* _utils;
@@ -25,29 +25,40 @@ int main(int argc, char *argv[]){
   stream.push_back("Muons");
   
   vector<string> prd;
+
   prd.push_back("A");
+  /*
   prd.push_back("B");
   prd.push_back("C");
   prd.push_back("D");
   prd.push_back("E");
-  /*
-  prd.push_back("E1");
-  prd.push_back("E2");
-  prd.push_back("E3");
-  prd.push_back("E4");
-  prd.push_back("E5");
+  prd.push_back("G");
+  prd.push_back("H");
+  prd.push_back("I");
+  prd.push_back("J");
+  prd.push_back("L");
   */
+  prd.push_back("A_MISSING");
+  prd.push_back("B_MISSING");
+  prd.push_back("D_MISSING");
 
   for(uint i=0; i<stream.size(); i++){
     cout << "Stream " <<stream[i] << endl;
     for(uint j=0; j<prd.size(); j++){
      string sFile = stream[i] + ".period" + prd[j] + "_merge.root";
-     TFile* _f = new TFile(string(_pathHisto + sFile).c_str(),"READ");
+     TFile _f(string(_pathHisto + sFile).c_str(),"READ");
      
+     if(_f.IsZombie()) {
+       cout << "Cannot open file " << sFile << endl;
+       abort();
+     }
+     _f.ls();
      string sHName ="rawCutFlow"; 
-     TH1F* _h = (TH1F*)  _f->Get(sHName.c_str())->Clone();
-     int nEvt = _h->GetBinContent(1);
-     cout << "File " << sFile << " has " << nEvt << endl;
+     TH1F* _h = (TH1F*)  _f.Get(sHName.c_str())->Clone();
+     if(_h){
+       int nEvt = _h->GetBinContent(1);
+       cout << "File " << sFile << " has " << nEvt << endl;
+     }
     } 
   }
 

@@ -30,29 +30,33 @@ int main(int argc, char *argv[]){
   bool cutflow = false;
   string ana = ""; //DG2L, ML
   string pName = "";
+  bool noSys =true;
 
   /*
   string mode = "STD";
-  string sTop = "histo_top_Sherpa";
+  string sTop = "histo_top_Sherpa";Pl
   string sFake = "histo_mcFake_Sherpa";
   */
 
   string mode = "DD";
-  string sTop = "histo_topDil_Sherpa";
+
   string sFake = "histo_data12_fake";
 
-
-  //string sTop = "histo_top_PowHeg";
+  string sTop = "histo_top_PowHeg";
+  //string sTop = "histo_topDil_Sherpa";ll 
   string sWW = "histo_WW_Sherpa";
-  //string sZX = "histo_ZX_SherpaLFHF";
-  //string sZtt = "histo_ZTauTaujets_SherpaLFHF";  
-  
+  /*
+    string sZX = "histo_ZX_SherpaLFHF";
+    string sZtt = "histo_ZTauTaujets_SherpaLFHF";  
+  */
+  /*
   string sZX = "histo_ZX_Sherpa";
   string sZtt = "histo_ZTauTaujets_Sherpa";  
-
-  //string sZX = "histo_ZX_Alpgen";
-  //string sZtt = "histo_ZTauTaujets_Alpgen";  
- 
+  */
+  
+  string sZX = "histo_ZX_Alpgen";
+  string sZtt = "histo_ZTauTaujets_Alpgen";  
+  
 
   string sr    = "";
   string cr    = "";
@@ -104,6 +108,8 @@ int main(int argc, char *argv[]){
     }
     if (strcmp(argv[i], "-mode") == 0)
       mode = argv[++i];
+    if (strcmp(argv[i], "-noSys") == 0)
+      noSys = false;
   }
   
 
@@ -114,7 +120,7 @@ int main(int argc, char *argv[]){
 
 
   if(comp) _ana->compareShape(pName,logY);
-  if(pred) _ana->drawPlotErrBand(pName,logY);
+  if(pred) _ana->drawPlotErrBand(pName,logY,true,noSys);
   if(table){
     _ana->bkgEstimate_DG2L();
     _ana->bkgEstimate_ML();

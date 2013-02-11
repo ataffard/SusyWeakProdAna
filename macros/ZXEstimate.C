@@ -36,11 +36,14 @@ bool verbose = false;
 // Functions
 //
 void openHist(string mode="DD",
-	      string Top="histo_topDil_Sherpa",
+	      //string Top="histo_topDil_Sherpa",
+	      string Top="histo_top_PowHeg",
 	      string WW="histo_WW_Sherpa",
-	      string ZX="histo_ZX_Sherpa",		      
+	      //	      string ZX="histo_ZX_Sherpa",		      
+	      string ZX="histo_ZX_Alpgen",		      
 	      //string ZX="histo_ZX_SherpaPowheg",
-	      string Ztt="histo_ZTauTaujets_Sherpa",
+	      //	      string Ztt="histo_ZTauTaujets_Sherpa",
+	      string Ztt="histo_ZTauTaujets_Alpgen",
 	      string Fake="histo_data12_fake");
 
 void  get_ZX_Est();

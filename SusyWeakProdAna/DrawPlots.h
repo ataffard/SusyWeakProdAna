@@ -82,9 +82,9 @@ class DrawPlots {
   /* To view bkg prediction & data */
   void drawPlot(string name, bool logy);
   /* To view bkg prediction & data with error bands */
-  void drawPlotErrBand(string name, bool logy=true, bool wSig=true);
+  void drawPlotErrBand(string name, bool logy=true, bool wSig=true, bool sysBand=true);
   
-  TGraphAsymmErrors* getSysErrorBand(TH1F* _hist);
+  TGraphAsymmErrors* getSysErrorBand(TH1F* _hist, bool sysBand=true);
   
   void getFakeSys(vector<TH1F*> &sys);
 
@@ -123,7 +123,7 @@ class DrawPlots {
   /* Make Profile give axes to profile onto, the one to intergral and the one to loop over */
   TH1F* getProfile3D(TH3* _h, string axis="x", string afix="y", string aloop="z");
 
-  void grabHisto(string name, bool quiet=true);
+  void grabHisto(string name, bool quiet=true, bool sysHistos=true);
 
   TH1F* getMcHisto(int imc, int isys){return _mcH1[imc][isys];}
   TH1F* getDataHisto() {return _dataH1;}

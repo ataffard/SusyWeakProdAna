@@ -693,6 +693,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   _ww           *= _lepSFW * _trigW;
   
   float bTagWeight =  getBTagSF(nt->evt(),v_baseJet);
+
   float _wwSave = _ww;
 
   if(WEIGHT_COUNT) _inc = _ww;
@@ -895,27 +896,32 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 /*--------------------------------------------------------------------------------*/
 float Susy2LepAna::eventWeight(int mode)
 {
+  if( !nt->evt()->isMC) return 1; //Data weight =1
+
   float _evtW=nt->evt()->w;
 
   if(mode==NOLUMI) _evtW= nt->evt()->w; //raw weight - generator included!
-  else if(mode==LUMI1FB){
-    if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    //    else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_B3);
-    else _evtW=getEventWeight(nt->evt(),LUMI_A_B3);
+  else if(mode==LUMI_E){ //Period E only
+    if(USE_MCWEIGHT) _evtW =  nt->evt()->w; 
+    else _evtW = nt->evt()->w * nt->evt()->wPileupAE * nt->evt()->xsec * pLUMI*1000. / nt->evt()->sumw;
   }
-  else if(mode==LUMI5FB){
-    //_evtW=getEventWeightAB(nt->evt());
+  else if(mode==LUMI_IJL){ //IJL
+    //cout << "Weight " << nt->evt()->w  << " " << nt->evt()->wPileupIL << " " 
+    //<<  nt->evt()->xsec << " " << pLUMI << " " << nt->evt()->sumw << endl;
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    //else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_B14);
-    else _evtW=getEventWeight(nt->evt(),LUMI_A_B14);
+    else _evtW = nt->evt()->w * nt->evt()->wPileupIL * nt->evt()->xsec * pLUMI*1000. / nt->evt()->sumw;
   }
-  else if(mode==LUMI13FB){
+  else if(mode==LUMI13FB){ //HCP dataset
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    //else _evtW=getEventWeightFixed(nt->evt()->mcChannel,nt->evt(),LUMI_A_E);
-    else _evtW=getEventWeight(nt->evt(),LUMI_A_E);
-    //Fixes Sherpa Zmumu weight 
-    //_evtW=getEventWeight(nt->evt());
+    else 
+      _evtW = nt->evt()->w * nt->evt()->wPileupAE * nt->evt()->xsec * LUMI_A_E / nt->evt()->sumw;
   }
+  else if(mode==LUMI21FB){ //HCP dataset
+    if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
+    else      _evtW = nt->evt()->w * nt->evt()->wPileup * nt->evt()->xsec * LUMI_A_L / nt->evt()->sumw;
+  }
+
+
   return _evtW;
 }
 
@@ -1081,8 +1087,8 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     _isEle[i]=leptons->at(i)->isEle();
     _pt[i]= leptons->at(i)->pt*1000;//MeV
     _eta[i]= leptons->at(i)->eta;
-    if(_isEle[i])_isSignal[i] = isSignalElectron((Electron*) leptons->at(i),nVtx,isMC);
-    else         _isSignal[i] = isSignalMuon((Muon*) leptons->at(i),nVtx,isMC);
+    if(_isEle[i])_isSignal[i] = isSignalElectron((Electron*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
+    else         _isSignal[i] = isSignalMuon((Muon*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
   }  
   
   float _fw = 0;
@@ -1197,7 +1203,7 @@ bool Susy2LepAna::passIsPromptLepton(const LeptonVector* leptons, bool isMC)
       int org        = _l->mcOrigin;
       int type       = _l->mcType;
       int mcId       = nt->evt()->mcChannel;
-      int truthMatch = _l->truthMatchType;
+      int truthMatch = _l->truthType;
       bool isEle     = _l->isEle();
       
       bool isReal       = isPT(org,type,mcId,truthMatch,isEle,_hh->sampleName());
@@ -1772,7 +1778,7 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
 			     _l->mcType,
 			     _hh->sampleName(),
 			     nt->evt()->mcChannel,
-			     _l->truthMatchType,
+			     _l->truthType,
 			     _l->isEle(),
 			     isChargeFlip);
         
@@ -1920,7 +1926,7 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
   int nSoftJets=0;
   for(uint ijet=0; ijet<v_baseJet->size(); ijet++){
     const Susy::Jet* _j = v_baseJet->at(ijet);
-    if(isSignalJet(_j)) continue;
+    if(isSignalJet2Lep(_j)) continue;
     nSoftJets++;
     if(ijet==0){
       _hh->H1FILL(_hh->DG2L_ptSj1[iSR][m_ET][iSYS],_j->Pt(),_ww); 
@@ -2287,7 +2293,7 @@ void Susy2LepAna::fillToyNt(uint iSR,uint iSYS,
 			 iSR,
 			 m_ET,
 			 _ww);	 
-  m_toyNt->FillTreeLeptons(leptons,met,nt->evt()->nVtx,nt->evt()->isMC);
+  m_toyNt->FillTreeLeptons(leptons,*v_baseEle,*v_baseMu,met,nt->evt()->nVtx,nt->evt()->isMC);
   m_toyNt->FillTreeMet(met,metRel,mT2);
   m_toyNt->FillTreeSignalJets(jets,leptons,met);
   m_toyNt->FillTreeOtherJets(v_baseJet,leptons,met);
