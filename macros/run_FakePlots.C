@@ -12,6 +12,8 @@ Compare the eff/FR as as cuts are added
 
   NB: need to change the sample inside the function.
 
+  compIP("CR0","","e","d0S")
+
 */
 
 #include "SusyNtuple/TGuiUtils.h"
@@ -21,14 +23,14 @@ TGuiUtils* _utils;
 DrawPlots* _ana;
 
 string sData = "data12_std";
-string sTop  = "top_Sherpa";
+string sTop  = "top_PowHeg";
 //string sZjet = "histo_Zjets_Sherpa";  
 //string sWjet = "histo_Wjets_Sherpa";  
-string sZjets = "Zjets_AlpgenPythia";  
-string sWjets = "Wjets_AlpgenPythia";  
+string sZjets = "Zjets_Alpgen";  
+string sWjets = "Wjets_Alpgen";  
 string sdiB  = "diBoson_Sherpa";
-string sFake = "mcFake_Sherpa";
-string sBB   = "bbcc";   //TO UPDATE TO BB/CC
+string sFake = "mcFake_Alpgen";
+string sBB   = "bbTomu20.129136";   //TO UPDATE TO BB/CC
 
 
 void comp();
@@ -48,7 +50,7 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
 
   _ana = new DrawPlots(); 
-  _ana->openHistoFiles();  
+  //_ana->openHistoFiles();  
 }
 
 
@@ -223,13 +225,16 @@ void compIP(string cr,string type, string lep, string var)
   //string sel = "sel";
   string sel = "trm";
 
-  //string sFile1 = "data12";
+  //string sFile1 = sData;
   //string sFile1 = "top";
-  //string sFile1 = "Zjets_Alpgen";
-  string sFile1 = "SimplifiedModel_wA_slep";  //Use lf for signla - classification pb
+  string sFile1 = "Zjets_Alpgen_rlep";//sZjets + "_rlep";
+  //string sFile1 = "SimplifiedModel_wA_slep";  //Use lf for signla - classification pb
       
   string PR = sel + "_" + cr + "_" + "pr" + "_" + lep + "_tightNI_" + var;
-  string HF = sel + "_" + cr + "_" + "hf" + "_" + lep + "_tightNI_" + var;
+  //string HF = sel + "_" + cr + "_" + "hf" + "_" + lep + "_tightNI_" + var;
+  string HF = sel + "_" + cr + "_" + "cv" + "_" + lep + "_tightNI_" + var;
+
+  cout << "histName " << PR << endl;
 
   TH1F* _h_pr   = (TH1F*) _ana->getHisto(sFile1,PR);
   TH1F* _h_hf   = (TH1F*) _ana->getHisto(sFile1,HF);
@@ -273,7 +278,8 @@ void compIP(string cr,string type, string lep, string var)
   _utils->myDraw1d(_h_pr,_c1,1,"e",true,kBlue,false,20);
   _utils->myDraw1d(_h_hf,_c1,1,"esame",true,kRed,false,20);
   _leg1->AddEntry(_h_pr,"Prompt ","p");
-  _leg1->AddEntry(_h_hf,"HF ","p");
+  //_leg1->AddEntry(_h_hf,"HF ","p");
+  _leg1->AddEntry(_h_hf,"Conversion ","p");
   _leg1->Draw();
   
 
@@ -285,7 +291,7 @@ void compIP(string cr,string type, string lep, string var)
   int lowB, highB;
   if(var=="d0S"){
     if(lep=="e") cut=5;
-    if(lep=="m") cut=3.5;
+    if(lep=="m") cut=3;
     lowB = _h_pr->FindBin(-cut);
     highB = _h_pr->FindBin(cut);
   }

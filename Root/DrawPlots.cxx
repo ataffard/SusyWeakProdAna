@@ -1296,10 +1296,10 @@ TH1F* DrawPlots::getFakeRate(string sample, string sel, string cr,
   }
   else if(SAMPLE.Contains("data")){
     //If sel & data - DO EWK bkg substraction Top, Wjets, Zjets
-    TFile* _f_top   = new TFile((s=_pathHisto+string("/histo_top_Sherpa_std.root")).c_str(),"READ","top");
-    TFile* _f_wjets = new TFile((s=_pathHisto+string("/histo_Wjets_AlpgenPythia_std.root")).c_str(),"READ","Wjets");
-    TFile* _f_zjets = new TFile((s=_pathHisto+string("/histo_Zjets_AlpgenPythia_std.root")).c_str(),"READ","Zjets");
-    TFile* _f_diB   = new TFile((s=_pathHisto+string("/histo_diBoson_Sherpa_std.root")).c_str(),"READ","diBoson");
+    TFile* _f_top   = new TFile((s=_pathHisto+string("/histo_top_PowHeg_rlep.root")).c_str(),"READ","top");
+    TFile* _f_wjets = new TFile((s=_pathHisto+string("/histo_Wjets_Alpgen_rlep.root")).c_str(),"READ","Wjets");
+    TFile* _f_zjets = new TFile((s=_pathHisto+string("/histo_Zjets_Alpgen_rlep.root")).c_str(),"READ","Zjets");
+    TFile* _f_diB   = new TFile((s=_pathHisto+string("/histo_diBoson_Sherpa_rlep.root")).c_str(),"READ","diBoson");
     
     TFile* _f_data = NULL;
     if(LEP.Contains("e")){

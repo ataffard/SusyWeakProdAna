@@ -55,6 +55,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   m_ET(ET_Unknown)
 {
  
+  setAnaType(Ana_2Lep);
   reset();
   resetCounter();
 
@@ -158,7 +159,8 @@ void Susy2LepAna::end()
   cout << "pass BadJet:        " << n_pass_BadJet  << endl;
   cout << "pass BadMu:         " << n_pass_BadMuon << endl;
   cout << "pass Cosmic:        " << n_pass_Cosmic  << endl;
-  cout << "pass Bad FCAL:      " << n_pass_BadFCAL << endl;
+  //  cout << "pass Bad FCAL:      " << n_pass_BadFCAL << endl;
+  cout << "pass DeadRegion:    " << n_pass_DeadRegion << endl;
   cout << "pass atleast 2 base " << n_pass_atleast2BaseLep << endl;
   cout << "pass exactly 2 base " << n_pass_exactly2BaseLep << endl;
   cout << "pass mll20          " << n_pass_mll20   << endl;
@@ -304,6 +306,7 @@ void Susy2LepAna::resetCounter()
   n_pass_BadMuon = 0;
   n_pass_Cosmic  = 0;
   n_pass_BadFCAL = 0;
+  n_pass_DeadRegion  = 0;
   n_pass_atleast2BaseLep = 0;
   n_pass_exactly2BaseLep = 0;
   n_pass_mll20   = 0;
@@ -624,12 +627,23 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(dbg()>10) cout<<"Fail cleaning" << endl;  
       return false;
     }
+  //No Longer needed - reprocess 2012 data 
+  /*
   if(!passBadFCAL(v_baseJet,
 		  nt->evt()->run,
 		  nt->evt()->isMC)){
     if(dbg()>10) cout<<"Fail FCAL" << endl; 
       return false;
     }
+  */
+  //NEW Moriond
+  if( !passDeadRegions(*v_baseJet,met, nt->evt()->run)){
+     if(dbg()>10) cout<<"Fail Dead Regions" << endl; 
+     return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_DeadRegion+=_inc;
+
+
   if( v_baseLep->size() < NBASELEPMIN ){ 
     if(dbg()>10) cout<<"Fail baselepMIN " << endl;  
       return false;
@@ -675,7 +689,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
        << " type " << DIL_FLAV[m_ET] << endl;
   */
 
-  if( !passTrigger(leptons) ){ 
+  if( !passTrigger(leptons, met) ){ 
     if(dbg()>10) cout<<"Fail Trig " << endl;  
     return false; 
   }
@@ -689,7 +703,11 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //
   float _ww      = eventWeight(LUMIMODE); 
   float _lepSFW  = getLepSFWeight(leptons);
-  float _trigW   = getTriggerWeight(leptons, SYST);
+  float _trigW   = getTriggerWeight(leptons, 
+				    met->lv().Pt(),
+				    signalJets->size(),
+				    nt->evt()->nVtx,
+				    SYST);
   _ww           *= _lepSFW * _trigW;
   
   float bTagWeight =  getBTagSF(nt->evt(),v_baseJet);
@@ -725,7 +743,6 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	 << " bTag " << bTagWeight
 	 << " weight " << _ww << endl;
     // cout<< " myEvtW " << _ww*bTagWeight<<endl;
-      //dumpEvent();
   }
  
 
@@ -738,6 +755,21 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     setSelection(sSR);
     SR=iSR;
     if(dbg() > 2 ) cout << "Signal region " << sSR << endl;
+
+    if(DUMP_RUNEVT && (iSR==DIL_SRjveto) ){
+      cout << "==>Run " << nt->evt()->run  << " : " << nt->evt()->event  << endl;
+      evtDump << nt->evt()->run 
+	      << " " << nt->evt()->event 
+	      << " " << sSR 
+	      << " " << DIL_FLAV[m_ET] 
+	      << " " << _lepSFW
+	      << " " << bTagWeight
+	      << " " << _trigW
+	      << " " << _ww 
+	      << endl;
+      if( nt->evt()->event==435108) dumpEvent();
+
+    }
 
     int icut =0;
     _ww=_wwSave; //Reset weight in case used btagWeight in previous SR
@@ -777,10 +809,16 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    if(!passFlavor(leptons)) continue;
+    if(!passFlavor(leptons)){ 
+      if(iSR==PRINT_SR) cout << "Fail flavor" << nt->evt()->run << " " << nt->evt()->event << endl; 
+      continue; 
+    }
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    if(!passZVeto(leptons,m_lowMll, m_highMll,true,m_mllSS) && allowZVeto ) continue;
+    if(!passZVeto(leptons,m_lowMll, m_highMll,true,m_mllSS) && allowZVeto ) {
+      if(iSR==PRINT_SR) cout << "Fail Zveto " << nt->evt()->run << " " << nt->evt()->event <<endl;
+      continue;
+    }
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass Zveto " << sSR << endl;
     
@@ -796,8 +834,13 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	//cout << " Wsave " << _wwSave << " btag " <<  bTagWeight << " w " << _ww << endl;
     }
 
-    if(!passJetVeto(signalJets)) continue;
+    if(!passJetVeto(signalJets)){
+      if(iSR==PRINT_SR) cout << "Fail Jveto " << nt->evt()->run << " " << nt->evt()->event << endl;
+      continue;
+    }
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+  
 
     if(!passeq1Jet(signalJets, iSR)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -853,17 +896,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     //Dump run event
     //    if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
     //if(DUMP_RUNEVT && SYST==DGSys_NOM && (iSR==DIL_NTOP && m_ET==ET_ee) ){
-    if(DUMP_RUNEVT && (iSR==DIL_SRSS1j) ){
-      evtDump << nt->evt()->run 
-	      << " " << nt->evt()->event 
-	      << " " << sSR 
-	      << " " << DIL_FLAV[m_ET] 
-	      << " " << _lepSFW
-	      << " " << bTagWeight
-	      << " " << _trigW
-	      << " " << _ww 
-	      << endl;
-    }
+ 
 
   }
   
@@ -943,7 +976,9 @@ float Susy2LepAna::getLepSFWeight(const LeptonVector* leptons)
 /*--------------------------------------------------------------------------------*/
 // Trigger weight
 /*--------------------------------------------------------------------------------*/
-float  Susy2LepAna::getTriggerWeight(const LeptonVector* leptons, uint iSys){
+float  Susy2LepAna::getTriggerWeight(const LeptonVector* leptons, 
+				     float met, int nSignalJets, int npv,
+				     uint iSys){
   float _wTrig=1;
   
   if(USE_DGWEIGHT && nt->evt()->isMC) {
@@ -953,7 +988,9 @@ float  Susy2LepAna::getTriggerWeight(const LeptonVector* leptons, uint iSys){
     if(iSys==DGSys_TRIGSF_MU_UP) iiSys=NtSys_TRIGSF_MU_UP;
     if(iSys==DGSys_TRIGSF_MU_DN) iiSys=NtSys_TRIGSF_MU_DN;
     
-    _wTrig =  m_trigObj->getTriggerWeight(*leptons,  nt->evt()->isMC, (SusyNtSys) iiSys);
+    _wTrig =  m_trigObj->getTriggerWeight(*leptons,  nt->evt()->isMC, 
+					  met, nSignalJets, npv,
+					  (SusyNtSys) iiSys);
     if(_wTrig<0 || _wTrig>1) {
       //cout << "WARNING Trigger weight out of bound - set to 0 or 1 " << DIL_FLAV[m_ET]  << " " << _wtrig << endl;
       if(_wTrig<0) _wTrig=0;
@@ -961,7 +998,9 @@ float  Susy2LepAna::getTriggerWeight(const LeptonVector* leptons, uint iSys){
       
     }
     if(_wTrig != _wTrig){
-      float _wTrigNoSys = m_trigObj->getTriggerWeight(*leptons,  nt->evt()->isMC, (SusyNtSys) 0);
+      float _wTrigNoSys = m_trigObj->getTriggerWeight(*leptons, nt->evt()->isMC, 
+						      met, nSignalJets, npv,
+						      (SusyNtSys) 0);
       cout << "WARNING OVERWRITE TRIG SYS BECAUSE OF NAN" << endl;
       _wTrig = _wTrigNoSys;
       if(dbg()>10){
@@ -1128,7 +1167,7 @@ bool Susy2LepAna::passEventCleaning()
   int cutFlag = nt->evt()->cutFlags[iiSys];
   //cout << "CutFlag " << hex << cutFlag << dec << endl;
 
-  if(!passHotSpot(cutFlag)) {
+  if(!passHotSpot(cutFlag)) { //UPDATED MORIOND
     if(dbg()>15) cout << "hot spot " << endl;
     return false;
   }
@@ -1139,7 +1178,7 @@ bool Susy2LepAna::passEventCleaning()
     return false;
   }
   if(SYST==DGSys_NOM) n_pass_BadJet+=_inc;
-
+ 
   if(!passBadMuon(cutFlag)) {
     if(dbg()>15) cout << "bad muon " << endl;
     return false;
@@ -1183,10 +1222,10 @@ bool Susy2LepAna::passNLepCut(const LeptonVector* leptons)
   return true;
 }
 /*--------------------------------------------------------------------------------*/
-bool Susy2LepAna::passTrigger(const LeptonVector* leptons)
+bool Susy2LepAna::passTrigger(const LeptonVector* leptons,const Met *met)
 {
   if(leptons->size() < 1) return false;
-  if( m_trigObj->passDilTrig(*leptons, nt->evt()) ){
+  if( m_trigObj->passDilTrig(*leptons, met->lv().Pt(), nt->evt()) ){
     if(SYST==DGSys_NOM) n_pass_trig[m_ET]+=_inc;
     return true;
   }
@@ -1342,7 +1381,9 @@ float Susy2LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
   valJets.clear();
   for(uint i=0; i<jets->size(); ++i){
     Jet* jet = jets->at(i);
-    if(fabs(jet->Eta()) <= JET_ETA_CUT) valJets.push_back(jet);
+    if( jet->Pt() < JET_PT_L20_CUT        ) continue;
+    if( fabs(jet->Eta()) > JET_ETA_CUT_2L ) continue;
+    valJets.push_back(jet);
   }
   
   if(valJets.size()==0) return 1;//safety.
@@ -1356,8 +1397,8 @@ float Susy2LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
   if(SYST==DGSys_LJet_UP) _sys=BTag_LJet_UP; 
 
   return bTagSF(nt->evt(),valJets,USE_NOJVF_bSF, 
-		"MV1", "0_122", MV1_85, (BTagSys) _sys);
-  
+		"MV1", "0_3511", MV1_80, (BTagSys) _sys);
+
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -1977,6 +2018,10 @@ void Susy2LepAna::dumpEvent()
     cout << "  ";
     v_sigJet->at(iJ)->print();
   }
+  cout << "N_C20 " <<  numberOfCLJets(*v_sigJet) 
+       << " N_B20 " << numberOfCBJets(*v_sigJet)
+       << " N_F30 " << numberOfFJets(*v_sigJet)
+       << endl;
 }
 
 
@@ -2075,7 +2120,9 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
   if(nt->evt()->isMC){
     histFitWeight  = nt->evt()->w * nt->evt()->wPileup
                      *leptons->at(0)->effSF*leptons->at(1)->effSF;
-    histFitWeight *= getTriggerWeight(leptons,SYST);
+    histFitWeight *= getTriggerWeight(leptons, _metET, 
+				      signalJets->size(), nt->evt()->nVtx,
+				      SYST);
     histFitWeight *= getBTagSF(nt->evt(),baseJets);
 
     float _sumW = nt->evt()->sumw;

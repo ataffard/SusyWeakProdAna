@@ -37,13 +37,17 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //const std::string TAG  = "020813";
 //const std::string SUFF = "_n0124_HCP_DD_NEWJET";
 
-#define LUMI_13FB  //A->E5
-const std::string TAG  = "020813";
-const std::string SUFF = "_n0124_HCP_DD_NEWJET025";
+//#define LUMI_13FB  //A->E5
+//const std::string TAG  = "020813";
+//const std::string SUFF = "_n0124_HCP_DD_NEWJET025";
 
-//#define LUMI_21FB  //A->E5
-//const std::string TAG  = "020713";
+//#define LUMI_21FB  //All 2012
+//const std::string TAG  = "02713";
 //const std::string SUFF = "_n0123_Moriond_Fake_DD";
+
+#define LUMI_21FB  //All 2012
+const std::string TAG  = "021313";
+const std::string SUFF = "_n0124_Moriond_DD";
 
 //#define LUMI_PeriodIJL
 //const std::string TAG  = "020113";
@@ -68,7 +72,7 @@ const unsigned int TOYNT_iSR   = DIL_CRZ;     //SR used to fill ToyNt
 const bool DO_SYS         = false;//true;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
-const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_COUNT   = false;//true;   //Apply weight to dump count table - NLO weight always applied
 const bool DO_FILL_HISTO  = true;
 
 const bool USE_DGWEIGHT   = true;
@@ -81,8 +85,8 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 
 const bool BLIND_MC       = false;
 
-const bool DUMP_RUNEVT    = false;   //Dump run:event passing CR2LepOS/CR2LepSS
-
+const bool DUMP_RUNEVT    = true;   //Dump run:event info
+const unsigned int  PRINT_SR = DIL_SRjveto;
 
 
 //

@@ -714,11 +714,15 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
   string cone[3];
   int iConeMax=1;
   if(iso=="ptCone") {
-    cone[0]="20";
-    cone[1]="30";
+    cone[0]="30";
+    cone[1]="20";
+
     iConeMax=2;
   }
   else cone[0]="30";
+  
+  cout << "IconeMax " << iConeMax << endl;
+
   int hMarker[3]={20,24,27};
   string _hNameR, _hNameF;
 
@@ -849,11 +853,11 @@ void perf_IsoCutRange(string lep, string iso, string dep, bool relative)
 	  
 	  
 	  //Operating isolation cut point 2011
-	  if(LEP.Contains("m") && (ISO.CompareTo("ptCone")==0 || ISO.CompareTo("etCone")==0 )
+	  if(LEP.Contains("m") && (ISO.CompareTo("ptCone")==0 || ISO.CompareTo("ptConeEl")==0 || ISO.CompareTo("etCone")==0 )
 	     && i==0){//i==0 cone30
 	    float isoCut;
-	    if(relative==true) isoCut =0.2;//0.16;
-	    else               isoCut =1.8;
+	    if(relative==true) isoCut =0.12;//0.16;
+	    else               isoCut =1.2;//1.8;
 	    int ibin = _h_PR->FindBin(isoCut);
 	    if(k==0 && j==0) std::cout <<"MC " << sPtBin << std::endl;
 	    if(k==1 && j==0) std::cout <<"DATA " << sPtBin << std::endl;

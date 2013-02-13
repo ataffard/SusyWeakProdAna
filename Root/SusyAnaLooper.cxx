@@ -132,12 +132,16 @@ void SusyAnaLooper::printSettings()
   cout << "   USE_BWEIGHT       " << USE_BWEIGHT    << endl;
   cout << "   USE_LEPSF         " << USE_LEPSF      << endl;
   cout << "   USE_QFLIP         " << USE_QFLIP      << endl;
+  cout << "   USE_MCWEIGHT      " << USE_MCWEIGHT   << endl;
+  cout << "   USE_MCTRIG        " << USE_MCTRIG     << endl;
   cout << endl;
   cout << "   DO_SYS            " << DO_SYS         << endl;
   cout << "   FILL_HFT          " << FILL_HFT       << endl;
   cout << endl;
   cout << "   FILL_TOYNT        " << FILL_TOYNT     << endl;
   cout << "   TOYNT_SR          " << TOYNT_iSR      << endl;
+  cout << endl;
+  cout << "   DUMP EVENT        " << DUMP_RUNEVT    << endl;
   cout << " ================================"       <<endl;
   cout << endl;
 

@@ -60,7 +60,9 @@ class Susy2LepAna: public SusyNtTools
     //MC weight
     float eventWeight(int mode=1);
     float getLepSFWeight(const LeptonVector* leptons);
-    float getTriggerWeight(const LeptonVector* leptons, uint iSys=DGSys_NOM);
+    float getTriggerWeight(const LeptonVector* leptons, 
+			   float met, int nSignalJets, int npv,
+			   uint iSys=DGSys_NOM);
 
 
     void doAnalysis(unsigned int isys=DGSys_NOM);
@@ -91,7 +93,7 @@ class Susy2LepAna: public SusyNtTools
     
     // Cut methods
     bool passMll20(const LeptonVector* leptons);
-    bool passTrigger(const LeptonVector* leptons);
+    bool passTrigger(const LeptonVector* leptons, const Met *met);
     bool passNLepCut(const LeptonVector* leptons);
     bool passIsPromptLepton(const LeptonVector* leptons, bool isMC=false);
     bool passFlavor(const LeptonVector* leptons);
@@ -273,6 +275,7 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_BadMuon;
     float                n_pass_Cosmic;
     float                n_pass_BadFCAL;
+    float                n_pass_DeadRegion;
     float                n_pass_atleast2BaseLep; //>=2 base lept
     float                n_pass_exactly2BaseLep; //=2 base lept
     float                n_pass_mll20;           //mll>20 SS/OS all flavors
