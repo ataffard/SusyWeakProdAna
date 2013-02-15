@@ -26,20 +26,18 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #Add back tothe list 
 
-    SR=(CR2LepOS CR2LepSS CR2LepOS40 CR2LepSS40 CRZ CRZjveto VR1SS NTOP NWW1 \
-	ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
-	SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
-        preSRjveto preSRSSjveto preSR2jets preSRmT2)
+SR=(SROSjveto SRmT2a SRmT2b \
+    SR2jets SRZjets SRSSjets \
+    SRWWa SRWWb SRWWc \
+    ZXCRjveto ZXCR2jets ZXCRmT2a ZXCRmT2b ZXCRWW \
+    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
+    CRWW CRWWa CRWWb CRWWc\
+    VRSS VRSSbtag\
+    CRZ  CR2LepOS CR2LepSS CR2LepSS40\
+    preSROSjveto preSRmT2\
+    preSR2jets preSRZjets preSRSS  
+)
 
-#    SR=(CR2LepOS40 CR2LepSS40 CRZ VR1SS NTOP NWW1  ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7)
-#    SR=(SRjveto SRSSjveto SR2jets SRmT2 SRmT2b)
-#    SR=(SRjveto SRjveto2 VRjveto VRjveto2 NTOP NWW1)
-#    SR=(CR2LepSS)
-#    SR=(VR1SS)
-#    SR=(SRSS1j SRSS1jcut)
-#     SR=(CRZ ZXCR1 ZXCR4)
-#    SR=(CRZjveto)
-#    SR=(CR2LepOS)
     DIL=(EE MM EM)
 #    PLOTS=(metrel mll)
     PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \

@@ -820,7 +820,7 @@ std::vector<TH1F*> DrawPlots::sumChannels(std::vector<TH1F*> _histEE,
   TH1F* _h;
 
   _hArray.reserve(DGSys_N);
-  for(int isys=0; isys<_histEE.size() /*DGSys_N*/; isys++){
+  for(unsigned int isys=0; isys<_histEE.size() /*DGSys_N*/; isys++){
     if(_histEE[isys]==NULL) continue;
     if(_histMM[isys]==NULL) continue;
     if(_histEM[isys]==NULL) continue;

@@ -89,7 +89,7 @@ class Susy2LepAna: public SusyNtTools
     bool passBadFCAL(const JetVector* jets, int run, bool isMC=false);
 
     //Set cuts for a give SR, CR etc...
-    void setSelection(std::string s);
+    void setSelection(std::string s,DiLepEvtType dilType);
     
     // Cut methods
     bool passMll20(const LeptonVector* leptons);
@@ -98,22 +98,26 @@ class Susy2LepAna: public SusyNtTools
     bool passIsPromptLepton(const LeptonVector* leptons, bool isMC=false);
     bool passFlavor(const LeptonVector* leptons);
     bool passQQ(const LeptonVector* leptons);
-    bool passJetVeto(const JetVector* jets);
-    bool passZVeto(const LeptonVector* leptons, float Zlow = MZ-10, float Zhigh = MZ+10, bool onOS=true, bool onSS=false);
+    bool passFullJetVeto(const JetVector* jets);
+    bool passZVeto(const LeptonVector* leptons, float Zlow = MZ-10, float Zhigh = MZ+10);
     bool passMETRel(const Met *met, const LeptonVector* leptons, const JetVector* jets);
     bool passMET(const Met *met);
-    bool passbJet(const JetVector* jets, float cutVal=MV1_85);
-    bool passeq1Jet(const JetVector* jets, int iSR);
-    bool passge2Jet(const JetVector* jets, int iSR);
+    bool passFJet(const JetVector* jets);
+    bool passBJet(const JetVector* jets);
+    bool passLJet(const JetVector* jets);
+    bool passCentralJet(const JetVector* jets);
+    bool passLead2JetsPt(const JetVector* jets);
+    bool passMjj(const JetVector* jets);
     bool passMT2(const LeptonVector* leptons, const Met* met);
+    bool passMWWT(const LeptonVector* leptons, const Met* met);
     bool passMll(const LeptonVector* leptons);
     bool passTopTagger(const LeptonVector* leptons, const JetVector* jets, const Met* met);
-    bool passLeadLepPt(const LeptonVector* leptons);
-    bool passSumLepPt(const LeptonVector* leptons);
+    bool passLead2LepPt(const LeptonVector* leptons);
     bool passPtll(const LeptonVector* leptons);
     bool passDPhiMetll(const LeptonVector* leptons, const Met* met);
     bool passDPhiMetl1(const LeptonVector* leptons, const Met* met);
     bool passdPhi(TLorentzVector v0, TLorentzVector v1, float cut);
+    bool passdPhill(const LeptonVector* leptons);
 
     bool passBlindData(bool isMC, int iSR, float metRel, float mt2);
 
@@ -159,14 +163,18 @@ class Susy2LepAna: public SusyNtTools
 		   float _ww);
 
     //Other functions
-    void print_SRjveto();
-    void print_SRSSjveto();
-    void print_SR2jets();
+    void print_SROSjveto();
     void print_SRmT2();
+    void print_SR2jets();
+    void print_SRZjets();
+    void print_SRSSjets();
+    void print_SRWW();
     void print_CRZ();
-    void print_NTOP();
-    void print_NWW();
-    void print_NZX();
+    void print_ZXCR();
+    void print_TOPCR();
+    void print_WWCR();
+    void print_VRSS();
+
     void print_line(string s, float a, float b, float c);
 
     void dumpEvent();
@@ -239,23 +247,23 @@ class Susy2LepAna: public SusyNtTools
     bool                m_selOS;        // select OS 
     bool                m_selSS;        // select SS 
     bool                m_selSF;        // select SF (no flavor sel by default)
+    bool                m_selOF;        // select OF (no flavor sel by default)
     bool                m_vetoSF;       // veto SF
     bool                m_selZ;         // select Z (SFOS applied)
     bool                m_vetoZ;        // veto z
     bool                m_selB;         // sel  b-jet using m_btagPtMin;
     bool                m_vetoB;        // veto b-jet using m_btagPtMin
-    bool                m_vetoJ;        // veto jet using m_jetPtMin
-    bool                m_sel1J;        // select 1 jet using m_jetPtMin
-    bool                m_sel2J;        // select 2 jet using m_jetPtMin
+    bool                m_vetoF;        // veto fwd-jet using
+    bool                m_vetoJ;        // Full jet veto
+    int                 m_minC20;       // min number of C20
+    int                 m_minCJet;      // min number of central C20+B20
     float               m_metMin;       // min Met
     float               m_metMax;       // max Met
     float               m_metRelMin;    // min MetRel
     float               m_metRelMax;    // max MetRel
     bool                m_topTag;       // use top tagger
     float               m_mt2Min;       // min MT2 
-    float               m_mtMin;        // min MT 
-    float               m_mtMax;        // max MT 
-    float               m_mllMin;       // min Mll 
+    float               m_mt2Max;       // max MT2 
     float               m_lepLeadPtMin; // lead lepton pt min 
     float               m_pTllMin;      // min Ptll
     float               m_pTllMax;      // max Ptll
@@ -263,7 +271,17 @@ class Susy2LepAna: public SusyNtTools
     float               m_dPhiMetl1;    // dphi Met & l1
     float               m_lowMll;       // low Mll bound
     float               m_highMll;      // high Mll bound
+    bool                m_mllIn;        // Apply mll cut rejecting event inside
+    float               m_lowMjj;       // min Mjj (leading jets)
+    float               m_highMjj;      // max Mjj (leading jets)
+    float               m_lowMTWW;      // min MT(ll,Etmiss)
+    float               m_highMTWW;     // max MT(ll,Etmiss)
     bool                m_mllSS;        // to do mll cut on SS events
+    float               m_pTj0Min;      // min pT (leading jets)
+    float               m_pTj1Min;      // min pT (second leading jets)
+    float               m_pTl0Min;      // min pT (leading lepton)
+    float               m_pTl1Min;      // min pT (second leading lepton)
+    float               m_dPhillMax;    // max dPhi(ll) 
     
     DiLepEvtType        m_ET;           // Dilepton event type to store cf
     std::string         m_sel;          // event selection string
@@ -287,20 +305,26 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_os[ET_N][DIL_NSR];
     float                n_pass_ss[ET_N][DIL_NSR];
     float                n_pass_flav[ET_N][DIL_NSR];
-    float                n_pass_Z[ET_N][DIL_NSR];
-    float                n_pass_Jveto[ET_N][DIL_NSR];
-    float                n_pass_1Jet[ET_N][DIL_NSR];
-    float                n_pass_2Jet[ET_N][DIL_NSR];
-    float                n_pass_bJet[ET_N][DIL_NSR];
+    float                n_pass_Z[ET_N][DIL_NSR];  //Z sel or veto
+
+    float                n_pass_FullJveto[ET_N][DIL_NSR];  //Full jet veto
+    float                n_pass_FJet[ET_N][DIL_NSR]; //Forward jet
+    float                n_pass_BJet[ET_N][DIL_NSR]; //b-jet
+    float                n_pass_LJet[ET_N][DIL_NSR]; //central LF
+    float                n_pass_CJet[ET_N][DIL_NSR]; //central C20+B20
     float                n_pass_topTag[ET_N][DIL_NSR];
     float                n_pass_metRel[ET_N][DIL_NSR];
     float                n_pass_met[ET_N][DIL_NSR];
     float                n_pass_mt2[ET_N][DIL_NSR];
     float                n_pass_mt2b[ET_N][DIL_NSR];
-    float                n_pass_mll[ET_N][DIL_NSR];
+    float                n_pass_mll[ET_N][DIL_NSR]; //Cut on  mll
     float                n_pass_pTll[ET_N][DIL_NSR];
     float                n_pass_leadLepPt[ET_N][DIL_NSR];
-    float                n_pass_sumLepPt[ET_N][DIL_NSR];
+    float                n_pass_JetPt[ET_N][DIL_NSR];
+    float                n_pass_mjj[ET_N][DIL_NSR];
+    float                n_pass_mWWT[ET_N][DIL_NSR];
+    float                n_pass_dPhill[ET_N][DIL_NSR];
+
     float                n_pass_dPhiMetll[ET_N][DIL_NSR];
     float                n_pass_dPhiMetl1[ET_N][DIL_NSR];
     

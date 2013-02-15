@@ -46,8 +46,8 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //const std::string SUFF = "_n0123_Moriond_Fake_DD";
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "021313";
-const std::string SUFF = "_n0124_Moriond_DD";
+const std::string TAG  = "021513";
+const std::string SUFF = "_n0127_Moriond_DD";
 
 //#define LUMI_PeriodIJL
 //const std::string TAG  = "020113";
@@ -85,9 +85,11 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 
 const bool BLIND_MC       = false;
 
-const bool DUMP_RUNEVT    = true;   //Dump run:event info
-const unsigned int  PRINT_SR = DIL_SRjveto;
+const bool DUMP_RUNEVT    = false;   //Dump run:event info
+const unsigned int  PRINT_SR = DIL_SROSjveto;
 
+
+const bool BLIND_SSMUON  = true; //Blind  90-110 SS muon
 
 //
 // Should not need to change anything below

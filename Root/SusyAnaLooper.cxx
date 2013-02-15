@@ -8,7 +8,7 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 // SusyAnaLooper Constructor
 /*--------------------------------------------------------------------------------*/
-SusyAnaLooper::SusyAnaLooper():
+SusyAnaLooper::SusyAnaLooper(): SusyNtAna(),
   _do2LAna(false),
   _doMll(false),
   _do3LAna(false),
@@ -64,7 +64,8 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseLeptons, &m_signalLeptons,
 			       &m_baseJets, &m_signalJets2Lep);
     _susyHistos->Book2LHistograms(_histoDir,DO_SYS);
-    
+    _susy2LAna->setAnaType(Ana_2Lep);
+
     if(DO_SYS){
       if(_runOneSys || _runSysRange){
 	if(_systematic1.length()>2){

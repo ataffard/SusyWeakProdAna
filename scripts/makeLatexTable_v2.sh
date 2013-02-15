@@ -9,14 +9,16 @@ dir=${path}/Tables
 
 #Generate the latex table for each SR/CR
 
-#SR=(CR2LepOS)
-SR=(CR2LepOS  CR2LepSS CR2LepOS40 CR2LepSS40 \
-    CRZ VR1SS NTOP NWW1\
-    ZXCR1 ZXCR3 ZXCR4 ZXCR5 ZXCR6 ZXCR7 \
-    preSRjveto preSRSSjveto preSR2jets preSRmT2 \
-    SRjveto SRSSjveto SR2jets SRmT2 SRmT2b \
-    SRjveto2 VRjveto VRjveto2 
-#\    SRSS1j SRSS1jcut
+SR=(SROSjveto SRmT2a SRmT2b \
+    SR2jets SRZjets SRSSjets \
+    SRWWa SRWWb SRWWc \
+    ZXCRjveto ZXCR2jets ZXCRmT2a ZXCRmT2b ZXCRWW \
+    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
+    CRWW CRWWa CRWWb CRWWc\
+    VRSS VRSSbtag\
+    CRZ  CR2LepOS CR2LepSS CR2LepSS40\
+    preSROSjveto preSRmT2\
+    preSR2jets preSRZjets preSRSS  
 )
 
 cd ${pathRun}

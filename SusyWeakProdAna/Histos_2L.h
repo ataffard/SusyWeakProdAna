@@ -10,26 +10,30 @@
 #include "SusyWeakProdAna/Histos_Common.h"
 #include <map>
 
-enum DIL_SR{DIL_SRjveto=0, DIL_SR2jets, DIL_SRmT2, DIL_SRmT2b,
-	    DIL_CRZ, DIL_CRZjveto, DIL_NTOP, DIL_NWW1, DIL_NWW2, DIL_NWW3,
-	    DIL_ZXCR1, DIL_ZXCR3, DIL_ZXCR4, DIL_ZXCR5, DIL_ZXCR6,DIL_ZXCR7,
-	    DIL_preSRjveto, DIL_preSR2jets, DIL_preSRmT2,
-	    DIL_CR2LepOS, DIL_CR2LepOS40,
-	    DIL_SRjveto2, DIL_VRjveto, DIL_VRjveto2,
-	    DIL_preSRSSjveto, DIL_SRSSjveto, DIL_SRSS1j,DIL_SRSS1jcut,
-	    DIL_CR2LepSS, DIL_CR2LepSS40,DIL_VR1SS, 
+enum DIL_SR{DIL_SROSjveto=0, DIL_SRmT2a, DIL_SRmT2b,
+	    DIL_SR2jets, DIL_SRZjets, DIL_SRSSjets,
+	    DIL_SRWWa, DIL_SRWWb, DIL_SRWWc, 
+	    DIL_ZXCRjveto, DIL_ZXCR2jets, DIL_ZXCRmT2a, DIL_ZXCRmT2b, DIL_ZXCRWW, 
+	    DIL_CRTOP, DIL_CRTOPWWa, DIL_CRTOPWWb, DIL_CRTOPWWc, 
+	    DIL_CRWW, DIL_CRWWa, DIL_CRWWb, DIL_CRWWc,
+	    DIL_VRSS, DIL_VRSSbtag,
+	    DIL_CRZ,  DIL_CR2LepOS, DIL_CR2LepSS, DIL_CR2LepSS40,
+	    DIL_preSROSjveto, DIL_preSRmT2,
+	    DIL_preSR2jets, DIL_preSRZjets, DIL_preSRSS,  
 	    DIL_NSR
 };
 
-//111712: reorder SR/CR and put SS at the end to resolve the lept pt prb
-const string DIL_SRNAME[] = {"SRjveto", "SR2jets", "SRmT2", "SRmT2b",
-			     "CRZ", "CRZjveto", "NTOP", "NWW1", "NWW2", "NWW3",
-			     "ZXCR1", "ZXCR3", "ZXCR4","ZXCR5","ZXCR6","ZXCR7",
-			     "preSRjveto", "preSR2jets", "preSRmT2",
-			     "CR2LepOS", "CR2LepOS40",
-			     "SRjveto2", "VRjveto", "VRjveto2",
-			     "preSRSSjveto","SRSSjveto", "SRSS1j","SRSS1jcut",
-			     "CR2LepSS", "CR2LepSS40", "VR1SS" 		     
+const string DIL_SRNAME[] = {"SROSjveto", "SRmT2a", "SRmT2b",
+			     "SR2jets", "SRZjets","SRSSjets",  
+			     "SRWWa", "SRWWb", "SRWWc", 
+			     "ZXCRjveto","ZXCR2jets","ZXCRmT2a","ZXCRmT2b","ZXCRWW",
+			     "CRTOP", "CRTOPWWa", "CRTOPWWb", "CRTOPWWc", 
+			     "CRWW", "CRWWa", "CRWWb", "CRWWc", 
+			     "VRSS", "VRSSbtag",
+			     "CRZ", "CR2LepOS", "CR2LepSS", "CR2LepSS40",
+			     "preSROSjveto", "preSRmT2",
+			     "preSR2jets", "preSRZjets", "preSRSS",
+			     	     
 };
 
 class Histos_2L
