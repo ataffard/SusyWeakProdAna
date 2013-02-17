@@ -14,13 +14,13 @@ const char* const DIL_QQ[] = {"OS", "SS"};
 /*--------------------------------------------------------------------------------*/
 // Susy2LepAna Constructor
 /*--------------------------------------------------------------------------------*/
-Susy2LepAna::Susy2LepAna(SusyHistos* _histos):SusyNtTools(),
+Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
+  SusyNtTools(),
   _hh(_histos),
   m_dbg(0),
   m_useLooseLep(false),
   m_writeHFT(false),
   m_writeToyNt(false),
-
   m_nLepMin(2),
   m_nLepMax(2),
   m_cutNBaseLep(true),
@@ -45,34 +45,32 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):SusyNtTools(),
   m_mt2Min     ( -1  ),
   m_mt2Max     ( -1  ),
   m_lepLeadPtMin( -1  ),
+  m_pTl0Min     ( -1  ),
+  m_pTl1Min     ( -1  ),
   m_pTllMin     ( -1  ),
   m_pTllMax     ( -1  ),
   m_lowMll      ( -1  ),
   m_highMll     ( -1  ),
   m_mllIn       (false),
+  m_dPhillMax   ( -1  ),
   m_lowMjj      ( -1  ),
   m_highMjj     ( -1  ),
   m_lowMTWW     ( -1  ),
   m_highMTWW    ( -1  ),
   m_pTj0Min     ( -1  ),
   m_pTj1Min     ( -1  ),
-  m_pTl0Min     ( -1  ),
-  m_pTl1Min     ( -1  ),
-  m_dPhillMax   ( -1  ),
   m_dPhiMetll   ( -1  ),
   m_dPhiMetl1   ( -1  ),
 
   m_ET(ET_Unknown)
 {
-
-  setAnaType(Ana_2Lep);
- 
   reset();
   resetCounter();
 
   _random = new TRandom3(2012300958);
 
-  m_trigObj = new DilTrigLogic(LUMW);  
+  bool useReweightUtils=false;//true;
+  m_trigObj = new DilTrigLogic(LUMW,useReweightUtils);  
   if(USE_MCTRIG && !USE_DGWEIGHT){
     m_trigObj->useMCTrigger();
     cout << " MESSAGE: Using MC trigger decision " << endl;
@@ -81,7 +79,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):SusyNtTools(),
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/fakeRate_trial9_Nov2.root"; //HCP FAKE
+    "/SusyMatrixMethod/data/pass0_Moriond_Feb14_2013.root"; //Moriond
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT);
 
@@ -139,6 +137,10 @@ void Susy2LepAna::doAnalysis(unsigned int isys)
 
   if(FILL_HFT && !m_writeHFT) initializeHistFitterTree();
   if(FILL_TOYNT && !m_writeToyNt && isys==DGSys_NOM) initializeToyNt();
+
+  //Call this here, since have multiple instances of SusyNtTools
+  setAnaType(Ana_2Lep);
+
 
   //cout << "Analysing event for Sys " << DG2LSystNames[SYST] <<endl;
 
@@ -311,8 +313,8 @@ void Susy2LepAna::resetCounter()
 
   // The rest are channel specific.
   for(int i=0; i<ET_N; ++i){
-    n_pass_dil[i]    = 0;
     n_pass_signalLep[i]   = 0;
+    n_pass_dil[i]    = 0;
     n_pass_trig[i]    = 0;
     n_pass_truth[i]    = 0;
 
@@ -445,13 +447,13 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_vetoF = true;
     m_vetoB = true;
     m_minC20 = 2;
-    m_pTj0Min = 40;
-    m_pTj1Min = 40;
+    m_pTj0Min = 50;
+    m_pTj1Min = 50;
     m_lowMjj  = 50;
     m_highMjj = 100;
     m_topTag = true;
     m_metRelMin=50;
-    m_mt2Min  = 55;
+    m_mt2Min  = 70;
   }
   else if(m_sel == "SRSSjets"){
     m_selSS = true;
@@ -533,7 +535,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_minC20    = 2;
     m_topTag    = true;
     m_metRelMin = 50;
-    m_mt2Max    = 55;
+    m_mt2Max    = 70;
   }
   else if(m_sel == "ZXCRmT2a"){
     m_selOS = true;
@@ -708,6 +710,11 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_selOS = true;
     m_selZ  = true;
   }
+  else if(m_sel == "CRZjveto"){
+    m_selOS = true;
+    m_selZ  = true;
+    m_vetoJ = true;
+  }
   else if(m_sel == "CR2LepOS"){
     m_selOS=true;
   }
@@ -750,8 +757,8 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_vetoF     = true;
     m_vetoB     =  true;
     m_minC20    = 2;
-    m_pTj0Min   = 40;
-    m_pTj1Min   = 40;
+    m_pTj0Min   = 50;
+    m_pTj1Min   = 50;
     m_lowMjj    = 50;
     m_highMjj   = 100;
     m_topTag    = true;
@@ -860,10 +867,6 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   float bTagWeight =  getBTagSF(nt->evt(),v_baseJet);
 
   float _wwSave = _ww;
-
-  if(WEIGHT_COUNT) _inc = _ww;
-  else _inc = nt->evt()->w;
-
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
 
   //
@@ -905,6 +908,9 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 
     int icut =0;
     _ww=_wwSave; //Reset weight in case used btagWeight in previous SR
+    if(WEIGHT_COUNT) _inc = _ww;
+    else _inc = nt->evt()->w;
+
     //Only in MC do we alter the Ele pt 
     if(nt->evt()->isMC) restoreOriginal(*leptons,met);
 
@@ -918,7 +924,6 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
     
-    bool allowZVeto=true; //To prevent applying ZVeto to OS events used for SS estimate
     if(!USE_QFLIP && !passQQ(leptons)) continue;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
@@ -928,10 +933,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	else{ //OS ee/em event - get the qFlip prob
 	  float _ww_qFlip = getQFlipProb(leptons,&new_met);
 	  _ww *= _ww_qFlip;
-	  _inc = _ww;
+	  if(WEIGHT_COUNT) _inc = _ww;
 	  if(SYST==DGSys_NOM) n_pass_ss[m_ET][SR]+=_inc;
-	  allowZVeto=false;
-	  //if(m_ET==ET_ee || (m_ET==ET_mm && BLIND_SSMUON)) allowZVeto=true; 
 	  //cout << "QFLup " << _ww_qFlip << " " << _wwSave << " " << _ww << endl;
 	}
       }
@@ -947,7 +950,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     }
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    if(!passZVeto(leptons) /*&& allowZVeto*/ ) {
+    if(!passZVeto(leptons)) {
       if(dbg()>5 && iSR==PRINT_SR) cout << "Fail Zveto " << nt->evt()->run << " " << nt->evt()->event <<endl;
       continue;
     }
@@ -1056,8 +1059,6 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   }
   
   if(dbg()>10 ){
-    const Susy::Lepton* _l0 = leptons->at(0);
-    const Susy::Lepton* _l1 = leptons->at(1);
     float _dPhill=fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
     float _dRll=fabs(leptons->at(0)->DeltaR(*leptons->at(1)));
     float _dPhil0=fabs(met->lv().DeltaPhi(*leptons->at(0)));
@@ -1208,106 +1209,109 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   
   if(leptons->size()>2) return 0;
 
-  SusyMatrixMethod::FAKE_REGION  frSR = SusyMatrixMethod::FR_SRNONE;
+  SusyMatrixMethod::FAKE_REGION  frSR = SusyMatrixMethod::FR_CRZXOSjveto;
   switch (iSR){
   case DIL_SROSjveto:
-    frSR = SusyMatrixMethod::FR_SR1;
+    frSR = SusyMatrixMethod::FR_SROSjveto;
     break;
   case DIL_SRmT2a:
-    frSR = SusyMatrixMethod::FR_SR4;
+    frSR = SusyMatrixMethod::FR_SRmt2a;
     break;
   case DIL_SRmT2b:
-    frSR = SusyMatrixMethod::FR_SR4;
+    frSR = SusyMatrixMethod::FR_SRmt2b;
     break;
   case DIL_SR2jets:
-    frSR = SusyMatrixMethod::FR_SR3; 
+    frSR = SusyMatrixMethod::FR_SR2jets; 
     break;
   case DIL_SRZjets:
-    frSR = SusyMatrixMethod::FR_SR3; 
+    frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
   case DIL_SRSSjets:
-    frSR = SusyMatrixMethod::FR_VR1;
+    frSR = SusyMatrixMethod::FR_SRSSjets;
     break;
   case DIL_SRWWa:
-    frSR = SusyMatrixMethod::FR_WWCR1;
+    frSR = SusyMatrixMethod::FR_SRWWa;
     break;
   case DIL_SRWWb:
-    frSR = SusyMatrixMethod::FR_WWCR1;
+    frSR = SusyMatrixMethod::FR_SRWWb;
     break;
   case DIL_SRWWc:
-    frSR = SusyMatrixMethod::FR_WWCR1;
+    frSR = SusyMatrixMethod::FR_SRWWc;
     break;
   case DIL_ZXCRjveto:
-    frSR = SusyMatrixMethod::FR_SRNONE;
+    frSR = SusyMatrixMethod::FR_CRZXOSjveto;
     break;
   case DIL_ZXCR2jets:
-    frSR = SusyMatrixMethod::FR_SRNONE;
+    frSR = SusyMatrixMethod::FR_CRZX2JETS;
     break;
   case DIL_ZXCRmT2a:
-    frSR = SusyMatrixMethod::FR_SRNONE;
+    frSR = SusyMatrixMethod::FR_CRZXMT2a;
     break;
   case DIL_ZXCRmT2b:
-    frSR = SusyMatrixMethod::FR_SRNONE;
+    frSR = SusyMatrixMethod::FR_CRZXMT2b;
     break;
   case DIL_ZXCRWW:
-    frSR = SusyMatrixMethod::FR_SRNONE;
+    frSR = SusyMatrixMethod::FR_CRZXWW;
     break;
   case DIL_CRTOP:
-    frSR = SusyMatrixMethod::FR_TOPCR;
+    frSR = SusyMatrixMethod::FR_CRTOP;
     break;
   case DIL_CRTOPWWa:
-    frSR = SusyMatrixMethod::FR_TOPCR;
+    frSR = SusyMatrixMethod::FR_CRTOPWWa;
     break;
   case DIL_CRTOPWWb:
-    frSR = SusyMatrixMethod::FR_TOPCR;
+    frSR = SusyMatrixMethod::FR_CRTOPWWb;
     break;
   case DIL_CRTOPWWc:
-    frSR = SusyMatrixMethod::FR_TOPCR;
+    frSR = SusyMatrixMethod::FR_CRTOPWWc;
     break;
   case DIL_CRWW:
-    frSR = SusyMatrixMethod::FR_WWCR1;
+    frSR = SusyMatrixMethod::FR_CRWW1;
     break;    
   case DIL_CRWWa:
-    frSR = SusyMatrixMethod::FR_WWCR1;
+    frSR = SusyMatrixMethod::FR_CRWWa;
     break;    
   case DIL_CRWWb:
-    frSR = SusyMatrixMethod::FR_WWCR1;
+    frSR = SusyMatrixMethod::FR_CRWWb;
     break;    
   case DIL_CRWWc:
-    frSR = SusyMatrixMethod::FR_WWCR1;
+    frSR = SusyMatrixMethod::FR_CRWWc;
     break;    
   case DIL_VRSS:
-    frSR = SusyMatrixMethod::FR_VR1;
+    frSR = SusyMatrixMethod::FR_VRSS;
     break;    
   case DIL_VRSSbtag:
-    frSR = SusyMatrixMethod::FR_VR1;
+    frSR = SusyMatrixMethod::FR_VRSSbtag;
     break;    
   case DIL_CRZ:
-    frSR = SusyMatrixMethod::FR_SR1;
+    frSR = SusyMatrixMethod::FR_CRZXOSjveto;
+    break;        
+  case DIL_CRZjveto:
+    frSR = SusyMatrixMethod::FR_CRZXOSjveto;
     break;        
   case DIL_CR2LepOS:
-    frSR = SusyMatrixMethod::FR_SRNONE; 
+    frSR = SusyMatrixMethod::FR_CRZXOSjveto; 
     break;
   case DIL_CR2LepSS:
-    frSR = SusyMatrixMethod::FR_VR1;
+    frSR = SusyMatrixMethod::FR_VRSSbtag;
     break;
   case DIL_CR2LepSS40:
-    frSR = SusyMatrixMethod::FR_VR1;
+    frSR = SusyMatrixMethod::FR_VRSSbtag;
     break;
   case DIL_preSROSjveto:
-    frSR = SusyMatrixMethod::FR_SR1;
+    frSR = SusyMatrixMethod::FR_SROSjveto;
     break;
   case DIL_preSRmT2:
-    frSR = SusyMatrixMethod::FR_SR4;
+    frSR = SusyMatrixMethod::FR_SRmt2a;
     break;
   case DIL_preSR2jets:
-    frSR = SusyMatrixMethod::FR_SR3; 
+    frSR = SusyMatrixMethod::FR_SR2jets; 
     break;
   case DIL_preSRZjets:
-    frSR = SusyMatrixMethod::FR_SR3; 
+    frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
   case DIL_preSRSS:
-    frSR = SusyMatrixMethod::FR_VR1;
+    frSR = SusyMatrixMethod::FR_VRSSbtag;
     break;
   }
 
@@ -1739,6 +1743,7 @@ bool Susy2LepAna::passMT2(const LeptonVector* leptons, const Met* met)
 {
   mT2 = getMT2(*leptons, met);
   if(m_mt2Min>-1 && mT2<m_mt2Min) return false;
+  if(m_mt2Max>-1 && mT2>m_mt2Max) return false;
   if(SYST==DGSys_NOM) n_pass_mt2[m_ET][SR]+=_inc;
   return true;
 }
@@ -1843,7 +1848,7 @@ void Susy2LepAna::print_SRZjets()
   print_line("pass Mjj    ",n_pass_mjj[0][j],n_pass_mjj[1][j],n_pass_mjj[2][j]);
   print_line("pass topTag ",n_pass_topTag[0][j], n_pass_topTag[1][j], n_pass_topTag[2][j]);
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2(55)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  print_line("pass MT2(70)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 }
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_SRSSjets()
@@ -1893,6 +1898,11 @@ void Susy2LepAna::print_CRZ()
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
   print_line("pass OS        ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
   print_line("pass Z         ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
+
+  j= DIL_CRZjveto;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
 }
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_ZXCR()
@@ -2622,6 +2632,8 @@ int Susy2LepAna::findSRCR(bool isData, bool isOS, bool isEE, bool isMM, bool isE
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::initializeToyNt()
 {
+  if(m_writeToyNt==true) return; //Already initialized
+
   // Set the writeToyNt flag
   m_writeToyNt=true;
   cout << " ===> Initialising ToyNt Outputs " << endl;

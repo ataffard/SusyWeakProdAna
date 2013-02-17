@@ -9,19 +9,16 @@
   
 #include <string>
   
-  double appliedFactor = 0.6176;//1;//0.5966; 
-  //string histname = "DG2L_CR2LepSS_EE_DG2L_mll_NOM";
-  string histname = "DG2L_preSRSSjveto_EE_DG2L_mll_NOM";
-  //string histname = "DG2L_VR1SS_EE_DG2L_mll_NOM";
+  double appliedFactor = 1;//0.6176;//1;//0.5966; 
+  string histname = "DG2L_CR2LepSS_EE_DG2L_mll_NOM";
+  //string histname = "DG2L_CR2LepSS40_EE_DG2L_mll_NOM";
+  
 
-  int binDn = 39;
-  int binUp = 50;
-
-  string dir = "histos_110812_13fb_n0111_DD_MMtrial9_SYS_HFT/";
+  string dir = "histos_021613_21fb_n0127_Moriond_DD_v2/";
   string _pathHisto  = string(getenv("WORKAREA")) + "/histoAna/SusyAna/" +dir;
 
   string dFile =  _pathHisto + "histo_data12_std.root"; 
-  string ZFile =  _pathHisto + "histo_ZX_Sherpa_rlep.root";
+  string ZFile =  _pathHisto + "histo_ZX_Alpgen_rlep.root";
   //string ZFile =  _pathHisto + "histo_Zee.147770_rlep.root";
   string fFile =  _pathHisto + "histo_data12_fake.root";
   
@@ -36,7 +33,16 @@
   TH1F* hZ = 0x0; 
 
   TFile* fd = new TFile(dFile.c_str()); 
-  hd = (TH1F*) fd->Get(histname.c_str()); 
+  hd = (TH1F*) fd->Get(histname.c_str());
+
+
+  //  int binDn = 39;
+  //  int binUp = 50;
+  int binDn = hd->FindBin(70);
+  int binUp = hd->FindBin(110);
+  cout << "Bin range " << binDn << " " << binUp << endl;
+  
+ 
   d = hd->IntegralAndError(binDn, binUp, dErr); 
   
   TFile* ff = new TFile(fFile.c_str()); 

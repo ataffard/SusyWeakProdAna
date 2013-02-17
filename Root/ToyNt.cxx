@@ -4,13 +4,14 @@
 #include "TParameter.h"
 
 #include "SusyWeakProdAna/PhysicsTools.h"
-#include "SusyNtuple/SusyNtTools.h"
+
 using namespace std;
 
 
 //-----------------------------------------------------------------------------------------------------------
-ToyNt::ToyNt(TString MCID, TString suffix) {
-
+ToyNt::ToyNt(TString MCID, TString suffix) :
+  SusyNtTools()
+{
   filename = MCID + "_" + suffix + ".root";
   
   file= TFile::Open(filename,"RECREATE");
@@ -238,7 +239,7 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
     abort();
   }
   
-  SusyNtTools* _ntTools = new SusyNtTools();
+  //  SusyNtTools* _ntTools = new SusyNtTools();
 
   _b_dphi_metcl=999; 
   _b_dphi_ll=999; 
@@ -257,14 +258,14 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
     _b_l_z0[ilep] = _l->z0Unbiased;
     if(_l->isEle()){
       Electron* _e = (Electron*) _l;
-      float etconetopo =  _ntTools->elEtTopoConeCorr(_e, baseElectrons, baseMuons,nVtx, isMc);
+      float etconetopo =  elEtTopoConeCorr(_e, baseElectrons, baseMuons,nVtx, isMc);
       _b_l_etcone30[ilep] = _e->etcone30Corr;
       _b_l_etconetopo30[ilep] = etconetopo;
       _b_l_ptcone30[ilep] = _l->ptcone30;
     }
     else{
       Muon* _m = (Muon*) _l;
-      float ptcone =  _ntTools->muPtConeCorr(_m, baseElectrons, baseMuons, nVtx,isMc);
+      float ptcone = muPtConeCorr(_m, baseElectrons, baseMuons, nVtx,isMc);
       _b_l_etcone30[ilep] = _m->etcone30;
       _b_l_ptcone30[ilep] = ptcone;
     }
@@ -285,7 +286,7 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
   _b_dphi_ll = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
   _b_isOS = (qqType<0) ? true : false;
 
-  delete _ntTools;
+  //  delete _ntTools;
 }
 //-----------------------------------------------------------------------------------------------------------
 void ToyNt::FillTreeMet(const Met* met,float metrel, float mT2)
@@ -306,7 +307,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
   _b_nSJets = jets->size();
   if(_b_nSJets==0) return;
 
-  SusyNtTools* _ntTools = new SusyNtTools(); 
+  //  SusyNtTools* _ntTools = new SusyNtTools(); 
 
   TLorentzVector _ll;
   for(uint ilep=0; ilep<leptons->size(); ilep++){
@@ -322,15 +323,15 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     const Susy::Jet* _j = jets->at(ijet); 
     _b_nJets++;
 
-    if(_ntTools->isCentralLightJet(_j)){
+    if(isCentralLightJet(_j)){
       _b_nCJets++;
       _b_j_isC25[ijet] = true;
     }
-    else if(_ntTools->isForwardJet(_j)){
+    else if(isForwardJet(_j)){
       _b_nFJets++;
       _b_j_isF30[ijet] = true;
     }
-    else if(_ntTools->isCentralBJet(_j)){
+    else if(isCentralBJet(_j)){
       _b_nBJets++;
       _b_j_isB20[ijet] = true;
     }
@@ -357,21 +358,21 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
   _b_mEff = _b_ST + met->lv().Pt();
   _b_dphi_ll_j1 = fabs(_ll.DeltaPhi(*jets->at(0)));
   
-  delete _ntTools;
+  //  delete _ntTools;
 
 }
 //-----------------------------------------------------------------------------------------------------------
 void ToyNt::FillTreeOtherJets(JetVector* jets, const LeptonVector* leptons, const Met* met)
 {
 
-  SusyNtTools* _ntTools = new SusyNtTools();
+  //  SusyNtTools* _ntTools = new SusyNtTools();
 
   int idxj0=-999;
   int iijet = _b_nJets;
   for(uint ijet=0; ijet<jets->size(); ijet++){
     if(iijet>25) continue;
     const Susy::Jet* _j = jets->at(ijet); 
-    if(_ntTools->isSignalJet2Lep(_j)) continue;
+    if(isSignalJet2Lep(_j)) continue;
     if(idxj0<0) idxj0=ijet;
     _b_nOJets++;
     _b_nJets++;
@@ -404,7 +405,7 @@ void ToyNt::FillTreeOtherJets(JetVector* jets, const LeptonVector* leptons, cons
   if(idxj0>-1) _b_dphi_ll_oj1 = fabs(_ll.DeltaPhi(*jets->at(idxj0)));
 
   findRecoilJet();
-  delete _ntTools;
+  //  delete _ntTools;
 }
 //-----------------------------------------------------------------------------------------------------------
 // Quick and dirty ZPt balance - use recoil jet to measure JVF

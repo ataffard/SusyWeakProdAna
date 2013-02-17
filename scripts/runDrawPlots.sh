@@ -26,31 +26,46 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 
 #Add back tothe list 
 
+SR=(CRZjveto)
+#SR=(SROSjveto)
+#PLOTS=(metrel pTll)
+
+DIL=(EE MM EM)
+
+<<SKIP
 SR=(SROSjveto SRmT2a SRmT2b \
     SR2jets SRZjets SRSSjets \
     SRWWa SRWWb SRWWc \
     ZXCRjveto ZXCR2jets ZXCRmT2a ZXCRmT2b ZXCRWW \
     CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
-    CRWW CRWWa CRWWb CRWWc\
-    VRSS VRSSbtag\
-    CRZ  CR2LepOS CR2LepSS CR2LepSS40\
-    preSROSjveto preSRmT2\
+    CRWW CRWWa CRWWb CRWWc \
+    VRSS VRSSbtag \  
+    CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
+    preSROSjveto preSRmT2 \
     preSR2jets preSRZjets preSRSS  
 )
+SKIP
 
-    DIL=(EE MM EM)
-#    PLOTS=(metrel mll)
-    PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
-	ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \
-	ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
-	metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout \
-	dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT \
-	nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2)
-
+PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
+    ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \
+    ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
+    metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout \
+    dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT \
+    nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2
+)
+#SKIP
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do
 	    if [ "$sr" == "SR2jet" -a "$dil" == "EM" ]; then continue; fi
 	    if [ "$sr" == "CRZ" -a "$dil" == "EM" ]; then continue; fi
+	    if [ "$sr" == "CRWW" -a "$dil" == "EM" ]; then continue; fi
+	    if [ "$sr" == "SRWWa" -o "$sr" == "SRWWb" -o "$sr" == "SRWWc" -o \
+		"$sr" == "CRWWa" -o "$sr" == "CRWWb" -o "$sr" == "CRWWc" -o \
+		"$sr" == "CRTOPWWa" -o "$sr" == "CRTOPWWb" -o "$sr" == "CRTOPWWc" -o \
+		]; then
+		if [ "$dil" == "EE" -o "$dil" == "MM" ]; then continue; fi
+	    fi
+	    
 	    for plots in ${PLOTS[@]}; do
 		name=DG2L_${sr}_${dil}_DG2L_${plots}
 		${pathRun}/DrawPlotsExec -pred -p ${name} ${OPT}

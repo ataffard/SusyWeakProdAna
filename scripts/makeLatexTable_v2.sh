@@ -1,6 +1,6 @@
 # ./makeLatexTable.sh  
 
-date="020813_13fb_n0124_HCP_DD_NEWJET025"
+date="021613_21fb_n0127_Moriond_DD_v3"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts

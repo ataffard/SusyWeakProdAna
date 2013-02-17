@@ -265,23 +265,24 @@ class Susy2LepAna: public SusyNtTools
     float               m_mt2Min;       // min MT2 
     float               m_mt2Max;       // max MT2 
     float               m_lepLeadPtMin; // lead lepton pt min 
+    float               m_pTl0Min;      // min pT (leading lepton)
+    float               m_pTl1Min;      // min pT (second leading lepton)
     float               m_pTllMin;      // min Ptll
     float               m_pTllMax;      // max Ptll
-    float               m_dPhiMetll;    // dphi Met & ll
-    float               m_dPhiMetl1;    // dphi Met & l1
     float               m_lowMll;       // low Mll bound
     float               m_highMll;      // high Mll bound
     bool                m_mllIn;        // Apply mll cut rejecting event inside
+    float               m_dPhillMax;    // max dPhi(ll) 
     float               m_lowMjj;       // min Mjj (leading jets)
     float               m_highMjj;      // max Mjj (leading jets)
     float               m_lowMTWW;      // min MT(ll,Etmiss)
     float               m_highMTWW;     // max MT(ll,Etmiss)
-    bool                m_mllSS;        // to do mll cut on SS events
     float               m_pTj0Min;      // min pT (leading jets)
     float               m_pTj1Min;      // min pT (second leading jets)
-    float               m_pTl0Min;      // min pT (leading lepton)
-    float               m_pTl1Min;      // min pT (second leading lepton)
-    float               m_dPhillMax;    // max dPhi(ll) 
+
+    float               m_dPhiMetll;    // dphi Met & ll
+    float               m_dPhiMetl1;    // dphi Met & l1
+
     
     DiLepEvtType        m_ET;           // Dilepton event type to store cf
     std::string         m_sel;          // event selection string
@@ -298,10 +299,10 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_exactly2BaseLep; //=2 base lept
     float                n_pass_mll20;           //mll>20 SS/OS all flavors
 
-    float                n_pass_trig[ET_N];
     float                n_pass_signalLep[ET_N];
-    float                n_pass_truth[ET_N];
     float                n_pass_dil[ET_N];   //Channel
+    float                n_pass_trig[ET_N];
+    float                n_pass_truth[ET_N];
     float                n_pass_os[ET_N][DIL_NSR];
     float                n_pass_ss[ET_N][DIL_NSR];
     float                n_pass_flav[ET_N][DIL_NSR];
@@ -312,19 +313,23 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_BJet[ET_N][DIL_NSR]; //b-jet
     float                n_pass_LJet[ET_N][DIL_NSR]; //central LF
     float                n_pass_CJet[ET_N][DIL_NSR]; //central C20+B20
-    float                n_pass_topTag[ET_N][DIL_NSR];
-    float                n_pass_metRel[ET_N][DIL_NSR];
-    float                n_pass_met[ET_N][DIL_NSR];
-    float                n_pass_mt2[ET_N][DIL_NSR];
-    float                n_pass_mt2b[ET_N][DIL_NSR];
-    float                n_pass_mll[ET_N][DIL_NSR]; //Cut on  mll
-    float                n_pass_pTll[ET_N][DIL_NSR];
-    float                n_pass_leadLepPt[ET_N][DIL_NSR];
     float                n_pass_JetPt[ET_N][DIL_NSR];
     float                n_pass_mjj[ET_N][DIL_NSR];
-    float                n_pass_mWWT[ET_N][DIL_NSR];
+    float                n_pass_leadLepPt[ET_N][DIL_NSR];
+    float                n_pass_mll[ET_N][DIL_NSR]; //Cut on  mll
+    float                n_pass_pTll[ET_N][DIL_NSR];
     float                n_pass_dPhill[ET_N][DIL_NSR];
+    float                n_pass_mWWT[ET_N][DIL_NSR];
+    float                n_pass_topTag[ET_N][DIL_NSR];
+    float                n_pass_metRel[ET_N][DIL_NSR];
+    float                n_pass_mt2[ET_N][DIL_NSR];
+    float                n_pass_mt2b[ET_N][DIL_NSR];
 
+
+
+
+
+    float                n_pass_met[ET_N][DIL_NSR];
     float                n_pass_dPhiMetll[ET_N][DIL_NSR];
     float                n_pass_dPhiMetl1[ET_N][DIL_NSR];
     

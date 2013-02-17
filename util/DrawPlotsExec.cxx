@@ -42,7 +42,8 @@ int main(int argc, char *argv[]){
 
   string sFake = "histo_data12_fake";
 
-  string sTop = "histo_top_PowHeg";
+  //  string sTop = "histo_top_PowHeg";
+  string sTop = "histo_top_Alpgen";
   //string sTop = "histo_topDil_Sherpa";ll 
   string sWW = "histo_WW_Sherpa";
   /*

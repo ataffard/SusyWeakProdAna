@@ -45,11 +45,14 @@ std::vector<TH1F*> _data[4];    //[LEP][SYS]
 std::vector<string> BKG;
 std::vector<string> LEP;
 
+static const bool blindData=true;
+
 //
 // Functions
 //
 //void makeBkgYieldTxt(string sReg);
 void loadBkg(string DSId, string sReg,std::vector<TH1F*> *_H1);
+bool isSR(string sReg);
 
 //_____________________________________________________________________________//
 void  bkgYield(string sReg){
@@ -60,19 +63,11 @@ void  bkgYield(string sReg){
   _ana = new DrawPlots(); 
   
   int nPrec = 2;
-  if(sReg=="CR2LepOS" ||
+  if(sReg=="CRZ" ||
+     sReg=="CR2LepOS" ||
      sReg=="CR2LepSS" ||
-     sReg=="CR2LepOS40" ||
-     sReg=="CR2LepSS40" ||
-     sReg=="CRZ" ||
-     sReg=="VR1SS" ||
-     sReg=="NTOP" ||
-     sReg=="ZXCR4" ||
-     sReg=="ZXCR5" ||
      sReg=="preSRjveto" ||
-     sReg=="preSRSSjveto" ||
-     sReg=="preSR2jets" ||
-     sReg=="preSRmT2" 
+     sReg=="preSROSjveto"
      ) nPrec=0;
 
 
@@ -134,7 +129,8 @@ void  bkgYield(string sReg){
   loadBkg("histo_data12_fake",sReg,_mcFake);
 
   //  loadBkg("histo_topDil_Sherpa_rlep",sReg,_mcTopDil);
-  loadBkg("histo_top_PowHeg_rlep",sReg,_mcTopDil);
+  //  loadBkg("histo_top_PowHeg_rlep",sReg,_mcTopDil);
+  loadBkg("histo_top_Alpgen_rlep",sReg,_mcTopDil);
   loadBkg("histo_WW_Sherpa_rlep",sReg,_mcWW);
 
   /*
@@ -145,7 +141,9 @@ void  bkgYield(string sReg){
 
   loadBkg("histo_ZX_Alpgen_rlep",sReg,_mcZX);
   loadBkg("histo_ZTauTaujets_Alpgen_rlep",sReg,_mcZtt);  
-  loadBkg("histo_BkgAlpgen_rlep",sReg,_mcAll);
+  //  loadBkg("histo_BkgAlpgen_rlep",sReg,_mcAll);
+
+  loadBkg("histo_BkgZTopAlpgen_rlep",sReg,_mcAll);
 
   string fileName= _ana->_pathTables + "/BkgYield_" + sReg + ".txt";
   std::ofstream outFile;
@@ -284,7 +282,8 @@ void  bkgYield(string sReg){
   for(uint ilep=0; ilep<LEP.size(); ilep++){
     Double_t nom, stat, sysUp, sysDn;
     _ana->getYield(_data[ilep],nom, stat, sysUp, sysDn, verbose);
-    outTEX << std::setprecision(0) << std::fixed << nom;
+    if(!isSR(sReg))
+      outTEX << std::setprecision(0) << std::fixed << nom;
     if(ilep<sLEP.size()-1) outTEX << " & ";
   }
   
@@ -329,3 +328,20 @@ void loadBkg(string DSId, string sReg,std::vector<TH1F*> *_H1){
 }
 
 
+//_____________________________________________________________________________//
+bool isSR(string sReg){
+  
+  if(sReg=="SROSjveto" ||
+     sReg=="SRmT2a" ||
+     sReg=="SRmT2b" ||
+     sReg=="SR2jets" ||
+     sReg=="SRZjets" ||
+     sReg=="SRSSjets" ||
+     sReg=="SRWWa" ||
+     sReg=="SRWWb" ||
+     sReg=="SRWWc" 
+   ) return true;
+
+ return false;
+
+}

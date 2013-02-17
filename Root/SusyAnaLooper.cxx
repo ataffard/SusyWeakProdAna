@@ -8,7 +8,8 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 // SusyAnaLooper Constructor
 /*--------------------------------------------------------------------------------*/
-SusyAnaLooper::SusyAnaLooper(): SusyNtAna(),
+SusyAnaLooper::SusyAnaLooper(): 
+  SusyNtAna(),
   _do2LAna(false),
   _doMll(false),
   _do3LAna(false),

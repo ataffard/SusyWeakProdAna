@@ -3,7 +3,7 @@
 
 typedef unsigned uint;
 
-string dir ="histos_121712_13fb_n0115_DD_MMtrial9_SYS/";
+string dir ="";
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
@@ -23,8 +23,9 @@ int main(int argc, char *argv[]){
   //sample.push_back("histo_TtbarLeptLept.117800_rlep.root");
   //sample.push_back("histo_llnunu_WW.126892_rlep.root");
   
+  sample.push_back("histo_lllnu_WZ.126893_rlep_NOM_XS_DN.root");
   //  sample.push_back("histo_data12_fake.root");
-  sample.push_back("histo_ZX_Sherpa_rlep.root");
+  //sample.push_back("histo_ZX_Sherpa_rlep.root");
   //sample.push_back("histo_WW_Sherpa_rlep.root");
   //sample.push_back("histo_topDil_Sherpa_rlep.root");
   //sample.push_back("histo_ZTauTaujets_Sherpa_rlep.root");
@@ -32,19 +33,18 @@ int main(int argc, char *argv[]){
 
   vector<string> SR;
   //SR.push_back("DG2L_CR2LepOS_");
-  SR.push_back("DG2L_CR2LepSS_");
+  //SR.push_back("DG2L_CR2LepSS_");
   //SR.push_back("DG2L_SRSSjveto_");
-  //SR.push_back("DG2L_SRjveto_");
+  SR.push_back("DG2L_SROSjveto_");
   /*
-
-  SR.push_back("DG2L_SR2jets_");
-  SR.push_back("DG2L_SRmT2_");
-  SR.push_back("DG2L_NTOP_");
-  SR.push_back("DG2L_NWW1_");  
-  SR.push_back("DG2L_ZXCR1_");  
-  SR.push_back("DG2L_ZXCR3_");  
-  SR.push_back("DG2L_ZXCR4_");  
-  SR.push_back("DG2L_ZXCR5_");  
+    SR.push_back("DG2L_SR2jets_");
+    SR.push_back("DG2L_SRmT2_");
+    SR.push_back("DG2L_NTOP_");
+    SR.push_back("DG2L_NWW1_");  
+    SR.push_back("DG2L_ZXCR1_");  
+    SR.push_back("DG2L_ZXCR3_");  
+    SR.push_back("DG2L_ZXCR4_");  
+    SR.push_back("DG2L_ZXCR5_");  
   */
   
   vector<string> LEP;

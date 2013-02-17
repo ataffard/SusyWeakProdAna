@@ -30,7 +30,9 @@ vector<string> LEP;
 vector<string> ZXCR;
 vector<string> ZXSR;
 
-bool verbose = false;
+
+bool verbose = true;// false;
+bool useSys =false;
 
 //
 // Functions
@@ -39,10 +41,10 @@ void openHist(string mode="DD",
 	      //string Top="histo_topDil_Sherpa",
 	      string Top="histo_top_PowHeg",
 	      string WW="histo_WW_Sherpa",
-	      //	      string ZX="histo_ZX_Sherpa",		      
+	      //string ZX="histo_ZX_Sherpa",		      
 	      string ZX="histo_ZX_Alpgen",		      
 	      //string ZX="histo_ZX_SherpaPowheg",
-	      //	      string Ztt="histo_ZTauTaujets_Sherpa",
+	      //string Ztt="histo_ZTauTaujets_Sherpa",
 	      string Ztt="histo_ZTauTaujets_Alpgen",
 	      string Fake="histo_data12_fake");
 
@@ -84,22 +86,22 @@ int main(int argc, char *argv[]){
   LEP.push_back("MM");
   //LEP.push_back("EM");
 
-  ZXCR.push_back("ZXCR1"); //SRjveto
-  ZXCR.push_back("ZXCR3"); //SR2jets
-  ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
-  ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2b
-  ZXCR.push_back("ZXCR5"); //NWW1
-  ZXCR.push_back("ZXCR5"); //NWW2
-  ZXCR.push_back("ZXCR6"); //SRmT2a
-  ZXCR.push_back("ZXCR7"); //SRmT2b
+  ZXCR.push_back("ZXCRjveto"); //SRjveto
+  ZXCR.push_back("ZXCR2jets"); //SR2jets
+  //  ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
+  // ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2b
+  ZXCR.push_back("ZXCRWW"); //NWW1
+  //ZXCR.push_back("ZXCR5"); //NWW2
+  ZXCR.push_back("ZXCRmT2a"); //SRmT2a
+  ZXCR.push_back("ZXCRmT2b"); //SRmT2b
 
-  ZXSR.push_back("SRjveto");
+  ZXSR.push_back("SROSjveto");
   ZXSR.push_back("SR2jets");
-  ZXSR.push_back("preSRmT2"); // ->mT2a
-  ZXSR.push_back("preSRmT2"); // ->mT2b
-  ZXSR.push_back("NWW1");
-  ZXSR.push_back("NWW2");
-  ZXSR.push_back("SRmT2");
+  //  ZXSR.push_back("preSRmT2"); // ->mT2a
+  //  ZXSR.push_back("preSRmT2"); // ->mT2b
+  ZXSR.push_back("CRWW");
+  //  ZXSR.push_back("NWW2");
+  ZXSR.push_back("SRmT2a");
   ZXSR.push_back("SRmT2b");
 
   //get_ZX_Est();
@@ -127,10 +129,6 @@ void get_ZX_Est()
       cout << "Get ZX est for " << LEP[il] << " " << ZXSR[ireg] << endl;
       
       string sReg = ZXSR[ireg];
-      if(ZXCR[ireg]=="ZXCR4"){
-	if(iMT2==0) sReg=ZXSR[ireg]+"a";
-	else        sReg=ZXSR[ireg]+"b";
-      }
 
       //
       //Output SF file
@@ -169,7 +167,8 @@ void get_ZX_Est()
       //
       //Output MT2 Eff files
       //
-      if(ZXCR[ireg]=="ZXCR4"){
+      /*
+      if(ZXCR[ireg]=="ZXCRmT2a"){
 	fileName= "ZX_MT2aEff_" + LEP[il] + "_" + sReg + ".txt";
 	std::ofstream txt4(fileName.c_str());
 	std::ostream & outMt2aEff = txt4;
@@ -186,6 +185,7 @@ void get_ZX_Est()
 	  return;
 	}
       }
+      */
 
       //
       //Output ZX SR mc file
@@ -201,7 +201,7 @@ void get_ZX_Est()
       //
       // Loop over sys
       //
-      for(uint isys=DGSys_NOM; isys<DGSys_BKGMETHOD_UP; isys++){
+      for(uint isys=DGSys_NOM; isys<1 /*DGSys_BKGMETHOD_UP*/; isys++){
 	if(verbose) cout << " SYS " << DG2LSystNames[isys] << endl;
 	
 
@@ -249,6 +249,7 @@ void get_ZX_Est()
 	//
 	//For MT2 a/b need eff (old way)
 	//
+	/*
 	if(ZXCR[ireg]=="ZXCR4"){
 	  Double_t eff_mt2, eff_err_mt2;
 	  if(iMT2==0) get_MT2Eff(il, "SRmT2", isys, eff_mt2, eff_err_mt2);
@@ -292,9 +293,9 @@ void get_ZX_Est()
 	      outMt2bEff << "CRSTAT_DN " << "\t"  << CR_stat_dn << endl;
 	    }
 	  }
-
 	}
-	
+	*/
+
 	//Get ZX SF in SR (cross check - should be the same as in CR's
 	//Double_t _SF, _SF_err;
 	//get_ZX_SF_SR(il,ireg,isys, _ZX_pred,_ZX_pred_err,_SF, _SF_err);
@@ -364,6 +365,7 @@ void get_ZX_Est()
       //
       //Get the extra sys for data/MC disagreement in CR's
       //
+      /*
       Double_t BKG_sysUp, BKG_sysDn;
       Double_t ZXmc_BKG_UP, ZXmc_BKG_DN;
       Double_t SF_BKG_UP, SF_BKG_DN;
@@ -383,7 +385,7 @@ void get_ZX_Est()
 
       outZXSR << "BKGMETHOD_UP " << "\t"  << ZX_SR_mc * (1 + BKG_sysDn) << endl; //swap since not ratio
       outZXSR << "BKGMETHOD_DN " << "\t"  << ZX_SR_mc * (1 - BKG_sysUp) << endl;
-
+      */
 
       txt.close();
       txt2.close();
@@ -417,7 +419,7 @@ void get_ZXCR_data(int il, int ireg, int isys,
   
   //CR Histos
   string hNameCR= "DG2L_" + ZXCR[ireg] + "_" + LEP[il] + "_DG2L_pred"; 
-  _ana->grabHisto(hNameCR,true);
+  _ana->grabHisto(hNameCR,true,useSys);
 
   //ZX MC in CR's
   TH1F* _h_ZX_mc      = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
@@ -522,9 +524,9 @@ void get_ZX_oBkg(int ilep, int ireg, int isys, Double_t& oBkg, Double_t& oBkg_er
   // 
 
   //EE CR Histos
-  //string hNameCR_EE= "DG2L_" + ZXCR[ireg] + "_EE_DG2L_pred"; 
-  string hNameCR_EE= "DG2L_ZXCR4_EE_DG2L_pred"; 
-  _ana->grabHisto(hNameCR_EE,true);
+  string hNameCR_EE= "DG2L_" + ZXCR[ireg] + "_EE_DG2L_pred"; 
+  //string hNameCR_EE= "DG2L_ZXCR4_EE_DG2L_pred"; 
+  _ana->grabHisto(hNameCR_EE,true,useSys);
 
   TH1F* _h_Nee_data   = (TH1F*)  _ana->getDataHisto()->Clone(); 
   TH1F* _h_Nee_mc_ZX  = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
@@ -542,9 +544,9 @@ void get_ZX_oBkg(int ilep, int ireg, int isys, Double_t& oBkg, Double_t& oBkg_er
 
   
   //MM CR Histos
-  //string hNameCR_MM= "DG2L_" + ZXCR[ireg] + "_MM_DG2L_pred"; 
-  string hNameCR_MM= "DG2L_ZXCR4_MM_DG2L_pred"; 
-  _ana->grabHisto(hNameCR_MM,true);
+  string hNameCR_MM= "DG2L_" + ZXCR[ireg] + "_MM_DG2L_pred"; 
+  //string hNameCR_MM= "DG2L_ZXCR4_MM_DG2L_pred"; 
+  _ana->grabHisto(hNameCR_MM,true,useSys);
 
   TH1F* _h_Nmm_data   = (TH1F*)  _ana->getDataHisto()->Clone(); 
   TH1F* _h_Nmm_mc_ZX  = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
@@ -582,7 +584,7 @@ void get_ZX_oBkg(int ilep, int ireg, int isys, Double_t& oBkg, Double_t& oBkg_er
   //Predicted Nee or Nmm 
   //EM CR nonZ
   string hNameCR_EM= "DG2L_" + ZXCR[ireg] + "_EM_DG2L_pred"; 
-  _ana->grabHisto(hNameCR_EM,true);
+  _ana->grabHisto(hNameCR_EM,true,useSys);
   
   TH1F* _h_Nem_fake   = (TH1F*)  _ana->getMcHisto(FAKE,isys)->Clone(); 
   TH1F* _h_Nem_top    = (TH1F*)  _ana->getMcHisto(TOP,isys)->Clone(); 
@@ -632,7 +634,7 @@ void get_ZXSR_mc(int il, int ireg, int isys,
   
   //SR Histos
   string hNameSR= "DG2L_" + ZXSR[ireg] + "_" + LEP[il] + "_DG2L_pred"; 
-  _ana->grabHisto(hNameSR,true);
+  _ana->grabHisto(hNameSR,true,useSys);
 
   //ZX MC in CR's
   TH1F* _h_ZX_mc      = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
@@ -663,10 +665,10 @@ void  get_ZX_TF(int ilep, int ireg, int isys, Double_t &est, Double_t &err)
   string hNameSR= "DG2L_" + ZXSR[ireg] + "_" + LEP[ilep] + "_DG2L_pred"; 
 
   //ZX in CR's
-  _ana->grabHisto(hNameCR,true);
+  _ana->grabHisto(hNameCR,true,useSys);
   TH1F* _hCR       = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone();
   //ZX in SR's
-  _ana->grabHisto(hNameSR,true);
+  _ana->grabHisto(hNameSR,true,useSys);
   TH1F* _hSR       = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone();
 
   //Calc TF
@@ -709,7 +711,7 @@ void  get_ZX_SF_SR(int ilep, int ireg, int isys,
 {
   // ZX in SR
   string hNameSR= "DG2L_" + ZXSR[ireg] + "_" + LEP[ilep] + "_DG2L_pred"; 
-  _ana->grabHisto(hNameSR,true);
+  _ana->grabHisto(hNameSR,true,useSys);
 
   //ZX MC in SR's
   TH1F* _h_ZX_mc      = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
@@ -742,12 +744,12 @@ void  get_MT2Eff(int ilep, string sreg, int isys,
   
   //ZX MC in SR's
   string hNameCR= "DG2L_" + sreg + "_" + LEP[ilep] + "_DG2L_pred"; 
-  _ana->grabHisto(hNameCR,true);
+  _ana->grabHisto(hNameCR,true,useSys);
   TH1F* _h_ZX_SR      = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
   
   //ZX MC in preMT2
   hNameCR= "DG2L_preSRmT2_" + LEP[ilep] + "_DG2L_pred"; 
-  _ana->grabHisto(hNameCR,true);
+  _ana->grabHisto(hNameCR,true,useSys);
   TH1F* _h_ZX_preSR   = (TH1F*)  _ana->getMcHisto(ZX,isys)->Clone(); 
   
   //Efficiency
@@ -786,7 +788,7 @@ void  get_ZX_BkgErr(int ilep, int ireg,
   
   //CR Histos
   string hNameCR= "DG2L_" + ZXCR[ireg] + "_" + LEP[ilep] + "_DG2L_pred"; 
-  _ana->grabHisto(hNameCR,true);
+  _ana->grabHisto(hNameCR,true,useSys);
 
   //
   //Get ZX data estimate
@@ -897,6 +899,7 @@ void  get_ZX_BkgErr(int ilep, int ireg,
 void  make_ZXPlots(int ilep, int ireg){
   
   string name;
+  static bool const noSys=true;
 
   //
   // Use Ztt place to put diB,ok since Ztt is 0
@@ -905,39 +908,34 @@ void  make_ZXPlots(int ilep, int ireg){
   _ana->SFILE[4]="Z(ee,#mu#mu)+jets";
 
   openHist("DD",
-	   "histo_topDil_Sherpa",
+	   "histo_top_Alpgen",
 	   "histo_WW_Sherpa",
-	   "histo_Zjets_Sherpa",		      
+	   "histo_Zjets_Alpgen",		      
 	   "histo_diBZX_Sherpa",
 	   "histo_data12_fake");
     
   bool logy=false;
 
-  if(ireg==1){       // ZXCR1
-    if(ilep==0) name = "DG2L_ZXCR1_EE_DG2L_metrel";
-    if(ilep==1) name = "DG2L_ZXCR1_MM_DG2L_metrel";
+  if(ireg==1){       
+    if(ilep==0) name = "DG2L_ZXCRjveto_EE_DG2L_metrel";
+    if(ilep==1) name = "DG2L_ZXCRjveto_MM_DG2L_metrel";
   }
-  else if(ireg==3){  // ZXCR3
-    if(ilep==0) name = "DG2L_ZXCR3_EE_DG2L_metrel"; 
-    if(ilep==1) name = "DG2L_ZXCR3_MM_DG2L_metrel";
+  else if(ireg==2){  
+    if(ilep==0) name = "DG2L_ZXCR2jets_EE_DG2L_metrel"; 
+    if(ilep==1) name = "DG2L_ZXCR2jets_MM_DG2L_metrel";
   }
-  else if(ireg==4){  // ZXCR4
-    logy=true;
-    if(ilep==0) name = "DG2L_ZXCR4_EE_DG2L_metrel";
-    if(ilep==1) name = "DG2L_ZXCR4_MM_DG2L_metrel";
+  else if(ireg==3){  
+    if(ilep==0) name = "DG2L_ZXCRmT2a_EE_DG2L_metrel";
+    if(ilep==1) name = "DG2L_ZXCRmT2a_MM_DG2L_metrel";
   }
-  else if(ireg==6){  // ZXCR6
-   if(ilep==0) name = "DG2L_ZXCR6_EE_DG2L_metrel";
-   if(ilep==1) name = "DG2L_ZXCR6_MM_DG2L_metrel";
+  else if(ireg==4){  
+   if(ilep==0) name = "DG2L_ZXCRmT2b_EE_DG2L_metrel";
+   if(ilep==1) name = "DG2L_ZXCRmT2b_MM_DG2L_metrel";
   }
-  else if(ireg==7){  // ZXCR7
-   if(ilep==0) name = "DG2L_ZXCR7_EE_DG2L_metrel";
-   if(ilep==1) name = "DG2L_ZXCR7_MM_DG2L_metrel";
-  }
-  else if(ireg==5){  // ZXCR5
-   if(ilep==0) name = "DG2L_ZXCR5_EE_DG2L_mt2";
-   if(ilep==1) name = "DG2L_ZXCR5_MM_DG2L_mt2";
+  else if(ireg==5){  
+   if(ilep==0) name = "DG2L_ZXCRWW_EE_DG2L_mt2";
+   if(ilep==1) name = "DG2L_ZXCRWW_MM_DG2L_mt2";
   }
   
-  _ana->drawPlotErrBand(name,logy,false);
+  _ana->drawPlotErrBand(name,logy,false,noSys);
 }

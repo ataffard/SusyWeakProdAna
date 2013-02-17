@@ -19,10 +19,12 @@
 
 #include "SusyNtuple/SusyDefs.h"
 #include "SusyNtuple/SusyNtObject.h"
+#include "SusyNtuple/SusyNtTools.h"
 
 using namespace Susy;
 
-class ToyNt  {
+class ToyNt: public SusyNtTools
+{
 
  public: 
 

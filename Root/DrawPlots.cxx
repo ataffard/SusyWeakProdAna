@@ -230,11 +230,17 @@ void DrawPlots::blindDataSR(){
 
   TString hName(_dataH1->GetName());
   
-  if((hName.Contains("SRjveto") ||
+  if((
+      hName.Contains("SROSjveto")||
+      hName.Contains("SRmT2a") ||
+      hName.Contains("SRmT2b") ||
       hName.Contains("SR2jets") ||
-      hName.Contains("SRSSjveto") ||
-      hName.Contains("SRmT2") ||
-      hName.Contains("SRmT2b")) && hName.Contains("preSR")==kFALSE
+      hName.Contains("SRZjets") ||
+      hName.Contains("SRSSjets") ||
+      hName.Contains("SRWWa") ||
+      hName.Contains("SRWWb") ||
+      hName.Contains("SRWWc") 
+      ) && hName.Contains("preSR")==kFALSE
      ) {
     _dataH1->Reset();
   }
@@ -579,7 +585,8 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
  string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
  // string fName=  "pred_" + name + _sLogy;
   cout << "Save plot in " << fName << endl; 
-  _c0->SaveAs((fName+".png").c_str());
+  if(_mcStackH->Integral(0,-1)!=0) //Don't bother saving empty plots !
+    _c0->SaveAs((fName+".png").c_str());
 
 }
 //-------------------------------------------//
@@ -715,32 +722,44 @@ void DrawPlots::drawChannelText(string name, float x, float y)
   TString hName(name);
   if(hName.Contains("DG2L_")){
 
-    if(hName.Contains("preSRjveto"))        _text = "preSRjveto ";
-    else if(hName.Contains("preSRSSjveto")) _text = "preSRSSjveto ";
-    else if(hName.Contains("preSR2jets"))   _text = "preSR2jets ";
+    if(hName.Contains("preSROSjveto"))        _text = "preSROSjveto ";
     else if(hName.Contains("preSRmT2"))     _text = "preSRmT2 ";
-    else if(hName.Contains("SRjveto"))        _text = "SRjveto ";
-    else if(hName.Contains("SRSSjveto")) _text = "SRSSjveto ";
-    else if(hName.Contains("SR2jets"))   _text = "SR2jets ";
-    else if(hName.Contains("SRmT2b"))    _text = "SRmT2b ";
-    else if(hName.Contains("SRmT2"))     _text = "SRmT2 ";
-    else if(hName.Contains("CRZjveto"))  _text = "CRZjveto ";
-    else if(hName.Contains("CRZ"))       _text = "CRZ ";
-    else if(hName.Contains("NTOP"))      _text = "NTOP ";
-    else if(hName.Contains("NWW1"))      _text = "NWW1 ";
-    else if(hName.Contains("NWW2"))      _text = "NWW2 ";
-    else if(hName.Contains("NWW3"))      _text = "NWW3 ";
-    else if(hName.Contains("ZXCR1"))     _text = "ZXCR1 ";
-    else if(hName.Contains("ZXCR3"))     _text = "ZXCR3 ";
-    else if(hName.Contains("ZXCR4"))     _text = "ZXCR4 ";
-    else if(hName.Contains("ZXCR5"))     _text = "ZXCR5 ";
-    else if(hName.Contains("ZXCR6"))     _text = "ZXCR6 ";
-    else if(hName.Contains("ZXCR7"))     _text = "ZXCR7 ";
-    else if(hName.Contains("CR2LepOS"))  _text = "CR2LepOS ";
-    else if(hName.Contains("CR2LepSS"))  _text = "CR2LepSS ";
-    else if(hName.Contains("VR1SS"))     _text = "VR1SS ";
+    else if(hName.Contains("preSR2jets"))   _text = "preSR2jets ";
+    else if(hName.Contains("preSRZjets"))   _text = "preSRZjets ";
+    else if(hName.Contains("preSRSS")) _text = "preSRSS ";
 
+    else if(hName.Contains("SROSjveto"))        _text = "SROSjveto ";
+    else if(hName.Contains("SRmT2a"))     _text = "SRmT2a ";
+    else if(hName.Contains("SRmT2b"))    _text = "SRmT2b ";
+    else if(hName.Contains("SR2jets"))   _text = "SR2jets ";
+    else if(hName.Contains("SRZjets"))   _text = "SRZjets ";
+    else if(hName.Contains("SRSSjets")) _text = "SRSSjets ";
+    else if(hName.Contains("SRWWa"))    _text = "SRWWa ";
+    else if(hName.Contains("SRWWb"))    _text = "SRWWb ";
+    else if(hName.Contains("SRWWc"))    _text = "SRWWc ";
     
+    else if(hName.Contains("ZXCRjveto"))       _text = "ZXCRjveto ";
+    else if(hName.Contains("ZXCR2jets"))       _text = "ZXCR2jets ";
+    else if(hName.Contains("ZXCRmT2a"))       _text = "ZXCRmT2a ";
+    else if(hName.Contains("ZXCRmT2b"))       _text = "ZXCRmT2b ";
+    else if(hName.Contains("CRTOP"))      _text = "CRTOP ";
+    else if(hName.Contains("CRTOPWWa"))      _text = "CRTOPWWa ";
+    else if(hName.Contains("CRTOPWWb"))      _text = "CRTOPWWb ";
+    else if(hName.Contains("CRTOPWWc"))      _text = "CRTOPWWc ";
+    else if(hName.Contains("CRWW"))      _text = "CRWW ";
+    else if(hName.Contains("CRWWa"))      _text = "CRWWa ";
+    else if(hName.Contains("CRWWb"))      _text = "CRWWb ";
+    else if(hName.Contains("CRWWc"))      _text = "CRWWc ";
+
+    else if(hName.Contains("VRSS"))     _text = "VRSS ";
+    else if(hName.Contains("VRSSbtag"))     _text = "VRSSbtag ";
+
+    else if(hName.Contains("CRZ"))       _text = "CRZ ";
+    else if(hName.Contains("CR2LepOS"))  _text = "CR2LepOS ";
+    else if(hName.Contains("CR2LepSS40"))  _text = "CR2LepSS40 ";
+    else if(hName.Contains("CR2LepSS"))  _text = "CR2LepSS ";
+
+  
     if(hName.Contains("EE")) _text += "ee";
     else if(hName.Contains("MM")) _text += "#mu#mu";
     else if(hName.Contains("EM")) _text += "e#mu";

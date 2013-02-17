@@ -52,7 +52,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-#doSys=true
+doSys=true
 
 ##
 ## Ana mode STD or DD
@@ -231,7 +231,7 @@ done <tmp.txt
 qstat |grep ataffard
 rm -f tmp.txt
 
-#if [ "$type" == "mc12" ]; then
-#    cd  ${pathRun}
-#    ./run.sh mc12 dummy ${mode}
-#fi
+if [ "$type" == "mc12" ]; then
+    cd  ${pathRun}
+    ./run.sh mc12 dummy ${mode}
+fi

@@ -1,7 +1,9 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-date="020813_13fb_n0124_HCP_DD_NEWJET025"
+date="021613_21fb_n0127_Moriond_DD_v3"
+
+#date="020813_13fb_n0124_HCP_DD_NEWJET"
 
 #date="020813_21fb_n0123_Moriond_Fake_DD"
 
@@ -30,7 +32,7 @@ doDataFake=true
 
 doTopPowHeg=true
 doTopAlpgen=true
-#doTopMCNLO=true
+doTopMCNLO=true
 #doTopSherpa=true
 #doTopDilSherpa=true
 
@@ -725,14 +727,14 @@ fi
 #
 
 if [ $doBkgDD ]; then
-    echo "Merge DD Bkg Alpgen"
-    rm -f ${histPath}/histo_BkgAlpgen_${mth}.root
+    echo "Merge DD Bkg ZAlpgen TopPowHeg"
+    rm -f ${histPath}/histo_BkgZAlpgenTopPowHeg_${mth}.root
     SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
     
     cat > $SCRIPT << "EOF"
 #!/bin/bash
-    hadd -f ${histPath}/histo_Bkg_${mth}.root \
+    hadd -f ${histPath}/histo_BkgZAlpgenTopPowHeg_${mth}.root \
           ${histPath}/histo_top_PowHeg_${mth}.root \
           ${histPath}/histo_data12_fake.root \
           ${histPath}/histo_WW_Sherpa_${mth}.root \
@@ -741,14 +743,31 @@ if [ $doBkgDD ]; then
 EOF
     chmod 755 $SCRIPT
 
-    echo "Merge DD Bkg Sherpa"
-    rm -f ${histPath}/histo_BkgSherpa_${mth}.root
+    echo "Merge DD Bkg ZAlpgen Top Alpgen" 
+    rm -f ${histPath}/histo_BkgZTopAlpgen_${mth}.root
     SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
     
     cat > $SCRIPT << "EOF"
 #!/bin/bash
-    hadd -f ${histPath}/histo_Bkg_${mth}.root \
+    hadd -f ${histPath}/histo_BkgZTopAlpgen_${mth}.root \
+          ${histPath}/histo_top_Alpgen_${mth}.root \
+          ${histPath}/histo_data12_fake.root \
+          ${histPath}/histo_WW_Sherpa_${mth}.root \
+  	  ${histPath}/histo_ZX_Alpgen_${mth}.root   \
+	  ${histPath}/histo_ZTauTaujets_Alpgen_${mth}.root 
+EOF
+    chmod 755 $SCRIPT
+
+
+    echo "Merge DD Bkg ZSherpa TopPowHeg "
+    rm -f ${histPath}/histo_BkgZSherpaTopPowHeg_${mth}.root
+    SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_BkgZSherpaTopPowHeg_${mth}.root \
           ${histPath}/histo_top_PowHeg_${mth}.root \
           ${histPath}/histo_data12_fake.root \
           ${histPath}/histo_WW_Sherpa_${mth}.root \
