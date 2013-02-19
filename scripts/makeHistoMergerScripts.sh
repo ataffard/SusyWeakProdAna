@@ -1,7 +1,7 @@
 #!/bin/bash
 #Match dir name constructed in SusyAnaCommon.h
 
-date="021613_21fb_n0127_Moriond_DD_v3"
+date="021713_21fb_n0127_Moriond_DD_v4"
 
 #date="020813_13fb_n0124_HCP_DD_NEWJET"
 
@@ -112,6 +112,8 @@ hadd -f ${histPath}/histo_data12_std.root \
 EOF
     chmod 755 $SCRIPT
 fi 
+#	${histPath}/histo_Egamma.periodA_MISSING_std.root \
+
 
 if [ $doDataFake ]; then
     echo "Merge data DD"
@@ -127,6 +129,7 @@ hadd -f ${histPath}/histo_data12_fake.root \
 EOF
     chmod 755 $SCRIPT
 fi 
+#	${histPath}/histo_Egamma.periodA_MISSING_flep.root \
 
 
 #
@@ -729,7 +732,7 @@ fi
 if [ $doBkgDD ]; then
     echo "Merge DD Bkg ZAlpgen TopPowHeg"
     rm -f ${histPath}/histo_BkgZAlpgenTopPowHeg_${mth}.root
-    SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
+    SCRIPT=${mergeJobDir}/Bkg_ZAlpgenTopPowHeg_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
     
     cat > $SCRIPT << "EOF"
@@ -745,7 +748,7 @@ EOF
 
     echo "Merge DD Bkg ZAlpgen Top Alpgen" 
     rm -f ${histPath}/histo_BkgZTopAlpgen_${mth}.root
-    SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
+    SCRIPT=${mergeJobDir}/Bkg_ZTopAlpgen_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
     
     cat > $SCRIPT << "EOF"
@@ -762,7 +765,7 @@ EOF
 
     echo "Merge DD Bkg ZSherpa TopPowHeg "
     rm -f ${histPath}/histo_BkgZSherpaTopPowHeg_${mth}.root
-    SCRIPT=${mergeJobDir}/Bkg_${mth}_job.sh
+    SCRIPT=${mergeJobDir}/Bkg_ZSherpaTopPowHeg_${mth}_job.sh
     [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
     
     cat > $SCRIPT << "EOF"

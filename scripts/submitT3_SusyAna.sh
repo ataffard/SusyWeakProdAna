@@ -104,7 +104,14 @@ while read line; do
 "$sName" == "ttbar.105200" -o \
 "$sName" == "ttbar.105861" -o \
 "$sName" == "Zee.147806" -o \
-"$sName" == "Zmumu.147807" \
+"$sName" == "Zmumu.147807" -o \
+"$sName" == "llll_ZZ.126894" -o \
+"$sName" == "ZeeNp1.117651" -o \
+"$sName" == "ZmumuNp1.117661" -o \
+"$sName" == "DYeeM15to40.173042" -o \
+"$sName" == "DYmumuM08to15.173043" -o \
+"$sName" == "ZeeLightJets.146820" -o \
+"$sName" == "ZmumuLightJets.146821" -o \
 ]; then
 		    SYS1=("NOM"      "EES_Z_DN"    "EES_MAT_DN" "EES_PS_DN"  "EES_LOW_DN"  "EER_DN" "MS_DN" "ID_DN" "JES_DN" "SCALEST_UP" \
 "TRIGSF_EL_UP" "TRIGSF_MU_UP" "BTag_BJet_DN"  "BTag_LJet_DN" "BTag_CJet_UP" "BKGMETHOD_UP" "XS_UP")

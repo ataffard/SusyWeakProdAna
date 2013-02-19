@@ -59,10 +59,14 @@ class Susy2LepAna: public SusyNtTools
 
     //MC weight
     float eventWeight(int mode=1);
-    float getLepSFWeight(const LeptonVector* leptons);
+    float getLepSFWeight(const LeptonVector* leptons, uint iSys=DGSys_NOM);
     float getTriggerWeight(const LeptonVector* leptons, 
 			   float met, int nSignalJets, int npv,
 			   uint iSys=DGSys_NOM);
+    float getBTagSF(const Susy::Event*, const JetVector* jets, uint iSys=DGSys_NOM);
+    float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, 
+			int iSR, float metrel, uint iSys=DGSys_NOM);
+
 
 
     void doAnalysis(unsigned int isys=DGSys_NOM);
@@ -121,21 +125,13 @@ class Susy2LepAna: public SusyNtTools
 
     bool passBlindData(bool isMC, int iSR, float metRel, float mt2);
 
-    float getBTagSF(const Susy::Event*, const JetVector* jets);
-    float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, int iSR, float metrel);
-
     
     bool  isGenuineSS(const LeptonVector* leptons);
     bool  hasQFlip(const LeptonVector* leptons);
-    float getQFlipProb(const LeptonVector* leptons, Met* met);
+    float getQFlipProb(const LeptonVector* leptons, Met* met, uint iSys=DGSys_NOM);
 
     float JZBJet(const JetVector* jets, const LeptonVector* leptons);
     float JZBEtmiss(const Met *met, const LeptonVector* leptons);
-
-    int findSRCR(bool isData, bool isOS, bool isEE, bool isMM, bool isEM, bool topTag,
-		 int nC25, int nB20, int nF30, 
-		 float ptl1, float ptl2, float Zpt,
-		 float met, float metrel, float mll, float mt2);
 
     void saveOriginal();
     void restoreOriginal(LeptonVector& leptons, const Met *met);
@@ -148,11 +144,13 @@ class Susy2LepAna: public SusyNtTools
 	   << " --> " << DG2LSystNames[sys2] << endl;
     }; 
     void initializeHistFitterTree();
-    float writeIntoHistFitterTree( const LeptonVector* leptons, 
+    float writeIntoHistFitterTree(uint iSR,
+				  LeptonVector* leptons, 
 				  const LeptonVector* baseLeptons, 
 				  const JetVector* signalJets, 
 				  const JetVector* baseJets,
 				  const Met* met);
+    bool validSystForHFT(uint iSR);
     
     void initializeToyNt();
     void fillToyNt(uint iSR,

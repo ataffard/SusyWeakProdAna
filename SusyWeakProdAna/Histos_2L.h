@@ -10,6 +10,10 @@
 #include "SusyWeakProdAna/Histos_Common.h"
 #include <map>
 
+const char* const DIL_FLAV[] = {"EE", "MM", "EM"};
+const char* const DIL_QQ[] = {"OS", "SS"};
+
+
 enum DIL_SR{DIL_SROSjveto=0, DIL_SRmT2a, DIL_SRmT2b,
 	    DIL_SR2jets, DIL_SRZjets, DIL_SRSSjets,
 	    DIL_SRWWa, DIL_SRWWb, DIL_SRWWc, 

@@ -46,9 +46,9 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //const std::string SUFF = "_n0123_Moriond_Fake_DD";
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "021613";
+const std::string TAG  = "021713";
 //const std::string SUFF = "_n0127_Moriond_DD_v2";
-const std::string SUFF = "_n0127_Moriond_DD_v3";
+const std::string SUFF = "_n0127_Moriond_DD_v4";
 
 //#define LUMI_PeriodIJL
 //const std::string TAG  = "020113";
@@ -71,7 +71,7 @@ const unsigned int TOYNT_iSR   = DIL_CRZ;     //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
 
 const bool DO_SYS         = true;    //Toggles systematics looper
-const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
+const bool FILL_HFT       = true;    //Write the HistFitterTree
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool DO_FILL_HISTO  = true;
@@ -142,7 +142,7 @@ const bool BLIND_DATA=false;
 const int LUMIMODE =LUMI21FB;
 const string LUMW  = "Moriond";
 const std::string DATE=TAG+"_21fb"+ SUFF;
-const float pLUMI = 20.690; //I->J
+const float pLUMI = 20.6904; //I->J
 const unsigned int   MINRUN = 200804;
 const unsigned int   MAXRUN = 215643;
 const bool BLIND_DATA=false;

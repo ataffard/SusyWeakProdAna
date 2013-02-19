@@ -159,13 +159,12 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   clearObjects();
 
   m_chainEntry++;
-  if(m_chainEntry%50000==0)
-  {
+  if(m_chainEntry%50000==0) {
     cout << "**** Processing entry " << setw(6) << m_chainEntry
          << " run " << setw(6) << nt.evt()->run
          << " event " << setw(7) << nt.evt()->event << " ****" << endl;
   }
-
+  
   //Debug this event - check if should be processed
   if(m_dbgEvt && !processThisEvent(nt.evt()->run, nt.evt()->event))  return kFALSE;
   
@@ -177,13 +176,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     return kFALSE;
   }
 
-  //TO DO Add HF bb/cc w/ mll cut!!!
-  if((nt.evt()->mcChannel>=146830 && nt.evt()->mcChannel<=146855) 
-     //|| //low mass
-     //(nt.evt()->mcChannel>=109300 && nt.evt()->mcChannel<=109313) || //Zeebb Zmmbb Zttbb
-     //(nt.evt()->mcChannel>=126414 && nt.evt()->mcChannel<=126421) || //Zeecc Zmmcc
-     //(nt.evt()->mcChannel>=117706 && nt.evt()->mcChannel<=117709)    //Zttcc 
-     ){
+  if((nt.evt()->mcChannel>=146830 && nt.evt()->mcChannel<=146855)){
     _isAlpgenLowMass=true;
     if(_doMll){ //Reject Alpgen low mass with Mll>40 - To patch w/ Sherpa
       if(!nt.evt()->passMllForAlpgen) return kFALSE;
@@ -223,9 +216,6 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     
     for(uint iiSyst=minSys; iiSyst<maxSys; iiSyst++){     //Syst Looper
       if(dbg()>10) cout << "Do sys? " << DG2LSystNames[iiSyst] <<endl;
-      
-      //SKIP TRIGGER SYS - MEM LEAK
-      // if(iiSyst>=DGSys_TRIGSF_EL_UP && iiSyst<=DGSys_TRIGSF_MU_DN) continue;
 
       if( !nt.evt()->isMC && iiSyst>DGSys_NOM){
 	if(_method==FLEP){
@@ -236,9 +226,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 	}
 	else if(_method!=FLEP) break; // done here
       }
-      if(nt.evt()->isMC && 
-	 iiSyst >= DGSys_FAKE_EL_RE_UP &&
-	 iiSyst<=DGSys_FAKE_MU_FR_DN) continue; //DD Fake sys
+      if(nt.evt()->isMC && iiSyst >= DGSys_FAKE_EL_RE_UP && iiSyst<=DGSys_FAKE_MU_FR_DN) continue; //DD Fake sys
 
       //Skip spare sys.
       if(iiSyst>= DGSys_GEN) break; // done here
@@ -272,7 +260,6 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       _susy3LAna->doAnalysis();
     }
   }
-
 
   return kTRUE;
 }

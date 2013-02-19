@@ -54,6 +54,7 @@ PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
     nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2
 )
 #SKIP
+
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do
 	    if [ "$sr" == "SR2jet" -a "$dil" == "EM" ]; then continue; fi
@@ -61,7 +62,7 @@ PLOTS=(mll pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
 	    if [ "$sr" == "CRWW" -a "$dil" == "EM" ]; then continue; fi
 	    if [ "$sr" == "SRWWa" -o "$sr" == "SRWWb" -o "$sr" == "SRWWc" -o \
 		"$sr" == "CRWWa" -o "$sr" == "CRWWb" -o "$sr" == "CRWWc" -o \
-		"$sr" == "CRTOPWWa" -o "$sr" == "CRTOPWWb" -o "$sr" == "CRTOPWWc" -o \
+ "$sr" == "CRWWa" -o "$sr" == "CRWWb" -o "$sr" == "CRWWc" -o \
 		]; then
 		if [ "$dil" == "EE" -o "$dil" == "MM" ]; then continue; fi
 	    fi

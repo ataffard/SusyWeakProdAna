@@ -1,6 +1,6 @@
 # ./makeLatexTable.sh  
 
-date="021613_21fb_n0127_Moriond_DD_v3"
+date="021713_21fb_n0127_Moriond_DD_v4"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts
@@ -8,7 +8,6 @@ path=${WORKAREA}/histoAna/SusyAna/histos_${date}
 dir=${path}/Tables
 
 #Generate the latex table for each SR/CR
-
 SR=(SROSjveto SRmT2a SRmT2b \
     SR2jets SRZjets SRSSjets \
     SRWWa SRWWb SRWWc \
@@ -20,6 +19,7 @@ SR=(SROSjveto SRmT2a SRmT2b \
     preSROSjveto preSRmT2\
     preSR2jets preSRZjets preSRSS  
 )
+
 
 cd ${pathRun}
 for sr in ${SR[@]}; do

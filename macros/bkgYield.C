@@ -26,7 +26,7 @@ Produce the tex tables as well
 using namespace std;
 typedef unsigned uint;
 
-bool verbose = false;//true;
+bool verbose = true;
 
 //
 // Variables

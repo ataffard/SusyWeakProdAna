@@ -11,101 +11,84 @@ TChain* _chain;
 void validateHFT()
 {
   //TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_110312_13fb_n0111_DD_MMtrial9_SYS_HFT/HFTOutputs/");
-  TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/HFT_tmp/");
+  TString _pathFile(string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/HFTOutputs/");
 
   vector<TString> sample; 
   
   
-  _chain = new TChain("id_Fake");
-  sample.push_back("NOM_Egamma.periodA_FAKE.root");  
-  sample.push_back("NOM_Egamma.periodB_FAKE.root"); 
-  sample.push_back("NOM_Egamma.periodC_FAKE.root"); 
-  sample.push_back("NOM_Egamma.periodD_FAKE.root"); 
-  sample.push_back("NOM_Egamma.periodE_FAKE.root"); 
-  sample.push_back("NOM_Muons.periodA_FAKE.root");  
-  sample.push_back("NOM_Muons.periodB_FAKE.root");  
-  sample.push_back("NOM_Muons.periodC_FAKE.root");  
-  sample.push_back("NOM_Muons.periodD_FAKE.root");  
-  sample.push_back("NOM_Muons.periodE_FAKE.root");  
+  _chain = new TChain("id_126893");
+  sample.push_back("NOM_126893.root");
   
-  /*
-  _chain = new TChain("id_147770");
-  sample.push_back("NOM_147770.root");  
-  */
-
-  /*
-  _chain = new TChain("id_117800");
-  sample.push_back("NOM_117800.root");  
-  */
-
+  
   for(unsigned int i=0; i<sample.size(); i++){
     TString fileName=_pathFile + sample[i]; 
     _chain->Add(fileName);
   }
 
   //Signal region and CR's cut
-  TCut SR1("2LnCentralLightJets==0 && 2LnCentralBJets==0 && 2LnForwardJets==0 && abs(2LMll/1000.-91.2)>10. && 2LMETrel>100000. && 2LisOS");
-  //TCut SRSS("((isEE || isEMU) && 2LisOS ) || !2LisOS");
-  TCut SRSS("((isEE || isEMU) && 2LisOS && !2LisData) || !2LisOS");
-  //TCut SRSS("!2LisOS"); //old HFT
+  TCut SR1("L2nCentralLightJets==0 && L2nCentralBJets==0 && L2nForwardJets==0 && abs(L2Mll/1000.-91.2)>10. && L2METrel>100000. && MT2<90000. && isOS");
 
-  TCut SR2("2LnCentralLightJets==0 && 2LnCentralBJets==0 && 2LnForwardJets==0 && 2LMETrel>100000");
-  TCut SR3("2LnCentralLightJets>1 && 2LnCentralBJets==0 && 2LnForwardJets==0 && 2LMETrel>50000. && 2LisOS && abs(2LMll/1000.-91.2)>10. && 2LTopVeto");
-  TCut SR4a("(2LnCentralLightJets==0) && (2LnCentralBJets==0) && (2LnForwardJets==0) && abs(2LMll/1000.-91.2)>10. && 2LMETrel>40000. && 2LisOS && 2LMT2>90000.");
-  TCut SR4b("(2LnCentralLightJets==0) && 2LnCentralBJets==0 && 2LnForwardJets==0 && abs(2LMll/1000.-91.2)>10. && 2LMETrel>40000. && 2LisOS && 2LMT2>110000.");
+  TCut SR3("L2nCentralLightJets>1 && L2nCentralBJets==0 && L2nForwardJets==0 && L2METrel>50000. && isOS && abs(L2Mll/1000.-91.2)>10. && L2TopVeto");
+  TCut SR3b("L2nCentralLightJets>1 && L2nCentralBJets==0 && L2nForwardJets==0 && L2METrel>50000. && isOS && abs(L2Mll/1000.-91.2)<10. && L2TopVeto && L2cjet1pt>50000. && L2cjet2pt>50000. && L2mJJ>50 && L2mJJ<100 && MT2>70");
+  TCut SR4a("(L2nCentralLightJets==0) && (L2nCentralBJets==0) && (L2nForwardJets==0) && abs(L2Mll/1000.-91.2)>10. && L2METrel>40000. && isOS && MT2>90000.");
+  TCut SR4b("(L2nCentralLightJets==0) && L2nCentralBJets==0 && L2nForwardJets==0 && abs(L2Mll/1000.-91.2)>10. && L2METrel>40000. && isOS && MT2>110000.");
+
   // Top CRs
-  TCut TopCR1("(2LnCentralLightJets + 2LnCentralBJets)>1 &&  2LnCentralBJets>=1 && abs(2LMll/1000.-91.2)>10. && 2LMETrel>100000. && 2LisOS");
-  TCut TopCR2("(2LnCentralLightJets + 2LnCentralBJets)>1 &&  2LnCentralBJets>=1 && abs(2LMll/1000.-91.2)>10. && 2LMETrel>50000. && 2LisOS");
-  TCut TopCR4("(2LnCentralLightJets + 2LnCentralBJets)>1 &&  2LnCentralBJets>=1 && abs(2LMll/1000.-91.2)>10. && 2LMETrel>40000. && 2LisOS");
+  TCut TopCR1("(L2nCentralLightJets + L2nCentralBJets)>1 &&  L2nCentralBJets>=1 && abs(L2Mll/1000.-91.2)>10. && L2METrel>100000. && isOS");
+  TCut TopCR2("(L2nCentralLightJets + L2nCentralBJets)>1 &&  L2nCentralBJets>=1 && abs(L2Mll/1000.-91.2)>10. && L2METrel>50000. && isOS");
+  TCut TopCR4("(L2nCentralLightJets + L2nCentralBJets)>1 &&  L2nCentralBJets>=1 && abs(L2Mll/1000.-91.2)>10. && L2METrel>40000. && isOS");
   // Z+X
-  TCut ZXCR1("(isEE || isMUMU) && 2LnCentralLightJets==0 && 2LnCentralBJets==0 && 2LnForwardJets==0 && abs(2LMll/1000.-91.2)<10. && 2LMETrel>100000. && 2LisOS");
-  TCut ZXCR3("(isEE || isMUMU) && 2LnCentralLightJets>1 && 2LnCentralBJets==0 && 2LnForwardJets==0 && 2LMETrel>50000. && 2LisOS && abs(2LMll/1000.-91.2)<10. && 2LTopVeto");
-  TCut ZXCR4("(isEE || isMUMU) && 2LnCentralLightJets==0 && 2LnCentralBJets==0 && 2LnForwardJets==0 && abs(2LMll/1000.-91.2)<10. && 2LMETrel>40000. && 2LisOS");
+  TCut ZXCR1("(isEE || isMUMU) && L2nCentralLightJets==0 && L2nCentralBJets==0 && L2nForwardJets==0 && abs(L2Mll/1000.-91.2)<10. && L2METrel>100000. && isOS");
+  TCut ZXCR2("(isEE || isMUMU) && L2nCentralLightJets>1  && L2nCentralBJets==0 && L2nForwardJets==0 && abs(L2Mll/1000.-91.2)<10. && L2METrel>50000. && isOS && L2TopVeto");
+  TCut ZXCR3("(isEE || isMUMU) && L2nCentralLightJets==0 && L2nCentralBJets==0 && L2nForwardJets==0 && L2METrel>40000. && MT2<90000.  && isOS && abs(L2Mll/1000.-91.2)<10.");
+  TCut ZXCR4("(isEE || isMUMU) && L2nCentralLightJets==0 && L2nCentralBJets==0 && L2nForwardJets==0 && L2METrel>40000. && MT2<110000. && isOS && abs(L2Mll/1000.-91.2)<10.");
   //NWW1
-  TCut WWCR1("2LnCentralLightJets==0 && 2LnCentralBJets==0 && 2LnForwardJets==0 && abs(2LMll/1000.-91.2)>10.&& 2LMETrel>70000 && 2LMETrel<100000 && 2LisOS");
+  TCut WWCR1("L2nCentralLightJets==0 && L2nCentralBJets==0 && L2nForwardJets==0 && abs(L2Mll/1000.-91.2)>10.&& L2METrel>70000. && L2METrel<100000. && MT2<90000. && isOS");
 
-  TCut SR1EE_w( (SR1 && "isEE"  ) * "2LTotalWeight");
-  TCut SR1MM_w( (SR1 && "isMUMU") * "2LTotalWeight");
-  TCut SR1EM_w( (SR1 && "isEMU" ) * "2LTotalWeight");
+  TCut SR1EE_w( (SR1 && "isEE"  ) * "L2TotalWeight");
+  TCut SR1MM_w( (SR1 && "isMUMU") * "L2TotalWeight");
+  TCut SR1EM_w( (SR1 && "isEMU" ) * "L2TotalWeight");
 
-  //  TCut SR2EE_w( (SR2 && "isEE"   && SRSS) * "2LTotalWeight"); 
-  TCut SR2EE_w( (SR2 && "isEE"   && SRSS) * "2LTotalWeight* 2LqFlipWeight");
-  TCut SR2MM_w( (SR2 && "isMUMU" && SRSS) * "2LTotalWeight");
-  //  TCut SR2EM_w( (SR2 && "isEMU"  && SRSS) * "2LTotalWeight"); 
-  TCut SR2EM_w( (SR2 && "isEMU"  && SRSS) * "2LTotalWeight* 2LqFlipWeight"); 
+  TCut SR3EE_w( (SR3 && "isEE"  ) * "L2TotalWeight");
+  TCut SR3MM_w( (SR3 && "isMUMU") * "L2TotalWeight");
+  TCut SR3EM_w( (SR3 && "isEMU" ) * "L2TotalWeight");
 
-  TCut SR3EE_w( (SR3 && "isEE"  ) * "2LTotalWeight");
-  TCut SR3MM_w( (SR3 && "isMUMU") * "2LTotalWeight");
-  TCut SR3EM_w( (SR3 && "isEMU" ) * "2LTotalWeight");
+  TCut SR3bEE_w( (SR3b && "isEE"  ) * "L2TotalWeight");
+  TCut SR3bMM_w( (SR3b && "isMUMU") * "L2TotalWeight");
+  TCut SR3bEM_w( (SR3b && "isEMU" ) * "L2TotalWeight");
 
-  TCut SR4aEE_w( (SR4a && "isEE"  ) * "2LTotalWeight");
-  TCut SR4aMM_w( (SR4a && "isMUMU") * "2LTotalWeight");
-  TCut SR4aEM_w( (SR4a && "isEMU" ) * "2LTotalWeight");
+  TCut SR4aEE_w( (SR4a && "isEE"  ) * "L2TotalWeight");
+  TCut SR4aMM_w( (SR4a && "isMUMU") * "L2TotalWeight");
+  TCut SR4aEM_w( (SR4a && "isEMU" ) * "L2TotalWeight");
 
-  TCut SR4bEE_w( (SR4b && "isEE"  ) * "2LTotalWeight");
-  TCut SR4bMM_w( (SR4b && "isMUMU") * "2LTotalWeight");
-  TCut SR4bEM_w( (SR4b && "isEMU" ) * "2LTotalWeight");
+  TCut SR4bEE_w( (SR4b && "isEE"  ) * "L2TotalWeight");
+  TCut SR4bMM_w( (SR4b && "isMUMU") * "L2TotalWeight");
+  TCut SR4bEM_w( (SR4b && "isEMU" ) * "L2TotalWeight");
 
-  TCut TopCR4EE_w( (TopCR4 && "isEE"  ) * "2LTotalWeight");
-  TCut TopCR4MM_w( (TopCR4 && "isMUMU") * "2LTotalWeight");
-  TCut TopCR4EM_w( (TopCR4 && "isEMU" ) * "2LTotalWeight");
+  TCut TopCR4EE_w( (TopCR4 && "isEE"  ) * "L2TotalWeight");
+  TCut TopCR4MM_w( (TopCR4 && "isMUMU") * "L2TotalWeight");
+  TCut TopCR4EM_w( (TopCR4 && "isEMU" ) * "L2TotalWeight");
 
-  TCut WWCR1EE_w( (WWCR1 && "isEE"  ) * "2LTotalWeight");
-  TCut WWCR1MM_w( (WWCR1 && "isMUMU") * "2LTotalWeight");
-  TCut WWCR1EM_w( (WWCR1 && "isEMU" ) * "2LTotalWeight");
+  TCut WWCR1EE_w( (WWCR1 && "isEE"  ) * "L2TotalWeight");
+  TCut WWCR1MM_w( (WWCR1 && "isMUMU") * "L2TotalWeight");
+  TCut WWCR1EM_w( (WWCR1 && "isEMU" ) * "L2TotalWeight");
 
 
-  TCut ZXCR1EE_w( (ZXCR1 && "isEE"  ) * "2LTotalWeight");
-  TCut ZXCR1MM_w( (ZXCR1 && "isMUMU") * "2LTotalWeight");
-  TCut ZXCR1EM_w( (ZXCR1 && "isEMU" ) * "2LTotalWeight");
+  TCut ZXCR1EE_w( (ZXCR1 && "isEE"  ) * "L2TotalWeight");
+  TCut ZXCR1MM_w( (ZXCR1 && "isMUMU") * "L2TotalWeight");
+  TCut ZXCR1EM_w( (ZXCR1 && "isEMU" ) * "L2TotalWeight");
 
-  TCut ZXCR3EE_w( (ZXCR3 && "isEE"  ) * "2LTotalWeight");
-  TCut ZXCR3MM_w( (ZXCR3 && "isMUMU") * "2LTotalWeight");
-  TCut ZXCR3EM_w( (ZXCR3 && "isEMU" ) * "2LTotalWeight");
+  TCut ZXCR2EE_w( (ZXCR2 && "isEE"  ) * "L2TotalWeight");
+  TCut ZXCR2MM_w( (ZXCR2 && "isMUMU") * "L2TotalWeight");
+  TCut ZXCR2EM_w( (ZXCR2 && "isEMU" ) * "L2TotalWeight");
 
-  TCut ZXCR4EE_w( (ZXCR4 && "isEE"  ) * "2LTotalWeight");
-  TCut ZXCR4MM_w( (ZXCR4 && "isMUMU") * "2LTotalWeight");
-  TCut ZXCR4EM_w( (ZXCR4 && "isEMU" ) * "2LTotalWeight");
+  TCut ZXCR3EE_w( (ZXCR3 && "isEE"  ) * "L2TotalWeight");
+  TCut ZXCR3MM_w( (ZXCR3 && "isMUMU") * "L2TotalWeight");
+  TCut ZXCR3EM_w( (ZXCR3 && "isEMU" ) * "L2TotalWeight");
+
+  TCut ZXCR4EE_w( (ZXCR4 && "isEE"  ) * "L2TotalWeight");
+  TCut ZXCR4MM_w( (ZXCR4 && "isMUMU") * "L2TotalWeight");
+  TCut ZXCR4EM_w( (ZXCR4 && "isEMU" ) * "L2TotalWeight");
 
 
 
@@ -116,13 +99,13 @@ void validateHFT()
   _chain->Draw("isEE>>SR1_MM(2,-0.5,1.5)",SR1MM_w,"goff");
   _chain->Draw("isEE>>SR1_EM(2,-0.5,1.5)",SR1EM_w,"goff"); 
   
-  _chain->Draw("isEE>>SR2_EE(2,-0.5,1.5)",SR2EE_w,"goff");
-  _chain->Draw("isEE>>SR2_MM(2,-0.5,1.5)",SR2MM_w,"goff");
-  _chain->Draw("isEE>>SR2_EM(2,-0.5,1.5)",SR2EM_w,"goff");
-  
   _chain->Draw("isEE>>SR3_EE(2,-0.5,1.5)",SR3EE_w,"goff");
   _chain->Draw("isEE>>SR3_MM(2,-0.5,1.5)",SR3MM_w,"goff");
   _chain->Draw("isEE>>SR3_EM(2,-0.5,1.5)",SR3EM_w,"goff");
+
+  _chain->Draw("isEE>>SR3b_EE(2,-0.5,1.5)",SR3bEE_w,"goff");
+  _chain->Draw("isEE>>SR3b_MM(2,-0.5,1.5)",SR3bMM_w,"goff");
+  _chain->Draw("isEE>>SR3b_EM(2,-0.5,1.5)",SR3bEM_w,"goff");
 
   _chain->Draw("isEE>>SR4a_EE(2,-0.5,1.5)",SR4aEE_w,"goff");
   _chain->Draw("isEE>>SR4a_MM(2,-0.5,1.5)",SR4aMM_w,"goff");
@@ -144,6 +127,10 @@ void validateHFT()
   _chain->Draw("isEE>>ZXCR1_MM(2,-0.5,1.5)",ZXCR1MM_w,"goff");
   _chain->Draw("isEE>>ZXCR1_EM(2,-0.5,1.5)",ZXCR1EM_w,"goff"); 
 
+  _chain->Draw("isEE>>ZXCR2_EE(2,-0.5,1.5)",ZXCR2EE_w,"goff");
+  _chain->Draw("isEE>>ZXCR2_MM(2,-0.5,1.5)",ZXCR2MM_w,"goff");
+  _chain->Draw("isEE>>ZXCR2_EM(2,-0.5,1.5)",ZXCR2EM_w,"goff"); 
+
   _chain->Draw("isEE>>ZXCR3_EE(2,-0.5,1.5)",ZXCR3EE_w,"goff");
   _chain->Draw("isEE>>ZXCR3_MM(2,-0.5,1.5)",ZXCR3MM_w,"goff");
   _chain->Draw("isEE>>ZXCR3_EM(2,-0.5,1.5)",ZXCR3EM_w,"goff"); 
@@ -156,31 +143,31 @@ void validateHFT()
   //
   //Printout
   //
-  cout << "SR1 " << endl;
+  cout << "SR1 SROSjveto" << endl;
   cout << "  EE " << SR1_EE->Integral(0,-1) 
        << "  MM " << SR1_MM->Integral(0,-1) 
        << "  EM " << SR1_EM->Integral(0,-1) 
        << endl;
   
-  cout << "SR2 " << endl;
-  cout << "  EE " << SR2_EE->Integral(0,-1) 
-       << "  MM " << SR2_MM->Integral(0,-1) 
-       << "  EM " << SR2_EM->Integral(0,-1) 
-       << endl;
-  
-  cout << "SR3 " << endl;
+  cout << "SR3 SR2jet" << endl;
   cout << "  EE " << SR3_EE->Integral(0,-1) 
        << "  MM " << SR3_MM->Integral(0,-1) 
        << "  EM " << SR3_EM->Integral(0,-1) 
        << endl;
 
-  cout << "SR4a " << endl;
+  cout << "SR3b SRZjets" << endl;
+  cout << "  EE " << SR3b_EE->Integral(0,-1) 
+       << "  MM " << SR3b_MM->Integral(0,-1) 
+       << "  EM " << SR3b_EM->Integral(0,-1) 
+       << endl;
+
+  cout << "SR4a SRmT2a" << endl;
   cout << "  EE " << SR4a_EE->Integral(0,-1) 
        << "  MM " << SR4a_MM->Integral(0,-1) 
        << "  EM " << SR4a_EM->Integral(0,-1) 
        << endl;
 
-  cout << "SR4b " << endl;
+  cout << "SR4b SRmT2b" << endl;
   cout << "  EE " << SR4b_EE->Integral(0,-1) 
        << "  MM " << SR4b_MM->Integral(0,-1) 
        << "  EM " << SR4b_EM->Integral(0,-1) 
@@ -198,19 +185,25 @@ void validateHFT()
        << "  EM " << WWCR1_EM->Integral(0,-1) 
        << endl;
   
-  cout << "ZXCR1 " << endl;
+  cout << "ZXCR1 OSjveto" << endl;
   cout << "  EE " << ZXCR1_EE->Integral(0,-1) 
        << "  MM " << ZXCR1_MM->Integral(0,-1) 
        << "  EM " << ZXCR1_EM->Integral(0,-1) 
        << endl;
 
-  cout << "ZXCR3 " << endl;
+  cout << "ZXCR2 2jets" << endl;
+  cout << "  EE " << ZXCR2_EE->Integral(0,-1) 
+       << "  MM " << ZXCR2_MM->Integral(0,-1) 
+       << "  EM " << ZXCR2_EM->Integral(0,-1) 
+       << endl;
+
+  cout << "ZXCR3 mt2a" << endl;
   cout << "  EE " << ZXCR3_EE->Integral(0,-1) 
        << "  MM " << ZXCR3_MM->Integral(0,-1) 
        << "  EM " << ZXCR3_EM->Integral(0,-1) 
        << endl;
 
-  cout << "ZXCR4 " << endl;
+  cout << "ZXCR4 mt2b" << endl;
   cout << "  EE " << ZXCR4_EE->Integral(0,-1) 
        << "  MM " << ZXCR4_MM->Integral(0,-1) 
        << "  EM " << ZXCR4_EM->Integral(0,-1) 

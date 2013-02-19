@@ -8,8 +8,8 @@
 using namespace std;
 using namespace Susy;
 
-const char* const DIL_FLAV[] = {"EE", "MM", "EM"};
-const char* const DIL_QQ[] = {"OS", "SS"};
+//const char* const DIL_FLAV[] = {"EE", "MM", "EM"};
+//const char* const DIL_QQ[] = {"OS", "SS"};
 
 /*--------------------------------------------------------------------------------*/
 // Susy2LepAna Constructor
@@ -121,10 +121,6 @@ void Susy2LepAna::hookContainers(Susy::SusyNtObject* _ntPtr,
     evtDump.open (dumpName.c_str());
   }
 
-
-
-
-
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -140,14 +136,6 @@ void Susy2LepAna::doAnalysis(unsigned int isys)
 
   //Call this here, since have multiple instances of SusyNtTools
   setAnaType(Ana_2Lep);
-
-
-  //cout << "Analysing event for Sys " << DG2LSystNames[SYST] <<endl;
-
-  /*
-  std::sort(v_baseLep.begin(), v_baseLep.end(), comparePt);
-  std::sort(v_sigLep.begin(), v_signLep.end(), comparePt);
-  */
 
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
@@ -206,7 +194,7 @@ void Susy2LepAna::end()
   
   if(m_writeHFT){ //Saving HistFitterTree - yes that's done in delete contructor!
     for(uint i=_sys1; i <= _sys2; i++) {
-      if( m_histFitterTrees[i]){
+      if( m_histFitterTrees[i] && validSystForHFT(i)){
 	float sumw = nt->evt()->sumw;
 	m_histFitterTrees[i]->setSumOfMcWeights(sumw); 
 	delete m_histFitterTrees[i];
@@ -245,6 +233,7 @@ void Susy2LepAna::moveHFTOutput()
     TString systName = "" ;
     mcId.Form("%i",nt->evt()->mcChannel);
     for(uint i=_sys1; i <=_sys2; i++) {
+      if(! validSystForHFT(i)) continue;
       systName.Form("%s",DG2LSystNames[i].c_str());
       TString fName = systName+"_"+mcId+".root";
       string cmd = "mv " + string(fName.Data()) + " " + dir;
@@ -259,6 +248,7 @@ void Susy2LepAna::moveHFTOutput()
       TString ds(string(_hh->sampleName()+"_FAKE"));
       TString systName = "" ;
       for(uint i=_sys1; i <=_sys2; i++) {
+	if(! validSystForHFT(i)) continue;
 	systName.Form("%s",DG2LSystNames[i].c_str());
 	TString fName = systName+"_"+ds+".root";
 	string cmd = "mv " + string(fName.Data()) + " " + dir;
@@ -270,8 +260,6 @@ void Susy2LepAna::moveHFTOutput()
       list = "HFTlist_DATA_" + HFTName;
       cmd = "ls -1 central_"+ HFTName + ".root >" +list;
       gSystem->Exec(cmd.c_str());
-
-
 
       FILE* fInput;
       if ((fInput = fopen(list.c_str(),"r")) == NULL) {
@@ -562,7 +550,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
   else if(m_sel == "CRTOP"){
     m_selOS = true;
     m_vetoZ =true;
-    m_vetoF = true;
+    //m_vetoF = true;  //Don't check fwd jets
     m_selB=true;
     m_minCJet=2;
     m_metRelMin=40;
@@ -831,8 +819,9 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     }
   if(SYST==DGSys_NOM) n_pass_mll20+=_inc;
 
-  
+  //
   // Get Event Type to continue cutflow
+  //
   m_ET = getDiLepEvtType(*baseLeps);
   if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME together
   
@@ -864,34 +853,20 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 				    SYST);
   _ww           *= _lepSFW * _trigW;
   
-  float bTagWeight =  getBTagSF(nt->evt(),v_baseJet);
+  float bTagWeight =  getBTagSF(nt->evt(),v_baseJet,SYST);
 
   float _wwSave = _ww;
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
 
-  //
-  //Write HistFitterTree here
-  //
-  if(m_writeHFT){
-    float wHFT= writeIntoHistFitterTree(leptons,baseLeps,signalJets,v_baseJet,met);
-    _tmp += wHFT;
     
-    if(nt->evt()->isMC && !(SYST==DGSys_XS_UP || SYST==DGSys_XS_DN)
-       && fabs((_ww*bTagWeight)-wHFT)/wHFT>0.000001) 
-      cout << "WARNING >>> run " << nt->evt()->run  
-	   << " event " << nt->evt()->event 
-	   << " mismatch weight with HFT " << _ww*bTagWeight << " " << wHFT << endl;
-    if(nt->evt()->isMC) restoreOriginal(*leptons,met);//Because qFlip was have been called
-  }
-   
   if(dbg()>10){ 
-    cout << "\n >>> run " << nt->evt()->run  
+    cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DG2LSystNames[SYST]
 	 << " lepSF " << _lepSFW
 	 << " trigW " << _trigW
 	 << " bTag " << bTagWeight
-	 << " weight " << _ww << endl;
+	 << " weight(w/btag) " << _ww*bTagWeight << endl;
     // cout<< " myEvtW " << _ww*bTagWeight<<endl;
   }
  
@@ -901,29 +876,38 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //Loop over SR's & CR's
   //
   for(uint iSR=DIL_SROSjveto; iSR<DIL_NSR; iSR++){
+
+    //
+    //Debug, skip SS - 
+    //
+    if(iSR==DIL_SRSSjets || iSR==DIL_VRSS || iSR==DIL_VRSSbtag || 
+       iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 || iSR==DIL_preSRSS) continue;
+
+    int icut =0;
     string sSR=DIL_SRNAME[iSR];
     setSelection(sSR,m_ET);
     SR=iSR;
     if(dbg() > 2 ) cout << "Signal region " << sSR << endl;
 
-    int icut =0;
-    _ww=_wwSave; //Reset weight in case used btagWeight in previous SR
+    //Reset weight in case used btagWeight in previous SR
+    _ww=_wwSave; 
     if(WEIGHT_COUNT) _inc = _ww;
     else _inc = nt->evt()->w;
 
-    //Only in MC do we alter the Ele pt 
+    //Only in MC do we alter the Ele pt - restore 
     if(nt->evt()->isMC) restoreOriginal(*leptons,met);
 
     //For data - fake estimate
     if( !nt->evt()->isMC && m_useLooseLep){
       float _metRel = getMetRel(&new_met,*leptons,*signalJets);
-      _ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel);
+      _ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,SYST);
       if(WEIGHT_COUNT) _inc = _ww;
       //std::cout << " SR " << sSR << " Fake weight " << _ww << endl;
     }
     
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
     
+    //Deal with Charge flip estimate - obtain approprate weighting
     if(!USE_QFLIP && !passQQ(leptons)) continue;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
@@ -931,7 +915,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	   || iSR==DIL_preSRSS  || iSR==DIL_VRSS || iSR==DIL_VRSSbtag) ){
 	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
 	else{ //OS ee/em event - get the qFlip prob
-	  float _ww_qFlip = getQFlipProb(leptons,&new_met);
+	  float _ww_qFlip = getQFlipProb(leptons,&new_met,DGSys_NOM);
 	  _ww *= _ww_qFlip;
 	  if(WEIGHT_COUNT) _inc = _ww;
 	  if(SYST==DGSys_NOM) n_pass_ss[m_ET][SR]+=_inc;
@@ -942,6 +926,10 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	if(!passQQ(leptons)) continue;
     }
 
+    //
+    // Apply event selection cuts
+    // Bailout as soon one fail for a given SR/CR
+    //
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     if(!passFlavor(leptons)){ 
@@ -957,7 +945,9 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass Zveto " << sSR << endl;
     
+    //
     // Apply bweight only to SR where we use jet count/veto
+    //
     if(USE_BWEIGHT && nt->evt()->isMC) {
       if( ! ( iSR ==DIL_CR2LepOS || iSR==DIL_CR2LepSS 
 	      || iSR==DIL_CR2LepSS40 || iSR==DIL_CRZ) )
@@ -1031,16 +1021,34 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 
     if(dbg() >10 ) cout << "\t Pass All " << sSR << endl;
 
+    //Blind data 
     if(!passBlindData(nt->evt()->isMC,iSR, metRel,mT2)) continue;
 
+    //
+    // Fill histos, ToyNt and HFT 
+    //
     if(DO_FILL_HISTO ) fillHistograms(SR,SYST,leptons, signalJets,&new_met,_ww);
+    if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
     if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) fillToyNt(SR,SYST,leptons, signalJets,&new_met,_ww);
 
-
-    if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
-
-    //Dump run event
-    //    if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
+    if(m_writeHFT && validSystForHFT(SYST) ){
+      float wHFT= writeIntoHistFitterTree(iSR,leptons,baseLeps,signalJets,v_baseJet,met);
+      if(wHFT>0) _tmp += wHFT;
+      
+      if(wHFT>0 && nt->evt()->isMC && SYST==DGSys_NOM &&
+	 !(iSR==DIL_SRSSjets || iSR==DIL_VRSS || iSR==DIL_VRSSbtag)
+	 && fabs(_ww-wHFT)/wHFT>0.000001) 
+	cout << "WARNING >>> run " << nt->evt()->run  
+	     << " event " << nt->evt()->event 
+	     << " mismatch weight with HFT " << _ww << " " << wHFT << endl;
+      //if(nt->evt()->isMC) restoreOriginal(*leptons,met);//Because qFlip was have been called
+    }
+    
+    
+    //
+    // Debugging - Dump run event
+    //
+    //if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
     //if(DUMP_RUNEVT && SYST==DGSys_NOM && (iSR==DIL_NTOP && m_ET==ET_ee) ){
     if(DUMP_RUNEVT && (iSR==DIL_SROSjveto) ){
       cout << "==>Run " << nt->evt()->run  << " : " << nt->evt()->event  << endl;
@@ -1055,28 +1063,10 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	      << endl;
       //if( nt->evt()->event==435108) dumpEvent();
     }
-
   }
   
-  if(dbg()>10 ){
-    float _dPhill=fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
-    float _dRll=fabs(leptons->at(0)->DeltaR(*leptons->at(1)));
-    float _dPhil0=fabs(met->lv().DeltaPhi(*leptons->at(0)));
-    float _dPhil1=fabs(met->lv().DeltaPhi(*leptons->at(1)));
-    float _dPhij0=fabs(met->lv().DeltaPhi(*signalJets->at(0)));
-    cout << "\t mll " << Mll(leptons->at(0),leptons->at(1))
-	 << " met " << met->lv().Pt() 
-	 << " metrel " << metRel
-	 << " dPhill " << _dPhill
-	 << " dRll " << _dRll
-	 << " dPhil0Met " << _dPhil0
-	 << " dPhil1Met " << _dPhil1
-	 << " dPhij0Met " << _dPhij0
-	 << endl;
-  }
   
   if(nt->evt()->isMC) restoreOriginal(*leptons,met);
-  // clearVectors();
 
   return true;
 }
@@ -1105,9 +1095,17 @@ float Susy2LepAna::eventWeight(int mode)
     else 
       _evtW = nt->evt()->w * nt->evt()->wPileupAE * nt->evt()->xsec * LUMI_A_E / nt->evt()->sumw;
   }
-  else if(mode==LUMI21FB){ //Morions dataset
+  else if(mode==LUMI21FB){ //Moriond dataset
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    else      _evtW = nt->evt()->w * nt->evt()->wPileup * nt->evt()->xsec * LUMI_A_L / nt->evt()->sumw;
+    else{
+      _evtW = nt->evt()->w * nt->evt()->wPileup * nt->evt()->xsec * LUMI_A_L / nt->evt()->sumw;
+      if(dbg()>10)
+	cout << "Ana W: " << nt->evt()->w 
+	     << " pileup " << nt->evt()->wPileup 
+	     << " xsec " <<  nt->evt()->xsec 
+	     << " lumi " << LUMI_A_L 
+	     << " sumw " << nt->evt()->sumw << endl;
+    }
   }
 
   return _evtW;
@@ -1116,12 +1114,13 @@ float Susy2LepAna::eventWeight(int mode)
 /*--------------------------------------------------------------------------------*/
 // Lepton SF weight
 /*--------------------------------------------------------------------------------*/
-float Susy2LepAna::getLepSFWeight(const LeptonVector* leptons)
+float Susy2LepAna::getLepSFWeight(const LeptonVector* leptons, uint iSys)
 {
   float _wLepSF=1;
   if(USE_LEPSF && nt->evt()->isMC){
     for(uint ilep=0; ilep<leptons->size(); ilep++){
       const Susy::Lepton* _l = leptons->at(ilep);
+      //TODO dealing with those syst here 
       _wLepSF *= _l->effSF;
       if(dbg()>10) cout << "lep" << ilep << " SF " << _l->effSF << endl; 
     }
@@ -1167,7 +1166,7 @@ float  Susy2LepAna::getTriggerWeight(const LeptonVector* leptons,
   return _wTrig;
 }
 /*--------------------------------------------------------------------------------*/
-float Susy2LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
+float Susy2LepAna::getBTagSF(const Susy::Event*, const JetVector* jets, uint iSys)
 {
   if(!nt->evt()->isMC) return 1;
   if(!USE_BWEIGHT)     return 1;
@@ -1184,13 +1183,14 @@ float Susy2LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
   
   if(valJets.size()==0) return 1;//safety.
 
+  //Get sys naming convention
   uint _sys = DGSys_NOM;
-  if(SYST==DGSys_BJet_DN) _sys=BTag_BJet_DN; 
-  if(SYST==DGSys_CJet_DN) _sys=BTag_CJet_DN; 
-  if(SYST==DGSys_LJet_DN) _sys=BTag_LJet_DN; 
-  if(SYST==DGSys_BJet_UP) _sys=BTag_BJet_UP; 
-  if(SYST==DGSys_CJet_UP) _sys=BTag_CJet_UP; 
-  if(SYST==DGSys_LJet_UP) _sys=BTag_LJet_UP; 
+  if(iSys==DGSys_BJet_DN) _sys=BTag_BJet_DN; 
+  if(iSys==DGSys_CJet_DN) _sys=BTag_CJet_DN; 
+  if(iSys==DGSys_LJet_DN) _sys=BTag_LJet_DN; 
+  if(iSys==DGSys_BJet_UP) _sys=BTag_BJet_UP; 
+  if(iSys==DGSys_CJet_UP) _sys=BTag_CJet_UP; 
+  if(iSys==DGSys_LJet_UP) _sys=BTag_LJet_UP; 
 
   return bTagSF(nt->evt(),valJets,USE_NOJVF_bSF, 
 		"MV1", "0_3511", MV1_80, (BTagSys) _sys);
@@ -1200,7 +1200,8 @@ float Susy2LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
 // Fake Bkg estimate event weight
 /*--------------------------------------------------------------------------------*/
 float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx, 
-				 bool isMC, int iSR, float metrel)
+				 bool isMC, int iSR, float metrel,
+				 uint iSys)
 {
   bool _isSignal[2];
   bool _isEle[2];
@@ -1322,23 +1323,23 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     if(_isEle[i])_isSignal[i] = isSignalElectron((Electron*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
     else         _isSignal[i] = isSignalMuon((Muon*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
   }  
-  
+
+  //Map naming convention  
   float _fw = 0;
   uint iiSys = DGSys_NOM;
-  if(SYST==DGSys_FAKE_EL_RE_UP) iiSys=SusyMatrixMethod::SYS_EL_RE_UP;
-  if(SYST==DGSys_FAKE_EL_RE_DN) iiSys=SusyMatrixMethod::SYS_EL_RE_DOWN;
-  if(SYST==DGSys_FAKE_EL_FR_UP) iiSys=SusyMatrixMethod::SYS_EL_FR_UP;
-  if(SYST==DGSys_FAKE_EL_FR_DN) iiSys=SusyMatrixMethod::SYS_EL_FR_DOWN;
-  if(SYST==DGSys_FAKE_MU_RE_UP) iiSys=SusyMatrixMethod::SYS_MU_RE_UP;
-  if(SYST==DGSys_FAKE_MU_RE_DN) iiSys=SusyMatrixMethod::SYS_MU_RE_DOWN;
-  if(SYST==DGSys_FAKE_MU_FR_UP) iiSys=SusyMatrixMethod::SYS_MU_FR_UP;
-  if(SYST==DGSys_FAKE_MU_FR_DN) iiSys=SusyMatrixMethod::SYS_MU_FR_DOWN;
+  if(iSys==DGSys_FAKE_EL_RE_UP) iiSys=SusyMatrixMethod::SYS_EL_RE_UP;
+  if(iSys==DGSys_FAKE_EL_RE_DN) iiSys=SusyMatrixMethod::SYS_EL_RE_DOWN;
+  if(iSys==DGSys_FAKE_EL_FR_UP) iiSys=SusyMatrixMethod::SYS_EL_FR_UP;
+  if(iSys==DGSys_FAKE_EL_FR_DN) iiSys=SusyMatrixMethod::SYS_EL_FR_DOWN;
+  if(iSys==DGSys_FAKE_MU_RE_UP) iiSys=SusyMatrixMethod::SYS_MU_RE_UP;
+  if(iSys==DGSys_FAKE_MU_RE_DN) iiSys=SusyMatrixMethod::SYS_MU_RE_DOWN;
+  if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=SusyMatrixMethod::SYS_MU_FR_UP;
+  if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=SusyMatrixMethod::SYS_MU_FR_DOWN;
 
   _fw = m_matrix_method.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
 				     _isSignal[1], _isEle[1], _pt[1],_eta[1],
-				     frSR,                       // What region should we get rates from?
-				     metrel, 
-				     (SusyMatrixMethod::SYSTEMATIC) iiSys);  // What systematics are to be applied?
+				     frSR, metrel, 
+				     (SusyMatrixMethod::SYSTEMATIC) iiSys);  
 
   if(dbg()>10) cout << "SR " << DIL_SRNAME[iSR] 
 		    << " applying Ssys " << SYST 
@@ -1464,7 +1465,7 @@ bool Susy2LepAna::hasQFlip(const LeptonVector* leptons){
 }
 
 /*--------------------------------------------------------------------------------*/
-float Susy2LepAna::getQFlipProb(const LeptonVector* leptons, Met* met)
+float Susy2LepAna::getQFlipProb(const LeptonVector* leptons, Met* met, uint iSys)
 {
   if(leptons->size() < 1) return 1;
   Susy::Lepton* _l1 = leptons->at(0);
@@ -1477,8 +1478,8 @@ float Susy2LepAna::getQFlipProb(const LeptonVector* leptons, Met* met)
   int _pdg2 = _l2->isEle() ? 11 : 13; _pdg2 *= _l2->q;
   
   int _sys = 0;
-  if(SYST==DGSys_BKGMETHOD_UP) _sys=1;
-  if(SYST==DGSys_BKGMETHOD_DN) _sys=-1;
+  if(iSys==DGSys_BKGMETHOD_UP) _sys=1;
+  if(iSys==DGSys_BKGMETHOD_DN) _sys=-1;
 
   float cfP = m_chargeFlip->OS2SS(_pdg1, &_l1_tlv, 
 				  _pdg2, &_l2_tlv, 
@@ -1511,7 +1512,6 @@ float Susy2LepAna::getQFlipProb(const LeptonVector* leptons, Met* met)
 
   return cfP;  
 }
-
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passFlavor(const LeptonVector* leptons)
 {
@@ -1602,8 +1602,6 @@ bool Susy2LepAna::passMjj(const JetVector* jets){
   if(SYST==DGSys_NOM) n_pass_mjj[m_ET][SR]+=_inc;
   return true;
 }
-
-
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passZVeto(const LeptonVector* leptons, float Zlow, float Zhigh)
 {
@@ -1640,9 +1638,9 @@ bool Susy2LepAna::passMll(const LeptonVector* leptons)
 
   return true;
 }
-
 /*--------------------------------------------------------------------------------*/
-bool Susy2LepAna::passMETRel(const Met *met, const LeptonVector* leptons, const JetVector* jets)
+bool Susy2LepAna::passMETRel(const Met *met, const LeptonVector* leptons, 
+			     const JetVector* jets)
 {
   metRel = getMetRel(met,*leptons,*jets);
   if(m_metRelMin>=0 &&  metRel < m_metRelMin ) return false;
@@ -1650,23 +1648,15 @@ bool Susy2LepAna::passMETRel(const Met *met, const LeptonVector* leptons, const 
   if(SYST==DGSys_NOM) n_pass_metRel[m_ET][SR]+=_inc;
   return true;
 }
-
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passLead2LepPt(const LeptonVector* leptons)
 {
   if( leptons->size() < 1 ) return false;
-  /*
-  cout << "l0 " << leptons->at(0)->Pt()  
-       << "l1 " << leptons->at(1)->Pt()  
-       << endl;
-  */
   if(m_pTl0Min >-1 && leptons->at(0)->Pt() < m_pTl0Min) return false;
   if(m_pTl1Min >-1 && leptons->at(1)->Pt() < m_pTl1Min) return false;
-  //cout << "\t passs " << endl;
   if(SYST==DGSys_NOM) n_pass_leadLepPt[m_ET][SR]+=_inc;
   return true;
 }
-
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passPtll(const LeptonVector* leptons)
 {
@@ -1684,7 +1674,6 @@ bool Susy2LepAna::passdPhill(const LeptonVector* leptons){
   if(m_dPhillMax>-1 && dPhi<m_dPhillMax) return false;
   if(SYST==DGSys_NOM) n_pass_dPhill[m_ET][SR]+=_inc;
   return true;
-
 }
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passMET(const Met *met)
@@ -1759,8 +1748,6 @@ bool Susy2LepAna::passMWWT(const LeptonVector* leptons, const Met* met)
   if(SYST==DGSys_NOM) n_pass_mWWT[m_ET][SR]+=_inc;
   return true;
 }
-
-
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passMll20(const LeptonVector* leptons)
 {
@@ -1768,10 +1755,6 @@ bool Susy2LepAna::passMll20(const LeptonVector* leptons)
   if(mll<20) return false;
   return true;
 }
-
-
-
-
 /*--------------------------------------------------------------------------------*/
 float Susy2LepAna::JZBJet(const JetVector* jets, const LeptonVector* leptons)
 {
@@ -1939,7 +1922,6 @@ void Susy2LepAna::print_ZXCR()
   print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
   
 }
-
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_TOPCR()
 {
@@ -1971,9 +1953,7 @@ void Susy2LepAna::print_TOPCR()
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
   print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-
 }
-
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_WWCR()
 {
@@ -1986,7 +1966,6 @@ void Susy2LepAna::print_WWCR()
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
   print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 
-  //ADD CRWWa etc..
   j= DIL_CRWWa;
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
@@ -2010,7 +1989,6 @@ void Susy2LepAna::print_WWCR()
   print_line("pass dPhill ",n_pass_dPhill[0][j],n_pass_dPhill[1][j],n_pass_dPhill[2][j]);
   print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 }
-
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_VRSS()
 {
@@ -2035,14 +2013,14 @@ void Susy2LepAna::print_VRSS()
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
 
 }
-
-
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_line(string s, float a, float b, float c)
 {
   cout << setprecision(6)  << s << "\t" << a << "\t" << b << "\t" << c << endl;
 }
 
+/*--------------------------------------------------------------------------------*/
+// Save/restore orignal lepton - to deal with lepton smearing w/ qFlip
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::saveOriginal()
 {
@@ -2096,7 +2074,6 @@ void Susy2LepAna::restoreOriginal(LeptonVector& leptons, const Met *met)
   }
   std::sort(leptons.begin(), leptons.end(), comparePt);
 }
-
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::clearVectors()
 {
@@ -2110,6 +2087,9 @@ void Susy2LepAna::clearVectors()
   v_save_sigMu.clear();
   v_save_sigLep.clear();
 }
+
+/*--------------------------------------------------------------------------------*/
+// Fill histograms 
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
 				 const LeptonVector* leptons, 
@@ -2294,7 +2274,6 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
     _hh->H1FILL(_hh->DG2L_mjj[iSR][m_ET][iSYS],_jj.M(),_ww); 
   }
 
-
   int nSoftJets=0;
   for(uint ijet=0; ijet<v_baseJet->size(); ijet++){
     const Susy::Jet* _j = v_baseJet->at(ijet);
@@ -2316,7 +2295,8 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
 
 }
 
-
+/*--------------------------------------------------------------------------------*/
+// Debuging 
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::dumpEvent()
 {
@@ -2374,19 +2354,25 @@ void Susy2LepAna::initializeHistFitterTree()
     mcId.Form("%i",nt->evt()->mcChannel);
     for(uint i=_sys1; i <=_sys2; i++) {
       systName.Form("%s",DG2LSystNames[i].c_str());
-      m_histFitterTrees[i] = new HistFitterTree(mcId,systName);
-      cout << "Creating histFitterTree " << mcId << " " << systName << endl;
-      HFTName = string(mcId.Data());
+      if(validSystForHFT(i)){
+	m_histFitterTrees[i] = new HistFitterTree(mcId,systName);
+	cout << "Creating histFitterTree " << mcId << " " << systName << endl;
+	HFTName = string(mcId.Data());
+      }
+      else m_histFitterTrees[i] = NULL;
     }
   }
   else{
     if(m_method == FLEP){ //DD Fake lepton
       TString ds(string(_hh->sampleName()+"_FAKE"));
       for(uint i=_sys1; i <= _sys2; i++) {
-	systName.Form("%s",DG2LSystNames[i].c_str());
-	m_histFitterTrees[i] = new HistFitterTree(ds,systName);
-	HFTName = string(ds.Data());
-	cout << "Creating histFitterTree "  << ds << " " << systName << endl;
+	if(validSystForHFT(i)){
+	  systName.Form("%s",DG2LSystNames[i].c_str());
+	  m_histFitterTrees[i] = new HistFitterTree(ds,systName);
+	  HFTName = string(ds.Data());
+	  cout << "Creating histFitterTree "  << ds << " " << systName << endl;
+	}
+	else m_histFitterTrees[i] = NULL;
       }
     }
     else{ //Data - 1 tree
@@ -2404,13 +2390,19 @@ void Susy2LepAna::initializeHistFitterTree()
 /*--------------------------------------------------------------------------------*/
 // Write into HistFitter Tree
 /*--------------------------------------------------------------------------------*/
-float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons, 
+float Susy2LepAna::writeIntoHistFitterTree(uint iSR,
+					   LeptonVector* leptons, 
 					   const LeptonVector* baseLeptons, 
 					   const JetVector* signalJets, 
 					   const JetVector* baseJets,
 					   const Met* met)
 {
-  float totWeight=1;
+  //Save only events pass SR's or CR's cuts
+  if(iSR==DIL_CRZ || iSR==DIL_CRZjveto || 
+     iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 ||
+     iSR==DIL_preSROSjveto || iSR==DIL_preSRmT2 || 
+     iSR==DIL_preSR2jets || iSR==DIL_preSRZjets || iSR==DIL_preSRSS)
+    return -1;
 
   // Find which event type
   DiLepEvtType evtType;
@@ -2421,21 +2413,15 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
   TLorentzVector Zcandidate = *leptons->at(0);
   Zcandidate += *leptons->at(1);
   
-  // Get HistFitterTree weight
-  // Includes: 1) pile-up
-  //           2) lepton SF
-  //           3) trigger
-  //           4) b-tagging
-  
-  float histFitWeight = 1;
-  float totalWeight=1;
+  float histFitWeight = 1; //pileup, mc event weight , nomalized to sample size (ie 1/pb)
+  float totalWeight   = 1; //full event weight
 
   bool  _isData = false;
   bool  _isOS   = leptons->at(0)->q * leptons->at(1)->q < 0 ? true:false;
   bool  _isEE   =  evtType==ET_ee ? true:false;
   bool  _isEM   = (evtType==ET_em || evtType==ET_me) ? true:false;
   bool  _isMM   = evtType==ET_mm ? true:false;
-  int   _nC25   = numberOfCLJets(*signalJets);
+  int   _nC20   = numberOfCLJets(*signalJets);
   int   _nB20   = numberOfCBJets(*signalJets);
   int   _nF30   = numberOfFJets(*signalJets);
   float _ptl1   = leptons->at(0)->Pt();
@@ -2446,185 +2432,212 @@ float Susy2LepAna::writeIntoHistFitterTree( const LeptonVector* leptons,
   float _Mll    = Mll(leptons->at(0), leptons->at(1));
   float _MT2    = getMT2(*leptons, met);
   bool _topTag  = passTopTag(*leptons,*signalJets,met);
+  float _dPhill = leptons->at(0)->DeltaPhi(*leptons->at(1));
+  float _mWWT   = mT(Zcandidate, met->lv());
+  float _j0Pt   = (signalJets->size()>0) ? signalJets->at(0)->Pt() : 0.;
+  float _j1Pt   = (signalJets->size()>1) ? signalJets->at(1)->Pt() : 0.;
+  float _mjj    = (signalJets->size()>1) ? Mll(signalJets->at(0),signalJets->at(1)) : 0;
+
+  //
+  // Various weights for systematics saved with NOM syst
+  //
+  // All these are the ratio new_sys/nom_sys
+  float _bJet_up       = 1; 
+  float _bJet_dn       = 1;  
+  float _cJet_up       = 1; 
+  float _cJet_dn       = 1;  
+  float _lJet_up       = 1; 
+  float _lJet_dn       = 1;  
+  float _pdf_up        = 1; 
+  float _pdf_dn        = 1;  
+  float _xs_up         = 1;
+  float _xs_dn         = 1;
+  float _eTrig_up      = 1;  
+  float _eTrig_dn      = 1; 
+  float _mTrig_up      = 1;  
+  float _mTrig_dn      = 1;  
+  float _bkg_up        = 1;
+  float _bkg_dn        = 1;
+  float _fake_el_re_up = 1;
+  float _fake_el_re_dn = 1;
+  float _fake_el_fr_up = 1;
+  float _fake_el_fr_dn = 1;
+  float _fake_mu_re_up = 1;
+  float _fake_mu_re_dn = 1;
+  float _fake_mu_fr_up = 1;
+  float _fake_mu_fr_dn = 1;
+  float _el_SF_up      = 1;
+  float _el_SF_dn      = 1;
+  float _mu_EFF_up     = 1;
+  float _mu_EFF_dn     = 1;
+  //Weight qFlip - not ratio !!
+  float _qFlipWeight   = 1;
 
 
   if(nt->evt()->isMC){
-    histFitWeight  = nt->evt()->w * nt->evt()->wPileup
-                     *leptons->at(0)->effSF*leptons->at(1)->effSF;
-    histFitWeight *= getTriggerWeight(leptons, _metET, 
-				      signalJets->size(), nt->evt()->nVtx,
-				      SYST);
-    histFitWeight *= getBTagSF(nt->evt(),baseJets);
+    histFitWeight  = nt->evt()->w * nt->evt()->wPileup / nt->evt()->sumw;
+    //Nominal values
+    float _xs     = getCrossSection(sigXsfile,nt->evt()->mcChannel,nt->evt()->xsec,DGSys_NOM);
+    float w_l1_sf = leptons->at(0)->effSF;
+    float w_l2_sf = leptons->at(1)->effSF;
+    float w_trig  = getTriggerWeight(leptons, _metET, signalJets->size(), nt->evt()->nVtx, DGSys_NOM);
+    float w_btag  = getBTagSF(nt->evt(),baseJets, DGSys_NOM);
 
-    float _sumW = nt->evt()->sumw;
-    //Hack for broken sumW in n0111 !!!
-    //if(nt->evt()->mcChannel==147770) _sumW = 2.4806e+13;
+    //Obtain the weights for each sys variation and take ratio to nominal
+    _xs_up = getCrossSection(sigXsfile,nt->evt()->mcChannel,nt->evt()->xsec,1)  / _xs;
+    _xs_dn = getCrossSection(sigXsfile,nt->evt()->mcChannel,nt->evt()->xsec,-1) / _xs;
+    
+    _eTrig_up = getTriggerWeight(leptons, _metET, signalJets->size(), nt->evt()->nVtx, DGSys_TRIGSF_EL_UP) / w_trig;
+    _eTrig_dn = getTriggerWeight(leptons, _metET, signalJets->size(), nt->evt()->nVtx, DGSys_TRIGSF_EL_DN) / w_trig;
+    _mTrig_up = getTriggerWeight(leptons, _metET, signalJets->size(), nt->evt()->nVtx, DGSys_TRIGSF_MU_UP) / w_trig;
+    _mTrig_dn = getTriggerWeight(leptons, _metET, signalJets->size(), nt->evt()->nVtx, DGSys_TRIGSF_MU_DN) / w_trig;
 
-    uint iiSys = DGSys_NOM;
-    if(SYST==DGSys_XS_UP) iiSys=1;
-    if(SYST==DGSys_XS_DN) iiSys=-1;
-    float _XS = getCrossSection(sigXsfile,nt->evt()->mcChannel,nt->evt()->xsec,iiSys);
+    _bJet_up = getBTagSF(nt->evt(),baseJets, DGSys_BJet_UP) / w_btag;
+    _bJet_dn = getBTagSF(nt->evt(),baseJets, DGSys_BJet_DN) / w_btag;
+    _cJet_up = getBTagSF(nt->evt(),baseJets, DGSys_CJet_UP) / w_btag;
+    _cJet_dn = getBTagSF(nt->evt(),baseJets, DGSys_CJet_DN) / w_btag;
+    _lJet_up = getBTagSF(nt->evt(),baseJets, DGSys_LJet_UP) / w_btag;
+    _lJet_dn = getBTagSF(nt->evt(),baseJets, DGSys_LJet_DN) / w_btag;
 
-    totalWeight   = histFitWeight * _XS * LUMI_A_E / _sumW;
-    totWeight= totalWeight;
+    //TO DO add lep SF error;
+
+    totalWeight   = histFitWeight * w_l1_sf * w_l2_sf * w_trig * w_btag * _xs * pLUMI*1000.;
+
+    if(dbg()>10){
+      cout << "HFTw " << nt->evt()->w 
+	   << " pileup  " << nt->evt()->wPileup 
+	   << " sumw " << nt->evt()->sumw<<endl;
+      cout << " l SF " << w_l1_sf * w_l2_sf 
+	   << " trig " << w_trig 
+	   << " btag " << w_btag 
+	   << " xs " <<  _xs 
+	   << " lumi " << pLUMI*1000.
+	   << " totW " << totalWeight << "\n" << endl;
+    }
     _isData=false;
+
+    
+    //Get the QFlip weight. Not the event kinematics won't be smeared.
+    if(m_method == RLEP &&  m_ET!=ET_mm){
+      if(!isGenuineSS(leptons) && (_isEE || _isEM) ){ //Not true SS - use OS * qFlip
+	_qFlipWeight = getQFlipProb(leptons,&new_met,DGSys_NOM); //lept pt/Met changed !!!!
+	restoreOriginal(*leptons,met);                           //Because qFlip was have been called
+	_bkg_up = getQFlipProb(leptons,&new_met,DGSys_BKGMETHOD_UP) / _qFlipWeight; //lept pt/Met changed !!!!
+	restoreOriginal(*leptons,met);                           //Because qFlip was have been called
+	_bkg_dn = getQFlipProb(leptons,&new_met,DGSys_BKGMETHOD_DN) / _qFlipWeight; //lept pt/Met changed !!!!
+	restoreOriginal(*leptons,met);                           //Because qFlip was have been called
+      }
+    }
   }
   else{
     _isData=true;
-    if(m_useLooseLep && ( SYST==DGSys_NOM ||
-			  (SYST>=DGSys_FAKE_EL_RE_UP && SYST<=DGSys_FAKE_MU_FR_DN) ) ){
-      
-      // NEED TO DETERMINE WHICH SR to get the appropriate weight
-      int iSR = findSRCR(_isData, _isOS, _isEE, _isMM, _isEM, _topTag, 
-			 _nC25, _nB20, _nF30, 
-			 _ptl1, _ptl2, _ZPt, 
-			 _metET, _metRel, _Mll, _MT2);
-      histFitWeight = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel);
-      totalWeight = histFitWeight;
-      totWeight= totalWeight;
-
-    }
+    float w_fake = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_NOM);
+    
+    _fake_el_re_up = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_FAKE_EL_RE_UP) / w_fake;
+    _fake_el_re_dn = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_FAKE_EL_RE_DN) / w_fake;
+    _fake_el_fr_up = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_FAKE_EL_FR_UP) / w_fake;
+    _fake_el_fr_dn = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_FAKE_EL_FR_DN) / w_fake;
+    _fake_mu_re_up = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_FAKE_MU_RE_UP) / w_fake;
+    _fake_mu_re_dn = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_FAKE_MU_RE_DN) / w_fake;
+    _fake_mu_fr_up = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_FAKE_MU_FR_UP) / w_fake;
+    _fake_mu_fr_dn = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,DGSys_FAKE_MU_FR_DN) / w_fake;
+    
+    totalWeight = histFitWeight = w_fake;
   }
 
-  // Fill the tree
-  //Get the QFlip weight
+
+  //Resolve overlap CRWWa overlap with ZXCRmt2
+  if(iSR==DIL_CRWWa){
+    bool _inZ = (fabs(_Mll-MZ)<10) ? true : false;
+    if(_isOS && _inZ && (_nC20+_nB20+_nF30)==0 && _metRel>40 && _MT2>90)
+      return 0; //event also in ZXCRmt2, don't duplicate
+  }
   
-  float qFlipWeight=1;
-  if(nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm){
-    if(!isGenuineSS(leptons) && (_isEE || _isEM) ){ //Not true SS - use OS * qFlip
-      qFlipWeight = getQFlipProb(leptons,&new_met); //lept pt/Met changed !!!!
-      //Since not saving the event 2x... won't get smear kin.
-      /*
-      _ptl1   = leptons->at(0)->Pt();
-      _ptl2   = leptons->at(1)->Pt();
-      _ZPt    = Zcandidate.Pt();
-      _metET  = met->lv().Pt();
-      _metRel = getMetRel(met,*leptons,*signalJets);
-      _Mll    = Mll(leptons->at(0), leptons->at(1));
-      _MT2    = getMT2(*leptons, met);
-      _topTag  = passTopTag(*leptons,*signalJets,met);
-      */
-    }
-  }
 
-  int iSR = findSRCR(_isData, _isOS, _isEE, _isMM, _isEM, _topTag, 
-		     _nC25, _nB20, _nF30, 
-		     _ptl1, _ptl2, _ZPt, 
-		     _metET, _metRel, _Mll, _MT2);
+  // Store everything in MeV
+  static const float MEV = 1000; 
+  m_histFitterTrees[SYST]->lept1Pt             = _ptl1*MEV;
+  m_histFitterTrees[SYST]->lept2Pt             = _ptl2*MEV;
+  m_histFitterTrees[SYST]->MET                 = _metET*MEV;
+  m_histFitterTrees[SYST]->nSigLep             =  2;
+  m_histFitterTrees[SYST]->L2nCentralLightJets = _nC20;
+  m_histFitterTrees[SYST]->L2nForwardJets      = _nF30;
+  m_histFitterTrees[SYST]->L2nCentralBJets     = _nB20;
+  m_histFitterTrees[SYST]->L2METrel            = _metRel*MEV;
+  m_histFitterTrees[SYST]->L2Mll               = _Mll*MEV;
+  m_histFitterTrees[SYST]->MT2                 = _MT2*MEV; 
+  m_histFitterTrees[SYST]->L2dileptonpt        = _ZPt*MEV;
+  m_histFitterTrees[SYST]->isOS                = _isOS;
+  m_histFitterTrees[SYST]->L2TopVeto           = _topTag;
+  m_histFitterTrees[SYST]->isEMU               = _isEM;
+  m_histFitterTrees[SYST]->isMUMU              = _isMM;
+  m_histFitterTrees[SYST]->isEE                = _isEE;
+  m_histFitterTrees[SYST]->L2dPhiLL            = _dPhill;
+  m_histFitterTrees[SYST]->L2mTmetLL           = _mWWT*MEV;
+  m_histFitterTrees[SYST]->L2cjet1pt           = _j0Pt*MEV;
+  m_histFitterTrees[SYST]->L2cjet2pt           = _j1Pt*MEV;
+  m_histFitterTrees[SYST]->L2mJJ               = _mjj*MEV;
 
-  bool saveEvt=false;
-  /*
-  if(iSR==DIL_SRmT2b ||
-     iSR==DIL_SRmT2a ||
-     iSR==DIL_SRjveto ||
-     iSR==DIL_SR2jets ||
-     iSR==DIL_SRSSjveto ||
-     iSR==DIL_NWW1 ||
-     iSR==DIL_NWW2 ||
-     iSR==DIL_ZXCR1 ||
-     iSR==DIL_ZXCR3 ||
-     iSR==DIL_ZXCR4 ||
-     iSR==DIL_ZXCR5 ||
-     iSR==DIL_ZXCR6 ||
-     iSR==DIL_ZXCR7 ||
-     iSR==DIL_NTOP  ||
-     iSR==DIL_SRSS1j 
-     )
-    saveEvt = true;
-  */
+  m_histFitterTrees[SYST]->L2isData            = _isData;
 
-  if(saveEvt){
-    // Store everything in MeV
-    m_histFitterTrees[SYST]->Fill2LTreeEventInfo(_ptl1*1000.,
-						 _ptl2*1000.,
-						 _metET*1000.,
-						 _nC25,
-						 _nB20,
-						 _nF30,
-						 _metRel*1000.,
-						 _Mll*1000,
-						 _MT2*1000,
-						 _ZPt*1000,
-						 _isOS,
-						 _topTag,
-						 histFitWeight,
-						 _isEM,
-						 _isMM,
-						 _isEE,
-						 totalWeight,
-						 qFlipWeight,
-						 _isData
-						 );
-    // Write the tree
-    m_histFitterTrees[SYST]->WriteTree();
-  }
+  m_histFitterTrees[SYST]->syst_ETRIGREWUP     = _eTrig_up;
+  m_histFitterTrees[SYST]->syst_ETRIGREWDOWN   = _eTrig_dn;
+  m_histFitterTrees[SYST]->syst_MTRIGREWUP     = _mTrig_up;
+  m_histFitterTrees[SYST]->syst_MTRIGREWDOWN   = _mTrig_dn;
+  m_histFitterTrees[SYST]->syst_ESFUP          = _el_SF_up;
+  m_histFitterTrees[SYST]->syst_ESFDOWN        = _el_SF_dn;
+  m_histFitterTrees[SYST]->syst_MEFFUP         = _mu_EFF_up;
+  m_histFitterTrees[SYST]->syst_MEFFDOWN       = _mu_EFF_dn;
+  m_histFitterTrees[SYST]->syst_BJETUP         = _bJet_up;
+  m_histFitterTrees[SYST]->syst_BJETDOWN       = _bJet_dn;
+  m_histFitterTrees[SYST]->syst_CJETUP         = _cJet_up;
+  m_histFitterTrees[SYST]->syst_CJETDOWN       = _cJet_dn;
+  m_histFitterTrees[SYST]->syst_BMISTAGUP      = _lJet_up;
+  m_histFitterTrees[SYST]->syst_BMISTAGDOWN    = _lJet_dn;
+  m_histFitterTrees[SYST]->syst_XSUP           = _xs_up;
+  m_histFitterTrees[SYST]->syst_XSDOWN         = _xs_dn;
+  m_histFitterTrees[SYST]->syst_PDFERRUP       = _pdf_up;
+  m_histFitterTrees[SYST]->syst_PDFERRDOWN     = _pdf_dn;
+  m_histFitterTrees[SYST]->syst_BKGMETHODUP    = _bkg_up;
+  m_histFitterTrees[SYST]->syst_BKGMETHODDOWN  = _bkg_dn;
+  m_histFitterTrees[SYST]->syst_ELFAKE_RE_UP   = _fake_el_re_up;  
+  m_histFitterTrees[SYST]->syst_ELFAKE_RE_DOWN = _fake_el_re_dn;  
+  m_histFitterTrees[SYST]->syst_ELFAKE_FR_UP   = _fake_el_fr_up;  
+  m_histFitterTrees[SYST]->syst_ELFAKE_FR_DOWN = _fake_el_fr_dn;  
+  m_histFitterTrees[SYST]->syst_MUFAKE_RE_UP   = _fake_mu_re_up;  
+  m_histFitterTrees[SYST]->syst_MUFAKE_RE_DOWN = _fake_mu_re_dn;  
+  m_histFitterTrees[SYST]->syst_MUFAKE_FR_UP   = _fake_mu_fr_up;  
+  m_histFitterTrees[SYST]->syst_MUFAKE_FR_DOWN = _fake_mu_fr_dn;  
 
-  return totWeight;
-
+  m_histFitterTrees[SYST]->L2finalState        = 0; //HOW DO I GET THIS
+  m_histFitterTrees[SYST]->L2qFlipWeight       = _qFlipWeight;
+  m_histFitterTrees[SYST]->eventweight         = histFitWeight;
+  m_histFitterTrees[SYST]->L2TotalWeight       = totalWeight;
   
+  // Write the tree
+  m_histFitterTrees[SYST]->WriteTree();
+  
+  return totalWeight;
 }
-
 /*--------------------------------------------------------------------------------*/
-// Write into HistFitter Tree
+// Check if this looping over a syst that get save into a new HFT
+// All the ones below, get saved as weight.
 /*--------------------------------------------------------------------------------*/
-int Susy2LepAna::findSRCR(bool isData, bool isOS, bool isEE, bool isMM, bool isEM, bool topTag,
-			  int nC25, int nB20, int nF30, 
-			  float ptl1, float ptl2, float Zpt,
-			  float met, float metrel, float mll, float mt2)
+bool Susy2LepAna::validSystForHFT(uint iSR)
 {
-  int iSR=DIL_NSR;
-  bool _inZ = (fabs(mll-MZ)<10) ? true : false;
+  if( (iSR==DGSys_BJet_DN ||iSR==DGSys_CJet_DN ||iSR==DGSys_LJet_DN ||
+       iSR==DGSys_BJet_UP ||iSR==DGSys_CJet_UP ||iSR==DGSys_LJet_UP ||
+       iSR==DGSys_PDF_UP || iSR==DGSys_PDF_DN ||
+       iSR==DGSys_XS_UP || iSR==DGSys_XS_DN ||
+       iSR==DGSys_TRIGSF_EL_UP || iSR==DGSys_TRIGSF_EL_DN ||
+       iSR==DGSys_TRIGSF_MU_UP || iSR==DGSys_TRIGSF_MU_DN ||
+       iSR==DGSys_BKGMETHOD_UP || iSR==DGSys_BKGMETHOD_DN ||
+       iSR==DGSys_FAKE_EL_RE_UP || iSR==DGSys_FAKE_EL_RE_DN ||
+       iSR==DGSys_FAKE_EL_FR_UP || iSR==DGSys_FAKE_EL_FR_DN ||
+       iSR==DGSys_FAKE_MU_RE_UP || iSR==DGSys_FAKE_MU_RE_DN ||
+       iSR==DGSys_FAKE_MU_FR_UP || iSR==DGSys_FAKE_MU_FR_DN)) return false;
 
-  //
-  //Signal regions
-  //
-  //Order matters 
-  /*
-  if( isMM && !isOS && metrel>40 && (nC25+nB20+nF30)==1)           iSR=DIL_SRSS1j;  
-  else if( (( (isEE || isEM) && isOS && !isData) || !isOS)
-	   && metrel>100 && (nC25+nB20+nF30)==0)                   iSR=DIL_SRSSjveto;
-  else if(isOS && !_inZ && metrel>40 && 
-	  (nC25+nB20+nF30)==0 && mt2>110)                          iSR=DIL_SRmT2b;
-  else if(isOS && !_inZ && metrel>40 && 
-	  (nC25+nB20+nF30)==0 && mt2>90)                           iSR=DIL_SRmT2a;
-  else if(isOS && !_inZ && metrel>100 && (nC25+nB20+nF30)==0 )     iSR=DIL_SRjveto;
-  else if(isOS && !isEM && !_inZ && metrel>50 &&
-	  topTag && nC25>=2 && nB20==0 && nF30==0)                 iSR=DIL_SR2jets;
-  */
-
-  //
-  //Control regions
-  //
-  //WW
-  /*
-  else if(isOS && metrel>70 && metrel<100 && !_inZ &&
-	  (nC25+nB20+nF30)==0 && mll>30)                           iSR=DIL_NWW2;
-  else if(isOS && metrel>70 && metrel<100 && !_inZ &&
-	  (nC25+nB20+nF30)==0)                                     iSR=DIL_NWW1;
-  */
-  //ZX
-  /*
-  else if(isOS && _inZ && !isEM &&
-	  metrel>100 && (nC25+nB20+nF30)==0)                       iSR=DIL_ZXCR1;
-  else if(isOS && _inZ && !isEM &&
-	  metrel>40 && (nC25+nB20+nF30)==0)                        iSR=DIL_ZXCR4;
-  else if(isOS && _inZ && !isEM &&
-	  metrel>40 && (nC25+nB20+nF30)==0 && mt2>90 )             iSR=DIL_ZXCR6;
-  else if(isOS && _inZ && !isEM &&
-	  metrel>40 && (nC25+nB20+nF30)==0 && mt2>110 )            iSR=DIL_ZXCR7;
-  else if(isOS && _inZ && !isEM &&
-	  metrel>50 && topTag && nC25>=2 && nB20==0 && nF30==0)    iSR=DIL_ZXCR3;
-  else if(isOS && _inZ && !isEM  &&
-	  metrel>70 && metrel<100 &&  (nC25+nB20+nF30)==0)         iSR=DIL_ZXCR5;
-  else if(isOS && !_inZ && metrel>40 
-	  && (nC25+nB20)>=2 && nB20>=1)                            iSR=DIL_NTOP;
-
-  else if(isOS && _inZ)                                            iSR=DIL_CRZ;
-  else if(isOS)                                                    iSR=DIL_CR2LepOS;
-  else if(!isOS)                                                   iSR=DIL_CR2LepSS;
-
-  */
-  return iSR;
+    return true;
 }
 
 /*--------------------------------------------------------------------------------*/

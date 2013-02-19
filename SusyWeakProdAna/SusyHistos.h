@@ -37,6 +37,11 @@ class SusyHistos: public Histos_Fake,
 		      int method=STD, 
 		      bool mcMll=false, bool isAlpgen=false, 
 		      string sys1="", string sys2="");
+
+  void SaveSplit2LHistograms(TDirectory* _hDir,
+			   int method=STD, 
+			   bool mcMll=false, bool isAlpgen=false, 
+			   string sys1="", string sys2="");
   
   void H1FILL(TH1* h, float x, float w) { h->Fill(x,w); }
   void H2FILL(TH2* h, float x, float y, float w) {h->Fill(x,y, w);}
