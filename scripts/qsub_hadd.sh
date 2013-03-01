@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+#PBS -q atlas
+#PBS -l nodes=1:ppn=2
+
+echo
+echo "**************"
+echo "**   qsub   **"
+echo "**************"
+
+echo
+echo "qsub options"
+echo "  Host:         $HOSTNAME"
+echo "  Queue:        $PBS_O_QUEUE"
+echo "  Sub dir:      $PBS_O_WORKDIR"
+echo "  Run dir:      $scratch"
+echo
+echo "analysis options"
+echo "  Script:       ${script}"
+echo "  Name :        ${jobName}"
+echo
+
+
+cd $PBS_O_WORKDIR
+
+echo "Starting: "
+echo ${PWD} 
+date +"%F__%T"
+
+echo "${script} >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_hadd.log  "
+
+
+${script} >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_hadd.log 
+
+
+echo "Ending: " 
+date +"%F__%T" 
+
