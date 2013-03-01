@@ -45,7 +45,7 @@ std::vector<TH1F*> _data[4];    //[LEP][SYS]
 std::vector<string> BKG;
 std::vector<string> LEP;
 
-static const bool blindData=true;
+static const bool blindData=false;//true;
 
 //
 // Functions

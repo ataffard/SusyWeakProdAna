@@ -110,6 +110,8 @@ void DrawPlots::openHistoFiles(string mode,
 //-------------------------------------------//
 void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
 {
+  TString HNAME(name);
+
   for(uint i=0; i<_mcH1.size(); i++){
     for(uint j=0; j<_mcH1[i].size(); j++){
       if(_mcH1[i][j]!=NULL) _mcH1[i][j]->Clear();
@@ -137,6 +139,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   }
   if(_moveUO) _utils->moveUnderOverFlow(_h);
   _dataH1 = (TH1F*) _h->Clone(title.c_str());
+  if(HNAME.Contains("_mt2")) _dataH1->Rebin(2);
   if(HIDEDATA) blindDataSR();
 
   if(!quiet) cout << "Got " << _dataH1->GetName() << endl;
@@ -174,11 +177,17 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
     _f->cd();
     
     vector<TH1F*> _hArray;
+    TH1F* _hNom=NULL;
     for(int isys=0; isys<DGSys_N; isys++){
       if(!sysHistos && isys>0) continue;
       string hName = name + "_" + DG2LSystNames[isys];
       _h = (TH1F*) _f->Get(hName.c_str());
+
       if(USESF)	_h->Scale(SF);
+      if(HNAME.Contains("_mt2")) _h->Rebin(2);
+      if(isys==DGSys_NOM) _hNom = (TH1F*) _h->Clone();
+      setGenSys(hName,i, _hNom, _h);
+
       _hArray.push_back(_h);
       if(_hArray[isys]==NULL){ //put an empty histo
 	cerr <<" Could not find histo " << hName << " in MC file " << _f->GetName() << " using empty histo" << endl;
@@ -302,10 +311,11 @@ float DrawPlots::getBkgSF(string name, int bkgType){
       else if(hName.Contains("MM"))  return 1.0890;
       else if(hName.Contains("EM"))  return 1;
     }
+    /*
     else if(bkgType==Ztt){
       return 1.18;
     }
-
+    */
 
 
   }
@@ -314,6 +324,32 @@ float DrawPlots::getBkgSF(string name, int bkgType){
 
 }
 
+//-------------------------------------------//
+// Set Generator sys
+//-------------------------------------------//
+void  DrawPlots::setGenSys(string name, int bkgType, TH1F* hNom, TH1F* h){
+  TString hName(name);
+  if ( !( hName.Contains("GEN_UP") || hName.Contains("GEN_DN") )) return;
+  if(hNom==NULL ) {
+    cout << "GenSys hNom NULL " << endl;
+    return;
+  }
+  h->Add(hNom,1);//Set Gen Sys histo to nominal value.
+
+  if ( bkgType != WW) return;
+  //cout << "Bkg " << MCNames[bkgType]  << " " << name << " " <<  h->Integral(0,-1) << endl;
+
+  float sys=0;
+  if (hName.Contains("EE")) sys=0.09;
+  if (hName.Contains("MM")) sys=0.07;
+  if (hName.Contains("EM")) sys=0.25;
+  
+  if (hName.Contains("UP")) h->Scale(1+sys);
+  if (hName.Contains("DN")) h->Scale(1-sys);
+  
+  //  cout << "\t after scaling " << h->Integral(0,-1) << endl;
+
+}
 
 //-------------------------------------------//
 // Open histo files
@@ -668,23 +704,28 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
   totalSysHisto->Reset();
   TGraphAsymmErrors* transient; 
 
-  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_BKGMETHOD_UP/*DGSys_FAKE_EL_RE_UP*//*DGSys_N*/; isys++){
+  for(uint isys=DGSys_EES_Z_UP; isys</*DGSys_BKGMETHOD_UP*//*DGSys_FAKE_EL_RE_UP*/DGSys_N; isys++){
     //Deal with fake sys separately - uncorrelated 
+    if(isys>=DGSys_BKGMETHOD_UP && isys<=DGSys_BKGMETHOD_DN) continue;
+    if(isys>=DGSys_XS_UP && isys<=DGSys_XS_DN) continue;
     if(isys>=DGSys_FAKE_EL_RE_UP && isys <= DGSys_FAKE_MU_FR_DN) continue;
+    if(isys==DGSys_GEN) continue;
+    if(isys>=DGSys_PDF_UP && isys<=DGSys_PDF_DN) continue;
+
     for(uint imc=0; imc<_mcH1.size(); imc++){ //100% correlation between sample - add linear
       TH1F* _hsys;
       if(imc==FAKE)_hsys = _mcH1[FAKE][DGSys_NOM]; //add the nominal values since those sys have no effect
       else  _hsys = _mcH1[imc][isys];
       if(_hsys && _hsys->Integral(0,-1)>0) {
-	
+	/*
 	cout << "\t\t MC " << MCNames[imc]
 	     << "\t Sys " << DG2LSystNames[isys] 
 	     << "\t " << _hsys->Integral(0,-1) << endl;
 	
-	int ibin1 = _hSys->GetBin(70)
-	int ibin2 = _hSys->GetBin(75);
-	cout << "\t bin 70 " << _hSys->GetBinContent(ibin1) << " \t" <<  _hSys->GetBinContent(ibin2) <<endl;
-
+	int ibin1 = _hsys->GetBin(70);
+	int ibin2 = _hsys->GetBin(75);
+	cout << "\t bin 70 " << _hsys->GetBinContent(ibin1) << " \t" <<  _hsys->GetBinContent(ibin2) <<endl;
+	*/
 	totalSysHisto->Add(_hsys);
       }
       //else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
@@ -712,6 +753,7 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
   fakeSys.push_back(sys0);
   fakeSys.push_back(sys1);
   getFakeSys(fakeSys);
+
 
   for(uint i=0; i<fakeSys.size(); i++){
     if(totalSysHisto->Integral(0,-1)>0){
@@ -753,12 +795,14 @@ void DrawPlots::getFakeSys(vector<TH1F*> &sys)
     for(uint isys=DGSys_FAKE_EL_RE_UP; isys<=DGSys_FAKE_MU_FR_DN; ++isys){
       float shift = _mcH1[FAKE][isys]->GetBinContent(bin);
       
+      /*
       cout << " Fake " << MCNames[FAKE]
 	   << "\t\t Sys " << DG2LSystNames[isys] 
 	   << "\t " << shift << endl;
-      	int ibin1 = _hSys->GetBin(70)
-	int ibin2 = _hSys->GetBin(75);
-	cout << "\t bin 70 " << _hSys->GetBinContent(ibin1) << " \t" <<  _hSys->GetBinContent(ibin2) <<endl;
+      int ibin1 = _hSys->GetBin(70);
+      int ibin2 = _hSys->GetBin(75);
+      cout << "\t bin 70 " << _hSys->GetBinContent(ibin1) << " \t" <<  _hSys->GetBinContent(ibin2) <<endl;
+      */
       if(shift > bc) err_up += pow(shift-bc,2);
       else           err_dn += pow(shift-bc,2);
     }// end loop over sys

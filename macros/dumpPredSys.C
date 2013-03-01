@@ -21,15 +21,15 @@ int main(int argc, char *argv[]){
   
   vector<string> sample;
   //sample.push_back("histo_TtbarLeptLept.117800_rlep.root");
-  sample.push_back("histo_llnunu_WW.126892_rlep.root");
+  //sample.push_back("histo_llnunu_WW.126892_rlep.root");
   
   //sample.push_back("histo_lllnu_WZ.126893_rlep.root");
-  //  sample.push_back("histo_data12_fake.root");
-  //  sample.push_back("histo_ZX_Alpgen_rlep.root");
+  sample.push_back("histo_data12_flep.root");
+  //sample.push_back("histo_ZX_AlpgenPythia_rlep.root");
   //sample.push_back("histo_ZX_Sherpa_rlep.root");
   //sample.push_back("histo_WW_Sherpa_rlep.root");
-  //sample.push_back("histo_topDil_Sherpa_rlep.root");
-  //sample.push_back("histo_ZTauTaujets_Sherpa_rlep.root");
+  //sample.push_back("histo_top_MCNLO_rlep.root");
+  //sample.push_back("histo_ZTauTaujets_AlpgenPythia_rlep.root");
   //sample.push_back("histo_llnunu_WW.126892_rlep.root"); 
 
   vector<string> SR;
@@ -38,7 +38,8 @@ int main(int argc, char *argv[]){
   //SR.push_back("DG2L_SRSSjveto_");
   //SR.push_back("DG2L_SROSjveto_");
   //SR.push_back("DG2L_ZXCRWW_");
-  SR.push_back("DG2L_CRWW_");
+  //SR.push_back("DG2L_CRWW_");
+  SR.push_back("DG2L_preSRmT2_");
 
   /*
     SR.push_back("DG2L_SR2jets_");
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]){
   vector<string> LEP;
   LEP.push_back("EE");
   LEP.push_back("MM");
-  // LEP.push_back("EM");
+  LEP.push_back("EM");
 
   TH2F* _pred = _utils->myTH2F("Pred", "Pred", 
 			       DGSys_N,DGSys_EES_Z_UP,DGSys_N-1,

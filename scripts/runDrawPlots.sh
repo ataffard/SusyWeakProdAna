@@ -29,9 +29,10 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #SR=(CR2LepOS)
 SR=(preSRmT2)
 #PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
-PLOTS=(etmiss dPhill metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout mTl1 mTl2 mWWT )
+PLOTS=(mllcoarse)
 
-DIL=(EE MM EM)
+DIL=(EM)
+#DIL=(EE MM EM)
 
 <<SKIP    
 SR=(ZXCRmT2a ZXCRmT2b ZXCRWW \

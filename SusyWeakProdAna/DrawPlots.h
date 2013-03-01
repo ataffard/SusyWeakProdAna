@@ -163,6 +163,8 @@ class DrawPlots {
   float getBkgSF(string name, int BkgType);
   void  blindMT2(string name, TH1F* h);
 
+  void  setGenSys(string name, int BkgType, TH1F* hNom, TH1F* h);
+
   
   
   string       _pathHisto;
