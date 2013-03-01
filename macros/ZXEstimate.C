@@ -31,15 +31,16 @@ vector<string> ZXCR;
 vector<string> ZXSR;
 
 
-bool verbose = true;// false;
-bool useSys =false;
+bool verbose = false;
+bool useSys =true; //false;
 
 //
 // Functions
 //
 void openHist(string mode="DD",
 	      //string Top="histo_topDil_Sherpa",
-	      string Top="histo_top_PowHeg",
+	      //string Top="histo_top_PowHeg",
+	      string Top="histo_top_MCNLO",
 	      string WW="histo_WW_Sherpa",
 	      //string ZX="histo_ZX_Sherpa",		      
 	      string ZX="histo_ZX_Alpgen",		      
@@ -201,7 +202,7 @@ void get_ZX_Est()
       //
       // Loop over sys
       //
-      for(uint isys=DGSys_NOM; isys<1 /*DGSys_BKGMETHOD_UP*/; isys++){
+      for(uint isys=DGSys_NOM; isys< DGSys_BKGMETHOD_UP; isys++){
 	if(verbose) cout << " SYS " << DG2LSystNames[isys] << endl;
 	
 
@@ -908,7 +909,7 @@ void  make_ZXPlots(int ilep, int ireg){
   _ana->SFILE[4]="Z(ee,#mu#mu)+jets";
 
   openHist("DD",
-	   "histo_top_Alpgen",
+	   "histo_top_MCNLO",
 	   "histo_WW_Sherpa",
 	   "histo_Zjets_Alpgen",		      
 	   "histo_diBZX_Sherpa",

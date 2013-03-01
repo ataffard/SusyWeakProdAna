@@ -146,8 +146,6 @@ if [ $doTopMCNLO ]; then
 #!/bin/bash
     hadd -f ${histPath}/histo_top_MCNLO_${mth}.root   \
 	${histPath}/histo_ttbar.105200_${mth}.root \
-	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
-	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
 	${histPath}/histo_SingleTopWtChanIncl.108346_${mth}.root  \
 	${histPath}/histo_ttbarW.119353_${mth}.root \
 	${histPath}/histo_ttbarWj.119354_${mth}.root \
@@ -157,6 +155,9 @@ if [ $doTopMCNLO ]; then
 EOF
     chmod 755 $SCRIPT
 fi
+#	${histPath}/histo_SingleTopSChan*.*_${mth}.root  \
+#	${histPath}/histo_singletop_tchan*.*_${mth}.root  \
+
 
 if [ $doTopPowHeg ]; then
     echo "Merge Top POWHEG"
@@ -745,6 +746,24 @@ if [ $doBkgDD ]; then
 	  ${histPath}/histo_ZTauTaujets_Alpgen_${mth}.root 
 EOF
     chmod 755 $SCRIPT
+
+   echo "Merge DD Bkg ZAlpgen TopMCNLO"
+    rm -f ${histPath}/histo_BkgZAlpgenTopMCNLO_${mth}.root
+    SCRIPT=${mergeJobDir}/Bkg_ZAlpgenTopMCNLO_${mth}_job.sh
+    [ -f ${SCRIPT} ] && rm -f ${SCRIPT}
+    
+    cat > $SCRIPT << "EOF"
+#!/bin/bash
+    hadd -f ${histPath}/histo_BkgZAlpgenTopPowHeg_${mth}.root \
+          ${histPath}/histo_top_MCNLO_${mth}.root \
+          ${histPath}/histo_data12_fake.root \
+          ${histPath}/histo_WW_Sherpa_${mth}.root \
+  	  ${histPath}/histo_ZX_Alpgen_${mth}.root   \
+	  ${histPath}/histo_ZTauTaujets_Alpgen_${mth}.root 
+EOF
+    chmod 755 $SCRIPT
+
+
 
     echo "Merge DD Bkg ZAlpgen Top Alpgen" 
     rm -f ${histPath}/histo_BkgZTopAlpgen_${mth}.root

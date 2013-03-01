@@ -29,6 +29,8 @@ using namespace std;
 #define DATA8TEV
 
 const bool HIDEDATA=true;
+const bool USESF=true;
+
 
 enum MC { FAKE=0, Ztt=1, WW=2, TOP=3, ZX=4,  OTHER=5};
 
@@ -157,6 +159,11 @@ class DrawPlots {
   std::vector<TH1F*> sumChannels(std::vector<TH1F*> _histEE,
 				 std::vector<TH1F*> _histMM,
 				 std::vector<TH1F*> _histEM);
+
+  float getBkgSF(string name, int BkgType);
+  void  blindMT2(string name, TH1F* h);
+
+  
   
   string       _pathHisto;
   string       _pathPlots;

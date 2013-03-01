@@ -76,7 +76,7 @@ void DrawPlots::openHistoFiles(string mode,
     method="rlep";
     //Some overlap but - top ->semi lep not included 
     //method="std";
-    _mcFileName.push_back(string("histo_data12_fake.root").c_str());
+    _mcFileName.push_back(string("histo_data12_flep.root").c_str());
     _mcFileName.push_back(string(Ztt + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
@@ -129,6 +129,8 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   string dname =  name + "_NOM"; 
   title = "DATA_"+dname;
   _h = (TH1F*) _dataFile->Get(dname.c_str());
+  if(HIDEDATA) blindMT2(name,_h);
+  
   if(_h==NULL){
     cerr <<" Could not find histo " << dname << " in data file " << _dataFile->GetName() << endl;
     abort();
@@ -136,6 +138,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   if(_moveUO) _utils->moveUnderOverFlow(_h);
   _dataH1 = (TH1F*) _h->Clone(title.c_str());
   if(HIDEDATA) blindDataSR();
+
   if(!quiet) cout << "Got " << _dataH1->GetName() << endl;
 
   //Used in case MC file not there
@@ -164,6 +167,9 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
     }
     _mcMarker.push_back(iMarker[i+1]);
 
+    float SF = 1;
+    if(USESF) SF = getBkgSF(name,i);
+
     TFile* _f = _mcFile[i];
     _f->cd();
     
@@ -172,6 +178,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
       if(!sysHistos && isys>0) continue;
       string hName = name + "_" + DG2LSystNames[isys];
       _h = (TH1F*) _f->Get(hName.c_str());
+      if(USESF)	_h->Scale(SF);
       _hArray.push_back(_h);
       if(_hArray[isys]==NULL){ //put an empty histo
 	cerr <<" Could not find histo " << hName << " in MC file " << _f->GetName() << " using empty histo" << endl;
@@ -244,7 +251,66 @@ void DrawPlots::blindDataSR(){
      ) {
     _dataH1->Reset();
   }
+ 
+}
+//-------------------------------------------//
+// Bling mT2 >90
+//-------------------------------------------//
+void DrawPlots::blindMT2(string name, TH1F* h){
+  TString hName(name);
+  if(hName.Contains("_mt2")){
+    int lowMt2 = h->FindBin(90);
+    for(int bin=lowMt2; bin<h->GetNbinsX()+1; ++bin){
+      h->SetBinContent(bin,0);
+      h->SetBinError(bin,0);
+    }
+  }
+}
+//-------------------------------------------//
+// Scale ZX, Top, WW to their values
+//-------------------------------------------//
+float DrawPlots::getBkgSF(string name, int bkgType){
+  TString hName(name);
   
+  //SF from Moriond Feb 27 2013
+  //  cout << "Name " << name << " " << bkgType << endl;
+
+  //SR & preSR
+  if( hName.Contains("SROSjveto")||
+      hName.Contains("SRmT2a") ||
+      hName.Contains("SRmT2b") ||
+      hName.Contains("SRmT2") ||
+      hName.Contains("SR2jets") ||
+      hName.Contains("SRZjets") ||
+      hName.Contains("SRSSjets") ){
+
+    if(bkgType==TOP){
+      if(hName.Contains("EE"))       return 1.066;
+      else if(hName.Contains("MM"))  return 1.025;
+      else if(hName.Contains("EM"))  return 1.040;
+    }
+    else if(bkgType==WW){
+      return 1.35;
+      /*
+      if(hName.Contains("EE"))       return 1.5;
+      else if(hName.Contains("MM"))  return 1.3;
+      else if(hName.Contains("EM"))  return 1.34;
+      */
+    }
+    else if(bkgType==ZX){
+      if(hName.Contains("EE"))       return 1.0472;
+      else if(hName.Contains("MM"))  return 1.0890;
+      else if(hName.Contains("EM"))  return 1;
+    }
+    else if(bkgType==Ztt){
+      return 1.18;
+    }
+
+
+
+  }
+
+  return 1;
 
 }
 
@@ -610,11 +676,15 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
       if(imc==FAKE)_hsys = _mcH1[FAKE][DGSys_NOM]; //add the nominal values since those sys have no effect
       else  _hsys = _mcH1[imc][isys];
       if(_hsys && _hsys->Integral(0,-1)>0) {
-	/*
+	
 	cout << "\t\t MC " << MCNames[imc]
 	     << "\t Sys " << DG2LSystNames[isys] 
 	     << "\t " << _hsys->Integral(0,-1) << endl;
-	*/
+	
+	int ibin1 = _hSys->GetBin(70)
+	int ibin2 = _hSys->GetBin(75);
+	cout << "\t bin 70 " << _hSys->GetBinContent(ibin1) << " \t" <<  _hSys->GetBinContent(ibin2) <<endl;
+
 	totalSysHisto->Add(_hsys);
       }
       //else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
@@ -682,11 +752,13 @@ void DrawPlots::getFakeSys(vector<TH1F*> &sys)
     */
     for(uint isys=DGSys_FAKE_EL_RE_UP; isys<=DGSys_FAKE_MU_FR_DN; ++isys){
       float shift = _mcH1[FAKE][isys]->GetBinContent(bin);
-      /*
+      
       cout << " Fake " << MCNames[FAKE]
 	   << "\t\t Sys " << DG2LSystNames[isys] 
 	   << "\t " << shift << endl;
-      */
+      	int ibin1 = _hSys->GetBin(70)
+	int ibin2 = _hSys->GetBin(75);
+	cout << "\t bin 70 " << _hSys->GetBinContent(ibin1) << " \t" <<  _hSys->GetBinContent(ibin2) <<endl;
       if(shift > bc) err_up += pow(shift-bc,2);
       else           err_dn += pow(shift-bc,2);
     }// end loop over sys

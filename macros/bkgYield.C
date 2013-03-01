@@ -26,7 +26,7 @@ Produce the tex tables as well
 using namespace std;
 typedef unsigned uint;
 
-bool verbose = true;
+bool verbose = false;// true;
 
 //
 // Variables
@@ -126,12 +126,13 @@ void  bkgYield(string sReg){
 
 
   loadBkg("histo_data12_std",sReg,_data);
-  loadBkg("histo_data12_fake",sReg,_mcFake);
+  loadBkg("histo_data12_flep",sReg,_mcFake);
 
   //  loadBkg("histo_topDil_Sherpa_rlep",sReg,_mcTopDil);
   //  loadBkg("histo_top_PowHeg_rlep",sReg,_mcTopDil);
-  loadBkg("histo_top_Alpgen_rlep",sReg,_mcTopDil);
-  loadBkg("histo_WW_Sherpa_rlep",sReg,_mcWW);
+  //  loadBkg("histo_top_Alpgen_rlep",sReg,_mcTopDil);
+  loadBkg("top_MCNLO_rlep",sReg,_mcTopDil);
+  loadBkg("WW_Sherpa_rlep",sReg,_mcWW);
 
   /*
   loadBkg("histo_ZX_Sherpa_rlep",sReg,_mcZX);
@@ -139,11 +140,12 @@ void  bkgYield(string sReg){
   loadBkg("histo_BkgSherpa_rlep",sReg,_mcAll);
   */
 
-  loadBkg("histo_ZX_Alpgen_rlep",sReg,_mcZX);
-  loadBkg("histo_ZTauTaujets_Alpgen_rlep",sReg,_mcZtt);  
+  loadBkg("ZX_AlpgenPythia_rlep",sReg,_mcZX);
+  loadBkg("ZTauTaujets_AlpgenPythia_rlep",sReg,_mcZtt);  
   //  loadBkg("histo_BkgAlpgen_rlep",sReg,_mcAll);
 
-  loadBkg("histo_BkgZTopAlpgen_rlep",sReg,_mcAll);
+  //  loadBkg("histo_BkgZTopAlpgen_rlep",sReg,_mcAll);
+  loadBkg("Bkg_ZXAlpgen_TopMCNLO_rlep",sReg,_mcAll);
 
   string fileName= _ana->_pathTables + "/BkgYield_" + sReg + ".txt";
   std::ofstream outFile;

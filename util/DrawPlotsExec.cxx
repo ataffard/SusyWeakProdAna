@@ -40,10 +40,11 @@ int main(int argc, char *argv[]){
 
   string mode = "DD";
 
-  string sFake = "histo_data12_fake";
+  string sFake = "histo_data12";
 
   //  string sTop = "histo_top_PowHeg";
-  string sTop = "histo_top_Alpgen";
+  //  string sTop = "histo_top_Alpgen";
+  string sTop = "histo_top_MCNLO";
   //string sTop = "histo_topDil_Sherpa";ll 
   string sWW = "histo_WW_Sherpa";
   /*
@@ -55,8 +56,8 @@ int main(int argc, char *argv[]){
   string sZtt = "histo_ZTauTaujets_Sherpa";  
   */
   
-  string sZX = "histo_ZX_Alpgen";
-  string sZtt = "histo_ZTauTaujets_Alpgen";  
+  string sZX = "histo_ZX_AlpgenPythia";
+  string sZtt = "histo_ZTauTaujets_AlpgenPythia";  
   
 
   string sr    = "";

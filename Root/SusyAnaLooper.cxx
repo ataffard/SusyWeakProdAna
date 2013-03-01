@@ -23,6 +23,8 @@ SusyAnaLooper::SusyAnaLooper():
   _isAlpgenLowMass(false),
   nHFOR(0)
 {
+  setAnaType(Ana_2Lep);
+
   _histoDir = new TDirectory("Ana","Ana");
   _susyHistos = new SusyHistos();
 }
@@ -65,7 +67,6 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseLeptons, &m_signalLeptons,
 			       &m_baseJets, &m_signalJets2Lep);
     _susyHistos->Book2LHistograms(_histoDir,DO_SYS);
-    _susy2LAna->setAnaType(Ana_2Lep);
 
     if(DO_SYS){
       if(_runOneSys || _runSysRange){
@@ -164,7 +165,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
          << " run " << setw(6) << nt.evt()->run
          << " event " << setw(7) << nt.evt()->event << " ****" << endl;
   }
-  
+
   //Debug this event - check if should be processed
   if(m_dbgEvt && !processThisEvent(nt.evt()->run, nt.evt()->event))  return kFALSE;
   
@@ -272,9 +273,14 @@ void SusyAnaLooper::Terminate()
   if(_do2LAna) _susy2LAna->end();
   if(_do3LAna) _susy3LAna->end();
 
+  /*
   _susyHistos->SaveHistograms(_histoDir,_method,
 			      _doMll,_isAlpgenLowMass,
 			      _systematic1, _systematic2);
+  */
+  _susyHistos->SaveSplit2LHistograms(_histoDir,_method,
+				     _doMll,_isAlpgenLowMass,
+				     _systematic1, _systematic2);
 
   SusyNtAna::Terminate();
   if(dbg()>0) cout << "SusyAnaLooper::Terminate" << endl;

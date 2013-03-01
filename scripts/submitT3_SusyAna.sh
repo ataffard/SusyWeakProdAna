@@ -87,8 +87,8 @@ while read line; do
 	echo "  anaOpt1:    $anaOpt1"
 	echo "  doMll:      $anaOpt2"
 	echo 
-
-	if [ "$type" == "mc12" -o "$type" == "susy" ]; then
+	
+ 	if [ "$type" == "mc12" -o "$type" == "susy" ]; then
 	    if [ $doSys ]; then
 	        #For large sample - split the sys
 		if [ "$sName" == "Zee.147770" -o \
@@ -110,9 +110,10 @@ while read line; do
 "$sName" == "ZmumuNp1.117661" -o \
 "$sName" == "DYeeM15to40.173042" -o \
 "$sName" == "DYmumuM08to15.173043" -o \
+"$sName" == "DYmumuM15to40.173044" -o \
 "$sName" == "ZeeLightJets.146820" -o \
-"$sName" == "ZmumuLightJets.146821" -o \
-]; then
+"$sName" == "ZmumuLightJets.146821"  \
+		    ]; then
 		    SYS1=("NOM"      "EES_Z_DN"    "EES_MAT_DN" "EES_PS_DN"  "EES_LOW_DN"  "EER_DN" "MS_DN" "ID_DN" "JES_DN" "SCALEST_UP" \
 "TRIGSF_EL_UP" "TRIGSF_MU_UP" "BTag_BJet_DN"  "BTag_LJet_DN" "BTag_CJet_UP" "BKGMETHOD_UP" "XS_UP")
 		    SYS2=("EES_Z_UP" "EES_MAT_UP"  "EES_PS_UP"  "EES_LOW_UP" "EER_UP"      "MS_UP"  "ID_UP" "JES_UP" "JER"   "RESOST"     \

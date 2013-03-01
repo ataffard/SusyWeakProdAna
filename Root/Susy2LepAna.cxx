@@ -79,7 +79,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/pass0_Moriond_Feb14_2013.root"; //Moriond
+    "/SusyMatrixMethod/data/pass2_Moriond_Feb22_2013.root"; //Moriond
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT);
 
@@ -93,6 +93,10 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   string _sSigFile = string(getenv("WORKAREA")) +
     "/SusyWeakProdAna/data/" + "Simplified_CrossSections.txt";
   sigXsfile.open(_sSigFile.c_str());
+
+
+  setAnaType(Ana_2Lep);
+
 
   _tmp=0;
 }
@@ -543,7 +547,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_selOS = true;
     m_selZ  = true;
     m_vetoJ = true;
-    m_metRelMin=70;
+    //m_metRelMin=70;
     m_metRelMax=100;
     m_mt2Max=90;
   }
@@ -559,7 +563,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_selOS  = true;    
     m_selOF = true;
     if(dilType==ET_em){
-      m_vetoF  = true;
+      //m_vetoF  = true;
       m_selB   = true;
       m_minCJet=1;
       m_pTl0Min = 35;
@@ -573,7 +577,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_selOS  = true;
     m_selOF = true;
     if(dilType==ET_em){
-      m_vetoF  = true;
+      //m_vetoF  = true;
       m_selB = true;
       m_minCJet=1;
       m_pTl0Min = 35;
@@ -587,7 +591,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_selOS  = true;
     m_selOF = true;
     if(dilType==ET_em){
-      m_vetoF  = true;
+      //m_vetoF  = true;
       m_selB = true;
       m_minCJet=1;
       m_pTl0Min = 35;
@@ -785,6 +789,9 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 			      const JetVector* signalJets,
 			      const Met* met)
 {
+  //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
+  if(nt->evt()->isMC) _inc = nt->evt()->w; 
+  else _inc =1;
 
   if(SYST==DGSys_NOM) n_readin+=_inc;
 
@@ -794,7 +801,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     }
 
   //NEW Moriond
-  if( !passDeadRegions(*v_baseJet,met, nt->evt()->run)){
+  if( !passDeadRegions(*v_baseJet,met, nt->evt()->run,nt->evt()->isMC)){
      if(dbg()>10) cout<<"Fail Dead Regions" << endl; 
      return false;
   }
@@ -851,13 +858,11 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 				    signalJets->size(),
 				    nt->evt()->nVtx,
 				    SYST);
-  _ww           *= _lepSFW * _trigW;
-  
   float bTagWeight =  getBTagSF(nt->evt(),v_baseJet,SYST);
 
+  if(WEIGHT_COUNT)  _ww *= _lepSFW * _trigW;
   float _wwSave = _ww;
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
-
     
   if(dbg()>10){ 
     cout << ">>> run " << nt->evt()->run  
@@ -880,8 +885,10 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     //
     //Debug, skip SS - 
     //
+    /*
     if(iSR==DIL_SRSSjets || iSR==DIL_VRSS || iSR==DIL_VRSSbtag || 
        iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 || iSR==DIL_preSRSS) continue;
+    */
 
     int icut =0;
     string sSR=DIL_SRNAME[iSR];
@@ -1788,6 +1795,7 @@ void Susy2LepAna::print_SROSjveto()
   print_line("pass Zveto  ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
   print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass MT2(<90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 }
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_SRmT2()
