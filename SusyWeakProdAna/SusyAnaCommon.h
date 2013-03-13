@@ -11,49 +11,11 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_1FB  //A->B3
 //#define LUMI_5FB  //A->B14
 
-
-//Note V5.0 HCP
-//const std::string TAG  = "110812";
-//const std::string SUFF = "_n0111_DD_MMtrial9_SYS_HFT"; 
-
-//const std::string TAG  = "112812";
-//const std::string SUFF = "_n0114_DD_MMtrial9_SYS"; 
-
-//const std::string TAG  = "011613";
-//const std::string SUFF = "_n0115_Fake";
-
-//New vars, reorder SR 
-//const std::string TAG  = "122012";
-//const std::string SUFF = "_n0115_DD_MMtrial9_newJVeto_SYS"; 
-
-//const std::string TAG  = "012813";
-//const std::string SUFF = "_n0121_IJL_DD";
-
-//#define LUMI_13FB  //A->E5
-//const std::string TAG  = "020613";
-//const std::string SUFF = "_n0123_HCP_DD";
-
-//#define LUMI_13FB  //A->E5
-//const std::string TAG  = "020813";
-//const std::string SUFF = "_n0124_HCP_DD_NEWJET";
-
-//#define LUMI_13FB  //A->E5
-//const std::string TAG  = "020813";
-//const std::string SUFF = "_n0124_HCP_DD_NEWJET025";
-
-//#define LUMI_21FB  //All 2012
-//const std::string TAG  = "02713";
-//const std::string SUFF = "_n0123_Moriond_Fake_DD";
-
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "022513";
-//const std::string SUFF = "_n0127_Moriond_DD_v2";
-//const std::string SUFF = "_n0127_Moriond_DD_v4";
-const std::string SUFF = "_n0127_Moriond_DD_v5";
+const std::string TAG  = "030613";
+const std::string SUFF = "_n0127_Moriond_DD_v7";
 
-//#define LUMI_PeriodIJL
-//const std::string TAG  = "020113";
-//const std::string SUFF = "_n0123_IJL_DD";
+
 
 //
 //Normal mode - all these are true

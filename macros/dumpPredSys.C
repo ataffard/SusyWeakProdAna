@@ -3,7 +3,8 @@
 
 typedef unsigned uint;
 
-string dir ="histos_022513_21fb_n0127_Moriond_DD_v5/";
+string dir ="histos_030213_21fb_n0127_Moriond_DD_v6/";
+//string dir ="";
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
@@ -24,13 +25,15 @@ int main(int argc, char *argv[]){
   //sample.push_back("histo_llnunu_WW.126892_rlep.root");
   
   //sample.push_back("histo_lllnu_WZ.126893_rlep.root");
-  sample.push_back("histo_data12_flep.root");
+  //sample.push_back("histo_data12_flep.root");
   //sample.push_back("histo_ZX_AlpgenPythia_rlep.root");
   //sample.push_back("histo_ZX_Sherpa_rlep.root");
   //sample.push_back("histo_WW_Sherpa_rlep.root");
   //sample.push_back("histo_top_MCNLO_rlep.root");
   //sample.push_back("histo_ZTauTaujets_AlpgenPythia_rlep.root");
-  //sample.push_back("histo_llnunu_WW.126892_rlep.root"); 
+  //sample.push_back("histo_llnunu_WW.126892_rlep_preSRmT2.root"); 
+  sample.push_back("histo_ttbar.105200_CRWW_rlep.root");
+
 
   vector<string> SR;
   //SR.push_back("DG2L_CR2LepOS_");
@@ -38,8 +41,8 @@ int main(int argc, char *argv[]){
   //SR.push_back("DG2L_SRSSjveto_");
   //SR.push_back("DG2L_SROSjveto_");
   //SR.push_back("DG2L_ZXCRWW_");
-  //SR.push_back("DG2L_CRWW_");
-  SR.push_back("DG2L_preSRmT2_");
+  SR.push_back("DG2L_CRWW_");
+  //SR.push_back("DG2L_preSRmT2_");
 
   /*
     SR.push_back("DG2L_SR2jets_");
@@ -76,11 +79,16 @@ int main(int argc, char *argv[]){
       cout << " ========= SR/CR " << SR[is] << " =================" << endl;
       for(uint il=0; il<LEP.size(); il++){
 	cout << " ******************* " << LEP[il] << " ***************** "  << endl;
+	float nom=0;
 	for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
 	  string sHName = SR[is] + LEP[il] + "_DG2L_pred_"+ DG2LSystNames[isys];
 	  TH1F* _h = (TH1F*)  _f->Get(sHName.c_str())->Clone();
+	  float fracErr = 0;
+	  if(isys==DGSys_NOM) nom=_h->Integral(0,-1);
+	  else   fracErr = (nom>0 || nom<0) ? (_h->Integral(0,-1) - nom)/nom : 0.;
 	  cout << SR[is] << LEP[il] << "_" << DG2LSystNames[isys]<< "\t";
-	  printf("%3.4f \n",_h->Integral(0,-1)); 
+	  printf("\t\t %3.4f \t %3.4f \n",_h->Integral(0,-1),fracErr); 
+
 	  double val,err;
 	  val = _h->IntegralAndError(0,-1,err);
 	  _pred->SetBinContent(isys+1, il+1,val);

@@ -28,23 +28,23 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
     
 #SR=(CR2LepOS)
 SR=(preSRmT2)
-#PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
-PLOTS=(mllcoarse)
+PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
+#PLOTS=(mllcoarse)
 
-DIL=(EM)
-#DIL=(EE MM EM)
+#DIL=(EE)
+DIL=(EE MM EM)
 
-<<SKIP    
-SR=(ZXCRmT2a ZXCRmT2b ZXCRWW \
-    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
-    CRWW CRWWa CRWWb CRWWc \
-    VRSS VRSSbtag \  
-    CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
-    preSROSjveto preSRmT2 \
-    preSR2jets preSRZjets preSRSS
-)
-   
 
+#SR=(ZXCRmT2a ZXCRmT2b ZXCRWW \
+#    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
+#    CRWW CRWWa CRWWb CRWWc \
+#    VRSS VRSSbtag \  
+#    CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
+#    preSROSjveto preSRmT2 \
+#    preSR2jets preSRZjets preSRSS
+#)
+
+<<SKIP
 SR=(SROSjveto SRmT2a SRmT2b \
     SR2jets SRZjets SRSSjets \
     SRWWa SRWWb SRWWc \

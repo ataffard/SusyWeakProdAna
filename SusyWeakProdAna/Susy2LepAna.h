@@ -16,6 +16,7 @@
 #include "SusyNtuple/SusyNtObject.h"
 #include "SusyNtuple/SusyNtTools.h"
 #include "SusyNtuple/DilTrigLogic.h"
+#include "SusyNtuple/SleptonXsecReader.h"
 
 #include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
 #include "ChargeFlip/chargeFlip.h"
@@ -23,6 +24,8 @@
 #include "HistFitterTree/HistFitterTree.h"
 
 //SusyWeakProdAna 
+
+#include "SusyWeakProdAna/SUSYCrossSection.h"
 #include "SusyWeakProdAna/SusyHistos.h"
 
 #include "SusyWeakProdAna/ToyNt.h"
@@ -84,6 +87,10 @@ class Susy2LepAna: public SusyNtTools
 		     const JetVector* jets,
 		     const Met* met);
 	
+
+    map<int,float> getSleptonSumWs(                      ) { return m_sleptonSumWs;  };
+    void           setSleptonSumWs( map<int,float> sumws ) { m_sleptonSumWs = sumws; };
+
     // Reset flags & var
     void reset();
     void resetCounter();
@@ -205,6 +212,13 @@ class Susy2LepAna: public SusyNtTools
     string  HFTName;
 
     bool m_writeToyNt;
+
+    SleptonXsecReader*   m_SleptonXSecReader;
+    map<int,float>       m_sleptonSumWs;
+
+    SUSY::CrossSectionDB*                       m_susyXsec;     // SUSY cross section database
+    std::map<int,SUSY::CrossSectionDB::Process> m_xsecMap;      // our own xsec map for faster lookup times
+    
 
     //containers - from SusyNt
     ElectronVector*      v_baseEle;     // baseline electrons
@@ -337,6 +351,7 @@ class Susy2LepAna: public SusyNtTools
     ofstream evtDump;
 
     ifstream sigXsfile;
+
 
 
 };

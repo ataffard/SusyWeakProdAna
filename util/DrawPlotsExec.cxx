@@ -46,19 +46,28 @@ int main(int argc, char *argv[]){
   //  string sTop = "histo_top_Alpgen";
   string sTop = "histo_top_MCNLO";
   //string sTop = "histo_topDil_Sherpa";ll 
+  
   string sWW = "histo_WW_Sherpa";
+  //string sWW = "histo_WW_PowHeg";
   /*
     string sZX = "histo_ZX_SherpaLFHF";
     string sZtt = "histo_ZTauTaujets_SherpaLFHF";  
   */
-  /*
-  string sZX = "histo_ZX_Sherpa";
-  string sZtt = "histo_ZTauTaujets_Sherpa";  
-  */
   
-  string sZX = "histo_ZX_AlpgenPythia";
+  string sZX = "histo_ZX_AlpgenPythia_WZ_ZZ_Sherpa";
+  //string sZX = "histo_ZX_AlpgenPythia_WZ_ZZ_PowHeg";
+  //string sZX = "histo_ZX_Sherpa_WZ_ZZ_PowHeg";
+  
+  
+  
+  //string sZX = "histo_ZX_AlpgenPythia";
+  //string sZX  = "histo_ZX_AlpgenPythia_diBPowHeg";
+
+  //string sZtt = "histo_ZTauTaujets_Sherpa";    
   string sZtt = "histo_ZTauTaujets_AlpgenPythia";  
   
+  string sHiggs = "histo_Higgs";
+  //string sHiggs = "histo_dummy";
 
   string sr    = "";
   string cr    = "";
@@ -118,7 +127,7 @@ int main(int argc, char *argv[]){
   DrawPlots* _ana = new DrawPlots();
    
   //histo files merging
-  if(!cutflow)  _ana->openHistoFiles(mode,sTop,sWW,sZX,sZtt,sFake);
+  if(!cutflow)  _ana->openHistoFiles(mode,sTop,sWW,sZX,sZtt,sFake,sHiggs);
 
 
   if(comp) _ana->compareShape(pName,logY);

@@ -1,33 +1,26 @@
 #
-#  cat Zjets_AlpgenPythia.txt WZ_ZZ_Sherpa.txt > ZX_AlpgenPythia.txt
-#  cat Zjets_Sherpa.txt WZ_ZZ_Sherpa.txt > ZX_Sherpa.txt
-#  cat Zjets_SherpaLFHF.txt WZ_ZZ_Sherpa.txt >ZX_SherpaLFHF.txt
 #
-#  cat ZX_AlpgenPythia.txt top_MCNLO.txt WW_Sherpa.txt ZTauTaujets_AlpgenPythia.txt >Bkg_ZXAlpgen_TopMCNLO.txt
-#  cat ZX_AlpgenPythia.txt top_Alpgen.txt WW_Sherpa.txt ZTauTaujets_AlpgenPythia.txt >Bkg_ZXAlpgen_TopAlpgen.txt
-#  cat ZX_AlpgenPythia.txt top_PowHeg.txt WW_Sherpa.txt ZTauTaujets_AlpgenPythia.txt >Bkg_ZXAlpgen_TopPowHeg.txt
-#
-#  cat ZX_Sherpa.txt top_MCNLO.txt WW_Sherpa.txt ZTauTaujets_Sherpa.txt >Bkg_ZXSherpa_TopMCNLO.txt
-#  cat ZX_Sherpa.txt top_Alpgen.txt WW_Sherpa.txt ZTauTaujets_Sherpa.txt >Bkg_ZXSherpa_TopAlpgen.txt
-#  cat ZX_Sherpa.txt top_PowHeg.txt WW_Sherpa.txt ZTauTaujets_Sherpa.txt >Bkg_ZXSherpa_TopPowHeg.txt
-#
-# check log for error grep -i error  *_SROSjveto_EE*  |grep -i cannot
+# check log for errors:
+#          grep -i error hadd/*.log |grep -i cannot |cut -d" " -f1-1
 #
 #
 
+#
+#
+# ./submitT3_hadd.sh cat
+#
+# ./submitT3_hadd.sh mc rlep hadd; ./submitT3_hadd.sh data std hadd; ./submitT3_hadd.sh data flep hadd; 
+#
+# ./submitT3_hadd.sh mc rlep merge; ./submitT3_hadd.sh data std merge; ./submitT3_hadd.sh data flep merge; 
+#
+#
+#
 #!/bin/bash
 
-if [[ $# = 3 ]]; then
-    type=$1
-    mth=$2
-    mode=$3
-    echo "Request ${type} method: ${mth}"
-else
-    echo "Give background type to hadd eg: mc data" 
-    echo " method: rlep flep/std"
-    echo " mode: hadd or merge"
-    exit 1;
-fi
+#Update for a given pass
+date="030813_21fb_n0127_Moriond_DD_v8"
+#date="030613_21fb_n0127_Moriond_DD_v7"
+#date="030213_21fb_n0135_Moriond_DD_v7"
 
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -36,9 +29,111 @@ pathRun=${WORKAREA}/SusyWeakProdAna/run
 inlist=${WORKAREA}/SusyWeakProdAna/scripts/inputHistoList
 dir=${WORKAREA}/SusyWeakProdAna/scripts/haddJobs
 
-inpath=${WORKAREA}/histoAna/SusyAna/histOutputs
-outpath=${WORKAREA}/histoAna/SusyAna/hadd_histOutputs
-endpath=${WORKAREA}/histoAna/SusyAna/
+#inpath=${WORKAREA}/histoAna/SusyAna/histOutputs
+#outpath=${WORKAREA}/histoAna/SusyAna/hadd_histOutputs
+#endpath=${WORKAREA}/histoAna/SusyAna
+
+inpath=${WORKAREA}/histoAna/SusyAna/histos_${date}/histOutputs
+outpath=${WORKAREA}/histoAna/SusyAna/histos_${date}/hadd_histOutputs
+endpath=${WORKAREA}/histoAna/SusyAna/histos_${date}
+
+passDir=${WORKAREA}/histoAna/SusyAna/histos_${date}
+
+
+if [[ $# = 3 ]]; then
+    type=$1
+    mth=$2
+    mode=$3
+    echo "Request ${type} method: ${mth}"
+elif [[ $# = 1 ]]; then
+    mode=$1
+
+    if [ "$mode" == "cat" ]; then
+	echo "Remerging Zjets, ZX & Bkg  grouping"
+
+	#Various Z+jets
+	cat ${inlist}/Zjets_AlpgenPythia.txt ${inlist}/WZ_ZZ_Sherpa.txt > ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt
+	cat ${inlist}/Zjets_AlpgenPythia.txt ${inlist}/WZ_ZZ_PowHeg.txt > ${inlist}/ZX_AlpgenPythia_WZ_ZZ_PowHeg.txt
+
+	cat ${inlist}/Zjets_Sherpa.txt ${inlist}/WZ_ZZ_Sherpa.txt > ${inlist}/ZX_Sherpa_WZ_ZZ_Sherpa.txt
+	cat ${inlist}/Zjets_Sherpa.txt ${inlist}/WZ_ZZ_PowHeg.txt > ${inlist}/ZX_Sherpa_WZ_ZZ_PowHeg.txt
+
+	#cat ${inlist}/Zjets_SherpaLFHF.txt ${inlist}/WZ_ZZ_Sherpa.txt > ${inlist}/ZX_SherpaLFHF_WZ_ZZ_Sherpa.txt
+	
+
+	#All Bkg grouping - variations
+	cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_Sherpa.txt \
+	    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO.txt
+
+	cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_PowHeg.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_PowHeg.txt \
+	    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO.txt
+
+
+	#cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt ${inlist}/top_Alpgen.txt ${inlist}/WW_Sherpa.txt \
+	#    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_diB_Sherpa_TopAlpgen.txt
+	#cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt ${inlist}/top_PowHeg.txt ${inlist}/WW_Sherpa.txt \
+	#    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_diB_Sherpa_TopPowHeg.txt
+
+
+#	cat ${inlist}/ZX_Sherpa.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_Sherpa.txt \
+#	    ${inlist}/ZTauTaujets_Sherpa.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXSherpa_TopMCNLO.txt
+
+#	cat ${inlist}/ZX_Sherpa.txt ${inlist}/top_Alpgen.txt ${inlist}/WW_Sherpa.txt \
+#	    ${inlist}/ZTauTaujets_Sherpa.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXSherpa_TopAlpgen.txt
+#	cat ${inlist}/ZX_Sherpa.txt ${inlist}/top_PowHeg.txt ${inlist}/WW_Sherpa.txt \
+#	    ${inlist}/ZTauTaujets_Sherpa.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXSherpa_TopPowHeg.txt
+
+#	cat ${inlist}/ZX_AlpgenPythia.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_PowHeg.txt \
+#	    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt >${inlist}/Bkg_ZXAlpgen_TopMCNLO_WWPowHeg.txt
+
+#	cat ${inlist}/ZX_AlpgenPythia_diBPowHeg.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_PowHeg.txt \
+#	    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt >${inlist}/Bkg_ZXAlpgen_diBPowHeg_TopMCNLO_WWPowHeg.txt
+
+
+    elif  [ "$mode" == "pass" ]; then
+	
+	if [ ! -d "${passDir}" ]; then
+	    mkdir ${passDir}
+	fi
+	mkdir -p ${passDir}/logs
+	mkdir -p ${passDir}/logs/hadd
+	mkdir -p ${passDir}/logs/jobs
+
+	mv ${endpath}/*.root ${passDir}
+	mv ${pathRun}/jobLogs/*hadd.log ${passDir}/logs/hadd
+	mv ${pathRun}/jobLogs/*.log ${passDir}/logs/jobs
+	mv ${endpath}/HFTOutputs ${passDir}
+	mv ${endpath}/ToyNtOutputs ${passDir}
+	mv ${endpath}/hadd_histOutputs ${passDir}
+	mv ${endpath}/histOutputs ${passDir}
+
+    elif  [ "$mode" == "move" ]; then
+
+	inDir=${WORKAREA}/histoAna/SusyAna/histOutputs
+	#inDir=/data7/atlas/ataffard/SUSYAna_8TeV2012ALL/histoAna/SusyAna/histos_030213_21fb_n0135_Moriond_DD_v7/histOutputs/
+	outDir=${WORKAREA}/histoAna/SusyAna/histos_${date}/histOutputs
+	
+	ls -1 ${inDir} >tmp.txt
+	
+	while read line; do 
+	    var=(`echo ${line} | tr '\t' ','`)
+	    subdir=${var[0]}
+	    mv ${inDir}/${subdir}/* ${outDir}/${subdir}
+	    #echo "cp ${inDir}/${subdir}/*126941* ${outDir}/${subdir}"
+	    #cp ${inDir}/${subdir}/*126941* ${outDir}/${subdir}
+	done <tmp.txt
+	rm -f tmp.txt
+
+    fi
+
+    exit 1;
+else
+    echo "Give background type to hadd eg: mc data" 
+    echo " method: rlep flep/std"
+    echo " mode: hadd or merge"
+    exit 1;
+fi
+
 
 
 echo "Input history directory ${inpath}" 
@@ -54,23 +149,30 @@ fi
 #rm -f ${outpath}/*
 
 
-#DIL=(EE)
-#SR=(SROSjveto)
+#DIL=(MM)
+#SR=(ZXCRpremT2 ZXCRWW2 CRWW2 CRWW3 CRWW4)
+#SR=(preSRmT2 SRmT2a SRmT2b \
+#    ZXCRpremT2 ZXCRmT2a ZXCRmT2b ZXCRWW ZXCRWW2  \
+#    CRTOP \
+#    CRWW CRWW2 CRWW3 CRWW4   )
 
-#<<SKIP
+
 DIL=(EE MM EM)
-SR=(SROSjveto SRmT2a SRmT2b \
+#<<SKIP
+SR=(preSRmT2 SRmT2a SRmT2b \
+    ZXCRpremT2 ZXCRmT2a ZXCRmT2b ZXCRWW ZXCRWW2  \
+    CRTOP \
+    CRWW CRWW2 CRWW3 CRWW4 \
+    SROSjveto  \
     SR2jets SRZjets SRSSjets \
     SRWWa SRWWb SRWWc \
     ZXCRjveto ZXCR2jets \
-    ZXCRmT2a ZXCRmT2b ZXCRWW \
-    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
-    CRWW CRWWa CRWWb CRWWc \
+    CRTOPWWa CRTOPWWb CRTOPWWc \
+    CRWWa CRWWb CRWWc \
     VRSS VRSSbtag \  
     CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
-    preSROSjveto preSRmT2 \
-    preSR2jets preSRZjets preSRSS  
-)
+    preSROSjveto  \
+    preSR2jets preSRZjets preSRSS  )
 #SKIP
 
 
@@ -140,17 +242,14 @@ while read line; do
 	#echo "qsub -j oe -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh,jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh"
 		qsub -j oe -d ${PWD} -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh,jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh
 		
-		sleep 0.1
+		sleep 0.5
 		
 	    done
           done
 	
     fi
-    
-
-
-    
+       
     
 done<${list}
 
-qstat |grep ataffard
+

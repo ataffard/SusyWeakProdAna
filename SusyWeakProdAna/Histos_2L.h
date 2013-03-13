@@ -17,9 +17,11 @@ const char* const DIL_QQ[] = {"OS", "SS"};
 enum DIL_SR{DIL_SROSjveto=0, DIL_SRmT2a, DIL_SRmT2b,
 	    DIL_SR2jets, DIL_SRZjets, DIL_SRSSjets,
 	    DIL_SRWWa, DIL_SRWWb, DIL_SRWWc, 
-	    DIL_ZXCRjveto, DIL_ZXCR2jets, DIL_ZXCRmT2a, DIL_ZXCRmT2b, DIL_ZXCRWW, 
+	    DIL_ZXCRjveto, DIL_ZXCR2jets, DIL_ZXCRpremT2, DIL_ZXCRmT2a, DIL_ZXCRmT2b,
+	    DIL_ZXCRWW, DIL_ZXCRWW2, 
 	    DIL_CRTOP, DIL_CRTOPWWa, DIL_CRTOPWWb, DIL_CRTOPWWc, 
-	    DIL_CRWW, DIL_CRWWa, DIL_CRWWb, DIL_CRWWc,
+	    DIL_CRWW, DIL_CRWW2, DIL_CRWW3, DIL_CRWW4, 
+	    DIL_CRWWa, DIL_CRWWb, DIL_CRWWc,
 	    DIL_VRSS, DIL_VRSSbtag,
 	    DIL_CRZ,  DIL_CRZjveto,
 	    DIL_CR2LepOS, DIL_CR2LepSS, DIL_CR2LepSS40,
@@ -31,9 +33,11 @@ enum DIL_SR{DIL_SROSjveto=0, DIL_SRmT2a, DIL_SRmT2b,
 const string DIL_SRNAME[] = {"SROSjveto", "SRmT2a", "SRmT2b",
 			     "SR2jets", "SRZjets","SRSSjets",  
 			     "SRWWa", "SRWWb", "SRWWc", 
-			     "ZXCRjveto","ZXCR2jets","ZXCRmT2a","ZXCRmT2b","ZXCRWW",
+			     "ZXCRjveto","ZXCR2jets","ZXCRpremT2","ZXCRmT2a","ZXCRmT2b",
+			     "ZXCRWW","ZXCRWW2",
 			     "CRTOP", "CRTOPWWa", "CRTOPWWb", "CRTOPWWc", 
-			     "CRWW", "CRWWa", "CRWWb", "CRWWc", 
+			     "CRWW","CRWW2","CRWW3","CRWW4",
+			     "CRWWa", "CRWWb", "CRWWc", 
 			     "VRSS", "VRSSbtag",
 			     "CRZ", "CRZjveto", 
 			     "CR2LepOS", "CR2LepSS", "CR2LepSS40",
@@ -73,6 +77,7 @@ class Histos_2L
   HDG2L DG2L_qq; //SS: --/++; OS: -+/+-
   HDG2L DG2L_mll;
   HDG2L DG2L_mllcoarse;
+  HDG2L DG2L_mllcoarser;
   HDG2L DG2L_mjj;
   HDG2L DG2L_pTll;
   HDG2L DG2L_mWWT;

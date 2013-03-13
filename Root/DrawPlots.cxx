@@ -28,17 +28,18 @@ DrawPlots::DrawPlots(){
 
   SFILE.clear();
   //  SFILE.push_back("Wjets + b#bar{b} + c#bar{c}");
+  SFILE.push_back("SM Higgs");
   SFILE.push_back("Fake-leptons MC");
   SFILE.push_back("Z#rightarrow #tau#tau");
-  SFILE.push_back("WW");
-  SFILE.push_back("t#bar{t} + Wt");
   SFILE.push_back("Z(ee,#mu#mu)+jets + ZV");
+  SFILE.push_back("t#bar{t} + Wt");
+  SFILE.push_back("WW");
   SFILE.push_back("Data");
 
 
   SIGFILE.clear();
-  SIGFILE.push_back("mAwSl_150_0");
-  SIGFILE.push_back("mAwSl_250_100");
+  SIGFILE.push_back("(m#tilde{l},m#tilde{#chi}_{1}^{0}) = (255,80)");
+  SIGFILE.push_back("(m#tilde{#chi}^{#pm}_{1},m#tilde{#chi}^{0}_{1}) = (375,125)");
 }
 
 //-------------------------------------------//
@@ -47,7 +48,7 @@ DrawPlots::DrawPlots(){
 void DrawPlots::openHistoFiles(string mode, 
 			       string Top, string WW, 
 			       string ZX,  string Ztt, 
-			       string Fake)
+			       string Fake, string Higgs)
 {
   std::cout << "loading histo from method " << mode << endl;
   std::cout << "Using histo path " << _pathHisto <<endl;
@@ -64,11 +65,13 @@ void DrawPlots::openHistoFiles(string mode,
   if(strcmp(mode.c_str(),"STD")==0){
     cout << "Loading STD MC mode " << endl;
     method="std";
+    _mcFileName.push_back(string(Higgs + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(Fake + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(Ztt + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(ZX + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
+
   }
   else if(strcmp(mode.c_str(),"DD")==0){
     cout << "Loading rlep MC & DD fake " << endl;
@@ -76,12 +79,14 @@ void DrawPlots::openHistoFiles(string mode,
     method="rlep";
     //Some overlap but - top ->semi lep not included 
     //method="std";
+    _mcFileName.push_back(string(Higgs + "_" + method + ".root").c_str());
     _mcFileName.push_back(string("histo_data12_flep.root").c_str());
     _mcFileName.push_back(string(Ztt + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(ZX + "_" + method + ".root").c_str());
-    SFILE[0]="Fake-leptons MM";
+    _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
+
+    SFILE[1]="Fake-leptons MM";
   }
 
   for(uint i=0; i<_mcFileName.size(); i++){
@@ -93,8 +98,8 @@ void DrawPlots::openHistoFiles(string mode,
 
   _sigFileName.clear();
   _sigFile.clear();
-  _sigFileName.push_back(string("histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_10.144876_" + method + ".root").c_str());
-  _sigFileName.push_back(string("histo_Herwigpp_simplifiedModel_wA_slep_noWcascade_18.144884_" + method + ".root").c_str());
+  _sigFileName.push_back("histo_Herwigpp_pMSSM_DLiSlep_MSL_255_M1_080.175517_rlep_NOM_XS_DN.root");
+  _sigFileName.push_back("histo_Herwigpp_simplifiedModel_wC_slep_noWcascade_24.144921_rlep_NOM_XS_DN.root");
   
   for(uint i=0; i<_sigFileName.size(); i++){
     std::cout << "Loading " << SIGFILE[i].c_str() << " " << _sigFileName[i] << std::endl;
@@ -139,7 +144,12 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   }
   if(_moveUO) _utils->moveUnderOverFlow(_h);
   _dataH1 = (TH1F*) _h->Clone(title.c_str());
-  if(HNAME.Contains("_mt2")) _dataH1->Rebin(2);
+  /*
+  if(HNAME.Contains("_metrel")){
+    _dataH1->Rebin(2);
+    cout << "REBIN METREL " << endl;
+  }
+  */
   if(HIDEDATA) blindDataSR();
 
   if(!quiet) cout << "Got " << _dataH1->GetName() << endl;
@@ -152,6 +162,9 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   for(uint i=0; i<_mcFile.size(); i++){
     
     switch (i){
+    case HIGGS:
+      _mcColor.push_back(C_HIGGS);
+      break;
     case FAKE:
       _mcColor.push_back(C_FAKE);
       break;
@@ -182,9 +195,9 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
       if(!sysHistos && isys>0) continue;
       string hName = name + "_" + DG2LSystNames[isys];
       _h = (TH1F*) _f->Get(hName.c_str());
+      //if(HNAME.Contains("_metrel")) _h->Rebin(2);
 
       if(USESF)	_h->Scale(SF);
-      if(HNAME.Contains("_mt2")) _h->Rebin(2);
       if(isys==DGSys_NOM) _hNom = (TH1F*) _h->Clone();
       setGenSys(hName,i, _hNom, _h);
 
@@ -209,19 +222,21 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   for(uint i=0; i<_sigFile.size(); i++){
     TFile* _f = _sigFile[i];
     _f->cd();
-    _h = (TH1F*) _f->Get(name.c_str());
+    string hName = name + "_NOM";
+    _h = (TH1F*) _f->Get(hName.c_str());
+    //if(HNAME.Contains("_metrel")) _h->Rebin(2);
     if(_h==NULL){ //put an empty histo
-      //cerr <<" Could not find histo " << name << " in MC file " << _f->GetName() << " using empty histo" << endl;
+      cerr <<" Could not find histo " << name << " in MC file " << _f->GetName() << " using empty histo" << endl;
       _h = (TH1F*) _tmp->Clone();
     }
     if(_moveUO) _utils->moveUnderOverFlow(_h);
     switch (i){
-    case modeANoSlep_15:
+    case Slepton_255_80:
       _sigColor.push_back(C_SIG1);
       _sigName.push_back(SIGFILE[i]);
       title = "SIG_"+name;
       break;
-    case modeANoSlep_18:
+    case modeCSlep_375_125:
       _sigColor.push_back(C_SIG2);
       _sigName.push_back(SIGFILE[i]);
       title = "SIG_"+name;
@@ -237,6 +252,8 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
     _sigH1.push_back(_h);
     nLoad++;
   }
+
+  if(!quiet) cout << "Got all histos " << endl<<endl;
 
 }
 //-------------------------------------------//
@@ -269,7 +286,7 @@ void DrawPlots::blindMT2(string name, TH1F* h){
   TString hName(name);
   if(hName.Contains("_mt2")){
     int lowMt2 = h->FindBin(90);
-    for(int bin=lowMt2; bin<h->GetNbinsX()+1; ++bin){
+    for(int bin=lowMt2; bin<=h->GetNbinsX()+1; ++bin){
       h->SetBinContent(bin,0);
       h->SetBinError(bin,0);
     }
@@ -293,29 +310,27 @@ float DrawPlots::getBkgSF(string name, int bkgType){
       hName.Contains("SRZjets") ||
       hName.Contains("SRSSjets") ){
 
-    if(bkgType==TOP){
-      if(hName.Contains("EE"))       return 1.066;
-      else if(hName.Contains("MM"))  return 1.025;
-      else if(hName.Contains("EM"))  return 1.040;
+    if(bkgType==TOP){ //Update SusyTools ver  D0 unbias
+      if(hName.Contains("EE"))       return 1.056; //1.066;
+      else if(hName.Contains("MM"))  return 1.016; //1.025;
+      else if(hName.Contains("EM"))  return 1.043; //1.040;
     }
-    else if(bkgType==WW){
-      return 1.35;
+    else if(bkgType==WW){ //Handwaved
+      return 1.3; //1.35;
       /*
       if(hName.Contains("EE"))       return 1.5;
       else if(hName.Contains("MM"))  return 1.3;
       else if(hName.Contains("EM"))  return 1.34;
       */
     }
-    else if(bkgType==ZX){
-      if(hName.Contains("EE"))       return 1.0472;
-      else if(hName.Contains("MM"))  return 1.0890;
-      else if(hName.Contains("EM"))  return 1;
+    else if(bkgType==ZX){ //No SF - need preMt2
+      if(hName.Contains("EE"))       return 1;//1.0472;
+      else if(hName.Contains("MM"))  return 1;//1.0890;
+      else if(hName.Contains("EM"))  return 1;//1;
     }
-    /*
     else if(bkgType==Ztt){
       return 1.18;
     }
-    */
 
 
   }
@@ -340,10 +355,13 @@ void  DrawPlots::setGenSys(string name, int bkgType, TH1F* hNom, TH1F* h){
   //cout << "Bkg " << MCNames[bkgType]  << " " << name << " " <<  h->Integral(0,-1) << endl;
 
   float sys=0;
+  /*
   if (hName.Contains("EE")) sys=0.09;
   if (hName.Contains("MM")) sys=0.07;
   if (hName.Contains("EM")) sys=0.25;
-  
+  */
+  sys=0.06;
+
   if (hName.Contains("UP")) h->Scale(1+sys);
   if (hName.Contains("DN")) h->Scale(1-sys);
   
@@ -605,8 +623,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   if(_mcStack)  _mcStack->Clear();
   if(_mcStackH) _mcStackH->Clear();
   
-  TLegend*  _leg = new TLegend(0.55,0.45,0.85,0.93);
-  _utils->legendSetting(_leg); 
+  TLegend*  _leg = new TLegend(0.6,0.45,0.85,0.93);
 
   //Grabs all histos: data, MC, signal points including the sys histos
   grabHisto(name,false,sysBand);
@@ -640,7 +657,8 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
 
   char sData[200];
   int nData  = _dataH1->Integral(0,-1);
-  sprintf(sData,"Data (%d)",nData);
+  //sprintf(sData,"Data (%d)",nData);
+  sprintf(sData,"Data #sqrt{s}=8 TeV");
   std::cout << _dataH1->GetName() << " \t\t Int " << nData << std::endl;
   _leg->AddEntry(_dataH1,sData ,"p");
 
@@ -660,7 +678,9 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
 
   //Add signals template
   if(wSig){
+    TString hName(name);
     for(uint i=0; i<_sigFile.size(); i++){
+      if(hName.Contains("EM") && i==0) continue; //Skip slepton for EM
       _utils->myDraw1d(_sigH1[i],_c0,1,"histsame",logy,_sigColor[i],false,20);
       _leg->AddEntry(_sigH1[i],SIGFILE[i].c_str(),"l");
       _c0->Update();
@@ -676,7 +696,9 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   //Decoration
   drawChannelText(name,0.7,0.40);
   drawLumi();
-  //drawATLAS();
+  drawATLAS();
+  _utils->legendSetting(_leg,0.04); 
+
   _c0->Update();
 
   //Bottom ratio band
@@ -706,6 +728,9 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
 
   for(uint isys=DGSys_EES_Z_UP; isys</*DGSys_BKGMETHOD_UP*//*DGSys_FAKE_EL_RE_UP*/DGSys_N; isys++){
     //Deal with fake sys separately - uncorrelated 
+    //if(isys==DGSys_RESOST) continue;
+    // if(isys>=DGSys_SCALEST_UP && isys<=DGSys_SCALEST_DN) continue;
+
     if(isys>=DGSys_BKGMETHOD_UP && isys<=DGSys_BKGMETHOD_DN) continue;
     if(isys>=DGSys_XS_UP && isys<=DGSys_XS_DN) continue;
     if(isys>=DGSys_FAKE_EL_RE_UP && isys <= DGSys_FAKE_MU_FR_DN) continue;
@@ -744,7 +769,6 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
   }
 
   //Add the fake systematics
-  
   vector<TH1F*> fakeSys;
   TH1F* sys0 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
   TH1F* sys1 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
@@ -768,7 +792,6 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
   //clean up 
   for(uint i=0; i<fakeSys.size(); i++) fakeSys[i]->Delete();
   fakeSys.clear();
-  
   
   return _asymErrors;
 
@@ -831,15 +854,25 @@ void DrawPlots::getFakeSys(vector<TH1F*> &sys)
 //-------------------------------------------//
 // Draw channel label
 //-------------------------------------------//
-void DrawPlots::drawChannelText(string name, float x, float y)
+void DrawPlots::drawChannelText(string name, float x, float y, bool desc)
 {
   string _text;
+  string _text2;
  
   TString hName(name);
   if(hName.Contains("DG2L_")){
 
+    if(hName.Contains("EE")) _text += "ee";
+    else if(hName.Contains("MM")) _text += "#mu#mu";
+    else if(hName.Contains("EM")) _text += "e#mu";
+    _text2 = _text;
+
+
     if(hName.Contains("preSROSjveto"))        _text = "preSROSjveto ";
-    else if(hName.Contains("preSRmT2"))     _text = "preSRmT2 ";
+    else if(hName.Contains("preSRmT2")){
+      _text = "preSRmT2 ";
+      _text2 = _text2 + " OS, nJets=0, Zveto, metrel>40 GeV";
+    }
     else if(hName.Contains("preSR2jets"))   _text = "preSR2jets ";
     else if(hName.Contains("preSRZjets"))   _text = "preSRZjets ";
     else if(hName.Contains("preSRSS")) _text = "preSRSS ";
@@ -875,10 +908,7 @@ void DrawPlots::drawChannelText(string name, float x, float y)
     else if(hName.Contains("CR2LepSS40"))  _text = "CR2LepSS40 ";
     else if(hName.Contains("CR2LepSS"))  _text = "CR2LepSS ";
 
-  
-    if(hName.Contains("EE")) _text += "ee";
-    else if(hName.Contains("MM")) _text += "#mu#mu";
-    else if(hName.Contains("EM")) _text += "e#mu";
+
   }
 
   else if(hName.Contains("ML_")){
@@ -896,7 +926,14 @@ void DrawPlots::drawChannelText(string name, float x, float y)
      if(hName.Contains("SR4lep"))    _text = "4-leptons "; 
      if(hName.Contains("SR4lepNoZ")) _text = "4-leptons no Z ";
   }
-  _utils->myText(x,y,kBlack,_text.c_str(),0.05);
+
+
+
+  if(desc){
+    _utils->myText(0.15,.96,kBlack,_text2.c_str(),0.04);
+  }
+  else   _utils->myText(x,y,kBlack,_text.c_str(),0.05);
+
 }
 //-------------------------------------------//
 // Draw Lumi
@@ -904,8 +941,9 @@ void DrawPlots::drawChannelText(string name, float x, float y)
 void DrawPlots::drawLumi(float x, float y)
 {
   char s[20] ="";
-  sprintf(s,"%4.0f",pLUMI);
-  string _text = "#int L dt=" + string(s) + "fb^{-1}  #sqrt{s}=8 TeV";
+  sprintf(s,"%3.1f",pLUMI);
+  //  string _text = "#int L dt=" + string(s) + "fb^{-1}  #sqrt{s}=8 TeV";
+  string _text = "#int L dt=" + string(s) + "fb^{-1}";
   _utils->myText(x,y,kBlack,_text.c_str(),0.05);
 }
 //-------------------------------------------//
@@ -913,8 +951,11 @@ void DrawPlots::drawLumi(float x, float y)
 //-------------------------------------------//
 void DrawPlots::drawATLAS(float x, float y)
 {
-  string _text = "ATLAS Work In Progress";
-  _utils->myText(x,y,kBlack,_text.c_str(),0.05);
+  //string _text = "ATLAS Work In Progress";
+  string _text1 = "#bf{ATLAS}";
+  _utils->myText(x,y,kBlack,_text1.c_str(),0.07);
+  string _text2 = "Internal";
+  _utils->myText(x+0.15,y,kBlack,_text2.c_str(),0.05);
   
 }
 //_____________________________________________________________________________//
@@ -1033,6 +1074,7 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
 			       std::vector<TH1F*> histWWV, 
 			       std::vector<TH1F*> histTopV, 
 			       std::vector<TH1F*> histZXV,
+			       std::vector<TH1F*> histHiggs,
 			       Double_t &nom,
 			       Double_t &stat_err,
 			       Double_t &sysUp, Double_t &sysDn,
@@ -1050,6 +1092,7 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
   _hSum->Add(histWWV[DGSys_NOM]);
   _hSum->Add(histTopV[DGSys_NOM]);
   _hSum->Add(histZXV[DGSys_NOM]);
+  _hSum->Add(histHiggs[DGSys_NOM]);
 
   nom = _hSum->IntegralAndError(0,-1,stat_err);
 
@@ -1068,6 +1111,8 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
       val +=  histTopV[isys]->Integral(0,-1)-histTopV[DGSys_NOM]->Integral(0,-1);
     if(histZXV[isys]->Integral(0,-1)>0)
       val +=  histZXV[isys]->Integral(0,-1)-histZXV[DGSys_NOM]->Integral(0,-1);
+    if(histHiggs[isys]->Integral(0,-1)>0)
+      val +=  histHiggs[isys]->Integral(0,-1)-histHiggs[DGSys_NOM]->Integral(0,-1);
     
     if(val==0) continue; //No Sys
     if(val>0) mcSysUp += pow(val,2);
@@ -1596,20 +1641,22 @@ void DrawPlots:: bkgEstimate_DG2L()
   //Raws
   std::vector<string> sBKGCOL;
   sBKGCOL.clear();
+  sBKGCOL.push_back("SM Higgs");
   sBKGCOL.push_back("Fake leptons");
   sBKGCOL.push_back("$Z \\to \\tau\\tau$");
-  sBKGCOL.push_back("WW");
-  sBKGCOL.push_back("Top");
   sBKGCOL.push_back("$Z(ee,\\mu\\mu)$+jets + ZV)");
+  sBKGCOL.push_back("Top");
+  sBKGCOL.push_back("WW");
   sBKGCOL.push_back("Total");
 
   std::vector<string> sBKG;
   sBKG.clear();
+  sBKG.push_back("Higgs");
   sBKG.push_back("FAKE");
   sBKG.push_back("Ztt");
-  sBKG.push_back("WW");
-  sBKG.push_back("TOP");
   sBKG.push_back("ZX");
+  sBKG.push_back("TOP");
+  sBKG.push_back("WW");
   sBKG.push_back("TOTAL");
 
   std::vector<string> sDATA;

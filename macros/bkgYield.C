@@ -26,6 +26,7 @@ Produce the tex tables as well
 using namespace std;
 typedef unsigned uint;
 
+static const bool blindData=false;//true;
 bool verbose = false;// true;
 
 //
@@ -39,13 +40,14 @@ std::vector<TH1F*> _mcZtt[4];   //[LEP][SYS]
 std::vector<TH1F*> _mcWW[4];    //[LEP][SYS]
 std::vector<TH1F*> _mcTopDil[4];//[LEP][SYS]
 std::vector<TH1F*> _mcZX[4];    //[LEP][SYS]
+std::vector<TH1F*> _mcHiggs[4];    //[LEP][SYS]
 std::vector<TH1F*> _mcAll[4];   //[LEP][SYS]
 std::vector<TH1F*> _data[4];    //[LEP][SYS]
 
 std::vector<string> BKG;
 std::vector<string> LEP;
 
-static const bool blindData=false;//true;
+
 
 //
 // Functions
@@ -83,6 +85,7 @@ void  bkgYield(string sReg){
   BKG.push_back("WW");
   BKG.push_back("TOP");
   BKG.push_back("ZX");
+  BKG.push_back("HIGGS");
   BKG.push_back("ALL");
 
   //Column
@@ -108,6 +111,7 @@ void  bkgYield(string sReg){
   sBKGCOL.push_back("WW");
   sBKGCOL.push_back("Top");
   sBKGCOL.push_back("$Z(ee,\\mu\\mu)$+jets + ZV)");
+  sBKGCOL.push_back("SM Higgs");
   sBKGCOL.push_back("Total");
 
   std::vector<string> sBKG;
@@ -117,6 +121,7 @@ void  bkgYield(string sReg){
   sBKG.push_back("WW");
   sBKG.push_back("TOP");
   sBKG.push_back("ZX");
+  sBKG.push_back("HIGGS");
   sBKG.push_back("TOTAL");
 
   std::vector<string> sDATA;
@@ -133,6 +138,7 @@ void  bkgYield(string sReg){
   //  loadBkg("histo_top_Alpgen_rlep",sReg,_mcTopDil);
   loadBkg("top_MCNLO_rlep",sReg,_mcTopDil);
   loadBkg("WW_Sherpa_rlep",sReg,_mcWW);
+  //  loadBkg("WW_PowHeg_rlep",sReg,_mcWW);
 
   /*
   loadBkg("histo_ZX_Sherpa_rlep",sReg,_mcZX);
@@ -140,12 +146,22 @@ void  bkgYield(string sReg){
   loadBkg("histo_BkgSherpa_rlep",sReg,_mcAll);
   */
 
-  loadBkg("ZX_AlpgenPythia_rlep",sReg,_mcZX);
+  //loadBkg("ZX_AlpgenPythia_rlep",sReg,_mcZX);
+  loadBkg("ZX_AlpgenPythia_WZ_ZZ_Sherpa_rlep",sReg,_mcZX);
+  //loadBkg("ZX_AlpgenPythia_WZ_ZZ_PowHeg_rlep",sReg,_mcZX);
+
   loadBkg("ZTauTaujets_AlpgenPythia_rlep",sReg,_mcZtt);  
   //  loadBkg("histo_BkgAlpgen_rlep",sReg,_mcAll);
 
+  loadBkg("Higgs_rlep",sReg,_mcHiggs);
+
   //  loadBkg("histo_BkgZTopAlpgen_rlep",sReg,_mcAll);
-  loadBkg("Bkg_ZXAlpgen_TopMCNLO_rlep",sReg,_mcAll);
+  //  loadBkg("Bkg_ZXAlpgen_TopMCNLO_rlep",sReg,_mcAll);
+
+  //  loadBkg("Bkg_ZXAlpgen_TopMCNLO_WWPowHeg_rlep",sReg,_mcAll);
+  loadBkg("Bkg_ZXAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO_rlep",sReg,_mcAll);
+  //loadBkg("Bkg_ZXAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_rlep",sReg,_mcAll);
+
 
   string fileName= _ana->_pathTables + "/BkgYield_" + sReg + ".txt";
   std::ofstream outFile;
@@ -253,13 +269,30 @@ void  bkgYield(string sReg){
 	   << " $^{+"<< sysUp << "}_{-" << sysDn << "}$ ";
     if(ilep<sLEP.size()-1) outTEX << " & ";
   }
-  outTEX << "\\\\ \\hline" <<std::endl;
+  outTEX << "\\\\ " <<std::endl;
   outFile << endl;
 
-  //ALL
+
+  //HIGGS
   if(verbose) cout << BKG[5] << endl;
   outTEX << sBKGCOL[5] << " & ";
   outFile << BKG[5] << "\t";
+  for(uint ilep=0; ilep<LEP.size(); ilep++){
+    Double_t nom, stat, sysUp, sysDn;
+    _ana->getYield(_mcHiggs[ilep],nom, stat, sysUp, sysDn, verbose);
+    outFile << nom << " " << stat << " " << sysUp << " " << sysDn << " \t"; 
+    outTEX << std::setprecision(nPrec) << std::fixed << nom << " $\\pm$ " << stat 
+	   << " $^{+"<< sysUp << "}_{-" << sysDn << "}$ ";
+    if(ilep<sLEP.size()-1) outTEX << " & ";
+  }
+  outTEX << "\\\\ \\hline" <<std::endl;
+  outFile << endl;
+
+
+  //ALL
+  if(verbose) cout << BKG[6] << endl;
+  outTEX << sBKGCOL[6] << " & ";
+  outFile << BKG[6] << "\t";
   for(uint ilep=0; ilep<LEP.size(); ilep++){
     Double_t nom, stat, sysUp, sysDn;
     _ana->getYieldBkgAll(_mcFake[ilep],
@@ -267,6 +300,7 @@ void  bkgYield(string sReg){
 			 _mcWW[ilep],
 			 _mcTopDil[ilep],
 			 _mcZX[ilep],
+			 _mcHiggs[ilep],
 			 nom, stat, sysUp, sysDn, verbose);
     outFile << nom << " " << stat << " " << sysUp << " " << sysDn << " \t"; 
     outTEX << std::setprecision(nPrec) << std::fixed << nom << " $\\pm$ " << stat 
@@ -284,7 +318,7 @@ void  bkgYield(string sReg){
   for(uint ilep=0; ilep<LEP.size(); ilep++){
     Double_t nom, stat, sysUp, sysDn;
     _ana->getYield(_data[ilep],nom, stat, sysUp, sysDn, verbose);
-    if(!isSR(sReg))
+    if(!(isSR(sReg) && blindData))
       outTEX << std::setprecision(0) << std::fixed << nom;
     if(ilep<sLEP.size()-1) outTEX << " & ";
   }
@@ -303,9 +337,6 @@ void  bkgYield(string sReg){
   
   outTEX << "\\FloatBarrier" << std::endl;
   
-
-
-
 
   outFile.close();
   outTEX.close();

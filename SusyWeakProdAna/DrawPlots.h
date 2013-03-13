@@ -28,18 +28,19 @@ using namespace std;
 
 #define DATA8TEV
 
-const bool HIDEDATA=true;
+const bool HIDEDATA=false;//true;
 const bool USESF=true;
 
 
-enum MC { FAKE=0, Ztt=1, WW=2, TOP=3, ZX=4,  OTHER=5};
+enum MC {HIGGS=0, FAKE=1, Ztt=2, ZX=3,  TOP=4, WW=5, OTHER=6};
 
 const std::string MCNames[] ={
+  "Higgs",
   "FAKE",
   "ZTT",
-  "WW",
+  "ZX",
   "TOP",
-  "ZX"
+  "WW"
 };
 
 /*My color scheme */
@@ -48,16 +49,17 @@ enum MCCOL { C_TOP=kAzure-3, C_DIB=kYellow-7, C_WJETS = kMagenta+4,
 	     C_ZJETS=kOrange+8, C_BB=kRed+2, C_QCD=kGreen+3};
 */
 /*DG2L color scheme */
-enum MCCOL { C_FAKE=kGray, 
+enum MCCOL { C_HIGGS=kYellow-9,
+	     C_FAKE=kGray, 
 	     C_Ztt=kSpring+1, 
-	     C_WW=kAzure+4, 
-	     C_TOP=kRed+1, 
 	     C_ZX=kOrange-2,
+	     C_TOP=kRed+1, 
+	     C_WW=kAzure+4, 
 	     C_SIG1=kMagenta-7, C_SIG2=kRed-2};
+
 const int iMarker[9]={20,21,22,23,24,25,26,27,30};
 
-enum SIG {modeANoSlep_15, modeANoSlep_18};
-//const char* const SIGFILE[] = {"mAwSl", "mCwSl"};
+enum SIG {Slepton_255_80, modeCSlep_375_125};
 
 
 class DrawPlots {
@@ -71,7 +73,8 @@ class DrawPlots {
 		      string WW="histo_WW_Sherpa",
 		      string ZX="histo_ZX_Sherpa",		      
 		      string Ztt="histo_ZTauTaujets_Sherpa",
-		      string Fake="histo_mcFake_Sherpa"
+		      string Fake="histo_mcFake_Sherpa",
+		      string Higgs="histo_Higgs"
 		      );
 
   TObject* getHisto(string sample, string name, bool moveUnderOver=false);
@@ -105,8 +108,8 @@ class DrawPlots {
 
 
   /* Drawing function */
-  void  drawChannelText(string name, float x=0.2,float y=0.73);
-  void  drawLumi(float x=0.18, float y=0.80);
+  void  drawChannelText(string name, float x=0.2,float y=0.73, bool desc=true);
+  void  drawLumi(float x=0.3, float y=0.80);
   void  drawATLAS(float x=0.18, float y=0.88);
 
   /* Math func */
@@ -150,6 +153,7 @@ class DrawPlots {
 			 std::vector<TH1F*> histWWV, 
 			 std::vector<TH1F*> histTopV, 
 			 std::vector<TH1F*> histZXV, 
+			 std::vector<TH1F*> histHiggs, 
 			 Double_t &nom,
 			 Double_t &stat_err,
 			 Double_t &sysUp, Double_t &sysDn,

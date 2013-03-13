@@ -78,6 +78,9 @@ class SusyAnaLooper : public SusyNtAna
       abort();
     }
 
+    map<int,float> getSleptonSumWs(                      ) { return _sleptonSumWs;  };
+    void           setSleptonSumWs( map<int,float> sumws ) { _sleptonSumWs = sumws; _isSleptonGrid = true; };
+
     void useLooseLep(bool b){_useLooseLep=b;}
 
     void printSettings();
@@ -110,6 +113,8 @@ class SusyAnaLooper : public SusyNtAna
     bool _isAlpgenLowMass;
     int nHFOR;
 
+    bool              _isSleptonGrid;
+    map<int,float>    _sleptonSumWs;
 
 };
 

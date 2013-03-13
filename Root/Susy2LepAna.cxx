@@ -17,6 +17,7 @@ using namespace Susy;
 Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   SusyNtTools(),
   _hh(_histos),
+  m_susyXsec(0),
   m_dbg(0),
   m_useLooseLep(false),
   m_writeHFT(false),
@@ -93,6 +94,15 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   string _sSigFile = string(getenv("WORKAREA")) +
     "/SusyWeakProdAna/data/" + "Simplified_CrossSections.txt";
   sigXsfile.open(_sSigFile.c_str());
+
+
+  // Get the handle on the SleptonXsecReader
+  string sleptonXSecFile = string(getenv("ROOTCOREDIR")) +
+    "/data/SusyNtuple/DLiSlep_SignalUncertainties_All.root" ;
+  m_SleptonXSecReader    = new SleptonXsecReader(sleptonXSecFile.c_str(),"SignalUncertainties"); 
+  
+  string xsecFileName  = gSystem->ExpandPathName("$ROOTCOREDIR/data/SusyWeakProdAna/susy_crosssections_8TeV.txt");
+  m_susyXsec = new SUSY::CrossSectionDB(xsecFileName);
 
 
   setAnaType(Ana_2Lep);
@@ -529,6 +539,12 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_metRelMin = 50;
     m_mt2Max    = 70;
   }
+ else if(m_sel == "ZXCRpremT2"){
+    m_selOS = true;
+    m_selZ  = true;
+    m_vetoJ = true;
+    m_metRelMin=40;
+ }
   else if(m_sel == "ZXCRmT2a"){
     m_selOS = true;
     m_selZ  = true;
@@ -551,6 +567,15 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_metRelMax=100;
     m_mt2Max=90;
   }
+  else if(m_sel == "ZXCRWW2"){
+    m_selOS = true;
+    m_selZ  = true;
+    m_vetoJ = true;
+    m_metRelMin=70;
+    m_metRelMax=100;
+    m_mt2Max=90;
+  }
+
   else if(m_sel == "CRTOP"){
     m_selOS = true;
     m_vetoZ =true;
@@ -602,11 +627,46 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
   }
   else if(m_sel == "CRWW"){
     m_selOS = true;
-    m_selSF = true;
+    //m_selSF = true;
     m_vetoZ = true;
     m_vetoJ = true;
     m_metRelMin = 70;
     m_metRelMax = 100;
+    m_mt2Max    = 90;
+  }
+  else if(m_sel == "CRWW2"){
+    m_selOS = true;
+    //m_selSF = true;
+    m_vetoZ = true;
+    m_vetoJ = true;
+    m_metRelMin = 70;
+    m_metRelMax = 100;
+    m_mt2Min    = 70;
+    m_mt2Max    = 90;
+  }
+  else if(m_sel == "CRWW3"){
+    m_selOS = true;
+    //m_selSF = true;
+    m_vetoZ = true;
+    m_vetoB = true;
+    m_vetoF = true;
+    m_topTag    = true;
+    //m_vetoJ = true;
+    m_metRelMin = 70;
+    m_metRelMax = 100;
+    m_mt2Max    = 90;
+  }
+  else if(m_sel == "CRWW4"){
+    m_selOS = true;
+    //m_selSF = true;
+    m_vetoZ = true;
+    m_vetoB = true;
+    m_vetoF = true;
+    m_topTag    = true;
+    //m_vetoJ = true;
+    m_metRelMin = 70;
+    m_metRelMax = 100;
+    m_mt2Min    = 70;
     m_mt2Max    = 90;
   }
   else if(m_sel == "CRWWa"){
@@ -1105,7 +1165,53 @@ float Susy2LepAna::eventWeight(int mode)
   else if(mode==LUMI21FB){ //Moriond dataset
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
     else{
-      _evtW = nt->evt()->w * nt->evt()->wPileup * nt->evt()->xsec * LUMI_A_L / nt->evt()->sumw;
+      float xs = nt->evt()->xsec;
+      float sumw = nt->evt()->sumw;
+      int id = nt->evt()->mcChannel;
+      //Replace XS for Higgs samples
+      if(nt->evt()->mcChannel == 161005 ||
+	 nt->evt()->mcChannel == 161055 ||
+	 nt->evt()->mcChannel == 161805 ||
+	 nt->evt()->mcChannel == 160155 ||
+	 nt->evt()->mcChannel == 160205 ||
+	 nt->evt()->mcChannel == 160255 ||
+	 nt->evt()->mcChannel == 160305 ||
+	 nt->evt()->mcChannel == 160655 ||
+	 nt->evt()->mcChannel == 160705 ||
+	 nt->evt()->mcChannel == 160755 ||
+	 nt->evt()->mcChannel == 160805 ||
+	 nt->evt()->mcChannel == 161105 || 
+	 nt->evt()->mcChannel == 161155 ||
+	 nt->evt()->mcChannel == 160555 || 
+	 nt->evt()->mcChannel == 160505 ||
+	 (nt->evt()->mcChannel >= 126928 && nt->evt()->mcChannel <= 126936) || //WW Powheg overide !!!
+	 (nt->evt()->mcChannel >= 129477 && nt->evt()->mcChannel <= 129494) //WZ Powheg overide !!!
+	 ){
+
+	if(m_xsecMap.find(id) == m_xsecMap.end()) {
+	  m_xsecMap[id] = m_susyXsec->process(id);
+	}
+	xs = m_xsecMap[id].xsect() * m_xsecMap[id].kfactor() * m_xsecMap[id].efficiency();
+
+	//More hacking !!!
+	/*
+	if(id == 126928) sumw = 179140.6875;
+	if(id == 126929) sumw = 179234.296875;
+	if(id == 126930) sumw = 179258.0;
+	if(id == 126931) sumw = 179314.46875;
+	if(id == 126932) sumw = 179170.375;
+	if(id == 126933) sumw = 179211.984375;
+	if(id == 126934) sumw = 179095.296875;
+	if(id == 126935) sumw = 179306.8125;
+	if(id == 126936) sumw = 179275.40625;
+	*/
+      }
+      //ZZllnn XS *3 over neutrino flavor
+      if(id==126949 || id==126950 ||id==126951) xs *= 3;
+
+
+
+      _evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
       if(dbg()>10)
 	cout << "Ana W: " << nt->evt()->w 
 	     << " pileup " << nt->evt()->wPileup 
@@ -1114,6 +1220,27 @@ float Susy2LepAna::eventWeight(int mode)
 	     << " sumw " << nt->evt()->sumw << endl;
     }
   }
+  
+  // Correct the cross section for DLiSlep
+  if(
+     (nt->evt()->mcChannel >= 166501 && nt->evt()->mcChannel <= 166658) ||
+     (nt->evt()->mcChannel >= 175420 && nt->evt()->mcChannel <= 175583)
+     ) {
+    if(m_SleptonXSecReader!=NULL) {
+      if( nt->evt()->susyFinalState==201 ) 
+	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kLeftHanded )/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[201]);   
+      else if( nt->evt()->susyFinalState==202 )
+	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kRightHanded)/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[202]);   
+      else if( nt->evt()->susyFinalState==216 )
+	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kLeftHanded )/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[216]);   
+      else if( nt->evt()->susyFinalState==217 )
+	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kRightHanded)/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[217]);   
+      else _evtW = 0;  //protection against undefined final state
+    }
+    else
+      cout << "m_SleptonXSecReader is null, won't touch the event weight" << endl;
+  }
+  
 
   return _evtW;
 }
@@ -1252,6 +1379,9 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   case DIL_ZXCR2jets:
     frSR = SusyMatrixMethod::FR_CRZX2JETS;
     break;
+  case DIL_ZXCRpremT2:
+    frSR = SusyMatrixMethod::FR_CRZXMT2a;
+    break;
   case DIL_ZXCRmT2a:
     frSR = SusyMatrixMethod::FR_CRZXMT2a;
     break;
@@ -1259,6 +1389,9 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_CRZXMT2b;
     break;
   case DIL_ZXCRWW:
+    frSR = SusyMatrixMethod::FR_CRZXWW;
+    break;
+  case DIL_ZXCRWW2:
     frSR = SusyMatrixMethod::FR_CRZXWW;
     break;
   case DIL_CRTOP:
@@ -1274,6 +1407,15 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_CRTOPWWc;
     break;
   case DIL_CRWW:
+    frSR = SusyMatrixMethod::FR_CRWW1;
+    break;    
+  case DIL_CRWW2:
+    frSR = SusyMatrixMethod::FR_CRWW1;
+    break;    
+  case DIL_CRWW3:
+    frSR = SusyMatrixMethod::FR_CRWW1;
+    break;    
+  case DIL_CRWW4:
     frSR = SusyMatrixMethod::FR_CRWW1;
     break;    
   case DIL_CRWWa:
@@ -1310,7 +1452,7 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SROSjveto;
     break;
   case DIL_preSRmT2:
-    frSR = SusyMatrixMethod::FR_SRmt2a;
+    frSR = SusyMatrixMethod::FR_PreMt2;
     break;
   case DIL_preSR2jets:
     frSR = SusyMatrixMethod::FR_SR2jets; 
@@ -2188,6 +2330,7 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
 
   _hh->H1FILL(_hh->DG2L_mll[iSR][m_ET][iSYS],_ll.M(),_ww); 
   _hh->H1FILL(_hh->DG2L_mllcoarse[iSR][m_ET][iSYS],_ll.M(),_ww); 
+  _hh->H1FILL(_hh->DG2L_mllcoarser[iSR][m_ET][iSYS],_ll.M(),_ww); 
   _hh->H1FILL(_hh->DG2L_pTll[iSR][m_ET][iSYS],_ll.Pt(),_ww); 
   _hh->H1FILL(_hh->DG2L_mWWT[iSR][m_ET][iSYS],mWT,_ww); 
   _hh->H1FILL(_hh->DG2L_mTl1[iSR][m_ET][iSYS],mTl1,_ww);
@@ -2617,7 +2760,7 @@ float Susy2LepAna::writeIntoHistFitterTree(uint iSR,
   m_histFitterTrees[SYST]->syst_MUFAKE_FR_UP   = _fake_mu_fr_up;  
   m_histFitterTrees[SYST]->syst_MUFAKE_FR_DOWN = _fake_mu_fr_dn;  
 
-  m_histFitterTrees[SYST]->L2finalState        = 0; //HOW DO I GET THIS
+  m_histFitterTrees[SYST]->L2finalState        = nt->evt()->susyFinalState;
   m_histFitterTrees[SYST]->L2qFlipWeight       = _qFlipWeight;
   m_histFitterTrees[SYST]->eventweight         = histFitWeight;
   m_histFitterTrees[SYST]->L2TotalWeight       = totalWeight;

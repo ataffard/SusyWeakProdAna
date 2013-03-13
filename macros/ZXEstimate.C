@@ -41,13 +41,17 @@ void openHist(string mode="DD",
 	      //string Top="histo_topDil_Sherpa",
 	      //string Top="histo_top_PowHeg",
 	      string Top="histo_top_MCNLO",
-	      string WW="histo_WW_Sherpa",
+	      //string WW="histo_WW_Sherpa",
+	      string WW="histo_WW_PowHeg",
 	      //string ZX="histo_ZX_Sherpa",		      
-	      string ZX="histo_ZX_Alpgen",		      
+	      //string ZX="histo_ZX_AlpgenPythia_WZ_ZZ_Sherpa",		      
+	      string ZX="histo_ZX_AlpgenPythia_WZ_ZZ_PowHeg",		      
+	      //string ZX="histo_ZX_AlpgenPythia",		      
 	      //string ZX="histo_ZX_SherpaPowheg",
-	      //string Ztt="histo_ZTauTaujets_Sherpa",
-	      string Ztt="histo_ZTauTaujets_Alpgen",
-	      string Fake="histo_data12_fake");
+	      string Ztt="histo_ZTauTaujets_Sherpa",
+	      //string Ztt="histo_ZTauTaujets_AlpgenPythia",
+	      string Fake="histo_data12_flep",
+	      string Higgs="histo_Higgs");
 
 void  get_ZX_Est();
 void  get_ZXCR_data(int ilep, int ireg, int isys,
@@ -87,17 +91,17 @@ int main(int argc, char *argv[]){
   LEP.push_back("MM");
   //LEP.push_back("EM");
 
-  ZXCR.push_back("ZXCRjveto"); //SRjveto
-  ZXCR.push_back("ZXCR2jets"); //SR2jets
+  //ZXCR.push_back("ZXCRjveto"); //SRjveto
+  //ZXCR.push_back("ZXCR2jets"); //SR2jets
   //  ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2a
   // ZXCR.push_back("ZXCR4"); //MT2 via preMt2 and Mt2Eff ->mT2b
   ZXCR.push_back("ZXCRWW"); //NWW1
-  //ZXCR.push_back("ZXCR5"); //NWW2
+  //ZXCR.push_back("ZXCRpremT2"); //NWW2
   ZXCR.push_back("ZXCRmT2a"); //SRmT2a
   ZXCR.push_back("ZXCRmT2b"); //SRmT2b
 
-  ZXSR.push_back("SROSjveto");
-  ZXSR.push_back("SR2jets");
+  //ZXSR.push_back("SROSjveto");
+  //ZXSR.push_back("SR2jets");
   //  ZXSR.push_back("preSRmT2"); // ->mT2a
   //  ZXSR.push_back("preSRmT2"); // ->mT2b
   ZXSR.push_back("CRWW");
@@ -109,9 +113,9 @@ int main(int argc, char *argv[]){
 
 }
 //--------------------------------------------------------------------------------
-void openHist(string mode,string Top,string WW,string ZX,string Ztt,string Fake)
+void openHist(string mode,string Top,string WW,string ZX,string Ztt,string Fake,string Higgs)
 {
-  _ana->openHistoFiles(mode,Top,WW, ZX, Ztt, Fake);
+  _ana->openHistoFiles(mode,Top,WW, ZX, Ztt, Fake,Higgs);
 }
 
 
@@ -391,10 +395,12 @@ void get_ZX_Est()
       txt.close();
       txt2.close();
       txt3.close();
+      /*
       if(ZXCR[ireg]=="ZXCR4"){
 	txt4.close();
 	txt5.close();
       }
+      */
       txt6.close();
 
       if(ZXCR[ireg]=="ZXCR4") iMT2++;
@@ -905,16 +911,28 @@ void  make_ZXPlots(int ilep, int ireg){
   //
   // Use Ztt place to put diB,ok since Ztt is 0
   //
-  _ana->SFILE[1]="ZZ,WZ";
-  _ana->SFILE[4]="Z(ee,#mu#mu)+jets";
+  _ana->SFILE[2]="ZZ,WZ";
+  _ana->SFILE[3]="Z(ee,#mu#mu)+jets";
 
+  /*
   openHist("DD",
 	   "histo_top_MCNLO",
 	   "histo_WW_Sherpa",
-	   "histo_Zjets_Alpgen",		      
-	   "histo_diBZX_Sherpa",
-	   "histo_data12_fake");
-    
+	   "histo_Zjets_AlpgenPythia",		      
+	   "histo_WZ_ZZ_Sherpa",
+	   "histo_data12_fake",
+	   "histo_Higgs");
+  */
+  openHist("DD",
+	   "histo_top_MCNLO",
+	   "histo_WW_Sherpa",
+	   //"histo_WW_PowHeg",
+	   "histo_Zjets_Sherpa",		      
+	   "histo_WZ_ZZ_Sherpa",
+	   //"histo_WZ_ZZ_PowHeg",
+	   "histo_data12_fake",
+	   "histo_Higgs");
+
   bool logy=false;
 
   if(ireg==1){       
@@ -937,6 +955,14 @@ void  make_ZXPlots(int ilep, int ireg){
    if(ilep==0) name = "DG2L_ZXCRWW_EE_DG2L_mt2";
    if(ilep==1) name = "DG2L_ZXCRWW_MM_DG2L_mt2";
   }
+  else if(ireg==6){  
+    //if(ilep==0) name = "DG2L_ZXCRpremT2_EE_DG2L_metrel";
+    //if(ilep==1) name = "DG2L_ZXCRpremT2_MM_DG2L_metrel";
+    
+    if(ilep==0) name = "DG2L_ZXCRpremT2_EE_DG2L_mt2";
+    if(ilep==1) name = "DG2L_ZXCRpremT2_MM_DG2L_mt2";
+  }
+
   
   _ana->drawPlotErrBand(name,logy,false,noSys);
 }

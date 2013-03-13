@@ -27,6 +27,9 @@ SusyAnaLooper::SusyAnaLooper():
 
   _histoDir = new TDirectory("Ana","Ana");
   _susyHistos = new SusyHistos();
+
+
+
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -67,6 +70,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseLeptons, &m_signalLeptons,
 			       &m_baseJets, &m_signalJets2Lep);
     _susyHistos->Book2LHistograms(_histoDir,DO_SYS);
+    if(_isSleptonGrid) _susy2LAna->setSleptonSumWs(_sleptonSumWs);
 
     if(DO_SYS){
       if(_runOneSys || _runSysRange){
@@ -273,14 +277,22 @@ void SusyAnaLooper::Terminate()
   if(_do2LAna) _susy2LAna->end();
   if(_do3LAna) _susy3LAna->end();
 
-  /*
-  _susyHistos->SaveHistograms(_histoDir,_method,
-			      _doMll,_isAlpgenLowMass,
-			      _systematic1, _systematic2);
-  */
-  _susyHistos->SaveSplit2LHistograms(_histoDir,_method,
-				     _doMll,_isAlpgenLowMass,
-				     _systematic1, _systematic2);
+  TString _SS(sampleName());
+
+  if( _SS.Contains("simplifiedModel") ||
+      _SS.Contains("DGemt") ||
+      _SS.Contains("DLiSlep") ){
+    _susyHistos->SaveHistograms(_histoDir,_method,
+				_doMll,_isAlpgenLowMass,
+				_systematic1, _systematic2);
+  }
+  else{
+    _susyHistos->SaveSplit2LHistograms(_histoDir,_method,
+				       _doMll,_isAlpgenLowMass,
+				       _systematic1, _systematic2);
+  }
+
+
 
   SusyNtAna::Terminate();
   if(dbg()>0) cout << "SusyAnaLooper::Terminate" << endl;

@@ -1,9 +1,10 @@
 /*
+Must compile - won't work otherwise
 .L ../macros/make_ZX_texTables.C++   
  make_ZX_texTables("TF");
  make_ZX_texTables("SF");
- make_ZX_texTables("EST");
- make_ZX_texTables("SREST");
+ make_ZX_texTables("SRMCEST");
+ make_ZX_texTables("SRDDEST");
  make_ZX_texTables("MT2aEff");
  make_ZX_texTables("MT2bEff");
 
@@ -20,7 +21,7 @@
 
 using namespace std;
 typedef unsigned uint;
-bool verbose = false;
+bool verbose = true;//false;
 
 std::ofstream outFile;
 
@@ -45,14 +46,14 @@ void addLine(string sReg,std::map<string,pair<float,float> >* sysVal_ee,
 void make_ZX_texTables(string var)
 {
   SREG.clear();
-  SREG.push_back("SRjveto");
-  SREG.push_back("SR2jets");
-  SREG.push_back("SRmT2");
+  //  SREG.push_back("SROSjveto");
+  //SREG.push_back("SR2jets");
+  SREG.push_back("SRmT2a");
   SREG.push_back("SRmT2b");
-  SREG.push_back("preSRmT2a"); 
-  SREG.push_back("preSRmT2b"); 
-  SREG.push_back("NWW1");
-  SREG.push_back("NWW2");
+  //  SREG.push_back("preSRmT2a"); 
+  //SREG.push_back("preSRmT2b"); 
+  SREG.push_back("CRWW");
+
 
   string fileName= "ZX_" + var + ".tex";
   outFile.open(fileName.c_str());
@@ -152,8 +153,8 @@ void readFile(string var, string sReg, int ilep, std::map<string,float>* sysVal)
 
   //  string dir = "histos_110812_13fb_n0111_DD_MMtrial9_SYS_HFT/ZX_est_v2/";
   string dir = "histos_110812_13fb_n0111_DD_MMtrial9_SYS_HFT/ZX_est_v2_powHegDiB/";
-  string _pathFile = string(getenv("WORKAREA")) + "/histoAna/SusyAna/"+ dir;
-  //string _pathFile = string(getenv("WORKAREA")) + "/SusyWeakProdAna/run/";
+  //string _pathFile = string(getenv("WORKAREA")) + "/histoAna/SusyAna/"+ dir;
+  string _pathFile = string(getenv("WORKAREA")) + "/SusyWeakProdAna/run/";
 
   if(verbose) cout << "Dir location " << _pathFile << endl;
 
@@ -230,10 +231,10 @@ void getSymSysVal(std::map<string,float>* sysVal,
   float _bTagSysDn=0;
   sysValSymm->clear();
 
-  std::map<string,float>::iterator _iter =  sysVal->find(sysList[0]);
+   std::map<string,float>::iterator _iter =  sysVal->find(sysList[0]);
   if(_iter != sysVal->end()){
     _nom = (*_iter).second;
-    sysValSymm->insert(sysValSymm->end(),make_pair(sysList[0],make_pair(_nom,0)));
+    sysValSymm->insert(sysValSymm->end(),make_pair(sysList[0],make_pair(_nom,0.)));
   }
   
   //Get all the sys
@@ -243,7 +244,7 @@ void getSymSysVal(std::map<string,float>* sysVal,
       _iter = sysVal->find(sysList[isys]);
       float _sys=0;
       if(_iter != sysVal->end()) _sys = (*_iter).second - _nom;
-      sysValSymm->insert(sysValSymm->end(),make_pair(sysList[isys],make_pair(_sys,0)));
+      sysValSymm->insert(sysValSymm->end(),make_pair(sysList[isys],make_pair(_sys,0.)));
       _totSysUp += pow(_sys,2);
       _totSysDn=0;
       //cout << "add to tot " << sysList[isys] << " " << _sys << endl;

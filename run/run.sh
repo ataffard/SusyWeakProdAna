@@ -13,7 +13,8 @@
 
 Opt1=do2L
 #mll40 cut on low mass alpgen
-Opt2=true
+#Opt2=true
+Opt2=false
 
 if [[ $# -eq 3 ]]; then
     type=$1

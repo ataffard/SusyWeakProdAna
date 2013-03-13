@@ -239,7 +239,7 @@ done <tmp.txt
 qstat |grep ataffard
 rm -f tmp.txt
 
-if [ "$type" == "mc12" ]; then
-    cd  ${pathRun}
-    ./run.sh mc12 dummy ${mode}
-fi
+#if [ "$type" == "mc12" ]; then
+#    cd  ${pathRun}
+#    ./run.sh mc12 dummy ${mode}
+#fi
