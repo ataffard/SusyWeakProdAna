@@ -32,13 +32,13 @@ const bool HIDEDATA=false;//true;
 const bool USESF=true;
 
 
-enum MC {HIGGS=0, FAKE=1, Ztt=2, ZX=3,  TOP=4, WW=5, OTHER=6};
+enum MC {HIGGS=0, FAKE=1, ZV=2, Zjets=3,  TOP=4, WW=5, OTHER=6};
 
 const std::string MCNames[] ={
   "Higgs",
   "FAKE",
-  "ZTT",
-  "ZX",
+  "ZV",
+  "Zjets",
   "TOP",
   "WW"
 };
@@ -51,8 +51,8 @@ enum MCCOL { C_TOP=kAzure-3, C_DIB=kYellow-7, C_WJETS = kMagenta+4,
 /*DG2L color scheme */
 enum MCCOL { C_HIGGS=kYellow-9,
 	     C_FAKE=kGray, 
-	     C_Ztt=kSpring+1, 
-	     C_ZX=kOrange-2,
+	     C_ZV=kSpring+1, 
+	     C_Zjets=kOrange-2,
 	     C_TOP=kRed+1, 
 	     C_WW=kAzure+4, 
 	     C_SIG1=kMagenta-7, C_SIG2=kRed-2};
@@ -62,7 +62,7 @@ const int iMarker[9]={20,21,22,23,24,25,26,27,30};
 enum SIG {Slepton_255_80, modeCSlep_375_125};
 
 
-class DrawPlots {
+class DrawPlots { 
 
  public:
   DrawPlots();
@@ -71,8 +71,8 @@ class DrawPlots {
   void openHistoFiles(string mode="STD",
 		      string Top="histo_topDil_Sherpa",
 		      string WW="histo_WW_Sherpa",
-		      string ZX="histo_ZX_Sherpa",		      
-		      string Ztt="histo_ZTauTaujets_Sherpa",
+		      string Zjets="histo_Zjets_SherpaAlpgenPythia",		      
+		      string ZV="histo_WZ_ZZ_Sherpa",
 		      string Fake="histo_mcFake_Sherpa",
 		      string Higgs="histo_Higgs"
 		      );

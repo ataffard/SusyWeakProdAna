@@ -20,8 +20,9 @@ SusyAnaLooper::SusyAnaLooper():
   _systematic2(""),
   _runOneSys(false),
   _runSysRange(false),
-  _isAlpgenLowMass(false),
-  nHFOR(0)
+  _isZAlpgenSherpa(false),
+  nHFOR(0),
+  nMllCut(0)
 {
   setAnaType(Ana_2Lep);
 
@@ -44,7 +45,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
   cout << " \t output dir " << DATE.c_str() << endl;
   printSettings();
 
-  if(_doMll) cout << " \t Mll40 toggled for lowMass Alpgen " << endl;
+  if(_doMll) cout << " \t Mll cut  toggled for Sherpa and Alpgen " << MLLCUT << endl;
 
   _susyHistos->setSample(sampleName());
 
@@ -127,8 +128,10 @@ void SusyAnaLooper::printSettings()
   cout << "   MAXRUM            " << MAXRUN         << endl; 
   cout << endl;
   cout << " 2L Settings " << endl;
-  cout << "   NBASELEPMIN       " << NBASELEPMIN       << endl;
-  cout << "   NBASELEPMAX       " << NBASELEPMAX       << endl;
+  cout << "   NBASELEPMIN       " << NBASELEPMIN    << endl;
+  cout << "   NBASELEPMAX       " << NBASELEPMAX    << endl;
+  if(_doMll)
+    cout << "   MLL for Z's       " << MLLCUT         << endl;
   cout << endl;
   cout << "   BLIND_DATA        " << BLIND_DATA     << endl;
   cout << "   BLIND_MC          " << BLIND_MC       << endl;
@@ -181,12 +184,34 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     return kFALSE;
   }
 
+  //
+  // Sherpa - Alpgen patch
+  //
+  if(_doMll){
+    //Sherpa - upper cut mll<60
+    if((nt.evt()->mcChannel>=147770 && nt.evt()->mcChannel<=147772) || //masselss b/c
+       (nt.evt()->mcChannel>=128975 && nt.evt()->mcChannel<=128977) || //Heavy/light
+       (nt.evt()->mcChannel>=146820 && nt.evt()->mcChannel<=146822)  
+       ){
+      _isZAlpgenSherpa=true;
+      if(nt.evt()->mllMcTruth > MLLCUT){ nMllCut++; return kFALSE;}
+    }
+    //AlpgenPythia LF/HF lower cut mll>60
+    if((nt.evt()->mcChannel>=110805 && nt.evt()->mcChannel<=110828) || //HF bb/cc
+       (nt.evt()->mcChannel>=117650 && nt.evt()->mcChannel<=117675)    //LF
+       ){
+      _isZAlpgenSherpa=true;
+      if(nt.evt()->mllMcTruth < MLLCUT){ nMllCut++; return kFALSE;}
+    }
+  }
+  /*
   if((nt.evt()->mcChannel>=146830 && nt.evt()->mcChannel<=146855)){
     _isAlpgenLowMass=true;
     if(_doMll){ //Reject Alpgen low mass with Mll>40 - To patch w/ Sherpa
       if(!nt.evt()->passMllForAlpgen) return kFALSE;
     }
   }
+  */
 
   //Check Duplicate run:event in data
   if(!nt.evt()->isMC && checkDuplicate()){
@@ -283,12 +308,12 @@ void SusyAnaLooper::Terminate()
       _SS.Contains("DGemt") ||
       _SS.Contains("DLiSlep") ){
     _susyHistos->SaveHistograms(_histoDir,_method,
-				_doMll,_isAlpgenLowMass,
+				_doMll,_isZAlpgenSherpa,
 				_systematic1, _systematic2);
   }
   else{
     _susyHistos->SaveSplit2LHistograms(_histoDir,_method,
-				       _doMll,_isAlpgenLowMass,
+				       _doMll,_isZAlpgenSherpa,
 				       _systematic1, _systematic2);
   }
 
@@ -297,6 +322,7 @@ void SusyAnaLooper::Terminate()
   SusyNtAna::Terminate();
   if(dbg()>0) cout << "SusyAnaLooper::Terminate" << endl;
   cout << "Number of event rejected by HFOR " << nHFOR <<endl;
+  cout << "Number of event rejected by MllCut " << nMllCut <<endl;
 
 }
 

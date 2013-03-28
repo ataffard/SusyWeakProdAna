@@ -47,24 +47,23 @@ int main(int argc, char *argv[]){
   string sTop = "histo_top_MCNLO";
   //string sTop = "histo_topDil_Sherpa";ll 
   
-  string sWW = "histo_WW_Sherpa";
-  //string sWW = "histo_WW_PowHeg";
+  //string sWW = "histo_WW_Sherpa";
+  string sWW = "histo_WW_PowHeg";
   /*
-    string sZX = "histo_ZX_SherpaLFHF";
-    string sZtt = "histo_ZTauTaujets_SherpaLFHF";  
+    string sZjets = "histo_Zjets_SherpaLFHF";
+    string sZV = "histo_ZTauTaujets_SherpaLFHF";  
   */
   
-  string sZX = "histo_ZX_AlpgenPythia_WZ_ZZ_Sherpa";
-  //string sZX = "histo_ZX_AlpgenPythia_WZ_ZZ_PowHeg";
-  //string sZX = "histo_ZX_Sherpa_WZ_ZZ_PowHeg";
+  string sZjets = "histo_Zjets_SherpaAlpgenPythia";
+  //string sZjets = "histo_Zjets_AlpgenPythia_WZ_ZZ_PowHeg";
+  //string sZjets = "histo_Zjets_Sherpa_WZ_ZZ_PowHeg";
   
   
   
-  //string sZX = "histo_ZX_AlpgenPythia";
-  //string sZX  = "histo_ZX_AlpgenPythia_diBPowHeg";
+  //string sZjets = "histo_Zjets_AlpgenPythia";
+  //string sZjets  = "histo_Zjets_AlpgenPythia_diBPowHeg";
 
-  //string sZtt = "histo_ZTauTaujets_Sherpa";    
-  string sZtt = "histo_ZTauTaujets_AlpgenPythia";  
+  string sZV = "histo_WZ_ZZ_PowHeg";  
   
   string sHiggs = "histo_Higgs";
   //string sHiggs = "histo_dummy";
@@ -91,10 +90,10 @@ int main(int argc, char *argv[]){
       sTop = argv[++i];
     if (strcmp(argv[i], "-WW") == 0)
       sWW = argv[++i];
-    if (strcmp(argv[i], "-ZX") == 0)
-      sZX = argv[++i];
-    if (strcmp(argv[i], "-Ztt") == 0)
-      sZtt = argv[++i];
+    if (strcmp(argv[i], "-Zjets") == 0)
+      sZjets = argv[++i];
+    if (strcmp(argv[i], "-ZV") == 0)
+      sZV = argv[++i];
     if (strcmp(argv[i], "-Fake") == 0)
       sFake = argv[++i];
     if (strcmp(argv[i], "-fakeComp") == 0){
@@ -127,7 +126,7 @@ int main(int argc, char *argv[]){
   DrawPlots* _ana = new DrawPlots();
    
   //histo files merging
-  if(!cutflow)  _ana->openHistoFiles(mode,sTop,sWW,sZX,sZtt,sFake,sHiggs);
+  if(!cutflow)  _ana->openHistoFiles(mode,sTop,sWW,sZjets,sZV,sFake,sHiggs);
 
 
   if(comp) _ana->compareShape(pName,logY);

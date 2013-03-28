@@ -8,7 +8,7 @@ typedef unsigned uint;
 //-----------------------------------------------------------------------------
 DrawPlots::DrawPlots(){
 
-  _pathHisto  =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_" + DATE;
+  _pathHisto  =  string(getenv("HISTOANA")) + "/SusyAna/histos_" + DATE;
   _pathPlots  =  _pathHisto + "/Plots";
   _pathTables =  _pathHisto + "/Tables";
 
@@ -30,8 +30,8 @@ DrawPlots::DrawPlots(){
   //  SFILE.push_back("Wjets + b#bar{b} + c#bar{c}");
   SFILE.push_back("SM Higgs");
   SFILE.push_back("Fake-leptons MC");
-  SFILE.push_back("Z#rightarrow #tau#tau");
-  SFILE.push_back("Z(ee,#mu#mu)+jets + ZV");
+  SFILE.push_back("ZV");
+  SFILE.push_back("Z+jets");
   SFILE.push_back("t#bar{t} + Wt");
   SFILE.push_back("WW");
   SFILE.push_back("Data");
@@ -47,7 +47,7 @@ DrawPlots::DrawPlots(){
 //-------------------------------------------//
 void DrawPlots::openHistoFiles(string mode, 
 			       string Top, string WW, 
-			       string ZX,  string Ztt, 
+			       string Zjets,  string ZV, 
 			       string Fake, string Higgs)
 {
   std::cout << "loading histo from method " << mode << endl;
@@ -67,8 +67,8 @@ void DrawPlots::openHistoFiles(string mode,
     method="std";
     _mcFileName.push_back(string(Higgs + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(Fake + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(Ztt + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(ZX + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(ZV + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(Zjets + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
 
@@ -81,8 +81,8 @@ void DrawPlots::openHistoFiles(string mode,
     //method="std";
     _mcFileName.push_back(string(Higgs + "_" + method + ".root").c_str());
     _mcFileName.push_back(string("histo_data12_flep.root").c_str());
-    _mcFileName.push_back(string(Ztt + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(ZX + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(ZV + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(Zjets + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
     _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
 
@@ -168,8 +168,8 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
     case FAKE:
       _mcColor.push_back(C_FAKE);
       break;
-    case Ztt:
-      _mcColor.push_back(C_Ztt);
+    case ZV:
+      _mcColor.push_back(C_ZV);
       break;
     case WW:
       _mcColor.push_back(C_WW);
@@ -177,8 +177,8 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
     case TOP:
       _mcColor.push_back(C_TOP);
       break;
-    case ZX:
-      _mcColor.push_back(C_ZX);
+    case Zjets:
+      _mcColor.push_back(C_Zjets);
       break;
     }
     _mcMarker.push_back(iMarker[i+1]);
@@ -293,50 +293,43 @@ void DrawPlots::blindMT2(string name, TH1F* h){
   }
 }
 //-------------------------------------------//
-// Scale ZX, Top, WW to their values
+// Scale Zjets, Top, WW to their values
 //-------------------------------------------//
 float DrawPlots::getBkgSF(string name, int bkgType){
   TString hName(name);
   
-  //SF from Moriond Feb 27 2013
-  //  cout << "Name " << name << " " << bkgType << endl;
-
   //SR & preSR
-  if( hName.Contains("SROSjveto")||
-      hName.Contains("SRmT2a") ||
-      hName.Contains("SRmT2b") ||
-      hName.Contains("SRmT2") ||
-      hName.Contains("SR2jets") ||
-      hName.Contains("SRZjets") ||
-      hName.Contains("SRSSjets") ){
+  if( hName.Contains("_SROSjveto_")||
+      hName.Contains("_SRmT2a_") ||
+      hName.Contains("_SRmT2b_") ||
+      hName.Contains("_preSRmT2_") ||
+      hName.Contains("_SR2jets_") ||
+      hName.Contains("_SRZjets_") ||
+      hName.Contains("_SRSSjets_")
+      ){
 
-    if(bkgType==TOP){ //Update SusyTools ver  D0 unbias
-      if(hName.Contains("EE"))       return 1.056; //1.066;
-      else if(hName.Contains("MM"))  return 1.016; //1.025;
-      else if(hName.Contains("EM"))  return 1.043; //1.040;
+    if(bkgType==TOP){ //updated 031513
+      if(hName.Contains("EE"))       return 1.037; 
+      else if(hName.Contains("MM"))  return 1.011; 
+      else if(hName.Contains("EM"))  return 1.046; 
     }
-    else if(bkgType==WW){ //Handwaved
-      return 1.3; //1.35;
-      /*
-      if(hName.Contains("EE"))       return 1.5;
-      else if(hName.Contains("MM"))  return 1.3;
-      else if(hName.Contains("EM"))  return 1.34;
-      */
+    else if(bkgType==WW){  //updated 031513
+      if(hName.Contains("EE"))       return 1.1;
+      else if(hName.Contains("MM"))  return 1.0;
+      else if(hName.Contains("EM"))  return 1.0;
     }
-    else if(bkgType==ZX){ //No SF - need preMt2
-      if(hName.Contains("EE"))       return 1;//1.0472;
-      else if(hName.Contains("MM"))  return 1;//1.0890;
-      else if(hName.Contains("EM"))  return 1;//1;
+    else if(bkgType==Zjets){ //updated 031513     
+      if(hName.Contains("EE"))       return 1;// ??
+      else if(hName.Contains("MM"))  return 1;// ??
+      else if(hName.Contains("EM"))  return 1.8;// Ztt SF
     }
-    else if(bkgType==Ztt){
-      return 1.18;
+    else if(bkgType==ZV){//Updated 031513
+      if(hName.Contains("EE")) return 1.0756;
+      if(hName.Contains("MM")) return 1.1594;
     }
-
-
   }
 
   return 1;
-
 }
 
 //-------------------------------------------//
@@ -351,16 +344,18 @@ void  DrawPlots::setGenSys(string name, int bkgType, TH1F* hNom, TH1F* h){
   }
   h->Add(hNom,1);//Set Gen Sys histo to nominal value.
 
-  if ( bkgType != WW) return;
-  //cout << "Bkg " << MCNames[bkgType]  << " " << name << " " <<  h->Integral(0,-1) << endl;
-
   float sys=0;
-  /*
-  if (hName.Contains("EE")) sys=0.09;
-  if (hName.Contains("MM")) sys=0.07;
-  if (hName.Contains("EM")) sys=0.25;
-  */
-  sys=0.06;
+  if ( bkgType == WW){
+    //cout << "Bkg " << MCNames[bkgType]  << " " << name << " " <<  h->Integral(0,-1) << endl;
+    if (hName.Contains("EE")) sys=0.10;
+    if (hName.Contains("MM")) sys=0.09;
+    if (hName.Contains("EM")) sys=0.31;
+  }
+  if ( bkgType == ZV){
+    if (hName.Contains("EE")) sys=0.32;
+    if (hName.Contains("MM")) sys=0.32;
+    if (hName.Contains("EM")) sys=0.18;
+  }
 
   if (hName.Contains("UP")) h->Scale(1+sys);
   if (hName.Contains("DN")) h->Scale(1-sys);
@@ -1070,10 +1065,10 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
 
 //_____________________________________________________________________________//
 void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV, 
-			       std::vector<TH1F*> histZttV, 
+			       std::vector<TH1F*> histZVV, 
 			       std::vector<TH1F*> histWWV, 
 			       std::vector<TH1F*> histTopV, 
-			       std::vector<TH1F*> histZXV,
+			       std::vector<TH1F*> histZjetsV,
 			       std::vector<TH1F*> histHiggs,
 			       Double_t &nom,
 			       Double_t &stat_err,
@@ -1088,10 +1083,10 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
   TH1F* _hSum = (TH1F*)  histFakeV[DGSys_NOM]->Clone();
   _hSum->SetTitle("totBkg");
   _hSum->SetName("totBkg");
-  _hSum->Add(histZttV[DGSys_NOM]);
+  _hSum->Add(histZVV[DGSys_NOM]);
   _hSum->Add(histWWV[DGSys_NOM]);
   _hSum->Add(histTopV[DGSys_NOM]);
-  _hSum->Add(histZXV[DGSys_NOM]);
+  _hSum->Add(histZjetsV[DGSys_NOM]);
   _hSum->Add(histHiggs[DGSys_NOM]);
 
   nom = _hSum->IntegralAndError(0,-1,stat_err);
@@ -1101,16 +1096,16 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
   float mcSysUp=0;
   float mcSysDn=0;
   
-  for(uint isys=DGSys_NOM; isys< histZXV.size() /*DGSys_N*/; isys++){
+  for(uint isys=DGSys_NOM; isys< histZjetsV.size() /*DGSys_N*/; isys++){
     Double_t val = 0;
-    if(histZttV[isys]->Integral(0,-1)>0) 
-      val += histZttV[isys]->Integral(0,-1)-histZttV[DGSys_NOM]->Integral(0,-1);
+    if(histZVV[isys]->Integral(0,-1)>0) 
+      val += histZVV[isys]->Integral(0,-1)-histZVV[DGSys_NOM]->Integral(0,-1);
     if(histWWV[isys]->Integral(0,-1)>0)
       val +=  histWWV[isys]->Integral(0,-1)-histWWV[DGSys_NOM]->Integral(0,-1);
     if(histTopV[isys]->Integral(0,-1)>0)
       val +=  histTopV[isys]->Integral(0,-1)-histTopV[DGSys_NOM]->Integral(0,-1);
-    if(histZXV[isys]->Integral(0,-1)>0)
-      val +=  histZXV[isys]->Integral(0,-1)-histZXV[DGSys_NOM]->Integral(0,-1);
+    if(histZjetsV[isys]->Integral(0,-1)>0)
+      val +=  histZjetsV[isys]->Integral(0,-1)-histZjetsV[DGSys_NOM]->Integral(0,-1);
     if(histHiggs[isys]->Integral(0,-1)>0)
       val +=  histHiggs[isys]->Integral(0,-1)-histHiggs[DGSys_NOM]->Integral(0,-1);
     
@@ -1178,7 +1173,7 @@ TFile* DrawPlots::openFile(string DSId){
 //_____________________________________________________________________________//
 string  DrawPlots::getFileName(string DSId){
 
-  _pathHisto  =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histos_" + DATE;
+  _pathHisto  =  string(getenv("HISTOANA"))  + "/SusyAna/histos_" + DATE;
   string fileName="";
   
   string tmpFile = "fileName.txt";
@@ -1653,8 +1648,8 @@ void DrawPlots:: bkgEstimate_DG2L()
   sBKG.clear();
   sBKG.push_back("Higgs");
   sBKG.push_back("FAKE");
-  sBKG.push_back("Ztt");
-  sBKG.push_back("ZX");
+  sBKG.push_back("ZV");
+  sBKG.push_back("Zjets");
   sBKG.push_back("TOP");
   sBKG.push_back("WW");
   sBKG.push_back("TOTAL");

@@ -8,6 +8,7 @@
 #
 #
 # ./submitT3_hadd.sh cat
+# ./submitT3_hadd.sh pass + mv histOutputs
 #
 # ./submitT3_hadd.sh mc rlep hadd; ./submitT3_hadd.sh data std hadd; ./submitT3_hadd.sh data flep hadd; 
 #
@@ -18,7 +19,10 @@
 #!/bin/bash
 
 #Update for a given pass
-date="030813_21fb_n0127_Moriond_DD_v8"
+date="032813_21fb_n0135_Moriond_DD_v4"
+#date="031513_21fb_n0135_Moriond_DD_v3"
+#date="031313_21fb_n0135_Moriond_DD_v1"
+#date="030813_21fb_n0127_Moriond_DD_v8"
 #date="030613_21fb_n0127_Moriond_DD_v7"
 #date="030213_21fb_n0135_Moriond_DD_v7"
 
@@ -33,11 +37,11 @@ dir=${WORKAREA}/SusyWeakProdAna/scripts/haddJobs
 #outpath=${WORKAREA}/histoAna/SusyAna/hadd_histOutputs
 #endpath=${WORKAREA}/histoAna/SusyAna
 
-inpath=${WORKAREA}/histoAna/SusyAna/histos_${date}/histOutputs
-outpath=${WORKAREA}/histoAna/SusyAna/histos_${date}/hadd_histOutputs
-endpath=${WORKAREA}/histoAna/SusyAna/histos_${date}
+inpath=${HISTOANA}/SusyAna/histos_${date}/histOutputs
+outpath=${HISTOANA}/SusyAna/histos_${date}/hadd_histOutputs
+endpath=${HISTOANA}/SusyAna/histos_${date}
 
-passDir=${WORKAREA}/histoAna/SusyAna/histos_${date}
+passDir=${HISTOANA}/SusyAna/histos_${date}
 
 
 if [[ $# = 3 ]]; then
@@ -52,21 +56,27 @@ elif [[ $# = 1 ]]; then
 	echo "Remerging Zjets, ZX & Bkg  grouping"
 
 	#Various Z+jets
-	cat ${inlist}/Zjets_AlpgenPythia.txt ${inlist}/WZ_ZZ_Sherpa.txt > ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt
-	cat ${inlist}/Zjets_AlpgenPythia.txt ${inlist}/WZ_ZZ_PowHeg.txt > ${inlist}/ZX_AlpgenPythia_WZ_ZZ_PowHeg.txt
+	#cat ${inlist}/Zjets_AlpgenPythia.txt ${inlist}/WZ_ZZ_Sherpa.txt > ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt
+	#cat ${inlist}/Zjets_AlpgenPythia.txt ${inlist}/WZ_ZZ_PowHeg.txt > ${inlist}/ZX_AlpgenPythia_WZ_ZZ_PowHeg.txt
 
-	cat ${inlist}/Zjets_Sherpa.txt ${inlist}/WZ_ZZ_Sherpa.txt > ${inlist}/ZX_Sherpa_WZ_ZZ_Sherpa.txt
-	cat ${inlist}/Zjets_Sherpa.txt ${inlist}/WZ_ZZ_PowHeg.txt > ${inlist}/ZX_Sherpa_WZ_ZZ_PowHeg.txt
+	#cat ${inlist}/Zjets_Sherpa.txt ${inlist}/WZ_ZZ_Sherpa.txt > ${inlist}/ZX_Sherpa_WZ_ZZ_Sherpa.txt
+	#cat ${inlist}/Zjets_Sherpa.txt ${inlist}/WZ_ZZ_PowHeg.txt > ${inlist}/ZX_Sherpa_WZ_ZZ_PowHeg.txt
 
 	#cat ${inlist}/Zjets_SherpaLFHF.txt ${inlist}/WZ_ZZ_Sherpa.txt > ${inlist}/ZX_SherpaLFHF_WZ_ZZ_Sherpa.txt
 	
 
 	#All Bkg grouping - variations
-	cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_Sherpa.txt \
-	    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO.txt
+	cat ${inlist}/Zjets_SherpaAlpgenPythia.txt ${inlist}/WZ_ZZ_Sherpa.txt  ${inlist}/WW_Sherpa.txt \
+	    ${inlist}/top_MCNLO.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_Zjets_SherpaAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO.txt
 
-	cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_PowHeg.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_PowHeg.txt \
-	    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO.txt
+	cat ${inlist}/Zjets_SherpaAlpgenPythia.txt ${inlist}/WZ_ZZ_PowHeg.txt  ${inlist}/WW_PowHeg.txt \
+	    ${inlist}/top_MCNLO.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO.txt
+
+	#cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_Sherpa.txt \
+	#  ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO.txt
+
+	#cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_PowHeg.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_PowHeg.txt \
+	#    ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO.txt
 
 
 	#cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt ${inlist}/top_Alpgen.txt ${inlist}/WW_Sherpa.txt \
@@ -91,7 +101,8 @@ elif [[ $# = 1 ]]; then
 
 
     elif  [ "$mode" == "pass" ]; then
-	
+	endpath=${HISTOANA}/SusyAna
+
 	if [ ! -d "${passDir}" ]; then
 	    mkdir ${passDir}
 	fi
@@ -99,19 +110,19 @@ elif [[ $# = 1 ]]; then
 	mkdir -p ${passDir}/logs/hadd
 	mkdir -p ${passDir}/logs/jobs
 
-	mv ${endpath}/*.root ${passDir}
 	mv ${pathRun}/jobLogs/*hadd.log ${passDir}/logs/hadd
 	mv ${pathRun}/jobLogs/*.log ${passDir}/logs/jobs
 	mv ${endpath}/HFTOutputs ${passDir}
 	mv ${endpath}/ToyNtOutputs ${passDir}
 	mv ${endpath}/hadd_histOutputs ${passDir}
+	mv ${endpath}/*.root ${passDir}
 	mv ${endpath}/histOutputs ${passDir}
 
     elif  [ "$mode" == "move" ]; then
 
-	inDir=${WORKAREA}/histoAna/SusyAna/histOutputs
+	inDir=${HISTOANA}/SusyAna/histOutputs
 	#inDir=/data7/atlas/ataffard/SUSYAna_8TeV2012ALL/histoAna/SusyAna/histos_030213_21fb_n0135_Moriond_DD_v7/histOutputs/
-	outDir=${WORKAREA}/histoAna/SusyAna/histos_${date}/histOutputs
+	outDir=${HISTOANA}/SusyAna/histos_${date}/histOutputs
 	
 	ls -1 ${inDir} >tmp.txt
 	
@@ -162,7 +173,7 @@ DIL=(EE MM EM)
 SR=(preSRmT2 SRmT2a SRmT2b \
     ZXCRpremT2 ZXCRmT2a ZXCRmT2b ZXCRWW ZXCRWW2  \
     CRTOP \
-    CRWW CRWW2 CRWW3 CRWW4 \
+    CRWW CRWW2 CRWW3 CRWW4 CRWW5 \
     SROSjveto  \
     SR2jets SRZjets SRSSjets \
     SRWWa SRWWb SRWWc \

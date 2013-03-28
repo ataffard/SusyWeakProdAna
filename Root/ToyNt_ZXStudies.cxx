@@ -61,7 +61,7 @@ void ToyNt_ZXStudies::Terminate()
 /*--------------------------------------------------------------------------------*/
 void ToyNt_ZXStudies::saveHistograms(TDirectory* hDir)
 {
-  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/ToyAna";
+  string dir =  string(getenv("HISTOANA")) + "/ToyAna";
   gSystem->mkdir(dir.c_str(),kTRUE);
   string fileName  = dir + "/" + "histo_" + m_sample + ".root";
   

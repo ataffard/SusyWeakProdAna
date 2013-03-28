@@ -80,7 +80,8 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/pass2_Moriond_Feb22_2013.root"; //Moriond
+    "/SusyMatrixMethod/data/pass3_Mar3_2013.root"; //Spring !
+
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT);
 
@@ -221,7 +222,7 @@ void Susy2LepAna::end()
     m_toyNt->setSumOfMcWeights(nt->evt()->sumw); 
     m_toyNt->SaveTree();
 
-    string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/ToyNtOutputs";
+    string dir =  string(getenv("HISTOANA")) + "/SusyAna/ToyNtOutputs";
     gSystem->mkdir(dir.c_str(),kTRUE);
 
     string cmd = "mv " + m_toyNt->getFilename() + " " + dir;
@@ -239,7 +240,7 @@ void Susy2LepAna::end()
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::moveHFTOutput()
 {
-  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/HFTOutputs";
+  string dir =  string(getenv("HISTOANA")) + "/SusyAna/HFTOutputs";
   gSystem->mkdir(dir.c_str(),kTRUE);
   
   if(nt->evt()->isMC){
@@ -488,9 +489,10 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_vetoF     = true;
       m_pTl0Min   = 35;
       m_pTl1Min   = 20;
+      m_metRelMin = 70;
       m_pTllMin   = 70;
       m_highMll   = 80;
-      m_metRelMin = 70;
+      m_dPhillMax = 1.8;
     }
   }
   else if(m_sel == "SRWWb"){
@@ -505,6 +507,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_mt2Min   = 90;
       m_pTllMax  = 170;
       m_highMll  = 130;
+      m_dPhillMax = 1.8;
     }
   }
   else if(m_sel == "SRWWc"){
@@ -518,6 +521,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_pTl1Min  = 20;
       m_mt2Min   = 100;
       m_pTllMax  = 190;
+      m_dPhillMax = 1.8;
     }
   }
   //----------------------------//
@@ -563,7 +567,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_selOS = true;
     m_selZ  = true;
     m_vetoJ = true;
-    //m_metRelMin=70;
+    m_metRelMin=70;
     m_metRelMax=100;
     m_mt2Max=90;
   }
@@ -573,9 +577,9 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_vetoJ = true;
     m_metRelMin=70;
     m_metRelMax=100;
+    m_mt2Min=50;
     m_mt2Max=90;
   }
-
   else if(m_sel == "CRTOP"){
     m_selOS = true;
     m_vetoZ =true;
@@ -593,12 +597,13 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_minCJet=1;
       m_pTl0Min = 35;
       m_pTl1Min = 20;
+      m_metRelMin=70;
       m_pTllMin  = 70;
       m_highMll  = 80;
-      m_metRelMin=70;
+      m_dPhillMax = 1.8;
     }
   }
-  else if(m_sel == "CRTOPWWb"){
+  else if(m_sel == "CRTOPWWb"){///<<<<
     m_selOS  = true;
     m_selOF = true;
     if(dilType==ET_em){
@@ -610,6 +615,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_mt2Min= 90;
       m_pTllMax  = 170;
       m_highMll  = 130;
+      m_dPhillMax = 1.8;
     }
   }
   else if(m_sel == "CRTOPWWc"){
@@ -623,9 +629,10 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_pTl1Min = 20;
       m_mt2Min= 100;
       m_pTllMax  = 190;
+      m_dPhillMax = 1.8;
     }
   }
-  else if(m_sel == "CRWW"){
+  else if(m_sel == "CRWW"){//MT2<90
     m_selOS = true;
     //m_selSF = true;
     m_vetoZ = true;
@@ -634,39 +641,45 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_metRelMax = 100;
     m_mt2Max    = 90;
   }
-  else if(m_sel == "CRWW2"){
+  else if(m_sel == "CRWW2"){// 50<mT2<90
     m_selOS = true;
     //m_selSF = true;
     m_vetoZ = true;
     m_vetoJ = true;
     m_metRelMin = 70;
     m_metRelMax = 100;
-    m_mt2Min    = 70;
+    m_mt2Min    = 50;
     m_mt2Max    = 90;
   }
-  else if(m_sel == "CRWW3"){
+  else if(m_sel == "CRWW3"){//MT2<90 & pTll>60
     m_selOS = true;
     //m_selSF = true;
     m_vetoZ = true;
-    m_vetoB = true;
-    m_vetoF = true;
-    m_topTag    = true;
-    //m_vetoJ = true;
+    m_vetoJ = true;
     m_metRelMin = 70;
     m_metRelMax = 100;
+    m_mt2Min    = 50;
     m_mt2Max    = 90;
+    m_pTllMin   = 60;
   }
-  else if(m_sel == "CRWW4"){
+  else if(m_sel == "CRWW4"){//50<mT2<90 & pTll>60
     m_selOS = true;
     //m_selSF = true;
     m_vetoZ = true;
-    m_vetoB = true;
-    m_vetoF = true;
-    m_topTag    = true;
-    //m_vetoJ = true;
+    m_vetoJ = true;
     m_metRelMin = 70;
     m_metRelMax = 100;
-    m_mt2Min    = 70;
+    m_mt2Min    = 50;
+    m_mt2Max    = 90;
+    m_pTllMin   = 60;
+  }
+  else if(m_sel == "CRWW5"){ //preSRmT2 + 50<mT2<90 - For EM only
+    m_selOS = true;
+    //m_selSF = true;
+    m_vetoZ = true;
+    m_vetoJ = true;
+    m_metRelMin = 40;
+    m_mt2Min    = 50;
     m_mt2Max    = 90;
   }
   else if(m_sel == "CRWWa"){
@@ -678,7 +691,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_vetoF = true;
       m_pTl0Min = 35;
       m_pTl1Min = 20;
-      m_lowMll    = 80;
+      m_metRelMax = 70;
       m_dPhillMax = 1.8;
     }
   }
@@ -691,13 +704,11 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_vetoF = true;
       m_pTl0Min = 35;
       m_pTl1Min = 20;
-      m_pTllMax  = 170;
-      m_highMll  = 130;   
-      m_dPhillMax = 1.8;
       m_mt2Max = 90;
+      m_dPhillMax = 1.8;
     }
   }
-  else if(m_sel == "CRWWc"){
+  else if(m_sel == "CRWWc"){ //Not used 
     m_selOS    = true;     
     m_selOF = true;
     if(dilType==ET_em){
@@ -852,6 +863,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
   if(nt->evt()->isMC) _inc = nt->evt()->w; 
   else _inc =1;
+  //if(nt->evt()->isMC && !WEIGHT_COUNT) _inc=1;
 
   if(SYST==DGSys_NOM) n_readin+=_inc;
 
@@ -912,6 +924,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //set _ww to the appropriate weighting
   //
   float _ww      = eventWeight(LUMIMODE); 
+  //if(!WEIGHT_COUNT) _ww=1;
   float _lepSFW  = getLepSFWeight(leptons);
   float _trigW   = getTriggerWeight(leptons, 
 				    met->lv().Pt(),
@@ -1184,33 +1197,21 @@ float Susy2LepAna::eventWeight(int mode)
 	 nt->evt()->mcChannel == 161155 ||
 	 nt->evt()->mcChannel == 160555 || 
 	 nt->evt()->mcChannel == 160505 ||
-	 (nt->evt()->mcChannel >= 126928 && nt->evt()->mcChannel <= 126936) || //WW Powheg overide !!!
-	 (nt->evt()->mcChannel >= 129477 && nt->evt()->mcChannel <= 129494) //WZ Powheg overide !!!
+	 (nt->evt()->mcChannel >= 129477 && nt->evt()->mcChannel <= 129494)|| //WZ Powheg update XS MCNLO !!!
+	 (nt->evt()->mcChannel >= 126949 && nt->evt()->mcChannel <= 126951)
 	 ){
 
 	if(m_xsecMap.find(id) == m_xsecMap.end()) {
 	  m_xsecMap[id] = m_susyXsec->process(id);
 	}
 	xs = m_xsecMap[id].xsect() * m_xsecMap[id].kfactor() * m_xsecMap[id].efficiency();
-
-	//More hacking !!!
-	/*
-	if(id == 126928) sumw = 179140.6875;
-	if(id == 126929) sumw = 179234.296875;
-	if(id == 126930) sumw = 179258.0;
-	if(id == 126931) sumw = 179314.46875;
-	if(id == 126932) sumw = 179170.375;
-	if(id == 126933) sumw = 179211.984375;
-	if(id == 126934) sumw = 179095.296875;
-	if(id == 126935) sumw = 179306.8125;
-	if(id == 126936) sumw = 179275.40625;
-	*/
       }
-      //ZZllnn XS *3 over neutrino flavor
-      if(id==126949 || id==126950 ||id==126951) xs *= 3;
-
-
-
+      
+      //SUSY WW-like
+      if(id==176322) xs = 0.425175;
+      if(id==176325) xs = 0.167127;
+      if(id==176480) xs = 0.616257;
+      
       _evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
       if(dbg()>10)
 	cout << "Ana W: " << nt->evt()->w 
@@ -1416,6 +1417,9 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_CRWW1;
     break;    
   case DIL_CRWW4:
+    frSR = SusyMatrixMethod::FR_CRWW1;
+    break;    
+  case DIL_CRWW5:
     frSR = SusyMatrixMethod::FR_CRWW1;
     break;    
   case DIL_CRWWa:
@@ -1819,7 +1823,7 @@ bool Susy2LepAna::passPtll(const LeptonVector* leptons)
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passdPhill(const LeptonVector* leptons){
   if( leptons->size() < 2 ) return false;
-  float dPhi = leptons->at(0)->DeltaPhi(*leptons->at(1));
+  float dPhi = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
   if(m_dPhillMax>-1 && dPhi<m_dPhillMax) return false;
   if(SYST==DGSys_NOM) n_pass_dPhill[m_ET][SR]+=_inc;
   return true;
@@ -2114,6 +2118,14 @@ void Susy2LepAna::print_WWCR()
   print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
   print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  j= DIL_CRWW3;
+  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
+  j= DIL_CRWW2;
+  print_line("pass MT2(50-90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  j= DIL_CRWW4;
+  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
+  j= DIL_CRWW5;
   print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 
   j= DIL_CRWWa;

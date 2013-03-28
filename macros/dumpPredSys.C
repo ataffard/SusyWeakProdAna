@@ -3,7 +3,8 @@
 
 typedef unsigned uint;
 
-string dir ="histos_030213_21fb_n0127_Moriond_DD_v6/";
+string dir ="histos_031513_21fb_n0135_Moriond_DD_v3/";
+//string dir ="histos_030813_21fb_n0127_Moriond_DD_v8/";
 //string dir ="";
 
 TGuiUtils* _utils;
@@ -29,11 +30,12 @@ int main(int argc, char *argv[]){
   //sample.push_back("histo_ZX_AlpgenPythia_rlep.root");
   //sample.push_back("histo_ZX_Sherpa_rlep.root");
   //sample.push_back("histo_WW_Sherpa_rlep.root");
-  //sample.push_back("histo_top_MCNLO_rlep.root");
+  sample.push_back("histo_top_MCNLO_rlep.root");
   //sample.push_back("histo_ZTauTaujets_AlpgenPythia_rlep.root");
   //sample.push_back("histo_llnunu_WW.126892_rlep_preSRmT2.root"); 
-  sample.push_back("histo_ttbar.105200_CRWW_rlep.root");
-
+  //sample.push_back("histo_ttbar.105200_CRWW_rlep.root");
+  //sample.push_back("histo_WW_PowHeg_rlep.root");
+  //sample.push_back("histo_Zjets_SherpaAlpgenPythia_rlep.root");
 
   vector<string> SR;
   //SR.push_back("DG2L_CR2LepOS_");
@@ -42,7 +44,10 @@ int main(int argc, char *argv[]){
   //SR.push_back("DG2L_SROSjveto_");
   //SR.push_back("DG2L_ZXCRWW_");
   SR.push_back("DG2L_CRWW_");
+  //SR.push_back("DG2L_ZXCRWW2_");
   //SR.push_back("DG2L_preSRmT2_");
+  //SR.push_back("DG2L_CRTOP_");
+  //SR.push_back("DG2L_SRmT2a_");
 
   /*
     SR.push_back("DG2L_SR2jets_");

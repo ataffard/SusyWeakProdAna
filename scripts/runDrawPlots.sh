@@ -27,7 +27,7 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #Add back tothe list 
     
 #SR=(CR2LepOS)
-SR=(preSRmT2)
+SR=(preSRmT2 CRWW CRWW2 ZXCRpremT2 ZXCRWW ZXCRWW2 ZXCRmT2a ZXCRmT2b CRTOP )
 PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
 #PLOTS=(mllcoarse)
 

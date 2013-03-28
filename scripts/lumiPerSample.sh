@@ -3,7 +3,8 @@
 # This script will calculate the lumi per sample for all D3PD datasets in a provided sample list
 #
 # Use text input files from
-# /data11/home/sfarrell/workarea/SusyAna_2012/SusyCommon/grid/
+# 
+# /home/sfarrell/workarea/SusyAna_2012_n0135/SusyCommon/grid
 #
 
 if [ $# -lt 1 ]; then
@@ -27,8 +28,24 @@ function getSusyXsec {
         # Extract the run number
         mcID=${1#mc12_8TeV.}
         mcID=${mcID%%.*}
-        xsec=`cat $susyXsecFile | grep "^$mcID" | awk '{print $3*$4*$5}'`
+        xsec=`cat $susyXsecFile | grep "^$mcID" | awk '{print $3}'`
         echo $xsec
+}
+
+function getSusykFac {
+        # Extract the run number
+        mcID=${1#mc12_8TeV.}
+        mcID=${mcID%%.*}
+        kfac=`cat $susyXsecFile | grep "^$mcID" | awk '{print $4}'`
+        echo $kfac
+}
+
+function getSusyEff {
+        # Extract the run number
+        mcID=${1#mc12_8TeV.}
+        mcID=${mcID%%.*}
+        eff=`cat $susyXsecFile | grep "^$mcID" | awk '{print $5}'`
+        echo $eff
 }
 
 
@@ -37,7 +54,7 @@ matches=(`cat $dsFile | grep "$pattern" | tr '\t' ',' | tr ' ' ','`)
 echo "${#matches[@]} matches"
 
 echo
-echo -e "\tsumw     \txsec     \tlumi [1/fb]"
+echo -e "\tsumw     \txsec     \tkFac     \tEff \tlumi [1/fb]"
 
 # Loop over samples
 for line in ${matches[@]}; do
@@ -51,18 +68,24 @@ for line in ${matches[@]}; do
         inDS=${info[0]}
         sumw=${info[1]}
         xsec=-1
+	kfac=-1
+	eff=-1
         if [ ${#info[@]} -gt 2 ]; then
                 xsec=${info[2]}
         fi
 
         if [[ $xsec == "-1" ]]; then
                 xsec=`getSusyXsec $inDS`
+		kfac=`getSusykFac $inDS`
+		eff=`getSusyEff $inDS`
         fi
 
         sumw=${sumw/e+/*10^}
-        lumi=`echo "scale=1; $sumw / ($xsec * 1000.)" | bc`
+	tot=`echo "$xsec*$kfac*$eff" | bc `
+        lumi=`echo "scale=1; $sumw / ($xsec*$kfac*$eff * 1000.)" | bc`
 
-        echo $inDS
-        echo -e "\t$sumw    \t$xsec    \t$lumi"
+	mcID=${inDS#mc12_8TeV.}
+        mcID=${mcID%%.merge*}     
+        echo -e "$mcID   \t$sumw    \t$xsec \t$kfac \t$eff   \t$lumi \t\t$tot"
 
 done

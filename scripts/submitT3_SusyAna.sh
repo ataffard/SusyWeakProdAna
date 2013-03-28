@@ -45,8 +45,8 @@ ana=SusyAnaLooperExec
 #anaOpt1=doAll
 anaOpt1=do2L
 #anaOpt1=doFake
-#anaOpt2=true #doMll 
-anaOpt2=false #doMll 
+anaOpt2=true #doMll 
+#anaOpt2=false #doMll 
 methodMC=std
 sys1="\"\""
 sys2="\"\""
@@ -239,7 +239,12 @@ done <tmp.txt
 qstat |grep ataffard
 rm -f tmp.txt
 
-#if [ "$type" == "mc12" ]; then
-#    cd  ${pathRun}
-#    ./run.sh mc12 dummy ${mode}
-#fi
+if [ "$type" == "mc12" ]; then
+    cd  ${pathRun}
+    ./run.sh mc12 dummy ${mode}
+    ./run.sh susy 175517 ${mode}
+    ./run.sh susy 144921 ${mode}
+    ./run.sh susy 176322 ${mode}
+    ./run.sh susy 176325 ${mode}
+    ./run.sh susy 176480 ${mode}
+fi

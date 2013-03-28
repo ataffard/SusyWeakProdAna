@@ -13,8 +13,8 @@
 
 Opt1=do2L
 #mll40 cut on low mass alpgen
-#Opt2=true
-Opt2=false
+Opt2=true
+#Opt2=false
 
 if [[ $# -eq 3 ]]; then
     type=$1
@@ -27,9 +27,9 @@ elif [[ $# -eq 4 ]]; then
     Opt2=$4
 fi
 
-#NOM=""
+NOM=""
 #NOM="-sys1 NOM"
-NOM="-sys1 NOM -sys2 XS_DN"
+#NOM="-sys1 NOM -sys2 XS_DN"
 
 methodMC=std
 methodData=std

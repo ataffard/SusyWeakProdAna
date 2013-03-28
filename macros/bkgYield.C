@@ -36,10 +36,10 @@ TGuiUtils* _utils;
 DrawPlots* _ana;
 
 std::vector<TH1F*> _mcFake[4];  //[LEP][SYS]
-std::vector<TH1F*> _mcZtt[4];   //[LEP][SYS]
+std::vector<TH1F*> _mcZV[4];   //[LEP][SYS]
 std::vector<TH1F*> _mcWW[4];    //[LEP][SYS]
 std::vector<TH1F*> _mcTopDil[4];//[LEP][SYS]
-std::vector<TH1F*> _mcZX[4];    //[LEP][SYS]
+std::vector<TH1F*> _mcZjets[4];    //[LEP][SYS]
 std::vector<TH1F*> _mcHiggs[4];    //[LEP][SYS]
 std::vector<TH1F*> _mcAll[4];   //[LEP][SYS]
 std::vector<TH1F*> _data[4];    //[LEP][SYS]
@@ -81,10 +81,10 @@ void  bkgYield(string sReg){
 
   BKG.clear();
   BKG.push_back("FAKE");
-  BKG.push_back("Ztt");
+  BKG.push_back("ZV");
   BKG.push_back("WW");
   BKG.push_back("TOP");
-  BKG.push_back("ZX");
+  BKG.push_back("Zjets");
   BKG.push_back("HIGGS");
   BKG.push_back("ALL");
 
@@ -107,20 +107,20 @@ void  bkgYield(string sReg){
   std::vector<string> sBKGCOL;
   sBKGCOL.clear();
   sBKGCOL.push_back("Fake leptons");
-  sBKGCOL.push_back("$Z \\to \\tau\\tau$");
+  sBKGCOL.push_back("ZV");
   sBKGCOL.push_back("WW");
   sBKGCOL.push_back("Top");
-  sBKGCOL.push_back("$Z(ee,\\mu\\mu)$+jets + ZV)");
+  sBKGCOL.push_back("Z+jets");
   sBKGCOL.push_back("SM Higgs");
   sBKGCOL.push_back("Total");
 
   std::vector<string> sBKG;
   sBKG.clear();
   sBKG.push_back("FAKE");
-  sBKG.push_back("Ztt");
+  sBKG.push_back("ZV");
   sBKG.push_back("WW");
   sBKG.push_back("TOP");
-  sBKG.push_back("ZX");
+  sBKG.push_back("Zjets");
   sBKG.push_back("HIGGS");
   sBKG.push_back("TOTAL");
 
@@ -133,34 +133,19 @@ void  bkgYield(string sReg){
   loadBkg("histo_data12_std",sReg,_data);
   loadBkg("histo_data12_flep",sReg,_mcFake);
 
-  //  loadBkg("histo_topDil_Sherpa_rlep",sReg,_mcTopDil);
-  //  loadBkg("histo_top_PowHeg_rlep",sReg,_mcTopDil);
-  //  loadBkg("histo_top_Alpgen_rlep",sReg,_mcTopDil);
   loadBkg("top_MCNLO_rlep",sReg,_mcTopDil);
-  loadBkg("WW_Sherpa_rlep",sReg,_mcWW);
-  //  loadBkg("WW_PowHeg_rlep",sReg,_mcWW);
 
-  /*
-  loadBkg("histo_ZX_Sherpa_rlep",sReg,_mcZX);
-  loadBkg("histo_ZTauTaujets_Sherpa_rlep",sReg,_mcZtt);  
-  loadBkg("histo_BkgSherpa_rlep",sReg,_mcAll);
-  */
+  //loadBkg("WW_Sherpa_rlep",sReg,_mcWW);
+  loadBkg("WW_PowHeg_rlep",sReg,_mcWW);
 
-  //loadBkg("ZX_AlpgenPythia_rlep",sReg,_mcZX);
-  loadBkg("ZX_AlpgenPythia_WZ_ZZ_Sherpa_rlep",sReg,_mcZX);
-  //loadBkg("ZX_AlpgenPythia_WZ_ZZ_PowHeg_rlep",sReg,_mcZX);
+  loadBkg("Zjets_SherpaAlpgenPythia_rlep",sReg,_mcZjets);
 
-  loadBkg("ZTauTaujets_AlpgenPythia_rlep",sReg,_mcZtt);  
-  //  loadBkg("histo_BkgAlpgen_rlep",sReg,_mcAll);
+  //loadBkg("WZ_ZZ_Sherpa_rlep",sReg,_mcZV);  
+  loadBkg("WZ_ZZ_PowHeg_rlep",sReg,_mcZV);  
 
   loadBkg("Higgs_rlep",sReg,_mcHiggs);
 
-  //  loadBkg("histo_BkgZTopAlpgen_rlep",sReg,_mcAll);
-  //  loadBkg("Bkg_ZXAlpgen_TopMCNLO_rlep",sReg,_mcAll);
-
-  //  loadBkg("Bkg_ZXAlpgen_TopMCNLO_WWPowHeg_rlep",sReg,_mcAll);
-  loadBkg("Bkg_ZXAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO_rlep",sReg,_mcAll);
-  //loadBkg("Bkg_ZXAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_rlep",sReg,_mcAll);
+  loadBkg("Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_rlep",sReg,_mcAll);
 
 
   string fileName= _ana->_pathTables + "/BkgYield_" + sReg + ".txt";
@@ -212,13 +197,13 @@ void  bkgYield(string sReg){
   outFile << endl;
 
   
-  //Ztt
+  //ZV
   if(verbose) cout << BKG[1] << endl;
   outFile << BKG[1] << "\t";
   outTEX << sBKGCOL[1] << " & ";
   for(uint ilep=0; ilep<LEP.size(); ilep++){
     Double_t nom, stat, sysUp, sysDn;
-    _ana->getYield(_mcZtt[ilep],nom, stat, sysUp, sysDn, verbose);
+    _ana->getYield(_mcZV[ilep],nom, stat, sysUp, sysDn, verbose);
     outFile << nom << " " << stat << " " << sysUp << " " << sysDn << " \t"; 
     outTEX << std::setprecision(nPrec) << std::fixed << nom << " $\\pm$ " << stat 
 	   << " $^{+"<< sysUp << "}_{-" << sysDn << "}$ ";
@@ -257,13 +242,13 @@ void  bkgYield(string sReg){
   outTEX << "\\\\" <<std::endl;
   outFile << endl;
 
-  //ZX
+  //Zjets
   if(verbose) cout << BKG[4] << endl;
   outTEX << sBKGCOL[4] << " & ";
   outFile << BKG[4] << "\t";
   for(uint ilep=0; ilep<LEP.size(); ilep++){
     Double_t nom, stat, sysUp, sysDn;
-    _ana->getYield(_mcZX[ilep],nom, stat, sysUp, sysDn, verbose);
+    _ana->getYield(_mcZjets[ilep],nom, stat, sysUp, sysDn, verbose);
     outFile << nom << " " << stat << " " << sysUp << " " << sysDn << " \t"; 
     outTEX << std::setprecision(nPrec) << std::fixed << nom << " $\\pm$ " << stat 
 	   << " $^{+"<< sysUp << "}_{-" << sysDn << "}$ ";
@@ -296,10 +281,10 @@ void  bkgYield(string sReg){
   for(uint ilep=0; ilep<LEP.size(); ilep++){
     Double_t nom, stat, sysUp, sysDn;
     _ana->getYieldBkgAll(_mcFake[ilep],
-			 _mcZtt[ilep],
+			 _mcZV[ilep],
 			 _mcWW[ilep],
 			 _mcTopDil[ilep],
-			 _mcZX[ilep],
+			 _mcZjets[ilep],
 			 _mcHiggs[ilep],
 			 nom, stat, sysUp, sysDn, verbose);
     outFile << nom << " " << stat << " " << sysUp << " " << sysDn << " \t"; 

@@ -110,8 +110,9 @@ class SusyAnaLooper : public SusyNtAna
     bool   _runOneSys;
     bool   _runSysRange;
 
-    bool _isAlpgenLowMass;
+    bool _isZAlpgenSherpa;
     int nHFOR;
+    int nMllCut;
 
     bool              _isSleptonGrid;
     map<int,float>    _sleptonSumWs;

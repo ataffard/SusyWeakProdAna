@@ -19,18 +19,17 @@ SusyHistos::SusyHistos()
 /*--------------------------------------------------------------------------------*/
 void SusyHistos::SaveHistograms(TDirectory* _hDir,
 				int method,
-				bool mcMll, bool isAlpgen, 
+				bool mcMll, bool isZAlpgenSherpa, 
 				string sys1, string sys2)
 {
   _hDir->cd();
 
-  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna";
+  string dir =  string(getenv("HISTOANA")) + "/SusyAna";
   gSystem->mkdir(dir.c_str(),kTRUE);
 
   string fileName  = dir + "/" + "histo_" + _sample;
-  if(isAlpgen){
-    if(mcMll) fileName = fileName + "_mll40";
-    else  fileName = fileName + "_mll60";
+  if(isZAlpgenSherpa && mcMll){
+    fileName = fileName + "_mll60";
   }
   fileName = fileName + "_" + SMETHOD[method];
   if(strlen(sys1.c_str())>0) fileName = fileName + "_" + sys1;
@@ -64,13 +63,12 @@ void SusyHistos::SaveHistograms(TDirectory* _hDir,
 /*--------------------------------------------------------------------------------*/
 void SusyHistos::SaveSplit2LHistograms(TDirectory* _hDir,
 				       int method,
-				       bool mcMll, bool isAlpgen, 
+				       bool mcMll, bool isZAlpgenSherpa, 
 				       string sys1, string sys2)
 {
   _hDir->cd(); //running dir where all the histos are cached
 
-  //  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/temp_histOutputs";
-  string baseDir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/histOutputs";
+  string baseDir =  string(getenv("HISTOANA")) + "/SusyAna/histOutputs";
   gSystem->mkdir(baseDir.c_str(),kTRUE);
 
   TFile *histoFile[DIL_NSR][3];
@@ -86,9 +84,8 @@ void SusyHistos::SaveSplit2LHistograms(TDirectory* _hDir,
 
       string fileName  = dir + "/" + "histo_" + _sample;
 
-      if(isAlpgen){
-	if(mcMll) fileName = fileName + "_mll40";
-	else  fileName = fileName + "_mll60";
+      if(isZAlpgenSherpa && mcMll){
+	fileName = fileName + "_mll60";
       }
 
       chanSR =  "_" + chanSR;
