@@ -632,7 +632,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_dPhillMax = 1.8;
     }
   }
-  else if(m_sel == "CRWW"){//MT2<90
+  else if(m_sel == "CRWW"){//metrel 70-100, MT2<90
     m_selOS = true;
     //m_selSF = true;
     m_vetoZ = true;
@@ -641,7 +641,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_metRelMax = 100;
     m_mt2Max    = 90;
   }
-  else if(m_sel == "CRWW2"){// 50<mT2<90
+  else if(m_sel == "CRWW2"){//metrel 70-100, 50<mT2<90
     m_selOS = true;
     //m_selSF = true;
     m_vetoZ = true;
@@ -651,18 +651,18 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_mt2Min    = 50;
     m_mt2Max    = 90;
   }
-  else if(m_sel == "CRWW3"){//MT2<90 & pTll>60
+  else if(m_sel == "CRWW3"){//metrel 70-100, MT2<90 & pTll>60
     m_selOS = true;
     //m_selSF = true;
     m_vetoZ = true;
     m_vetoJ = true;
     m_metRelMin = 70;
     m_metRelMax = 100;
-    m_mt2Min    = 50;
+    //m_mt2Min    = 50;
     m_mt2Max    = 90;
     m_pTllMin   = 60;
   }
-  else if(m_sel == "CRWW4"){//50<mT2<90 & pTll>60
+  else if(m_sel == "CRWW4"){//metrel 70-100, 50<mT2<90 & pTll>60
     m_selOS = true;
     //m_selSF = true;
     m_vetoZ = true;

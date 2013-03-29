@@ -27,8 +27,8 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #Add back tothe list 
     
 #SR=(CR2LepOS)
-SR=(preSRmT2 CRWW CRWW2 ZXCRpremT2 ZXCRWW ZXCRWW2 ZXCRmT2a ZXCRmT2b CRTOP )
-PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
+#SR=(preSRmT2 CRWW CRWW2 ZXCRpremT2 ZXCRWW ZXCRWW2 ZXCRmT2a ZXCRmT2b CRTOP )
+#PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
 #PLOTS=(mllcoarse)
 
 #DIL=(EE)
@@ -44,14 +44,15 @@ DIL=(EE MM EM)
 #    preSR2jets preSRZjets preSRSS
 #)
 
-<<SKIP
+#<<SKIP
 SR=(SROSjveto SRmT2a SRmT2b \
     SR2jets SRZjets SRSSjets \
     SRWWa SRWWb SRWWc \
     ZXCRjveto ZXCR2jets \
     ZXCRmT2a ZXCRmT2b ZXCRWW \
     CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
-    CRWW CRWWa CRWWb CRWWc \
+    CRWW CRWW2 CRWW3 CRWW4 CRWW5 \
+    CRWWa CRWWb CRWWc \
     VRSS VRSSbtag \  
     CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
     preSROSjveto preSRmT2 \
@@ -65,7 +66,7 @@ PLOTS=(mll mllcoarse pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
     dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT \
     nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2
 )
-SKIP
+#SKIP
     
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do
