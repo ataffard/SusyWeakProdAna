@@ -35,16 +35,17 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 DIL=(EE MM EM)
 
 
-#SR=(ZXCRmT2a ZXCRmT2b ZXCRWW \
-#    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
-#    CRWW CRWWa CRWWb CRWWc \
-#    VRSS VRSSbtag \  
-#    CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
-#    preSROSjveto preSRmT2 \
-#    preSR2jets preSRZjets preSRSS
-#)
+SR=(ZXCRmT2a ZXCRmT2b ZXCRWW \
+    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
+    CRWW CRWW2 CRWW4 CRWW5\
+    CRWWa CRWWb CRWWc \
+    CRZ CRZjveto CR2LepOS \
+    preSROSjveto preSRmT2 \
+    SRmT2a SRmT2b \
+    SRWWa SRWWb SRWWc \
+)
 
-#<<SKIP
+<<SKIP
 SR=(SROSjveto SRmT2a SRmT2b \
     SR2jets SRZjets SRSSjets \
     SRWWa SRWWb SRWWc \
@@ -58,6 +59,7 @@ SR=(SROSjveto SRmT2a SRmT2b \
     preSROSjveto preSRmT2 \
     preSR2jets preSRZjets preSRSS  
 )
+SKIP
 
 PLOTS=(mll mllcoarse pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
     ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \

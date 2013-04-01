@@ -658,7 +658,6 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_vetoJ = true;
     m_metRelMin = 70;
     m_metRelMax = 100;
-    //m_mt2Min    = 50;
     m_mt2Max    = 90;
     m_pTllMin   = 60;
   }
@@ -681,6 +680,16 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_metRelMin = 40;
     m_mt2Min    = 50;
     m_mt2Max    = 90;
+  }
+  else if(m_sel == "CRWW6"){ //preSRmT2 + 50<mT2<90 - pTll>60 - For EE/MM only
+    m_selOS = true;
+    //m_selSF = true;
+    m_vetoZ = true;
+    m_vetoJ = true;
+    m_metRelMin = 40;
+    m_mt2Min    = 50;
+    m_mt2Max    = 90;
+    m_pTllMin   = 60;
   }
   else if(m_sel == "CRWWa"){
     m_selOS    = true;
@@ -863,7 +872,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
   if(nt->evt()->isMC) _inc = nt->evt()->w; 
   else _inc =1;
-  //if(nt->evt()->isMC && !WEIGHT_COUNT) _inc=1;
+  if(nt->evt()->isMC && !WEIGHT_COUNT && WEIGHT_ONE) _inc=1;
 
   if(SYST==DGSys_NOM) n_readin+=_inc;
 
@@ -924,7 +933,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //set _ww to the appropriate weighting
   //
   float _ww      = eventWeight(LUMIMODE); 
-  //if(!WEIGHT_COUNT) _ww=1;
+  if(!WEIGHT_COUNT) _ww=1;
   float _lepSFW  = getLepSFWeight(leptons);
   float _trigW   = getTriggerWeight(leptons, 
 				    met->lv().Pt(),
@@ -972,7 +981,9 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     //Reset weight in case used btagWeight in previous SR
     _ww=_wwSave; 
     if(WEIGHT_COUNT) _inc = _ww;
-    else _inc = nt->evt()->w;
+    else{
+      if(!WEIGHT_ONE) _inc = nt->evt()->w;
+    }
 
     //Only in MC do we alter the Ele pt - restore 
     if(nt->evt()->isMC) restoreOriginal(*leptons,met);
@@ -1130,7 +1141,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     //
     //if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
     //if(DUMP_RUNEVT && SYST==DGSys_NOM && (iSR==DIL_NTOP && m_ET==ET_ee) ){
-    if(DUMP_RUNEVT && (iSR==DIL_SROSjveto) ){
+    if(DUMP_RUNEVT && (iSR==DIL_CRWW) ){
       cout << "==>Run " << nt->evt()->run  << " : " << nt->evt()->event  << endl;
       evtDump << nt->evt()->run 
 	      << " " << nt->evt()->event 
@@ -1139,6 +1150,10 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	      << " " << _lepSFW
 	      << " " << bTagWeight
 	      << " " << _trigW
+	      << " " << nt->evt()->w
+	      << " " << nt->evt()->wPileup
+	      << " " << nt->evt()->sumw
+	      << " " << nt->evt()->xsec
 	      << " " << _ww 
 	      << endl;
       //if( nt->evt()->event==435108) dumpEvent();
@@ -1198,7 +1213,7 @@ float Susy2LepAna::eventWeight(int mode)
 	 nt->evt()->mcChannel == 160555 || 
 	 nt->evt()->mcChannel == 160505 ||
 	 (nt->evt()->mcChannel >= 129477 && nt->evt()->mcChannel <= 129494)|| //WZ Powheg update XS MCNLO !!!
-	 (nt->evt()->mcChannel >= 126949 && nt->evt()->mcChannel <= 126951)
+	 (nt->evt()->mcChannel >= 126949 && nt->evt()->mcChannel <= 126951)   //ZZ->llvv x3 Xs
 	 ){
 
 	if(m_xsecMap.find(id) == m_xsecMap.end()) {
@@ -1420,7 +1435,10 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_CRWW1;
     break;    
   case DIL_CRWW5:
-    frSR = SusyMatrixMethod::FR_CRWW1;
+    frSR = SusyMatrixMethod::FR_PreMt2;
+    break;    
+  case DIL_CRWW6:
+    frSR = SusyMatrixMethod::FR_PreMt2;
     break;    
   case DIL_CRWWa:
     frSR = SusyMatrixMethod::FR_CRWWa;

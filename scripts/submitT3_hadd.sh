@@ -19,7 +19,8 @@
 #!/bin/bash
 
 #Update for a given pass
-date="032913_21fb_n0135_Moriond_DD_v5"
+date="033113_21fb_n0135_Moriond_DD_v6"
+#date="032913_21fb_n0135_Moriond_DD_v5"
 #date="032813_21fb_n0135_Moriond_DD_v4"
 #date="031513_21fb_n0135_Moriond_DD_v3"
 #date="031313_21fb_n0135_Moriond_DD_v1"
@@ -162,7 +163,7 @@ fi
 
 
 #DIL=(MM)
-#SR=(ZXCRpremT2 ZXCRWW2 CRWW2 CRWW3 CRWW4)
+#SR=(CRWW6)
 #SR=(preSRmT2 SRmT2a SRmT2b \
 #    ZXCRpremT2 ZXCRmT2a ZXCRmT2b ZXCRWW ZXCRWW2  \
 #    CRTOP \
@@ -174,7 +175,7 @@ DIL=(EE MM EM)
 SR=(preSRmT2 SRmT2a SRmT2b \
     ZXCRpremT2 ZXCRmT2a ZXCRmT2b ZXCRWW ZXCRWW2  \
     CRTOP \
-    CRWW CRWW2 CRWW3 CRWW4 CRWW5 \
+    CRWW CRWW2 CRWW3 CRWW4 CRWW5 CRWW6 \
     SROSjveto  \
     SR2jets SRZjets SRSSjets \
     SRWWa SRWWb SRWWc \
@@ -186,7 +187,6 @@ SR=(preSRmT2 SRmT2a SRmT2b \
     preSROSjveto  \
     preSR2jets preSRZjets preSRSS  )
 #SKIP
-
 
 list=${inlist}/${type}List.txt
 

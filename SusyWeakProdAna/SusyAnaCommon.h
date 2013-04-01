@@ -12,8 +12,8 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_5FB  //A->B14
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "032913";
-const std::string SUFF = "_n0135_Moriond_DD_v5";
+const std::string TAG  = "033113";
+const std::string SUFF = "_n0135_Moriond_DD_v6";
 
 
 
@@ -37,6 +37,7 @@ const bool DO_SYS         = true;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_ONE     = false;  //Ignore evt->w use 1
 const bool DO_FILL_HISTO  = true;
 
 const bool USE_DGWEIGHT   = true;
