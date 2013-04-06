@@ -153,6 +153,55 @@ const std::string DG2LSystNames[DGSys_N] = {
 };
 
 
+//
+// List of the cuts in cutflow histogram
+//
+
+enum DG2L_CUT 
+  {
+    PERCHANNEL,
+    QQ,
+    FLAVOR,
+    ZVETO,
+    FULLJVETO,
+    FJVETO,
+    BJVETO,
+    LFJVETO,
+    CJVETO,
+    LEAD2JETPT,
+    MJJ,
+    LEAD2LEPPT,
+    MLL,
+    PTLL,
+    DPHI,
+    MWWT,
+    TOPVETO,
+    METREL,
+    MT2,
+    DGCut_N
+  };
+
+const std::string DG2LCutNames[DGCut_N] = {
+  "2 Lepton",
+  "OS/SS",
+  "SF/OF",
+  "Z veto",
+  "Jet-veto",
+  "F30-veto",
+  "B20-veto",
+  "LF-veto",
+  "C20-veto",
+  "Lead 2 jet pT",
+  "Mjj",
+  "Lead 2 lep pT",
+  "Mll",
+  "pTll",
+  "dPhill",
+  "mWWT",
+  "Top veto",
+  "MetRel",
+  "mT2"
+};
 
 
 #endif

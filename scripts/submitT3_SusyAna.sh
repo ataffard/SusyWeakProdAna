@@ -168,9 +168,9 @@ while read line; do
 	    echo "Submitting data STD "
 	    methodData=std
 	    cd ${pathRun}
-	    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
+#	    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
 	    echo ""
-	    echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
+#	    echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
 	    cd ${pathScript}
 	    echo ""
 	    sleep 1
@@ -241,10 +241,10 @@ rm -f tmp.txt
 
 if [ "$type" == "mc12" ]; then
     cd  ${pathRun}
-    ./run.sh mc12 dummy ${mode}
-    ./run.sh susy 175517 ${mode}
-    ./run.sh susy 144921 ${mode}
-    ./run.sh susy 176322 ${mode}
-    ./run.sh susy 176325 ${mode}
-    ./run.sh susy 176480 ${mode}
+#    ./run.sh mc12 dummy ${mode}
+#    ./run.sh susy 175517 ${mode}
+#    ./run.sh susy 144921 ${mode}
+#    ./run.sh susy 176322 ${mode}
+#    ./run.sh susy 176325 ${mode}
+#    ./run.sh susy 176480 ${mode}
 fi

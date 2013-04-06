@@ -80,7 +80,8 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/pass3_Mar3_2013.root"; //Spring !
+    "/SusyMatrixMethod/data/pass6_Apr2_2013.root"; //Spring !
+  //    "/SusyMatrixMethod/data/pass3_Mar3_2013.root"; //Spring !
 
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT);
@@ -924,6 +925,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(dbg()>10) cout<<"Fail Trig " << endl;  
     return false; 
   }
+
   if( !passIsPromptLepton(leptons,nt->evt()->isMC)){
     if(dbg()>10) cout<<"Fail Prompt " << endl; 
     return false; 
@@ -1141,7 +1143,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     //
     //if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
     //if(DUMP_RUNEVT && SYST==DGSys_NOM && (iSR==DIL_NTOP && m_ET==ET_ee) ){
-    if(DUMP_RUNEVT && (iSR==DIL_CRWW) ){
+    if(DUMP_RUNEVT && (iSR==DIL_CRWW2) ){
       cout << "==>Run " << nt->evt()->run  << " : " << nt->evt()->event  << endl;
       evtDump << nt->evt()->run 
 	      << " " << nt->evt()->event 
@@ -1435,10 +1437,10 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_CRWW1;
     break;    
   case DIL_CRWW5:
-    frSR = SusyMatrixMethod::FR_PreMt2;
+    frSR = SusyMatrixMethod::FR_CRWW3;
     break;    
   case DIL_CRWW6:
-    frSR = SusyMatrixMethod::FR_PreMt2;
+    frSR = SusyMatrixMethod::FR_CRWW2;
     break;    
   case DIL_CRWWa:
     frSR = SusyMatrixMethod::FR_CRWWa;
@@ -1842,7 +1844,7 @@ bool Susy2LepAna::passPtll(const LeptonVector* leptons)
 bool Susy2LepAna::passdPhill(const LeptonVector* leptons){
   if( leptons->size() < 2 ) return false;
   float dPhi = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
-  if(m_dPhillMax>-1 && dPhi<m_dPhillMax) return false;
+  if(m_dPhillMax>-1 && dPhi>m_dPhillMax) return false;
   if(SYST==DGSys_NOM) n_pass_dPhill[m_ET][SR]+=_inc;
   return true;
 }

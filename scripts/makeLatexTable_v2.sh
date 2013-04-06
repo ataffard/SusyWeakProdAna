@@ -12,7 +12,14 @@ path=${HISTOANA}/SusyAna/histos_${date}
 dir=${path}/Tables
 
 #Generate the latex table for each SR/CR
-SR=(CRTOP CRWW CRWW2 CRWW3 CRWW4 CRWW5 CRWW6 ZXCRWW ZXCRWW2 ZXCRpremT2 ZXCRmT2a ZXCRmT2b preSRmT2 SRmT2a SRmT2b)
+SR=(
+    CRTOP CRWW CRWW2 CRWW3 CRWW4 CRWW5 CRWW6 \
+    ZXCRWW ZXCRWW2 ZXCRpremT2 ZXCRmT2a ZXCRmT2b\
+    preSRmT2 SRmT2a SRmT2b \
+    SRWWa SRWWb SRWWc \
+    CRTOPWWa CRTOPWWb CRTOPWWc \
+    CRWWa CRWWb CRWWc\
+    )
 
 <<SKIP
 SR=(SROSjveto SRmT2a SRmT2b \

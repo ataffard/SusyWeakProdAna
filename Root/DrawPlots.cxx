@@ -308,24 +308,24 @@ float DrawPlots::getBkgSF(string name, int bkgType){
       hName.Contains("_SRSSjets_")
       ){
 
-    if(bkgType==TOP){ //updated 031513
-      if(hName.Contains("EE"))       return 1.037; 
-      else if(hName.Contains("MM"))  return 1.011; 
-      else if(hName.Contains("EM"))  return 1.046; 
+    if(bkgType==TOP){ //updated 040213
+      if(hName.Contains("EE"))       return 1;//1.037; 
+      else if(hName.Contains("MM"))  return 1;//1.011; 
+      else if(hName.Contains("EM"))  return 1;//1.046; 
     }
     else if(bkgType==WW){  //updated 031513
-      if(hName.Contains("EE"))       return 1.1;
-      else if(hName.Contains("MM"))  return 1.0;
-      else if(hName.Contains("EM"))  return 1.0;
+      if(hName.Contains("EE"))       return 1.16;//1.1;
+      else if(hName.Contains("MM"))  return 1.16;//1.0;
+      else if(hName.Contains("EM"))  return 1.16;//1.0;
     }
     else if(bkgType==Zjets){ //updated 031513     
       if(hName.Contains("EE"))       return 1;// ??
       else if(hName.Contains("MM"))  return 1;// ??
       else if(hName.Contains("EM"))  return 1.8;// Ztt SF
     }
-    else if(bkgType==ZV){//Updated 031513
-      if(hName.Contains("EE")) return 1.0756;
-      if(hName.Contains("MM")) return 1.1594;
+    else if(bkgType==ZV){//Updated 040213
+      if(hName.Contains("EE")) return 1.086;//1.0756;
+      if(hName.Contains("MM")) return 1.121;//1.1594;
     }
   }
 
@@ -347,14 +347,14 @@ void  DrawPlots::setGenSys(string name, int bkgType, TH1F* hNom, TH1F* h){
   float sys=0;
   if ( bkgType == WW){
     //cout << "Bkg " << MCNames[bkgType]  << " " << name << " " <<  h->Integral(0,-1) << endl;
-    if (hName.Contains("EE")) sys=0.10;
+    if (hName.Contains("EE")) sys=0.08;
     if (hName.Contains("MM")) sys=0.09;
-    if (hName.Contains("EM")) sys=0.31;
+    if (hName.Contains("EM")) sys=0.07;
   }
   if ( bkgType == ZV){
-    if (hName.Contains("EE")) sys=0.32;
-    if (hName.Contains("MM")) sys=0.32;
-    if (hName.Contains("EM")) sys=0.18;
+    if (hName.Contains("EE")) sys=0.66;//0.32;
+    if (hName.Contains("MM")) sys=0.34;//0.32;
+    if (hName.Contains("EM")) sys=0.19;//0.18;
   }
 
   if (hName.Contains("UP")) h->Scale(1+sys);
