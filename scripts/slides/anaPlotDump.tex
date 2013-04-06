@@ -1,0 +1,92 @@
+
+\documentclass[10pt]{beamer}
+\let\Tiny=\tiny %Gets rid of font size warning
+
+%\usetheme{default}
+%\usetheme{Singapore}
+%\usepackage{underscore}
+%\usetheme{Madrid}
+%\usetheme{Tucson}
+%\usetheme[pageofpages=of,% String used between the current page and the
+%%% total page count.
+%bullet=circle,% Use circles instead of squares for bullets.
+%titleline=true,% Show a line below the frame title.
+%alternativetitlepage=true,% Use the fancy title page.
+%%titlepagelogo=combined_logo.png,% Logo for the first page.
+%%%watermark=atlas_logo1,% Watermark used in every page.
+%%%watermarkheight=100px,% Height of the watermark.
+%%%watermarkheightmult=4,% The watermark image is 4 times bigger
+%%% than watermarkheight.
+%]{Tucson}
+%\usecolortheme{ua}
+
+\usetheme{Madrid}
+
+\usepackage{graphicx}
+\graphicspath{{plots/}}
+
+
+%Automatically converts eps to pdf's for use in pdftex.
+%COMMENT OUT IF YOU USE ORDINARY LATEX instead of PDFTEX
+%Need to allow latex to run command line commands with:
+%--shell-escape (teTEX, TEX Live)
+%--enable-write18 (MiKTEX)
+%More instructions at http://www.ctan.org/tex-archive/support/epstopdf
+
+\usepackage{epstopdf}
+
+\usepackage{atlasphysics}
+
+%To remove backups slides from slide count
+\newcommand{\sbackup}{
+\newcounter{framenumbervorappendix}
+\setcounter{framenumbervorappendix}{\value{framenumber}}
+}
+\newcommand{\ebackup}{
+\addtocounter{framenumbervorappendix}{-\value{framenumber}}
+\addtocounter{framenumber}{\value{framenumbervorappendix}} 
+}
+
+\definecolor{dgreen}{rgb}{0.,0.6,0.}
+%\setbeamertemplate{footline}{\hfill\insertframenumber/\inserttotalframenumber}
+\newcommand{\mywidth}{.45\textwidth}
+\begin{document}
+
+\author{Anyes Taffard}
+\date{02/19/2013}
+
+\title[SUSY 2L DG Plot Dump]{SUSY 2L DG Plot Dump}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\section{Introduction}
+\begin{frame}{Introduction}
+  \begin{block}{SUSY 2L DG - Plot Dump }
+    Here are all my plots for all SR's and CR's base on SusyNt n0135 (SusyTools 02-06-02)
+
+    Naming convention:
+    \begin{itemize}
+      \item pred\_DG2L\_CR2LepOS\_EE\_DG2L\_metrel.eps: CR2LepOS control region, EE channel, metrel variable. 
+    \end{itemize}
+
+    MC samples
+    \begin{itemize}
+      \item Top MCATNLO
+      \item Z+jets Sherpa+Alpgen (LF+HF)
+      \item WW, WZ/ZZ PowHeg
+	\item SF applied to preSR and SR lpots but not the CR plots
+    \end{itemize}
+
+%    \begin{itemize}
+%    \end{itemize}
+    
+
+  \end{block}
+\end{frame}
+
+\include{plots}
+\end{document}
+
+
