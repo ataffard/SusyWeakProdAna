@@ -8,6 +8,7 @@
 #
 #
 # ./submitT3_hadd.sh cat
+#
 # ./submitT3_hadd.sh pass + mv histOutputs
 #
 # ./submitT3_hadd.sh mc rlep hadd; ./submitT3_hadd.sh data std hadd; ./submitT3_hadd.sh data flep hadd; 
@@ -19,7 +20,8 @@
 #!/bin/bash
 
 #Update for a given pass
-date="033113_21fb_n0135_Moriond_DD_v6"
+date="040613_21fb_n0138_Moriond_DD_v1"
+#date="033113_21fb_n0135_Moriond_DD_v6"
 #date="032913_21fb_n0135_Moriond_DD_v5"
 #date="032813_21fb_n0135_Moriond_DD_v4"
 #date="031513_21fb_n0135_Moriond_DD_v3"
@@ -172,7 +174,8 @@ fi
 
 DIL=(EE MM EM)
 #<<SKIP
-SR=(preSRmT2 SRmT2a SRmT2b \
+SR=(preSRmT2 SRmT2a 
+    SRmT2b \
     ZXCRpremT2 ZXCRmT2a ZXCRmT2b ZXCRWW ZXCRWW2  \
     CRTOP \
     CRWW CRWW2 CRWW3 CRWW4 CRWW5 CRWW6 \
@@ -185,7 +188,8 @@ SR=(preSRmT2 SRmT2a SRmT2b \
     VRSS VRSSbtag \  
     CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
     preSROSjveto  \
-    preSR2jets preSRZjets preSRSS  )
+    preSR2jets preSRZjets preSRSS  
+)
 #SKIP
 
 list=${inlist}/${type}List.txt

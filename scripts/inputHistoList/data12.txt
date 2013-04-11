@@ -1,9 +1,6 @@
-Egamma.periodA_MISSING
 Egamma.periodA
-Egamma.periodB_MISSING
 Egamma.periodB
 Egamma.periodC
-Egamma.periodD_MISSING
 Egamma.periodD
 Egamma.periodE
 Egamma.periodG
@@ -16,7 +13,6 @@ Muons.periodB
 Muons.periodC
 Muons.periodD
 Muons.periodE
-Muons.periodE_RECOVERED
 Muons.periodG
 Muons.periodH
 Muons.periodI

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #PBS -q atlas
-#PBS -l nodes=1:ppn=2
+#PBS -l nodes=1:ppn=1
 
 echo
 echo "**************"
@@ -35,4 +35,6 @@ ${script} >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_hadd.log
 
 echo "Ending: " 
 date +"%F__%T" 
+
+
 

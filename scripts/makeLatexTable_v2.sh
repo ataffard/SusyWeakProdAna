@@ -4,7 +4,8 @@
 #date="031513_21fb_n0135_Moriond_DD_v3"
 
 #date="032913_21fb_n0135_Moriond_DD_v5"
-date="033113_21fb_n0135_Moriond_DD_v6"
+#date="033113_21fb_n0135_Moriond_DD_v6"
+date="040613_21fb_n0138_Moriond_DD_v1"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts
@@ -36,9 +37,9 @@ SR=(SROSjveto SRmT2a SRmT2b \
 SKIP
 
 cd ${pathRun}
-for sr in ${SR[@]}; do
-    root -q -l "../macros/bkgYield.C+(\"${sr}\")" 
-done
+#for sr in ${SR[@]}; do
+#    root -q -l "../macros/bkgYield.C+(\"${sr}\")" 
+#done
 
 cp ${WORKAREA}/SusyWeakProdAna/scripts/*.tex ${dir}
 declare -a file=(DG2L_Bkg)

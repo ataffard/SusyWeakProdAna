@@ -12,8 +12,8 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_5FB  //A->B14
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "033113";
-const std::string SUFF = "_n0135_Moriond_DD_v6";
+const std::string TAG  = "040613";
+const std::string SUFF = "_n0138_Moriond_DD_v1";
 
 
 
@@ -107,7 +107,8 @@ const bool BLIND_DATA=false;
 const int LUMIMODE =LUMI21FB;
 const string LUMW  = "Moriond";
 const std::string DATE=TAG+"_21fb"+ SUFF;
-const float pLUMI = 20.6904; //I->J
+//const float pLUMI = 20.6904; //I->J
+const float pLUMI = 20.3398; //I->J
 const unsigned int   MINRUN = 200804;
 const unsigned int   MAXRUN = 215643;
 const bool BLIND_DATA=false;

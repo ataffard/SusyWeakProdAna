@@ -65,7 +65,7 @@ PLOTS=(mll mllcoarse pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
     ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
     metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout \
     dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT \
-    nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2
+    #nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2
 )
 
     

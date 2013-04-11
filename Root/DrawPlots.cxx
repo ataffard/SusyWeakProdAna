@@ -356,6 +356,11 @@ void  DrawPlots::setGenSys(string name, int bkgType, TH1F* hNom, TH1F* h){
     if (hName.Contains("MM")) sys=0.34;//0.32;
     if (hName.Contains("EM")) sys=0.19;//0.18;
   }
+  if(bkgType==TOP){ //updated 040713
+    if (hName.Contains("EE")) sys=0.39;
+    if (hName.Contains("MM")) sys=0.33;
+    if (hName.Contains("EM")) sys=0.24;
+  }
 
   if (hName.Contains("UP")) h->Scale(1+sys);
   if (hName.Contains("DN")) h->Scale(1-sys);

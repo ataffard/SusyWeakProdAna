@@ -1195,10 +1195,12 @@ float Susy2LepAna::eventWeight(int mode)
   else if(mode==LUMI21FB){ //Moriond dataset
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
     else{
-      float xs = nt->evt()->xsec;
-      float sumw = nt->evt()->sumw;
       int id = nt->evt()->mcChannel;
+      _evtW = getEventWeightFixed(id,nt->evt(),LUMI_A_L);
+
+
       //Replace XS for Higgs samples
+      /*
       if(nt->evt()->mcChannel == 161005 ||
 	 nt->evt()->mcChannel == 161055 ||
 	 nt->evt()->mcChannel == 161805 ||
@@ -1223,13 +1225,20 @@ float Susy2LepAna::eventWeight(int mode)
 	}
 	xs = m_xsecMap[id].xsect() * m_xsecMap[id].kfactor() * m_xsecMap[id].efficiency();
       }
-      
-      //SUSY WW-like
-      if(id==176322) xs = 0.425175;
-      if(id==176325) xs = 0.167127;
-      if(id==176480) xs = 0.616257;
-      
-      _evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
+      */
+
+      if(id==176322 || id==176325 || id==176480){
+	float xs = nt->evt()->xsec;
+	float sumw = nt->evt()->sumw;
+	//SUSY WW-like
+	if(id==176322) xs = 0.425175*0.9;
+	if(id==176325) xs = 0.167127*0.9;
+	if(id==176480) xs = 0.5420344;//0.616257;
+	
+
+	_evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
+      }
+
       if(dbg()>10)
 	cout << "Ana W: " << nt->evt()->w 
 	     << " pileup " << nt->evt()->wPileup 
@@ -1613,6 +1622,9 @@ bool Susy2LepAna::passIsPromptLepton(const LeptonVector* leptons, bool isMC)
       bool isReal       = isPT(org,type,mcId,truthMatch,isEle,_hh->sampleName());
       bool isChargeFlip =  _l->isEle() ? ((Electron*) _l)->isChargeFlip : false; 
       
+      //Anyes 040613 - Hack gg2WW
+      if(mcId >= 169471 && mcId <=169479) return true;
+
       if( !( isReal && !isChargeFlip) ) return false; //W/o including charge flip
       //if( !( isReal  || isChargeFlip) ) return false; //To include the charge flip
     }
