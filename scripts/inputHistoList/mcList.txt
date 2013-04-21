@@ -8,8 +8,11 @@ WZ_ZZ_Sherpa
 Zjets_SherpaAlpgenPythia
 Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO
 Bkg_Zjets_SherpaAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO
-#top_Alpgen
-#top_PowHeg
+Zjets_SherpaLFHFAlpgenPythia
+Bkg_Zjets_SherpaLFHFAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO
+top_Alpgen
+top_PowHegPythia
+top_PowHegJimmy
 #Zjets_AlpgenPythia
 #Zjets_SherpaLFHF
 #Zjets_Sherpa

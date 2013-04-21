@@ -32,7 +32,7 @@ void mergeRootFile()
 
     while(cin >> filename) {
       TFile *f = new TFile(filename.c_str());
-      //      cout << "Add content of file: " << filename << endl;
+      cout << "Add content of file: " << filename << endl;
       
       TIter next(f->GetListOfKeys()); //Use GetListOfKeys when reading back file
       TKey* key=0;

@@ -264,7 +264,12 @@ int main(int argc, char** argv)
   else if(strlen(sys1.c_str())>0) 
     susyAna->setSystematic(sys1);
 
+  //Grab sumW for the samples
+  susyAna->buildSumwMap(chain);
+
+
   if(isSlepton) susyAna->setSleptonSumWs(sleptonSumWs); 
+
 
 
   // Run the job

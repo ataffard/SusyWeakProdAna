@@ -91,6 +91,9 @@ class Susy2LepAna: public SusyNtTools
     map<int,float> getSleptonSumWs(                      ) { return m_sleptonSumWs;  };
     void           setSleptonSumWs( map<int,float> sumws ) { m_sleptonSumWs = sumws; };
 
+    const map<unsigned int,float>* getMCSumWs(           ) { return m_MCSumWs;  };
+    void           setMCSumWs( const map<unsigned int,float>* sumwMap ) { m_MCSumWs = sumwMap; };
+
     // Reset flags & var
     void reset();
     void resetCounter();
@@ -218,7 +221,8 @@ class Susy2LepAna: public SusyNtTools
 
     SUSY::CrossSectionDB*                       m_susyXsec;     // SUSY cross section database
     std::map<int,SUSY::CrossSectionDB::Process> m_xsecMap;      // our own xsec map for faster lookup times
-    
+
+    const map<unsigned int,float>*       m_MCSumWs;    
 
     //containers - from SusyNt
     ElectronVector*      v_baseEle;     // baseline electrons
@@ -301,6 +305,13 @@ class Susy2LepAna: public SusyNtTools
 
     // Event counters
     float                n_readin;
+    float                n_pass_GRL;
+    float                n_pass_LarErr;
+    float                n_pass_TileErr;
+    float                n_pass_TTCVeto;
+    float                n_pass_GoodVtx;
+    float                n_pass_TileTrip;
+
     float                n_pass_HotSpot;
     float                n_pass_BadJet;
     float                n_pass_BadMuon;

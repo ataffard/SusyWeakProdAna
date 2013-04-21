@@ -109,8 +109,8 @@ class DrawPlots {
 
   /* Drawing function */
   void  drawChannelText(string name, float x=0.2,float y=0.73, bool desc=true);
-  void  drawLumi(float x=0.3, float y=0.80);
-  void  drawATLAS(float x=0.18, float y=0.88);
+  void  drawLumi(float x=0.3, float y=0.75);
+  void  drawATLAS(float x=0.18, float y=0.85);
 
   /* Math func */
   void binomialError(float Num, float Den, 

@@ -173,7 +173,13 @@ void Susy2LepAna::end()
   cout << "**********************************************" << endl;
   cout << "Susy2LepAna::event counters" <<endl;
 
-  cout << "read in:            " << n_readin       << endl;
+  cout << "read in:            " << n_readin        << endl;
+  cout << "pass GRL:           " << n_pass_GRL      << endl;
+  cout << "pass LarErr:        " << n_pass_LarErr   << endl;
+  cout << "pass TileErr:       " << n_pass_TileErr  << endl;
+  cout << "pass TTCVeto:       " << n_pass_TTCVeto  << endl;
+  cout << "pass Good Vtx       " << n_pass_GoodVtx  << endl;
+  cout << "pass TileTrip:      " << n_pass_TileTrip << endl;
   cout << "pass HotSpot:       " << n_pass_HotSpot << endl;
   cout << "pass BadJet:        " << n_pass_BadJet  << endl;
   cout << "pass BadMu:         " << n_pass_BadMuon << endl;
@@ -305,6 +311,12 @@ void Susy2LepAna::resetCounter()
 {
  
   n_readin       = 0;
+  n_pass_GRL     = 0;
+  n_pass_LarErr  = 0;
+  n_pass_TileErr = 0;
+  n_pass_TTCVeto = 0;
+  n_pass_GoodVtx = 0;
+  n_pass_TileTrip= 0;
   n_pass_HotSpot = 0;
   n_pass_BadJet  = 0;
   n_pass_BadMuon = 0;
@@ -1172,6 +1184,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 /*--------------------------------------------------------------------------------*/
 float Susy2LepAna::eventWeight(int mode)
 {
+  bool useSumWMap = true; 
   if( !nt->evt()->isMC) return 1; //Data weight =1
 
   float _evtW=nt->evt()->w;
@@ -1196,7 +1209,8 @@ float Susy2LepAna::eventWeight(int mode)
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
     else{
       int id = nt->evt()->mcChannel;
-      _evtW = getEventWeightFixed(id,nt->evt(),LUMI_A_L);
+      //      _evtW = getEventWeightFixed(id,nt->evt(),LUMI_A_L);
+      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs);   //<<<<=======
 
 
       //Replace XS for Higgs samples
@@ -1251,7 +1265,8 @@ float Susy2LepAna::eventWeight(int mode)
   // Correct the cross section for DLiSlep
   if(
      (nt->evt()->mcChannel >= 166501 && nt->evt()->mcChannel <= 166658) ||
-     (nt->evt()->mcChannel >= 175420 && nt->evt()->mcChannel <= 175583)
+     (nt->evt()->mcChannel >= 175420 && nt->evt()->mcChannel <= 175583) ||
+     (nt->evt()->mcChannel >= 177423 && nt->evt()->mcChannel <= 177496) 
      ) {
     if(m_SleptonXSecReader!=NULL) {
       if( nt->evt()->susyFinalState==201 ) 
@@ -1540,6 +1555,46 @@ bool Susy2LepAna::passEventCleaning()
   if(SYST>DGSys_RESOST) iiSys = DGSys_NOM;
 
   int cutFlag = nt->evt()->cutFlags[iiSys];
+
+  //
+  // Done in SusyNt filtering apart for TileTrip
+  //
+  if(!passGRL(cutFlag)) { 
+    if(dbg()>15) cout << "GRL " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_GRL+=_inc;
+
+  if(!passLarErr(cutFlag)) { 
+    if(dbg()>15) cout << "LarErr " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_LarErr+=_inc;
+
+  if(!passTileErr(cutFlag)) { 
+    if(dbg()>15) cout << "TileErr " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_TileErr+=_inc;
+
+  if(!passTTCVeto(cutFlag)) { 
+    if(dbg()>15) cout << "TTCVeto " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_TTCVeto+=_inc;
+
+  if(!passGoodVtx(cutFlag)) { 
+    if(dbg()>15) cout << "Good Vtx " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_GoodVtx+=_inc;
+
+  if(!passTileTripCut(cutFlag)) { 
+    if(dbg()>15) cout << "TileTrip " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_TileTrip+=_inc;
+
 
   if(!passHotSpot(cutFlag)) { //UPDATED MORIOND
     if(dbg()>15) cout << "hot spot " << endl;

@@ -72,6 +72,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseJets, &m_signalJets2Lep);
     _susyHistos->Book2LHistograms(_histoDir,DO_SYS);
     if(_isSleptonGrid) _susy2LAna->setSleptonSumWs(_sleptonSumWs);
+    _susy2LAna->setMCSumWs(getSumwMap());
 
     if(DO_SYS){
       if(_runOneSys || _runSysRange){
@@ -179,7 +180,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   if(!nt.evt()->isMC && nt.evt()->run < MINRUN) return kFALSE;
   if(!nt.evt()->isMC && nt.evt()->run > MAXRUN) return kFALSE;
 
-  if(nt.evt()->hfor==4){
+  if(nt.evt()->hfor==4 && 
+     !( (nt.evt()->mcChannel >= 164440 && nt.evt()->mcChannel <= 164443) ||
+       (nt.evt()->mcChannel >= 164450 && nt.evt()->mcChannel <= 164453) )
+     ){
     nHFOR++;
     return kFALSE;
   }

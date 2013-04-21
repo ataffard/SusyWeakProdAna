@@ -36,12 +36,15 @@ DIL=(EE MM EM)
 
 
 SR=(
-    preSRmT2 \
-    ZXCRmT2a ZXCRmT2b ZXCRWW \
-    CRTOP \
-    CRWW CRWW2 CRWW3 CRWW4 CRWW5 CRWW6\
-    CRZ CRZjveto CR2LepOS \
-    SRmT2a SRmT2b \
+    #preSRmT2 \
+    ZXCRmT2a ZXCRmT2b \
+    #ZXCRWW \
+    #CRTOP \
+    #CRWW CRWW2 CRWW3 CRWW4 
+    #CRWW5 
+    #CRWW6\
+    #CRZ CRZjveto CR2LepOS \
+    #SRmT2a SRmT2b \
 )
 
 <<SKIP
@@ -60,11 +63,13 @@ SR=(SROSjveto SRmT2a SRmT2b \
 )
 SKIP
 
-PLOTS=(mll mllcoarse pTll etmiss metrel mt2 nJets nCJets nFJets nBJets \
-    ptl1 ptl2 etal1 etal2 ePt eEta mPt mEta dPhill \
-    ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
-    metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout \
-    dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT \
+PLOTS=(mllcoarser pTll metrel mt2 \
+    ptl1 ptl2 ePt mPt \
+    #mll etal1 etal2 eEta mEta dPhill \    
+    #nJets nCJets nFJets nBJets \
+    #ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
+    #etmiss metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout \
+    #dPhilMet dPhiJetMet mEff mTl1 mTl2 mWWT \
     #nSoftJets ptSj1 ptSj2 etaSj1 etaSj2 jvfSj1 jvfSj2
 )
 

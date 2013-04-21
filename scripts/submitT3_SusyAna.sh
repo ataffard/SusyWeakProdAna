@@ -7,7 +7,7 @@
 # 
 #
 # ./submitT3_SusyAna <type> <pattern>
-#     type=mc or data
+#     type=mc12 or data12
 #     mode= STD or DD
 # ./submitT3_SusyAna mc12                   // submit all MC
 # ./submitT3_SusyAna data12                 // submit all data
@@ -241,19 +241,19 @@ rm -f tmp.txt
 
 if [ "$type" == "mc12" ]; then
     cd  ${pathRun}
-    ./run.sh mc12 dummy ${mode}
-#    ./run.sh susy 166614 ${mode}
-    ./run.sh susy 175447 ${mode}
-    ./run.sh susy 175510 ${mode}
-    ./run.sh susy 175517 ${mode}
-    ./run.sh susy 175580 ${mode}
-    ./run.sh susy 175581 ${mode}
+#    ./run.sh mc12 dummy ${mode}
+##    ./run.sh susy 166614 ${mode}
+#    ./run.sh susy 175447 ${mode}
+#    ./run.sh susy 175510 ${mode}
+##    ./run.sh susy 175517 ${mode}
+##    ./run.sh susy 175580 ${mode}
+##    ./run.sh susy 175581 ${mode}
 #    ./run.sh susy 144917 ${mode}
-#    ./run.sh susy 144921 ${mode}
+##    ./run.sh susy 144921 ${mode}
 #    ./run.sh susy 144922 ${mode}
-#    ./run.sh susy 144923 ${mode}
-    ./run.sh susy 176322 ${mode}
-    ./run.sh susy 176325 ${mode}
-    ./run.sh susy 176480 ${mode}
+##    ./run.sh susy 144923 ${mode}
+##    ./run.sh susy 176322 ${mode}
+##    ./run.sh susy 176325 ${mode}
+##    ./run.sh susy 176480 ${mode}
 
 fi
