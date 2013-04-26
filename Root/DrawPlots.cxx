@@ -38,8 +38,8 @@ DrawPlots::DrawPlots(){
 
 
   SIGFILE.clear();
-  SIGFILE.push_back("(m#tilde{l},m#tilde{#chi}_{1}^{0}) = (251,10)");
-  SIGFILE.push_back("(m#tilde{#chi}^{#pm}_{1},m#tilde{#chi}^{0}_{1}) = (350,0)");
+  SIGFILE.push_back("(m#tilde{l},m#tilde{#chi}_{1}^{0}) = (251,10) GeV");
+  SIGFILE.push_back("(m#tilde{#chi}^{#pm}_{1},m#tilde{#chi}^{0}_{1}) = (350,0) GeV");
 }
 
 //-------------------------------------------//
@@ -100,8 +100,9 @@ void DrawPlots::openHistoFiles(string mode,
   _sigFile.clear();
   //_sigFileName.push_back("histo_Herwigpp_pMSSM_DLiSlep_MSL_255_M1_080.175517_rlep_NOM_XS_DN.root");
   //_sigFileName.push_back("histo_Herwigpp_simplifiedModel_wC_slep_noWcascade_24.144921_rlep_NOM_XS_DN.root");
-  _sigFileName.push_back("histo_Herwigpp_pMSSM_DLiSlep_MSL_251_M1_010.175510_rlep.root");
-  _sigFileName.push_back("histo_Herwigpp_simplifiedModel_wC_slep_noWcascade_20.144917_rlep.root");
+  _sigFileName.push_back("histo_Herwigpp_pMSSM_DLiSlep_MSL_251_M1_010.175510_rlep_NOM_XS_DN.root");
+  _sigFileName.push_back("histo_Herwigpp_simplifiedModel_wC_slep_noWcascade_20.144917_rlep_NOM_XS_DN.root");
+
   
   for(uint i=0; i<_sigFileName.size(); i++){
     std::cout << "Loading " << SIGFILE[i].c_str() << " " << _sigFileName[i] << std::endl;
@@ -252,7 +253,8 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
     _h->SetTitle(title.c_str());
     _h->SetName(title.c_str());
     _h->SetFillStyle(0);
-    _h->SetLineStyle(5);
+    _h->SetLineStyle(7);
+    _h->SetLineWidth(2);
     if(!quiet)
       std::cout << "SIG " << _h->GetName() 
 		<< " " << _h->Integral(0,-1) <<std::endl;
@@ -345,6 +347,12 @@ float DrawPlots::getBkgSF(string name, int bkgType){
 void  DrawPlots::setGenSys(string name, int bkgType, TH1F* hNom, TH1F* h){
   TString hName(name);
   if ( !( hName.Contains("GEN_UP") || hName.Contains("GEN_DN") )) return;
+  if ( !( hName.Contains("_preSRmT2_") || hName.Contains("_SRmT2a_") || hName.Contains("_SRmT2b_") )){
+    h->Add(hNom,1);//Set Gen Sys histo to nominal value.
+    return;
+  }
+  
+
   if(hNom==NULL ) {
     cout << "GenSys hNom NULL " << endl;
     return;
@@ -381,6 +389,7 @@ void  DrawPlots::setGenSys(string name, int bkgType, TH1F* hNom, TH1F* h){
 //-------------------------------------------//
 void DrawPlots::buildStack(string name, TLegend* _l)
 {
+  setStackOrder(name);
   
   _mcStackH = (TH1F*) _mcH1[0][DGSys_NOM]->Clone();
   _mcStackH->Reset();
@@ -391,21 +400,46 @@ void DrawPlots::buildStack(string name, TLegend* _l)
   _mcStack->SetName(name.c_str());
   _mcStack->SetTitle(name.c_str());
 
-  for(uint i=0; i<_mcH1.size(); i++){
-    //std::cout << _mcH1[i][DGSys_NOM]->GetName() << " \t\t Int " 
-    //	      << _mcH1[i][DGSys_NOM]->Integral(0,-1) << std::endl;
+  //for(uint i=0; i<_mcH1.size(); i++){
+  for(uint i=0; i<_stackOrder.size(); i++){
+    int iSample = _stackOrder[i];
+    std::cout << _mcH1[iSample][DGSys_NOM]->GetName() << " \t\t Int " 
+    	      << _mcH1[iSample][DGSys_NOM]->Integral(0,-1) << std::endl;
     
-    _utils->addToTHStack(_mcStack,_mcH1[i][DGSys_NOM],_mcColor[i], 
-			 "HIST", _l, SFILE[i].c_str());
-    _mcStackH->Add(_mcH1[i][DGSys_NOM],1);
-  }
-  //Reverse legend Order
-  _l->Clear();
-  for(int i=_mcH1.size()-1; i>-1; i--){
-    _l->AddEntry(_mcH1[i][DGSys_NOM],SFILE[i].c_str(),"f");
+    _utils->addToTHStack(_mcStack,_mcH1[iSample][DGSys_NOM],_mcColor[iSample], 
+			 "HIST", _l, SFILE[iSample].c_str());
+    _mcStackH->Add(_mcH1[iSample][DGSys_NOM],1);
+
+    
   }
 
+}
 
+//-------------------------------------------//
+// Open histo files
+//-------------------------------------------//
+void DrawPlots::setStackOrder(string name)
+{
+  TString hName(name);
+  _stackOrder.clear();
+
+  if( hName.Contains("_CRTOP_")){
+    _stackOrder.push_back(HIGGS);
+    _stackOrder.push_back(ZV);
+    _stackOrder.push_back(Zjets);
+    _stackOrder.push_back(WW);
+    _stackOrder.push_back(FAKE);
+    _stackOrder.push_back(TOP);
+  }
+  else{
+    _stackOrder.push_back(HIGGS);
+    _stackOrder.push_back(FAKE);
+    _stackOrder.push_back(ZV);
+    _stackOrder.push_back(Zjets);
+    _stackOrder.push_back(TOP);
+    _stackOrder.push_back(WW);
+  }
+  
 }
 
 //-------------------------------------------//
@@ -635,13 +669,31 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   if(_mcStack)  _mcStack->Clear();
   if(_mcStackH) _mcStackH->Clear();
   
-  TLegend*  _leg = new TLegend(0.6,0.40,0.85,0.9);
+  TLegend*  _leg = new TLegend(0.58,0.40,0.85,0.9);
 
   //Grabs all histos: data, MC, signal points including the sys histos
   grabHisto(name,true,sysBand);
 
-  //Build the mc stack and retrieve histo of the total. Add entry to legend
+  
+  //Data
+  char sData[200];
+  int nData  = _dataH1->Integral(0,-1);
+  //sprintf(sData,"Data (%d)",nData);
+  sprintf(sData,"Data 2012");
+
+
+
+  //Build the mc stack and retrieve histo of the total. 
   buildStack(name,_leg);
+
+  //Build legend
+  _leg->Clear();
+  _leg->AddEntry(_dataH1,sData ,"p");
+  //Reverse legend Order
+  for(int i=_stackOrder.size()-1; i>-1; i--){
+    _leg->AddEntry(_mcH1[_stackOrder[i]][DGSys_NOM],SFILE[_stackOrder[i]].c_str(),"f");
+  }
+
 
   float avgRatio = 0;
   if(_mcStackH->Integral(0,-1)>0) avgRatio =_dataH1->Integral(0,-1) / _mcStackH->Integral(0,-1);
@@ -666,11 +718,6 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   //
   TGraphAsymmErrors* ratioBand   = _utils->myRatioBand(_nomAsymErrors ); 
 
-  char sData[200];
-  int nData  = _dataH1->Integral(0,-1);
-  //sprintf(sData,"Data (%d)",nData);
-  sprintf(sData,"Data #sqrt{s}=8 TeV");
-  _leg->AddEntry(_dataH1,sData ,"p");
 
   //if(HIDEDATA) _dataH1=NULL;
   
@@ -713,7 +760,8 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
 
   //Bottom ratio band
   _pBot->cd();
-  if(ratioBand) ratioBand->Draw("same && E2");
+  if(ratioBand)  ratioBand->Draw("same && E2");
+ 
  _pBot->Update();
 
  string fName= _pathPlots + "/" + "pred_" + name + _sLogy;
@@ -889,17 +937,32 @@ void DrawPlots::drawChannelText(string name, float x, float y, bool desc)
       _text2 = _text2 + " nJets=0, Zveto, E_{T}^{miss,rel}>40 GeV, 50<m_{T2}<90 GeV";
     }
     else if(hName.Contains("CRTOP")){
-      _text = "WW CR";
+      _text = "TOP CR";
       _text2 = _text2 + " nJets>=1, b-Tag, Zveto, E_{T}^{miss,rel}>40 GeV";
     }
+    else if(hName.Contains("SRmT2a")){
+      _text = "SRmT2-90 ";
+      _text2 = _text2 + " nJets=0, Zveto, E_{T}^{miss,rel}>40 GeV, m_{T2}>90 GeV";
+    }
+    else if(hName.Contains("SRmT2b")){
+      _text = "SRmT2-110 ";
+      _text2 = _text2 + " nJets=0, Zveto, E_{T}^{miss,rel}>40 GeV, m_{T2}>110 GeV";
+    }
+    else if(hName.Contains("ZXCRmT2a")){
+      _text = "ZXCRmT2-90 ";
+      _text2 = _text2 + " nJets=0, Z-window, E_{T}^{miss,rel}>40 GeV, m_{T2}>90 GeV";
+    }
+    else if(hName.Contains("ZXCRmT2b")){
+      _text = "ZXCRmT2-110 ";
+      _text2 = _text2 + " nJets=0, Z-window, E_{T}^{miss,rel}>40 GeV, m_{T2}>110 GeV";
+    }
+
 
     else if(hName.Contains("preSR2jets"))   _text = "preSR2jets ";
     else if(hName.Contains("preSRZjets"))   _text = "preSRZjets ";
     else if(hName.Contains("preSRSS")) _text = "preSRSS ";
 
     else if(hName.Contains("SROSjveto"))        _text = "SROSjveto ";
-    else if(hName.Contains("SRmT2a"))     _text = "SRmT2a ";
-    else if(hName.Contains("SRmT2b"))    _text = "SRmT2b ";
     else if(hName.Contains("SR2jets"))   _text = "SR2jets ";
     else if(hName.Contains("SRZjets"))   _text = "SRZjets ";
     else if(hName.Contains("SRSSjets")) _text = "SRSSjets ";
@@ -962,8 +1025,8 @@ void DrawPlots::drawLumi(float x, float y)
 {
   char s[20] ="";
   sprintf(s,"%3.1f",pLUMI);
-  //  string _text = "#int L dt=" + string(s) + "fb^{-1}  #sqrt{s}=8 TeV";
-  string _text = "#int L dt=" + string(s) + "fb^{-1}";
+  string _text = "#int L dt=" + string(s) + " fb^{-1}  #sqrt{s}=8 TeV";
+  //string _text = "#int L dt=" + string(s) + " fb^{-1} ";
   _utils->myText(x,y,kBlack,_text.c_str(),0.05);
 }
 //-------------------------------------------//

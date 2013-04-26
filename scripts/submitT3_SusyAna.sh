@@ -103,6 +103,7 @@ while read line; do
 "$sName" == "ZmumuHeavyJets.128976"  -o \
 "$sName" == "ttbar.105200" -o \
 "$sName" == "ttbar.105861" -o \
+"$sName" == "ttbar.105860" -o \
 "$sName" == "Zee.147806" -o \
 "$sName" == "Zmumu.147807" -o \
 "$sName" == "llll_ZZ.126894" -o \
@@ -241,16 +242,16 @@ rm -f tmp.txt
 
 if [ "$type" == "mc12" ]; then
     cd  ${pathRun}
-#    ./run.sh mc12 dummy ${mode}
+    ./run.sh mc12 dummy ${mode}
 ##    ./run.sh susy 166614 ${mode}
-#    ./run.sh susy 175447 ${mode}
-#    ./run.sh susy 175510 ${mode}
+    ./run.sh susy 175447 ${mode}
+    ./run.sh susy 175510 ${mode}
 ##    ./run.sh susy 175517 ${mode}
 ##    ./run.sh susy 175580 ${mode}
 ##    ./run.sh susy 175581 ${mode}
-#    ./run.sh susy 144917 ${mode}
+    ./run.sh susy 144917 ${mode}
 ##    ./run.sh susy 144921 ${mode}
-#    ./run.sh susy 144922 ${mode}
+    ./run.sh susy 144922 ${mode}
 ##    ./run.sh susy 144923 ${mode}
 ##    ./run.sh susy 176322 ${mode}
 ##    ./run.sh susy 176325 ${mode}

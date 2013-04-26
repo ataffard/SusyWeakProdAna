@@ -109,7 +109,7 @@ class DrawPlots {
 
   /* Drawing function */
   void  drawChannelText(string name, float x=0.2,float y=0.73, bool desc=true);
-  void  drawLumi(float x=0.3, float y=0.75);
+  void  drawLumi(float x=0.18, float y=0.75);
   void  drawATLAS(float x=0.18, float y=0.85);
 
   /* Math func */
@@ -169,6 +169,7 @@ class DrawPlots {
 
   void  setGenSys(string name, int BkgType, TH1F* hNom, TH1F* h);
 
+  void  setStackOrder(string name);
   
   
   string       _pathHisto;
@@ -183,6 +184,8 @@ class DrawPlots {
   vector<string> _mcFileName;
   vector<TFile*> _sigFile;
   vector<string> _sigFileName;
+
+  vector<int>    _stackOrder;
 
   TH1F*             _dataH1;
   THStack*          _mcStack;

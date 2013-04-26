@@ -3,11 +3,32 @@
 #
 # ./DrawPlotsExec -pred -p DG2L_CR2LepOS_EE_DG2L_metrel -logy -ZJet histo_Zjets_Sherpa.root
 #
+# ./runDrawPlots.sh DG2L preSRmT2
+# ./runDrawPlots.sh DG2L SRmT2a; ./runDrawPlots.sh DG2L SRmT2b
+# ./runDrawPlots.sh DG2L CRTOP; ./runDrawPlots.sh DG2L CRWW5;
+# ./runDrawPlots.sh DG2L ZXCRmT2a; ./runDrawPlots.sh DG2L ZXCRmT2b
+#
+#
 
 #!/bin/bash
 
-if [[ $# = 1 ]]; then
+if [[ $# = 2 ]]; then
     mode=$1
+    SR=$2
+elif [[ $# = 1 ]]; then
+    mode=$1
+    SR=(preSRmT2 \
+	ZXCRmT2a \
+	ZXCRmT2b \
+	ZXCRWW \
+	CRTOP \
+	CRWW CRWW2 CRWW3 CRWW4 \
+	CRWW5 \ 
+	CRWW6 \
+	CRZ CRZjveto CR2LepOS \
+	SRmT2a \
+	SRmT2b \
+       )
 fi
 
 #Update SusyAnaCommon.h to pick correct path for .root files
@@ -31,21 +52,11 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
 #PLOTS=(mllcoarse)
 
-#DIL=(EE)
-DIL=(EE MM EM)
+DIL=(EE)
+#DIL=(EE MM EM)
 
 
-SR=(
-    #preSRmT2 \
-    ZXCRmT2a ZXCRmT2b \
-    #ZXCRWW \
-    #CRTOP \
-    #CRWW CRWW2 CRWW3 CRWW4 
-    #CRWW5 
-    #CRWW6\
-    #CRZ CRZjveto CR2LepOS \
-    #SRmT2a SRmT2b \
-)
+
 
 <<SKIP
 SR=(SROSjveto SRmT2a SRmT2b \
@@ -63,9 +74,9 @@ SR=(SROSjveto SRmT2a SRmT2b \
 )
 SKIP
 
-PLOTS=(mllcoarser pTll metrel mt2 \
-    ptl1 ptl2 ePt mPt \
-    #mll etal1 etal2 eEta mEta dPhill \    
+PLOTS=(mllcoarser pTll metrel mt2 mt2b metrel1 metrel2 metrel3 \
+  ePt mPt \
+    #mll  ptl1 ptl2 etal1 etal2 eEta mEta dPhill \    
     #nJets nCJets nFJets nBJets \
     #ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
     #etmiss metRefEle metRefGam metRefMuo metRefJet metRefSJet metCellout \
