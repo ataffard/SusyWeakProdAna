@@ -23,11 +23,12 @@ DrawPlots* _ana;
 
 
 void openHist(string mode="DD",
-	      string Top="histo_topDil_Sherpa",
-	      string WW="histo_WW_Sherpa",
-	      string ZX="histo_ZX_Sherpa",		      
-	      string Ztt="histo_ZTauTaujets_Sherpa",
-	      string Fake="histo_data12_fake");
+	      string Top="histo_top_MCNLO",
+	      string WW="histo_WW_PowHeg",
+	      string Zjets="histo_Zjets_SherpaAlpgenPythia",
+	      string ZV="histo_WZ_ZZ_PowHeg",
+	      string Fake="histo_data12_fake",
+	      string Higgs="histo_Higgs");
 		      
 void draw(string name, bool logy);
 
@@ -46,9 +47,9 @@ int main(int argc, char *argv[]){
 }
 
 //--------------------------------------------------------------------------------
-void openHist(string mode,string Top,string WW,string ZX,string Ztt,string Fake)
+void openHist(string mode,string Top,string WW,string Zjets,string ZV,string Fake, string Higgs)
 {
-  _ana->openHistoFiles(mode,Top,WW, ZX, Ztt, Fake);
+  _ana->openHistoFiles(mode,Top,WW, Zjets, ZV, Fake,Higgs);
 }
 
 //--------------------------------------------------------------------------------

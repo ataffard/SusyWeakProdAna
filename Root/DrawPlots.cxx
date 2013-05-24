@@ -150,6 +150,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   if(HNAME.Contains("_metrel")) {
     _dataH1->GetXaxis()->SetTitle("E_{T}^{miss,rel} [GeV]");
   }
+  _utils->yAxis(_dataH1,"GeV");		\
   /*
   if(HNAME.Contains("_metrel")){
     _dataH1->Rebin(2);
@@ -204,6 +205,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
       if(HNAME.Contains("_metrel")) {
 	_h->GetXaxis()->SetTitle("E_{T}^{miss,rel} [GeV]");
       }
+      _utils->yAxis(_h,"GeV");		\
 
       if(USESF)	_h->Scale(SF);
       if(isys==DGSys_NOM) _hNom = (TH1F*) _h->Clone();
@@ -734,6 +736,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
 					_dataH1,_leg,logy);
 
   //Add signals template
+  wSig=false;
   if(wSig){
     TString hName(name);
     for(uint i=0; i<_sigFile.size(); i++){
@@ -1037,7 +1040,8 @@ void DrawPlots::drawATLAS(float x, float y)
   //string _text = "ATLAS Work In Progress";
   string _text1 = "#bf{ATLAS}";
   _utils->myText(x,y,kBlack,_text1.c_str(),0.07);
-  string _text2 = "Internal";
+  //  string _text2 = "Internal";
+  string _text2 = "Preliminary";
   _utils->myText(x+0.15,y,kBlack,_text2.c_str(),0.05);
   
 }

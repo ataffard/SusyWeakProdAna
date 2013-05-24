@@ -52,7 +52,7 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
 #PLOTS=(mllcoarse)
 
-DIL=(EE)
+DIL=(EE MM )
 #DIL=(EE MM EM)
 
 
@@ -74,8 +74,9 @@ SR=(SROSjveto SRmT2a SRmT2b \
 )
 SKIP
 
-PLOTS=(mllcoarser pTll metrel mt2 mt2b metrel1 metrel2 metrel3 \
-  ePt mPt \
+PLOTS=(metrel1
+#mllcoarser pTll metrel mt2 mt2b metrel1 metrel2 metrel3 \
+# ePt mPt \
     #mll  ptl1 ptl2 etal1 etal2 eEta mEta dPhill \    
     #nJets nCJets nFJets nBJets \
     #ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \
