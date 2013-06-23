@@ -1,6 +1,5 @@
 Egamma.periodA
 Egamma.periodB
-Egamma.periodB.RECOVER
 Egamma.periodC
 Egamma.periodD
 Egamma.periodE
@@ -11,7 +10,6 @@ Egamma.periodJ
 Egamma.periodL
 Muons.periodA
 Muons.periodB
-Muons.periodB.RECOVER
 Muons.periodC
 Muons.periodD
 Muons.periodE

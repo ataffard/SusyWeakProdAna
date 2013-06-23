@@ -47,6 +47,8 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("pTll",&_b_pTll,"pTll/F");
   tree->Branch("phill",&_b_phill,"phill/F");
   tree->Branch("mll",&_b_mll,"mll/F");
+  tree->Branch("mll_collApprox",&_b_mll_collApprox,"mll_collApprox/F");
+  tree->Branch("dR_ll",&_b_dR_ll,"dR_ll/F");
   tree->Branch("dphi_ll",&_b_dphi_ll,"dphi_ll/F");
   tree->Branch("isOS",&_b_isOS,"isOS/O");
 
@@ -57,7 +59,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("nFJets",&_b_nFJets,"nFJets/I");
   tree->Branch("nOJets",&_b_nOJets,"nOJets/I");
 
-  tree->Branch("j_isC25",_b_j_isC25,"j_isC25[nJets]/O");
+  tree->Branch("j_isC20",_b_j_isC20,"j_isC20[nJets]/O");
   tree->Branch("j_isB20",_b_j_isB20,"j_isB20[nJets]/O");
   tree->Branch("j_isF30",_b_j_isF30,"j_isF30[nJets]/O");
   tree->Branch("j_isOJ", _b_j_isOJ, "j_isOJ[nJets]/O");
@@ -81,7 +83,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("met_refJet",&_b_met_refJet,"met_refJet/F");
   tree->Branch("met_cellout",&_b_met_cellout,"met_cellout/F");
 
-  tree->Branch("met_mWWT",&_b_mWWT,"mWWT/F");
+  tree->Branch("mWWT",&_b_mWWT,"mWWT/F");
 
   tree->Branch("dphi_metcl",&_b_dphi_metcl,"dphi_metcl/F");
 
@@ -93,9 +95,22 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("dphi_Zj",&_b_dphi_Zj,"dphi_Zj/F");
 
   tree->Branch("mT2",&_b_mT2,"mT2/F");
+  tree->Branch("mT2jj",&_b_mT2jj,"mT2jj/F");
+  tree->Branch("sphericity",&_b_sphericity,"sphericity/F");
+  tree->Branch("sphericityTrans",&_b_sphericityTrans,"sphericityTrans/F");
+  tree->Branch("llAcoplanarity",&_b_llAcoplanarity,"llAcoplanarity/F");
+  tree->Branch("jjAcoplanarity",&_b_jjAcoplanarity,"jjAcoplanarity/F");
+  tree->Branch("topTag",&_b_topTag,"topTag/O");
   tree->Branch("mEff",&_b_mEff,"mEff/F");
   tree->Branch("ST",&_b_ST,"ST/F");
   tree->Branch("mjj",&_b_mjj,"mjj/F");
+
+  tree->Branch("mct",&_b_mct,"mct/F");
+  tree->Branch("mctPerp",&_b_mctPerp,"mctPerp/F");
+  tree->Branch("mctPara",&_b_mctPara,"mctPara/F");
+
+  tree->Branch("JZBjets",&_b_JZBjets,"JZBjets/F");
+  tree->Branch("JZBmet",&_b_JZBmet,"JZBmet/F");
 
   clearOutputBranches();
   return;
@@ -132,6 +147,8 @@ void ToyNt::clearOutputBranches(void) {
   _b_pTll=-999;
   _b_phill=-999;
   _b_mll=-999;
+  _b_mll_collApprox=-999;
+  _b_dR_ll=-999;
   _b_dphi_ll=-999;
   _b_isOS=false;
 
@@ -143,7 +160,7 @@ void ToyNt::clearOutputBranches(void) {
   _b_nOJets=0;
 
   for(uint i=0; i<25; i++){
-    _b_j_isC25[i]=false;
+    _b_j_isC20[i]=false;
     _b_j_isB20[i]=false;
     _b_j_isF30[i]=false;
     _b_j_isOJ[i]=false;
@@ -190,9 +207,21 @@ void ToyNt::clearOutputBranches(void) {
   _b_dphi_Zj=-999;
 
   _b_mT2=-999;
+  _b_mT2jj=-999;
+  _b_sphericity=-999;
+  _b_sphericityTrans=-999;
+  _b_llAcoplanarity=-999;
+  _b_jjAcoplanarity=-999;
+  _b_topTag=false;
   _b_mEff=-999;
   _b_ST=-999;
   _b_mjj=-999;
+
+  _b_mct=-999;
+  _b_mctPerp=-999;
+  _b_mctPara=-999;
+  _b_JZBjets=-999;
+  _b_JZBmet=-999;
 
   return;
 }
@@ -284,12 +313,16 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
   _b_mll = _ll.M();
   _b_mWWT = mT(_ll, met->lv());
   _b_dphi_ll = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
+  _b_dR_ll = leptons->at(0)->DeltaR(*leptons->at(1));
   _b_isOS = (qqType<0) ? true : false;
 
   //  delete _ntTools;
 }
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillTreeMet(const Met* met,float metrel, float mT2)
+void ToyNt::FillTreeEventVar(const Met* met,float metrel, float mT2, 
+			     float mT2jj, float sphericity, float sphericityTrans, 
+			     float llAcoplanarity, float jjAcoplanarity,
+			     bool topTag, float mllCollApprox)
 {
   _b_met= met->lv().Pt();
   _b_met_phi = met->lv().Phi();
@@ -299,6 +332,13 @@ void ToyNt::FillTreeMet(const Met* met,float metrel, float mT2)
   _b_met_refJet=met->refJet;
   _b_met_cellout=met->refCell;
   _b_mT2=mT2;
+  _b_mT2jj=mT2jj;
+  _b_sphericity=sphericity;  
+  _b_sphericityTrans=sphericityTrans;  
+  _b_llAcoplanarity=llAcoplanarity;
+  _b_jjAcoplanarity=jjAcoplanarity;
+  _b_mll_collApprox = mllCollApprox;
+  _b_topTag = topTag;
 
 }
 //-----------------------------------------------------------------------------------------------------------
@@ -317,15 +357,18 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
   }
  
   TLorentzVector _jj;
-  int iSJ=0;
+  _b_ST=0;
+  int njj=0;
   for(uint ijet=0; ijet<jets->size(); ijet++){
     if(ijet>25) continue;
     const Susy::Jet* _j = jets->at(ijet); 
     _b_nJets++;
 
+    if(ijet==0) _b_dphi_ll_j1 = fabs(_ll.DeltaPhi(*jets->at(ijet)));
+
     if(isCentralLightJet(_j)){
       _b_nCJets++;
-      _b_j_isC25[ijet] = true;
+      _b_j_isC20[ijet] = true;
     }
     else if(isForwardJet(_j)){
       _b_nFJets++;
@@ -348,15 +391,18 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     float _dPhi=fabs(met->lv().DeltaPhi(*_j));
     if(_dPhi<_b_dphi_metcj) _b_dphi_metcj=_dPhi;
     _b_ST += _j->Pt();
-    if(iSJ<2) _jj += (*jets->at(ijet));
+    if(isCentralLightJet(_j) && njj<2){
+      _jj += (*jets->at(ijet));
+      njj++;
+    }
     
     //cout << "SJ " << _j->Pt() << " " << ijet << " " << _b_j_pt[ijet] << endl;
 
   }
 
-  if(iSJ<2)_b_mjj = _jj.M();
+  _b_mjj = _jj.M();
   _b_mEff = _b_ST + met->lv().Pt();
-  _b_dphi_ll_j1 = fabs(_ll.DeltaPhi(*jets->at(0)));
+
   
   //  delete _ntTools;
 
@@ -407,6 +453,21 @@ void ToyNt::FillTreeOtherJets(JetVector* jets, const LeptonVector* leptons, cons
   findRecoilJet();
   //  delete _ntTools;
 }
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillMCT(float mct, float mctPerp, float mctPara)
+{
+  _b_mct = mct;
+  _b_mctPerp = mctPerp;
+  _b_mctPara = mctPara;
+}
+
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillJZB(float JZBjets, float JZBmet)
+{
+  _b_JZBjets = JZBjets;
+  _b_JZBmet = JZBmet;
+}
+
 //-----------------------------------------------------------------------------------------------------------
 // Quick and dirty ZPt balance - use recoil jet to measure JVF
 void ToyNt::findRecoilJet()

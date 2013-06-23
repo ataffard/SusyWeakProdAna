@@ -1,0 +1,7 @@
+ttbar.105861
+SingleTopWtChanIncl.108346
+ttbarW.119353
+ttbarWj.119354
+ttbarZ.119355
+ttbarZj.119356
+ttbarWW.119583

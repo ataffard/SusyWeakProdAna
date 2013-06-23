@@ -15,12 +15,16 @@
 #
 # ./submitT3_hadd.sh mc rlep merge; ./submitT3_hadd.sh data std merge; ./submitT3_hadd.sh data flep merge; 
 #
+# ./submitT3_hadd.sh mc rlep toyNtMerger; ./submitT3_hadd.sh susy rlep toyNtMerger; 
+# ./submitT3_hadd.sh data std toyNtMerger; ./submitT3_hadd.sh dataFake flep toyNtMerger; 
+#
 #
 #
 #!/bin/bash
 
 #Update for a given pass
-date="042313_21fb_n0139_Moriond_DD_v4"
+date="061413_21fb_n0140_Optim_DD_v3"
+#date="060713_21fb_n0140_Optim_DD_v2"
 #date="041813_21fb_n0139_Moriond_DD_v3"
 #date="041413_21fb_n0139_Moriond_DD_v2"
 #date="040613_21fb_n0138_Moriond_DD_v1"
@@ -47,6 +51,12 @@ dir=${WORKAREA}/SusyWeakProdAna/scripts/haddJobs
 inpath=${HISTOANA}/SusyAna/histos_${date}/histOutputs
 outpath=${HISTOANA}/SusyAna/histos_${date}/hadd_histOutputs
 endpath=${HISTOANA}/SusyAna/histos_${date}
+
+inToyNtPath=${HISTOANA}/SusyAna/histos_${date}/ToyNtOutputs
+
+toyNt_SR="DIL_optimSRjets"
+#toyNt_SR="DIL_optimSRSS"
+#toyNt_SR="DIL_optimSR0jet"
 
 passDir=${HISTOANA}/SusyAna/histos_${date}
 
@@ -154,7 +164,7 @@ fi
 
 
 
-echo "Input history directory ${inpath}" 
+echo "Input hist directory ${inpath}" 
 echo "Output merge histos located in ${outpath}"
 
 
@@ -205,8 +215,41 @@ while read line; do
     fi
 
     echo "Submitting ${bkgGp} "
-
     
+    #
+    #  3- MERGING TOYNT MODE
+    #
+    if [ "$mode" == "toyNtMerger" ]; then
+	echo "reading ${inlist}/${bkgGp}.txt" 
+	rm -f tmpList.txt
+	while read newline; do
+	    ss=(`echo ${newline} | tr '\t' ',' `)
+	    if [[ $ss == *#* ]]; then
+		echo "Sample  $ss is commented out - Skippping "
+		continue 
+	    fi
+	    
+	    if [ "$type" == "dataFake" -o "$type" == "data" ]; then
+		ss=(`echo ${newline} | tr '\t' ',' `)
+	    else
+		ss=(`echo ${newline} | tr '\t' ',' |cut -d'.' -f2-2 `)
+	    fi
+	    if [[ "$ss" == *mll60* ]]; then
+		ss=(`echo $ss |cut -d'_' -f1-1 `)
+	    fi
+
+	    name=${ss}"_"${toyNt_SR}".root"
+	    if [ "$type" == "data" ]; then
+		name=${ss}_"DATA_"${toyNt_SR}".root"
+	    fi
+	    
+	    echo -e ${inToyNtPath}/${name} >> tmpList.txt
+	done < ${inlist}/${bkgGp}.txt
+
+	echo ${endpath}/toyNt_${bkgGp}_${toyNt_SR}_${mth}.root tmpList.txt | root -b ${pathScript}/../macros/mergeToyNtFile.C+ |tee test.log
+	rm -f tmpList.txt
+    fi
+
 
     #
     #  2- MERGING MODE

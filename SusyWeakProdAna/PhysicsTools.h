@@ -65,4 +65,32 @@ float ptRel(TLorentzVector j, TLorentzVector p);
 double getCrossSection(std::ifstream &infile, int mcID, double crossSection, int syst = 0);
 
 
+
+
+/*
+  References: mCT.0802.2879v3 & mCT.0910.1584v2
+*/
+//mCT
+float mCT(TLorentzVector v1, TLorentzVector v2);
+
+//mCTperp
+float mCTperp(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met);
+
+//mCTpara
+float mCTpara(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met);
+
+//mll collinear approx
+float mZTauTau(TLorentzVector l0, TLorentzVector l1, TLorentzVector met);
+
+//Acoplananrity
+float acoplanarity(TLorentzVector v0, TLorentzVector v1);
+
+//Sphericity
+float Sphericity(std::vector<float> &pxVector,
+                 std::vector<float> &pyVector,
+                 std::vector<float> &pzVector,
+                 bool IsTransverseSphericity);
+
+
+
 #endif

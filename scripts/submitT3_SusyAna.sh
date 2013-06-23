@@ -16,6 +16,13 @@
 #./submitT3_SusyAna.sh mc12 Mll10to60 DD    //to submit just the alpgen low mass
 #
 #
+# ./submitT3_SusyAna.sh susy wA_noslep DD;  
+# ./submitT3_SusyAna.sh susy wA_slep DD;  
+# ./submitT3_SusyAna.sh susy wC_slep DD;  
+# ./submitT3_SusyAna.sh susy WH DD;  
+# ./submitT3_SusyAna.sh mc12 DD; 
+# ./submitT3_SusyAna.sh data12 DD;
+
 # Quick way to check all run
 # grep "events processed"  jobLogs/*.log |wc -l
 # output # = number of submitted jobs 
@@ -52,7 +59,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-doSys=true
+#doSys=true
 
 ##
 ## Ana mode STD or DD
@@ -244,14 +251,14 @@ if [ "$type" == "mc12" ]; then
     cd  ${pathRun}
     ./run.sh mc12 dummy ${mode}
 ##    ./run.sh susy 166614 ${mode}
-    ./run.sh susy 175447 ${mode}
-    ./run.sh susy 175510 ${mode}
+#    ./run.sh susy 175447 ${mode}
+#    ./run.sh susy 175510 ${mode}
 ##    ./run.sh susy 175517 ${mode}
 ##    ./run.sh susy 175580 ${mode}
 ##    ./run.sh susy 175581 ${mode}
-    ./run.sh susy 144917 ${mode}
+#    ./run.sh susy 144917 ${mode}
 ##    ./run.sh susy 144921 ${mode}
-    ./run.sh susy 144922 ${mode}
+#    ./run.sh susy 144922 ${mode}
 ##    ./run.sh susy 144923 ${mode}
 ##    ./run.sh susy 176322 ${mode}
 ##    ./run.sh susy 176325 ${mode}

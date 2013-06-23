@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# PBS -q  c6145
 ## PBS -q atlas
 #PBS -l nodes=1:ppn=1
 

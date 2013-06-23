@@ -43,7 +43,7 @@ class ToyNt_ZXStudies : public ToyNtAna
   TH1F* h_metrel[3][nCUT];
   
   TH1F* h_nJets[3][nCUT];
-  TH1F* h_nC25[3][nCUT];
+  TH1F* h_nC20[3][nCUT];
   TH1F* h_nB20[3][nCUT];
   TH1F* h_nF30[3][nCUT];
 

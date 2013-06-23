@@ -40,9 +40,16 @@ class ToyNt: public SusyNtTools
   void FillTreeLeptons(const LeptonVector* leptons, 
 		       ElectronVector& baseElectrons, MuonVector& baseMuons, 
 		       const Met* met, int nVtx, bool isMc);
-  void FillTreeMet(const Met* met,float metrel, float mT2);
+  void FillTreeEventVar(const Met* met,float metrel, float mT2,
+			float mT2jj, float sphericity, float sphericityTrans,
+			float llAcoplanarity, float jjAcoplanarity,
+			bool topTag, float mllCollApprox);
   void FillTreeSignalJets(const JetVector* jets, const LeptonVector* leptons, const Met* met);
   void FillTreeOtherJets(JetVector* jets, const LeptonVector* leptons, const Met* met);
+
+  void FillMCT(float mct, float mctPerp, float mctPara);
+  void FillJZB(float JZBjets, float JZBmet);
+
   void findRecoilJet();
 
 private:
@@ -81,13 +88,21 @@ private:
    
   float   _b_pTll;
   float   _b_phill;
+  float   _b_dR_ll;
   float   _b_dphi_ll;
   bool    _b_isOS;
   float   _b_mll;
+  float   _b_mll_collApprox;
 
   float   _b_mWWT; 
   float   _b_dphi_metcl; //closest lepton
   float   _b_mT2;
+  float   _b_mT2jj;
+  float   _b_sphericity;
+  float   _b_sphericityTrans;
+  float   _b_llAcoplanarity;
+  float   _b_jjAcoplanarity;
+  bool    _b_topTag;
 
   int     _b_nJets;  //all jets
   int     _b_nSJets; //signal jets
@@ -96,7 +111,7 @@ private:
   int     _b_nFJets;
   int     _b_nOJets; //Other jets
 
-  bool    _b_j_isC25[25];
+  bool    _b_j_isC20[25];
   bool    _b_j_isB20[25];
   bool    _b_j_isF30[25];
   bool    _b_j_isOJ[25];
@@ -131,6 +146,13 @@ private:
   float   _b_mEff;
   float   _b_ST;
   float   _b_mjj;
-  
+
+
+  float   _b_mct;
+  float   _b_mctPerp;
+  float   _b_mctPara;
+  float   _b_JZBjets;
+  float   _b_JZBmet;
+
 };
 #endif 

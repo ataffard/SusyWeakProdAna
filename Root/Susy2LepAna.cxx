@@ -17,11 +17,11 @@ using namespace Susy;
 Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   SusyNtTools(),
   _hh(_histos),
-  m_susyXsec(0),
   m_dbg(0),
   m_useLooseLep(false),
   m_writeHFT(false),
   m_writeToyNt(false),
+  m_susyXsec(0),
   m_nLepMin(2),
   m_nLepMax(2),
   m_cutNBaseLep(true),
@@ -106,6 +106,8 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   string xsecFileName  = gSystem->ExpandPathName("$ROOTCOREDIR/data/SusyWeakProdAna/susy_crosssections_8TeV.txt");
   m_susyXsec = new SUSY::CrossSectionDB(xsecFileName);
 
+  susyXS = new XSReader();
+  susyXS->LoadXSInfo();
 
   setAnaType(Ana_2Lep);
 
@@ -371,7 +373,6 @@ void Susy2LepAna::reset()
   m_ET = ET_Unknown;
   metRel = 0;
   mT2    = 0;
-  mCT    = 0;
 
 }
 /*--------------------------------------------------------------------------------*/
@@ -870,7 +871,38 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       }
     }
   }
-
+  
+  //----------------------------//
+  // Optimisation  Regions
+  // Very loose selection for ToyNt making
+  //----------------------------//
+  if(m_sel == "optimSRZjets"){ //top optim SRZjets
+    m_selOS = true;
+    m_selSF = true;
+    m_selZ  = true;
+    m_vetoF = true;
+    m_vetoB = true;
+    m_minC20 = 2;
+  }
+  else if(m_sel == "optimSRjets"){//to optim WH >=1 jets, SRZjets, SRjets
+    m_selOS = true;
+    m_vetoF = true;
+    m_vetoB = true;
+    m_minC20 = 1;
+  }
+  else if(m_sel == "optimSRSS"){//top optim SS channels
+    m_selSS = true;
+  }
+  else if(m_sel == "optimSR0jet"){
+    m_selOS = true;
+    //m_vetoZ = true;
+    if(dilType==ET_ee){
+      m_mllIn     = true;
+      m_lowMll    = MZ-10;
+      m_highMll   = MZ+10;
+    }
+    m_vetoJ = true;
+  }
   
 }
 
@@ -1016,8 +1048,9 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!USE_QFLIP && !passQQ(leptons)) continue;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
-	  (iSR==DIL_SRSSjets || iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 
-	   || iSR==DIL_preSRSS  || iSR==DIL_VRSS || iSR==DIL_VRSSbtag) ){
+	  (iSR==DIL_SRSSjets || iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 || 
+	   iSR==DIL_preSRSS  || iSR==DIL_VRSS || iSR==DIL_VRSSbtag ||
+	   iSR==DIL_optimSRSS) ){
 	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
 	else{ //OS ee/em event - get the qFlip prob
 	  float _ww_qFlip = getQFlipProb(leptons,&new_met,DGSys_NOM);
@@ -1209,38 +1242,37 @@ float Susy2LepAna::eventWeight(int mode)
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
     else{
       int id = nt->evt()->mcChannel;
-      //      _evtW = getEventWeightFixed(id,nt->evt(),LUMI_A_L);
-      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs);   //<<<<=======
-
+      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs);
 
       //Replace XS for Higgs samples
       /*
-      if(nt->evt()->mcChannel == 161005 ||
-	 nt->evt()->mcChannel == 161055 ||
-	 nt->evt()->mcChannel == 161805 ||
-	 nt->evt()->mcChannel == 160155 ||
-	 nt->evt()->mcChannel == 160205 ||
-	 nt->evt()->mcChannel == 160255 ||
-	 nt->evt()->mcChannel == 160305 ||
-	 nt->evt()->mcChannel == 160655 ||
-	 nt->evt()->mcChannel == 160705 ||
-	 nt->evt()->mcChannel == 160755 ||
-	 nt->evt()->mcChannel == 160805 ||
-	 nt->evt()->mcChannel == 161105 || 
-	 nt->evt()->mcChannel == 161155 ||
-	 nt->evt()->mcChannel == 160555 || 
-	 nt->evt()->mcChannel == 160505 ||
-	 (nt->evt()->mcChannel >= 129477 && nt->evt()->mcChannel <= 129494)|| //WZ Powheg update XS MCNLO !!!
+      if((nt->evt()->mcChannel >= 129477 && nt->evt()->mcChannel <= 129494)|| //WZ Powheg update XS MCNLO !!!
 	 (nt->evt()->mcChannel >= 126949 && nt->evt()->mcChannel <= 126951)   //ZZ->llvv x3 Xs
 	 ){
-
 	if(m_xsecMap.find(id) == m_xsecMap.end()) {
 	  m_xsecMap[id] = m_susyXsec->process(id);
 	}
 	xs = m_xsecMap[id].xsect() * m_xsecMap[id].kfactor() * m_xsecMap[id].efficiency();
       }
       */
-
+            
+      //Overwrite Xs value
+      if(isSimplifiedModelGrid(id)){
+	float xs    = susyXS->GetXS(id);
+	float sumw  = 0;
+	map<unsigned int, float>::const_iterator sumwMapIter = m_MCSumWs->find(id);
+        if(sumwMapIter != m_MCSumWs->end()) sumw = sumwMapIter->second;
+        else{
+          cout << "Susy2LepAna::eventWeight - ERROR - requesting to use sumw map but "
+               << "mcid " << id << " not found!" << endl;
+          abort();
+        }
+	if(dbg()>10) cout << " Xs org " << nt->evt()->xsec << " new " << xs 
+			  << " sumW file " <<  nt->evt()->sumw << " on-the-fly " << sumw << endl;
+	_evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
+      }
+      
+      
       if(id==176322 || id==176325 || id==176480){
 	float xs = nt->evt()->xsec;
 	float sumw = nt->evt()->sumw;
@@ -1248,8 +1280,6 @@ float Susy2LepAna::eventWeight(int mode)
 	if(id==176322) xs = 0.425175*0.9;
 	if(id==176325) xs = 0.167127*0.9;
 	if(id==176480) xs = 0.5420344;//0.616257;
-	
-
 	_evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
       }
 
@@ -1286,7 +1316,21 @@ float Susy2LepAna::eventWeight(int mode)
 
   return _evtW;
 }
+/*--------------------------------------------------------------------------------*/
+// determine if Simplified model grid
+/*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::isSimplifiedModelGrid(int dsId)
+{
+  if( (dsId >= 144871 && dsId <= 144895) || (dsId >= 157461 && dsId <= 157968) ||
+      (dsId >= 144902 && dsId <= 144927) || (dsId >= 157969 && dsId <= 157986) ||
+      (dsId >= 164274 && dsId <= 164323 ) ||
+      (dsId >= 164324 && dsId <= 164373 ) ||
+      (dsId >= 164374 && dsId <= 164423) ||
+      (dsId >= 176574 && dsId <= 176707) )
+    return true;
 
+  return false;
+}
 /*--------------------------------------------------------------------------------*/
 // Lepton SF weight
 /*--------------------------------------------------------------------------------*/
@@ -1510,6 +1554,18 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     break;
   case DIL_preSRSS:
     frSR = SusyMatrixMethod::FR_VRSSbtag;
+    break;
+  case DIL_optimSRZjets:
+    frSR = SusyMatrixMethod::FR_SRZjets; 
+    break;
+  case DIL_optimSRjets:
+    frSR = SusyMatrixMethod::FR_SR2jets; 
+    break;
+  case DIL_optimSRSS:
+    frSR = SusyMatrixMethod::FR_SRSSjets; 
+    break;
+  case DIL_optimSR0jet:
+    frSR = SusyMatrixMethod::FR_SROSjveto; 
     break;
   }
 
@@ -1998,23 +2054,26 @@ bool Susy2LepAna::passMll20(const LeptonVector* leptons)
 /*--------------------------------------------------------------------------------*/
 float Susy2LepAna::JZBJet(const JetVector* jets, const LeptonVector* leptons)
 {
-  float sumPtJet=0;
-  float zPt=Mll(leptons->at(0),leptons->at(1));
+  TVector2 sumPtJet(0,0);
+  TLorentzVector Z = (*leptons->at(0) + *leptons->at(1));
 
   for(uint i=0; i<jets->size(); ++i){
    const Jet* jet = jets->at(i);
-   sumPtJet+= jet->Pt();
+   TVector2 v_pt(jet->Px(),jet->Py());
+   sumPtJet += v_pt;
   }
 
-  return fabs(-sumPtJet)-fabs(zPt);
+  return fabs(sumPtJet.Mod())-fabs(Z.Pt());
 }
 /*--------------------------------------------------------------------------------*/
 float Susy2LepAna::JZBEtmiss(const Met *met, const LeptonVector* leptons)
 {
-  float etmiss=met->lv().Pt();
-  float zPt=Mll(leptons->at(0),leptons->at(1));
+  TLorentzVector Z = (*leptons->at(0) + *leptons->at(1));
+  TVector2 Z_2(Z.Px(), Z.Py());
+  TVector2 met_2(-met->lv().Px(), -met->lv().Py());
+  TVector2 vv = met_2 - Z_2; //-met->lv() - Z;
 
-  return fabs(-etmiss-zPt)-fabs(zPt);
+  return fabs(vv.Mod())-fabs(Z.Pt());
 
 }
 /*--------------------------------------------------------------------------------*/
@@ -2922,6 +2981,7 @@ void Susy2LepAna::initializeToyNt()
     }
   }
 }
+
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::fillToyNt(uint iSR,uint iSYS,
 				 const LeptonVector* leptons, 
@@ -2940,10 +3000,82 @@ void Susy2LepAna::fillToyNt(uint iSR,uint iSYS,
 			 m_ET,
 			 _ww);	 
   m_toyNt->FillTreeLeptons(leptons,*v_baseEle,*v_baseMu,met,nt->evt()->nVtx,nt->evt()->isMC);
-  m_toyNt->FillTreeMet(met,metRel,mT2);
+  bool _topTag  = passTopTag(*leptons,*v_sigJet,met);
+  float mt2 =  getMT2(*leptons, met);
+  /*
+  std::cout << "event " <<  nt->evt()->event 
+	    << " Met " << met->lv().Pt() << " " << met->lv().Px() << " " << met->lv().Py()
+	    << " L0 " << (*leptons->at(0)).Px() << " " << (*leptons->at(0)).Py()
+	    << " L1 " << (*leptons->at(1)).Px() << " " << (*leptons->at(1)).Py() 
+    	    << " " << mt2 << endl;
+  */
+  float mll_collApprox = mZTauTau(*leptons->at(0),*leptons->at(1),met->lv());
+
+  float sphericity=-999;
+  float sphericityTrans=-999;
+  vector<float> px;
+  vector<float> py;
+  vector<float> pz;
+  px.push_back(leptons->at(0)->Px());
+  px.push_back(leptons->at(1)->Px());
+
+  py.push_back(leptons->at(0)->Py());
+  py.push_back(leptons->at(1)->Py());
+
+  pz.push_back(leptons->at(0)->Pz());
+  pz.push_back(leptons->at(1)->Pz());
+
+  float mt2jj=-999;
+  float jjAcoplanarity=-999;
+  if(jets->size()>=2){
+    const TLorentzVector* j1TLV=NULL;
+    const TLorentzVector* j2TLV=NULL;
+    int iC20j=0;
+    for(uint ijet=0; ijet<jets->size(); ijet++){
+      const Susy::Jet* jet = jets->at(ijet);
+      if(!isCentralLightJet(jet)) continue;
+      if(iC20j==0) j1TLV = &(*jet);
+      if(iC20j==1) j2TLV = &(*jet);
+      iC20j++;
+    }
+    if(j1TLV && j2TLV){
+      px.push_back(j1TLV->Px());
+      px.push_back(j2TLV->Px());
+
+      py.push_back(j1TLV->Py());
+      py.push_back(j2TLV->Py());
+
+      pz.push_back(j1TLV->Pz());
+      pz.push_back(j2TLV->Pz());
+    }
+    if(j1TLV && j2TLV){
+      mt2jj = getMT2(j1TLV, j2TLV, met);
+      jjAcoplanarity = acoplanarity(*j1TLV, *j2TLV);
+    }
+  }
+
+  float llAcoplanarity = acoplanarity(*leptons->at(0),*leptons->at(1));
+
+  sphericity = Sphericity(px,py,pz,false);
+  sphericityTrans = Sphericity(px,py,pz,true);
+
+  m_toyNt->FillTreeEventVar(met,metRel,mt2,
+			    mt2jj, sphericity, sphericityTrans,
+			    llAcoplanarity,jjAcoplanarity,
+			    _topTag,mll_collApprox);
   m_toyNt->FillTreeSignalJets(jets,leptons,met);
-  m_toyNt->FillTreeOtherJets(v_baseJet,leptons,met);
+  //m_toyNt->FillTreeOtherJets(v_baseJet,leptons,met);
   
+  float mct     = mCT(*leptons->at(0),*leptons->at(1));
+  float mctPerp = mCTperp(*leptons->at(0),*leptons->at(1),met->lv());
+  float mctPara = mCTpara(*leptons->at(0),*leptons->at(1),met->lv());
+  m_toyNt->FillMCT(mct, mctPerp, mctPara);
+
+  float JZBj = JZBJet(v_sigJet,leptons);
+  float JZBm = JZBEtmiss(met,leptons);
+  m_toyNt->FillJZB(JZBj, JZBm);
+  
+
   //Write entry to TTree
   m_toyNt->WriteTree();
 

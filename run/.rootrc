@@ -1,5 +1,5 @@
-nix.*.Root.MacroPath:.:~/root_macros:$(ROOTSYS)/tutorials:$(PWD):$(PWD)/macros
-Unix*.Root.DynamicPath:.:~/rootlibs:$(LD_LIBRARY_PATH):$(PWD)
+Unix.*.Root.MacroPath:.:~/root_macros:$(ROOTSYS)/tutorials:$(PWD):$(PWD)/macros:$(ROOTSYS)/tmva/test
+Unix.*.Root.DynamicPath:.:~/rootlibs:$(LD_LIBRARY_PATH):$(PWD)
 Unix.*.Root.UseTTFonts:     true
 Unix.*.Root.TTFontPath:     $(ROOTSYS)/fonts
 Root.Html.OutputDir:.

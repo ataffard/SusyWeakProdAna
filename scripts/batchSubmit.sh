@@ -6,7 +6,7 @@
 #!/bin/bash
 
 #PBS -q atlas
-#PBS -l nodes=1:ppn=2
+#PBS -l nodes=1:ppn=1
 
 echo
 echo "**************"

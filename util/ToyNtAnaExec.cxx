@@ -1,3 +1,6 @@
+/*
+./ToyNtAnaExec -f toyNtLists/top.txt  -s top
+*/
 
 #include <cstdlib>
 #include <string>
@@ -6,7 +9,8 @@
 #include "TSystem.h"
 #include "Cintex/Cintex.h"
 
-#include "SusyWeakProdAna/ToyNt_ZXStudies.h"
+//#include "SusyWeakProdAna/ToyNt_ZXStudies.h"
+#include "SusyWeakProdAna/ToyNt_SROptimization.h"
 #include "SusyNtuple/ChainHelper.h"
 
 using namespace std;
@@ -50,10 +54,15 @@ int main(int argc, char** argv)
   string fileList;
   string fileDir;
 
-  //  string toyNtDir="/Users/anyes/MyWork/Atlas-Ana/SUSYAna_8TeV2012/histoAna/SusyAna/ToyNtOutputs";
-  string toyNtDir=string(getenv("WORKAREA")) + "/histoAna/SusyAna/histos_121712_13fb_n0115_DD_MMtrial9_SYS/ToyNtOutputs";
+  string toyNtDir=string(getenv("HISTOANA")) + "/SusyAna/histos_061413_21fb_n0140_Optim_DD_v3";
   gSystem->Setenv("TOYNTDIR",toyNtDir.c_str());
+  cout << "Setting input dir to " << toyNtDir << endl;
   
+  //string sRegion="DIL_optimSRjets";
+  string sRegion="DIL_optimSRSS";
+  gSystem->Setenv("TOYNTSR",sRegion.c_str());
+  cout << "Setting ToyNt selection to " << sRegion << endl;
+
   /** Read inputs to program */
   for(int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "-F") == 0)
@@ -100,7 +109,8 @@ int main(int argc, char** argv)
   chain->ls();
   
    // Build the TSelector
-  ToyNt_ZXStudies* toyAna = new ToyNt_ZXStudies();
+  //  ToyNt_ZXStudies* toyAna = new ToyNt_ZXStudies();
+  ToyNt_SROptimization* toyAna = new ToyNt_SROptimization();
   toyAna->setSampleName(sample);
   toyAna->setDebug(dbg);
   if(dbgEvt) toyAna->setEvtDebug();

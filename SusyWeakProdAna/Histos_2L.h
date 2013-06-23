@@ -26,7 +26,11 @@ enum DIL_SR{DIL_SROSjveto=0, DIL_SRmT2a, DIL_SRmT2b,
 	    DIL_CRZ,  DIL_CRZjveto,
 	    DIL_CR2LepOS, DIL_CR2LepSS, DIL_CR2LepSS40,
 	    DIL_preSROSjveto, DIL_preSRmT2,
-	    DIL_preSR2jets, DIL_preSRZjets, DIL_preSRSS,  
+	    DIL_preSR2jets, DIL_preSRZjets, DIL_preSRSS,
+	    DIL_optimSRZjets,
+	    DIL_optimSRjets,
+	    DIL_optimSRSS,
+	    DIL_optimSR0jet,
 	    DIL_NSR
 };
 
@@ -43,6 +47,10 @@ const string DIL_SRNAME[] = {"SROSjveto", "SRmT2a", "SRmT2b",
 			     "CR2LepOS", "CR2LepSS", "CR2LepSS40",
 			     "preSROSjveto", "preSRmT2",
 			     "preSR2jets", "preSRZjets", "preSRSS",
+			     "optimSRZjets",
+			     "optimSRjets",
+			     "optimSRSS",
+			     "optimSR0jet",
 			     	     
 };
 

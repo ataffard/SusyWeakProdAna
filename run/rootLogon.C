@@ -30,10 +30,10 @@
   //MAC
   //gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f7-7 >libs.list");
   ///T3
-  gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f7-7 >libs.list");
+  //gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f7-7 >libs.list");
   //EOS CERN
   //gSystem->Exec("more $ROOTCOREDIR/packages |cut -d\"/\" -f10-10 >libs.list");
-  FILE* fInput;
+  /*FILE* fInput;
   if ((fInput = fopen("libs.list","r")) == NULL) {
     printf("File libs.list could not be opened. Exit\n");
     abort();
@@ -49,7 +49,10 @@
       cout<<"\t Loading " << _lib << " "  <<gSystem->Load(cmd.c_str()) << endl;
     }
   }
-
+  */
+  string cmd = ".x " + string(getenv("ROOTCOREDIR")) + "/scripts/load_packages.C";
+  cout <<" Loading " << cmd << endl;
+  gROOT->ProcessLine(cmd.c_str());
   cout<<endl;
 
   gInterpreter->AddIncludePath("$ROOTCOREDIR/include");

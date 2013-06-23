@@ -147,10 +147,10 @@ void ToyNt_ZXStudies::bookHistograms(TDirectory* hDir)
 				 25,-0.5,24.5,
 				 "nJets","Entries/bin");
 
-      h_nC25[ilep][i] = _utils->myTH1F(string("nC25_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
-				 string("nC25_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+      h_nC20[ilep][i] = _utils->myTH1F(string("nC20_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
+				 string("nC20_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
 				 25,-0.5,24.5,
-				 "nC25","Entries/bin");
+				 "nC20","Entries/bin");
       
       h_nB20[ilep][i] = _utils->myTH1F(string("nB20_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
 				 string("nB20_"+LEP[ilep]+"_"+CUTS[i]).c_str(),
@@ -205,7 +205,7 @@ void ToyNt_ZXStudies::Analyze()
   h_met[llType][icut]->Fill(met,w);
   h_metrel[llType][icut]->Fill(metrel,w);
   h_nJets[llType][icut]->Fill(nJets,w);
-  h_nC25[llType][icut]->Fill(nCJ,w);
+  h_nC20[llType][icut]->Fill(nCJ,w);
   h_nB20[llType][icut]->Fill(nBJ,w);
   h_nF30[llType][icut]->Fill(nFJ,w);
   float maxjPt=-999;
@@ -233,7 +233,7 @@ void ToyNt_ZXStudies::Analyze()
     h_met[llType][icut]->Fill(met,w);
     h_metrel[llType][icut]->Fill(metrel,w);
     h_nJets[llType][icut]->Fill(nJets,w);
-    h_nC25[llType][icut]->Fill(nCJ,w);
+    h_nC20[llType][icut]->Fill(nCJ,w);
     h_nB20[llType][icut]->Fill(nBJ,w);
     h_nF30[llType][icut]->Fill(nFJ,w);
     maxjPt=-999;
@@ -263,7 +263,7 @@ void ToyNt_ZXStudies::Analyze()
     h_met[llType][icut]->Fill(met,w);
     h_metrel[llType][icut]->Fill(metrel,w);
     h_nJets[llType][icut]->Fill(nJets,w);
-    h_nC25[llType][icut]->Fill(nCJ,w);
+    h_nC20[llType][icut]->Fill(nCJ,w);
     h_nB20[llType][icut]->Fill(nBJ,w);
     h_nF30[llType][icut]->Fill(nFJ,w);
     float maxjPt=-999;
@@ -294,7 +294,7 @@ void ToyNt_ZXStudies::Analyze()
     h_met[llType][icut]->Fill(met,w);
     h_metrel[llType][icut]->Fill(metrel,w);
     h_nJets[llType][icut]->Fill(nJets,w);
-    h_nC25[llType][icut]->Fill(nCJ,w);
+    h_nC20[llType][icut]->Fill(nCJ,w);
     h_nB20[llType][icut]->Fill(nBJ,w);
     h_nF30[llType][icut]->Fill(nFJ,w);
     float maxjPt=-999;
@@ -324,7 +324,7 @@ void ToyNt_ZXStudies::Analyze()
     h_met[llType][icut]->Fill(met,w);
     h_metrel[llType][icut]->Fill(metrel,w);
     h_nJets[llType][icut]->Fill(nJets,w);
-    h_nC25[llType][icut]->Fill(nCJ,w);
+    h_nC20[llType][icut]->Fill(nCJ,w);
     h_nB20[llType][icut]->Fill(nBJ,w);
     h_nF30[llType][icut]->Fill(nFJ,w);
     float maxjPt=-999;

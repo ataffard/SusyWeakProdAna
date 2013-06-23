@@ -5,6 +5,7 @@
 #include "TFile.h"
 #include "TLine.h"
 #include "TChain.h"
+#include "TCut.h"
 #include "TEfficiency.h"
 
 #include "SusyWeakProdAna/DrawPlots.h"

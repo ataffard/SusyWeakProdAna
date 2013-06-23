@@ -22,6 +22,7 @@
 #include "ChargeFlip/chargeFlip.h"
 
 #include "HistFitterTree/HistFitterTree.h"
+#include "SusyXSReader/XSReader.h"
 
 //SusyWeakProdAna 
 
@@ -69,7 +70,7 @@ class Susy2LepAna: public SusyNtTools
     float getBTagSF(const Susy::Event*, const JetVector* jets, uint iSys=DGSys_NOM);
     float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, 
 			int iSR, float metrel, uint iSys=DGSys_NOM);
-
+    bool  isSimplifiedModelGrid(int dsId);
 
 
     void doAnalysis(unsigned int isys=DGSys_NOM);
@@ -218,6 +219,7 @@ class Susy2LepAna: public SusyNtTools
 
     SleptonXsecReader*   m_SleptonXSecReader;
     map<int,float>       m_sleptonSumWs;
+    XSReader* susyXS;
 
     SUSY::CrossSectionDB*                       m_susyXsec;     // SUSY cross section database
     std::map<int,SUSY::CrossSectionDB::Process> m_xsecMap;      // our own xsec map for faster lookup times
@@ -254,7 +256,6 @@ class Susy2LepAna: public SusyNtTools
 
     float metRel;
     float mT2;
-    float mCT;
 
     // Cut variables
     uint                m_nLepMin;      // min leptons
