@@ -25,7 +25,10 @@ toyNt_SR="DIL_optimSRSS"
 
 cd ${pathRun}
 
-if [[ $# = 1 ]]; then
+if [[ $# = 2 ]]; then
+    mode=$1
+    gp=$2
+elif [[ $# = 1 ]]; then
     mode=$1
 fi
 
@@ -49,16 +52,16 @@ elif  [ "$mode" == "wA_noslep_hadW" ]; then
 	echo ""
     done < ${pathScript}/inputHistoList/wA_noslep_hadW.txt
 
-elif  [ "$mode" == "wA_noslep_WH_3Lep" ]; then
+elif  [ "$mode" == "wA_noslep_WH_2Lep" ]; then
     while read line; do
 	ss=(`echo ${line} | tr '\t' ',' |cut -d'.' -f2-2 `)
 	name=${ss}"_"${toyNt_SR}".root"
 	echo ">>> Submitting $name"
-	./ToyNtAnaExec -F ${inToyNtPath}/${name}  -s wA_noslep_WH_3Lep${ss}
+	./ToyNtAnaExec -F ${inToyNtPath}/${name}  -s wA_noslep_WH_2Lep_${ss}
 
 	echo ""
 	echo ""
-    done < ${pathScript}/inputHistoList/wA_noslep_WH_3Lep.txt
+    done < ${pathScript}/inputHistoList/wA_noslep_WH_2Lep.txt
 
 elif  [ "$mode" == "wA_slep" ]; then
     while read line; do

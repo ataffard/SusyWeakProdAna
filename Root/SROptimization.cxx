@@ -64,7 +64,13 @@ SROptimization::SROptimization(RegionOption option, SusyProcess sp,
     m_xtitle = "m(#chi^{0}_{2}) [GeV]";
     m_ytitle = "m(#chi^{0}_{1}) [GeV]";
   }
- 
+  else if( sp == SP_modeA_noslep_WH_2Lep ){
+    cout << "Loading mode A no slepton WH 2Lep grid" << endl;
+    loadModeAFiles(false,true);   
+    m_xtitle = "m(#chi^{0}_{2}) [GeV]";
+    m_ytitle = "m(#chi^{0}_{1}) [GeV]";
+  }
+
   _mcHistFileName.push_back("histo_higgs.root");
   _mcHistFileName.push_back("histo_fake.root");
   _mcHistFileName.push_back("histo_ZV.root");
@@ -206,13 +212,14 @@ void SROptimization::loadModeCFiles(bool wSlepton)
 
 }
 //--------------------------------------------------------//
-void SROptimization::loadModeAFiles(bool wSlepton)
+void SROptimization::loadModeAFiles(bool wSlepton, bool wHiggs)
 {
   // This relies on having the input file in 
   // the inputHistoList directory
   string file;
   if(wSlepton) file = "wA_slep.txt";
   else         file = "wA_noslep_hadW.txt";
+  if(wHiggs)   file = "wA_noslep_WH_2Lep.txt";
 
   string path =  m_dirInput + file;
   ifstream input(path.c_str(), ifstream::in);
@@ -228,7 +235,6 @@ void SROptimization::loadModeAFiles(bool wSlepton)
   while(input.good()){
     
     input >> line;
-    
     if( previous == line ) break;
 
     // Save filename
@@ -361,7 +367,7 @@ TGraph2D* SROptimization::buildSigCut(vector<sl_File> files,
   //Fudge
   MN1_pts[0] = 0;
   MSP_pts[0] = 0;
-  Sig_pts[0] = 2;
+  Sig_pts[0] = 0;//2
 
   int npts = 1;
   // Loop over the files:
@@ -504,6 +510,9 @@ void SROptimization::PlotSig()
   contour->SetLineColor(kBlack);
   contour->SetLineWidth(3);
   
+  // Hack for the fake point at (0,0)
+  
+
   // Draw objects
   signif->Draw("colz");
   contour->Draw("same");

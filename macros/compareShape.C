@@ -58,15 +58,20 @@ static const int    selDil    = 3; //EE, MM, EM for SS and C1C1 grids
 //static const string sigSample = "144907"; // wC_slep [150,50]] //low mass diag
 
 //wA WH grids
-//static const string sigSample = "176576"; // wH
-//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group1"; // WH
-//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group1"; // WH
-static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group4"; // WH
+//static const string sigSample = "176574"; // wH
+static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group1"; // WH
+//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group2"; // WH
+//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group3"; // WH
+//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group4"; // WH
+//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group5"; // WH
+//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group6"; // WH
+//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group7"; // WH
+//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group8"; // WH
 
 static const bool   weightEvt = true;
 static const bool   skipDetailBkg = false;//true;
 static const bool   showCutflow = true;
-static const bool   showCutflowDetail = false;
+static const bool   showCutflowDetail = true;
 static const bool   logPlot =true;//false;// true;
 
 static const int dbg = 1;
@@ -179,7 +184,7 @@ void plotHist(bool logy=false); //compare signal and bkg
 TH1F* Zn(TH1F* _hBkg, TH1F* _hSig, bool upper=true);
 THStack* buildStack(TLegend* _l, int ivar);
 
-void cutFlow(TChain* nt);
+void cutFlow(TChain* nt, bool detail=true);
 
 TCut sel_SarahZjets();
 TCut sel_AndreasZjets();
@@ -191,17 +196,17 @@ TCut sel_AnyesSRjveto(int opt, int dilType);
 TCut sel_DavideWH();
 TCut sel_AnyesWH(int opt, int dilType=3);
 
+
+void init();
+
+void signalAcceptance(int opt);
+
 //_____________________________________________________________________________//
 //_____________________________________________________________________________//
 int main(int argc, char *argv[]){
-  _utils = new TGuiUtils();
-  gROOT->SetStyle("ATLAS");
-  _utils->atlasStyle->SetOptStat("emr");
-
-  _histoDir = new TDirectory("Ana","Ana");
-  _histoDir->cd();
-  string bkgType="";
-
+  
+  init();
+  
   _type.push_back("sig_");
   _type.push_back("bkg_");
   _type.push_back("data_");
@@ -256,23 +261,67 @@ int main(int argc, char *argv[]){
   TCut SEL = setSelection(SR, selCuts,selDil);
   if(showCutflow){
     cutFlow(ntSig);
-    cutFlow(ntBkg[ALLBKG]);
+    //cutFlow(ntBkg[ALLBKG]);
     if(!skipDetailBkg & showCutflowDetail){
       cutFlow(ntBkg[ZV]);
       cutFlow(ntBkg[Zjets]);
       cutFlow(ntBkg[WW]);
       cutFlow(ntBkg[TOP]);
+      cutFlow(ntBkg[HIGGS]);
+      cutFlow(ntBkg[FAKE]);
     }
   }
-  
+
+  /*
   selectEvent(SEL);
 
   bookHist();
   fillHist();
   plotHist(logPlot);
-  
+  */
+
 }
 
+//_____________________________________________________________________________//
+void init()
+{
+  _utils = new TGuiUtils();
+  gROOT->SetStyle("ATLAS");
+  _utils->atlasStyle->SetOptStat("emr");
+
+  _histoDir = new TDirectory("Ana","Ana");
+  _histoDir->cd();
+
+}
+
+//_____________________________________________________________________________//
+void signalAcceptance(int opt)
+{
+  init();
+
+
+  int istart = 176574;
+  int iend   = 176640;
+  string dir =  string(getenv("HISTOANA")) + "/SusyAna/" +  ver ;
+  string subDir = "ToyNtOutputs/";
+
+  for(int iS=istart; iS<= iend; iS++){
+    char DSID[200];
+    sprintf(DSID,"%i",iS);
+    string sigFileName = DSID + SR + ".root"; 
+    TChain* nt = new TChain("ToyNt",DSID);
+    nt->Add( string(dir+subDir + sigFileName).c_str());
+    if(nt->GetEntries()<10) continue;
+
+    cout << "Dataset  " << DSID << " " << nt->GetEntries() << endl;
+    TCut SEL = sel_AnyesWH(opt);
+    //SEL.Print();
+    cutFlow(nt,false);
+  }
+
+
+
+}
 //_____________________________________________________________________________//
 void selectEvent(TCut _cut)
 {
@@ -360,6 +409,8 @@ void bookHist()
   _var.push_back("etcone30Rel_l1");
   _var.push_back("min_mTl");
   _var.push_back("HT");
+  _var.push_back("Smv1");
+  _var.push_back("dPhiMetll");
 
   cout << "Booking histo for " << _var.size() << " variables " << endl;
 
@@ -429,6 +480,8 @@ TH1F* histList(int ivar, string name)
   if(ivar==35) h = myBook(name.c_str(),60,-0.1,0.5,"Etcone30/pt (l1)",sY.c_str());
   if(ivar==36) h = myBook(name.c_str(),40,0,400,"min(m_{T}^{l0},(m_{T}^{l1}) [GeV]",sY.c_str());
   if(ivar==37) h = myBook(name.c_str(),80,0,800,"HT [GeV]",sY.c_str());
+  if(ivar==38) h = myBook(name.c_str(),50,0,1,"MV1_j0+MV1_j1",sY.c_str());
+  if(ivar==39) h = myBook(name.c_str(),64,0,3.2,"dPhi(met,ll) [rad]",sY.c_str());
 
   return h;
 }
@@ -454,6 +507,8 @@ void fillHist()
     else if(ivar==35) cmdSig = "l_etcone30[1]/l_pt[1]>>sig_" + _var[ivar];
     else if(ivar==36) cmdSig = "TMath::Min(mTl[0],mTl[1])>>sig_" + _var[ivar];
     else if(ivar==37) cmdSig = "mEff+l_pt[0]+l_pt[1]>>sig_" + _var[ivar];
+    else if(ivar==38) cmdSig = "j_mv1[0]+j_mv1[1]>>sig_" + _var[ivar];
+    else if(ivar==39) cmdSig = "acos(cos(phill-met_phi))>>sig_" + _var[ivar];
     else              cmdSig = _var[ivar] + ">>sig_" + _var[ivar];
     if(weightEvt) ntSig->Draw(cmdSig.c_str(),_sel*weight,"goff");
     else          ntSig->Draw(cmdSig.c_str(),"","goff");
@@ -472,6 +527,8 @@ void fillHist()
       else if(ivar==35) cmdBkg = "l_etcone30[1]/l_pt[1]>>bkg_" + MCLabel[ibkg] + "_" + _var[ivar];
       else if(ivar==36) cmdBkg = "TMath::Min(mTl[0],mTl[1])>>bkg_" + MCLabel[ibkg] + "_" + _var[ivar];
       else if(ivar==37) cmdBkg = "mEff+l_pt[0]+l_pt[1]>>bkg_" + MCLabel[ibkg] + "_" + _var[ivar];
+      else if(ivar==38) cmdBkg = "j_mv1[0]+j_mv1[1]>>bkg_" + MCLabel[ibkg]   + "_" + _var[ivar];
+      else if(ivar==39) cmdBkg = "acos(cos(phill-met_phi))>>bkg_" + MCLabel[ibkg]  + "_" + _var[ivar];
       else              cmdBkg = _var[ivar] + ">>bkg_" + MCLabel[ibkg] + "_" + _var[ivar];
       if(weightEvt) ntBkg[ibkg]->Draw(cmdBkg.c_str(),_sel*weight,"goff");
       else          ntBkg[ibkg]->Draw(cmdBkg.c_str(),"","goff");
@@ -487,6 +544,8 @@ void fillHist()
       else if(ivar==35) cmdData = "l_etcone30[1]/l_pt[1]>>data_" + _var[ivar];
       else if(ivar==36) cmdData = "TMath::Min(mTl[0],mTl[1])>>data_" + _var[ivar];
       else if(ivar==37) cmdData = "mEff+l_pt[0]+l_pt[1]>>data_" + _var[ivar];
+      else if(ivar==38) cmdData = "j_mv1[0]+j_mv1[1]>>data_" + _var[ivar];
+      else if(ivar==39) cmdData = "acos(cos(phill-met_phi))>>data_" + _var[ivar];
       else              cmdData = _var[ivar] + ">>data_" + _var[ivar];
       if(weightEvt) ntData->Draw(cmdData.c_str(),"","goff");
       else          ntData->Draw(cmdData.c_str(),"","goff");
@@ -763,7 +822,7 @@ TH1F* Zn(TH1F* _hBkg, TH1F* _hSig, bool upper)
 
 }
 //_____________________________________________________________________________//
-void cutFlow(TChain* nt)
+void cutFlow(TChain* nt, bool detail)
 {
   static const int nCut = 20;
   if(nCut<int(_vCut.size())){
@@ -794,7 +853,8 @@ void cutFlow(TChain* nt)
     float tot = _hCut[icut]->Integral(0,-1);
     _Npass.push_back(tot);
     
-    cout << _vCut[icut].GetTitle() << "\t\t\t" << tot << endl;
+    if(detail || icut ==_vCut.size()-1) 
+      cout << _vCut[icut].GetTitle() << "\t\t\t" << tot << endl;
   }
   cout << endl;
 }
@@ -820,9 +880,10 @@ TCut setSelection(string SR, int isel, int dilType)
   }
   else if(SR == "_DIL_optimSRSS" ){
     if(isel==0) _sel=sel_Brett(dilType);
-    else{
+    else if(isel<10) {
       _sel=sel_AnyesSRSS(isel,dilType);
     }
+    else if(isel>=10) _sel = sel_AnyesWH(isel-10);
   }
   else if(SR == "_DIL_optimSR0jet" ){
     _sel = sel_AnyesSRjveto(isel,dilType);
@@ -875,11 +936,16 @@ TCut sel_AndreasZjets()
   _vCut.push_back(TCut("pTll>70"));
   */
 
-  _vCut.push_back(TCut("nCJets>=2 && j_pt[0]>45 && j_isC20[0] && j_pt[1]>45 && j_isC20[1]"));
+  _vCut.push_back(TCut("nCJets>=2"));
+  _vCut.push_back(TCut("j_pt[0]>45 && j_isC20[0]"));
+  _vCut.push_back(TCut("j_pt[1]>45 && j_isC20[1]"));
   _vCut.push_back(TCut("mjj>50 && mjj<100"));
-  _vCut.push_back(TCut("dR_ll>0.4 && dR_ll<1.5"));
   _vCut.push_back(TCut("metrel>80"));
+  //_vCut.push_back(TCut("metrel>50"));
   _vCut.push_back(TCut("pTll>80"));
+  _vCut.push_back(TCut("dR_ll<1.5"));
+  //  _vCut.push_back(TCut("dR_ll>0.4"));   
+
 
 
   TCut _thisSel("");
@@ -1166,44 +1232,119 @@ TCut sel_AnyesWH(int opt, int dilType)
 
   _vCut.clear();
   _vCut.push_back(TCut("llType>=0"));
-  _vCut.push_back(TCut("nCJets>=1"));
 
 
   if(opt==1){ //OS-OF >=2 jets
     cout << " \tOS-OF 2 jets " << endl;
     _vCut.push_back(TCut("llType==2"));
     _vCut.push_back(TCut("(l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0])"));
-    _vCut.push_back(TCut("nCJets>=2"));
-    _vCut.push_back(TCut("l_pt[0]>35")); //don't put these cut in BDT
-    _vCut.push_back(TCut("j_pt[0]>30"));
-    //_vCut.push_back(TCut("mEff>150"));
-    //_vCut.push_back(TCut("TMath::Min(mTl[0],mTl[1])>50"));
+    _vCut.push_back(TCut("nCJets>=1"));
+    _vCut.push_back(TCut("nCJets>=2"));  //50% !
+    _vCut.push_back(TCut("l_pt[0]>30")); //too hard ?
+    //    _vCut.push_back(TCut("l_pt[1]>30")); //does reduce WW/top 
+    _vCut.push_back(TCut("j_pt[0]>40")); 
+    _vCut.push_back(TCut("j_pt[1]>30")); 
 
+
+    _vCut.push_back(TCut("acos(cos(phill-met_phi))>1.5"));
+    _vCut.push_back(TCut("TMath::Min(mTl[0],mTl[1])>60"));
+    _vCut.push_back(TCut("j_mv1[0]+j_mv1[1]<0.2"));
+    _vCut.push_back(TCut("dR_ll<1.5"));
+    _vCut.push_back(TCut("mjj>50 && mjj<110"));
+    _vCut.push_back(TCut("met>80"));
+
+
+    //    _vCut.push_back(TCut("met/mEff>0.4"));//cut 50% of signal GP1
+
+    //    _vCut.push_back(TCut("mWWT>200"));
+
+
+    //_vCut.push_back(TCut("j_pt[0]>30")); //~ok
+    //_vCut.push_back(TCut("mEff>150"));
     //_vCut.push_back(TCut("abs(mll_collApprox-91.2)>40"));
     //_vCut.push_back(TCut("pTll>50"));
-
-
     //_vCut.push_back(TCut("mll>50 && mll<110"));
   }
   else if(opt==2){ //OS-OF - 1jet (loose 1 jet)
     cout << " \tOS-OF 1 jets " << endl;
     _vCut.push_back(TCut("llType==2"));
+    _vCut.push_back(TCut("(l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0])"));
     _vCut.push_back(TCut("nCJets==1"));
+    _vCut.push_back(TCut("l_pt[0]>35")); 
+    
+    //_vCut.push_back(TCut("metrel>70"));
+    _vCut.push_back(TCut("mWWT>100"));
   }
   else if(opt==3){ //OS-SF Zveto  
     cout << " \tOS-SF Zveto 2 jets" << endl;
     _vCut.push_back(TCut("llType==0 || llType==1"));
     _vCut.push_back(TCut("abs(mll-91.2)>10"));
-    _vCut.push_back(TCut("nCJets>=2"));
+    _vCut.push_back(TCut("nCJets>=1"));
+      _vCut.push_back(TCut("nCJets>=2"));
     _vCut.push_back(TCut("mll>50 && mll<110"));
   }
   else if(opt==4){ //OS-SF inZ 2/4 jets
     cout << " \tOS-SF in Z 2/4 jets" << endl;
-    _vCut.push_back(TCut("llType==0 || llType==1"));
+    //_vCut.push_back(TCut("llType==0 || llType==1"));
+    _vCut.push_back(TCut("llType==1"));
     _vCut.push_back(TCut("abs(mll-91.2)<10"));
+    _vCut.push_back(TCut("nCJets>=1"));
     _vCut.push_back(TCut("nCJets>=2"));
+    _vCut.push_back(TCut("j_pt[0]>45"));
+    _vCut.push_back(TCut("j_pt[1]>45"));
+    _vCut.push_back(TCut("metrel>90"));
+
   }
-  
+  else if(opt==5){
+    cout << " \tSS-EE " << endl;
+    _vCut.push_back(TCut("llType==0"));
+    _vCut.push_back(TCut("!isOS"));//remove charge flip
+    _vCut.push_back(TCut("abs(mll-91.2)>10"));
+    _vCut.push_back(TCut("nCJets>=1 && nBJets==0 && nFJets==0"));
+    _vCut.push_back(TCut("l_pt[0]>30"));
+    _vCut.push_back(TCut("l_pt[0]>20"));
+    
+    _vCut.push_back(TCut("mWWT>150"));
+    _vCut.push_back(TCut("metrel>50")); 
+    _vCut.push_back(TCut("mT2>90")); //GP3
+    
+    //_vCut.push_back(TCut("(mEff+l_pt[0]+l_pt[1])>200"));
+
+  }
+  else if(opt==6){
+    cout << " \tSS-MM " << endl;
+    _vCut.push_back(TCut("llType==1 && !isOS"));
+    _vCut.push_back(TCut("l_etcone30[1]/l_pt[1]<0.1"));
+    _vCut.push_back(TCut("l_etcone30[0]/l_pt[0]<0.1"));
+    _vCut.push_back(TCut("l_pt[0]>30"));
+    _vCut.push_back(TCut("nBJets==0"));
+    _vCut.push_back(TCut("nFJets==0"));
+    _vCut.push_back(TCut("nCJets>=1"));
+
+    _vCut.push_back(TCut("(mEff+l_pt[0]+l_pt[1])>200"));
+    _vCut.push_back(TCut("mWWT>100"));
+    _vCut.push_back(TCut("mWWT>150"));//GP3
+    _vCut.push_back(TCut("mWWT>200"));//GP4 // GP5
+    _vCut.push_back(TCut("metrel>50")); //GP5
+
+  }
+  else if(opt==7){
+    cout << " \tSS-EM " << endl;
+    _vCut.push_back(TCut("llType==2"));
+    _vCut.push_back(TCut("!isOS"));//remove charge flip
+    _vCut.push_back(TCut("(l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0])"));
+    _vCut.push_back(TCut("nCJets>=1 && nBJets==0 && nFJets==0 "));
+    _vCut.push_back(TCut("l_pt[0]>30"));
+    _vCut.push_back(TCut("l_pt[1]>20"));
+
+    _vCut.push_back(TCut("(mEff+l_pt[0]+l_pt[1])>200"));
+    _vCut.push_back(TCut("mWWT>140"));
+    _vCut.push_back(TCut("metrel>50")); //GP3
+    
+  }
+
+
+
 
   TCut _thisSel("");
   for(uint icut=0; icut<_vCut.size(); icut++){

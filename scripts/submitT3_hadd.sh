@@ -54,8 +54,8 @@ endpath=${HISTOANA}/SusyAna/histos_${date}
 
 inToyNtPath=${HISTOANA}/SusyAna/histos_${date}/ToyNtOutputs
 
-toyNt_SR="DIL_optimSRjets"
-#toyNt_SR="DIL_optimSRSS"
+#toyNt_SR="DIL_optimSRjets"
+toyNt_SR="DIL_optimSRSS"
 #toyNt_SR="DIL_optimSR0jet"
 
 passDir=${HISTOANA}/SusyAna/histos_${date}

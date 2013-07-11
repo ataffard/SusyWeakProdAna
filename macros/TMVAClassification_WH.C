@@ -52,15 +52,17 @@
 */
 
 static const string ver       = "histos_061413_21fb_n0140_Optim_DD_v3/";
-static const string toySkim   = "DIL_optimSRjets";
+//static const string toySkim   = "DIL_optimSRjets";
+static const string toySkim   = "DIL_optimSRSS";
 //static const string toySkim   = "DIL_optimSR0jet";
 
-static const int mode=1;
+static const int mode=2;
 static const int preSR=1;
 const string sSelection[] = 
   {
     "wA_noslep_WH_2Lep_group1",
     "wA_noslep_WH_2Lep_group2",
+    "wA_noslep_WH_2Lep_group3",
     "wA_noslep_WH_2Lep_group4",
     "wA_noslep_WH_2Lep_group5"
   };
@@ -223,42 +225,95 @@ void TMVAClassification_WH( TString myMethodList = "" )
    */
 
    //Not order matter for the CutRange declarations
-   if(mode>=1){
+   if(preSR==1){
      factory->AddVariable( "met", 'F');   
      factory->AddVariable( "met/mEff", 'F');
-     factory->AddVariable( "mjj", 'F');
-     factory->AddVariable( "dR_ll", 'F');
      factory->AddVariable( "mWWT", 'F');    
      factory->AddVariable( "mT2jj", 'F');  
      factory->AddVariable( "mEff+l_pt[0]+l_pt[1]", 'F');
-
+     factory->AddVariable( "mT2", 'F');   //correlated mT2
+     factory->AddVariable( "pTll", 'F');
+     factory->AddVariable( "TMath::Min(mTl[0],mTl[1])", 'F'); //correlated mWWT better ranked
+     factory->AddVariable( "l_pt[0]", 'F');
+     factory->AddVariable( "mll", 'F');
+     factory->AddVariable( "Alt$(j_mv1[0],0)+Alt$(j_mv1[1],0)", 'F');
+     factory->AddVariable( "acos(cos(phill-met_phi))", 'F');
 
      //LOW RANKING 
+     //factory->AddVariable( "dR_ll", 'F');
+     //factory->AddVariable( "mjj", 'F');
+
      /*
-     factory->AddVariable( "TMath::Min(mTl[0],mTl[1])", 'F'); //correlated mWWT better ranked
      factory->AddVariable( "mT2", 'F');   //correlated mT2
      factory->AddVariable( "mEff", 'F'); //HT better and highly correlated
      */
 
-     //LOW RANKING
-     /*
-     factory->AddVariable( "nCJets", 'I');
-     factory->AddVariable( "pTll", 'F');
-     factory->AddVariable( "abs(mll_collApprox-91.2)", 'F');
-     */
      //NOT USED
      //factory->AddVariable( "mct", 'F');    
      //factory->AddVariable( "ST", 'F');
-     //factory->AddVariable( "l_pt[0]", 'F');
      //factory->AddVariable( "l_pt[1]", 'F');
      //factory->AddVariable( "dphi_ll", 'F');
-     //factory->AddVariable( "mll", 'F');
      //factory->AddVariable( "met", 'F');   
      //factory->AddVariable( "sphericity", 'F');     
      //factory->AddVariable( "sphericityTrans", 'F');     
-
+     //factory->AddVariable( "mll_collApprox", 'F');
    }
-  
+   else if(preSR==2){
+     factory->AddVariable( "met", 'F');   
+     factory->AddVariable( "met/mEff", 'F');
+     factory->AddVariable( "dR_ll", 'F');
+     factory->AddVariable( "mWWT", 'F');    
+     factory->AddVariable( "mEff+l_pt[0]+l_pt[1]", 'F');
+
+     factory->AddVariable( "mT2", 'F');   //correlated mT2
+     factory->AddVariable( "pTll", 'F');
+     factory->AddVariable( "TMath::Min(mTl[0],mTl[1])", 'F'); //correlated mWWT better ranked
+     
+   }
+   else if(preSR==5){
+     factory->AddVariable( "metrel", 'F');   
+     //factory->AddVariable( "met", 'F');   
+     factory->AddVariable( "met/mEff", 'F');
+     factory->AddVariable( "mWWT", 'F');    
+     factory->AddVariable( "mEff+l_pt[0]+l_pt[1]", 'F');//HT
+     factory->AddVariable( "l_pt[0]");
+     factory->AddVariable( "l_pt[1]");
+     factory->AddVariable( "pTll", 'F');
+     factory->AddVariable( "TMath::Min(mTl[0],mTl[1])", 'F');
+
+     //factory->AddVariable( "dR_ll", 'F');
+     //factory->AddVariable( "mctPerp", 'F'); 
+     factory->AddVariable( "mT2", 'F');   //correlated mT2
+   }
+   else if(preSR==6){
+     //factory->AddVariable( "met", 'F');   
+     factory->AddVariable( "met/mEff", 'F');
+     factory->AddVariable( "mWWT", 'F');    
+     factory->AddVariable( "mEff+l_pt[0]+l_pt[1]", 'F');//HT
+     factory->AddVariable( "l_pt[0]");
+
+     //factory->AddVariable( "pTll", 'F');
+     //factory->AddVariable( "TMath::Min(mTl[0],mTl[1])", 'F');
+
+     //factory->AddVariable( "dR_ll", 'F');
+     //factory->AddVariable( "mctPerp", 'F'); 
+     //factory->AddVariable( "mT2", 'F');   //correlated mT2
+   }
+   else if(preSR==7){
+     factory->AddVariable( "met", 'F');   
+     factory->AddVariable( "met/mEff", 'F');
+     factory->AddVariable( "mWWT", 'F');    
+     factory->AddVariable( "mEff+l_pt[0]+l_pt[1]", 'F');//HT
+     factory->AddVariable( "l_pt[0]");
+
+     factory->AddVariable( "pTll", 'F');
+     factory->AddVariable( "TMath::Min(mTl[0],mTl[1])", 'F');
+
+     //factory->AddVariable( "dR_ll", 'F');
+     //factory->AddVariable( "mctPerp", 'F'); 
+     //factory->AddVariable( "mT2", 'F');   //correlated mT2
+   }
+
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
@@ -295,6 +350,13 @@ void TMVAClassification_WH( TString myMethodList = "" )
 
    TTree *signal     = (TTree*)fSig->Get("ToyNt");
    TTree *background = (TTree*)fBkg->Get("ToyNt");
+
+   signal->SetAlias("X","mll_collApprox");
+   signal->SetAlias("mX","(X<1.)+(X>1.&&X<50.)*2.+(X>50.)*3.");
+
+   background->SetAlias("X","mll_collApprox");
+   background->SetAlias("mX","(X<1.)+(X>1.&&X<50.)*2.+(X>50.)*3.");
+   
    
    // global event weights per tree (see below for setting event-wise weights)
    Double_t signalWeight     = 1.0;
@@ -355,12 +417,13 @@ void TMVAClassification_WH( TString myMethodList = "" )
    TCut mycuts = "";
    if(preSR==1){//OS-OF >=2 jets
      mycuts = "llType==2 && nCJets>=2 && \
-l_pt[0]>35 && \
 ((l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0])) && \
-j_pt[0]>30";
+       l_pt[0]>30";
+     // && j_pt[0]>30
    }
    else if(preSR==2){ //OS-OF 1 jet
-     mycuts = "llType==2 && nCJets==1";
+     mycuts = "llType==2 && nCJets==1 && \
+l_pt[0]>35 && ((l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0]))";
    }
    else if(preSR==3){  //Optimisation OS-SF ZVeto >=2 jets
      mycuts = "(llType==0 || llType==1) && abs(mll-91.2)>10 && \
@@ -369,7 +432,24 @@ j_pt[0]>30";
    else if(preSR==4){ //OS-SF
      mycuts = "(llType==0 || llType==1) && abs(mll-91.2)<10 && nCJets>=2";
    }
-   
+   else if(preSR==5){ //SS-EE
+     mycuts = "llType==0 && \
+abs(mll-91.2)>10 && \
+ nCJets>=1 && nBJets==0 && nFJets==0 && \
+metrel>30";
+   }
+   else if(preSR==6){ //SS-MM
+     mycuts = "llType==1 && \
+l_etcone30[1]/l_pt[1]<0.1 && l_etcone30[0]/l_pt[0]<0.1 &&  \
+ nCJets>=1 && nBJets==0 && nFJets==0";
+   }
+   else if(preSR==7){ //SS-EM
+     mycuts = "llType==2 && \
+((l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0])) && \
+ nCJets>=1 && nBJets==0 && nFJets==0 ";
+   }
+
+
    // for example: TCut mycutb = "abs(var1)<0.5";
    TCut mycutb = mycuts; 
    

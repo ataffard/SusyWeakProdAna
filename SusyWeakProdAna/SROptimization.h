@@ -25,6 +25,7 @@ enum SusyProcess
   SP_modeC,
   SP_modeA_slep,
   SP_modeA_noslep_hadW,
+  SP_modeA_noslep_WH_2Lep,
   SP_N
 };
 const string SPNames[] = 
@@ -32,7 +33,8 @@ const string SPNames[] =
     "slepton", 
     "modeC", 
     "wA_slep", 
-    "wA_noslep_hadW"
+    "wA_noslep_hadW",
+    "wA_noslep_WH_2Lep"
   };
 
 //------------------------------------//
@@ -48,6 +50,15 @@ enum RegionOption
   R5_yield,
   R6_yield,
   R7_yield,
+  R8_yield,
+  R9_yield,
+  R10_yield,
+  R11_yield,
+  R12_yield,
+  R13_yield,
+  R14_yield,
+  R15_yield,
+  R16_yield,
   RO_N
 };
 
@@ -61,6 +72,15 @@ const string RegionNames[] =
     "AnyesSRZjetsOpt3",
     "AnyesSRZjetsOpt4",
     "AnyesSRSS_Opt1",
+    "AnyesSRSS_WH_base",//8
+    "AnyesSRSS_WH_MM_a",//9
+    "AnyesSRSS_WH_MM_b",//10
+    "AnyesSRSS_WH_MM_c",//11
+    "AnyesSRSS_WH_MM_d",//12
+    "AnyesSRSS_WH_EM_a",//13
+    "AnyesSRSS_WH_EM_b",//14
+    "AnyesSRSS_WH_EE_a",//15
+    "AnyesSRSS_WH_EE_b"//16
   };
 
 //------------------------------------//
@@ -187,7 +207,8 @@ class SROptimization
   // Load all the file names and file information
   void loadSleptonFiles();
   void loadModeCFiles(bool wSlepton=false);
-  void loadModeAFiles(bool wSlepton=false);
+  void loadModeAFiles(bool wSlepton=false, bool wHiggs=false);
+
 
   void loadBkgHistos();
 

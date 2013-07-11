@@ -55,7 +55,7 @@ class ToyNt_SROptimization : public ToyNtAna
   std::vector<std::string> LEP;
   std::vector<std::string> CUTS;
 
-  static const unsigned int nCUT=8;
+  static const unsigned int nCUT=17;
 
   TH1F* h_yield[4][nCUT];
   TH1F* h_metrel[4][nCUT];

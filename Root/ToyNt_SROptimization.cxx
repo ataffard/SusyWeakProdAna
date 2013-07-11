@@ -120,7 +120,16 @@ void ToyNt_SROptimization::bookHistograms(TDirectory* hDir)
   CUTS.push_back("AnyesSRZjetsOpt3");
   CUTS.push_back("AnyesSRZjetsOpt4");
   CUTS.push_back("AnyesSRSS_Opt1");
-
+  CUTS.push_back("AnyesSRSS_WH_base");
+  CUTS.push_back("AnyesSRSS_WH_MM_a");
+  CUTS.push_back("AnyesSRSS_WH_MM_b");
+  CUTS.push_back("AnyesSRSS_WH_MM_c");
+  CUTS.push_back("AnyesSRSS_WH_MM_d");
+  CUTS.push_back("AnyesSRSS_WH_EM_a");
+  CUTS.push_back("AnyesSRSS_WH_EM_b");
+  CUTS.push_back("AnyesSRSS_WH_EE_a");
+  CUTS.push_back("AnyesSRSS_WH_EE_b");
+    
   cout << "nCUTS " << CUTS.size() << endl;
   if(CUTS.size() != nCUT){
     cout << "Error booking histo nCUT differ !" << endl;
@@ -332,7 +341,7 @@ bool ToyNt_SROptimization::passCut(int icut)
 	    l_pt[0]>20 && l_pt[1]>15 &&
 	    metrel>20 &&
 	    mct<40 &&
-	    mll<100 &
+	    mll<100 &&
 	    pTll<20 //&&
 	    //	    mWWT <40
 	    //	    mTl[0]>30 && mTl[1]>30 &&
@@ -351,7 +360,72 @@ bool ToyNt_SROptimization::passCut(int icut)
     else return false;
   }
   
+  if(icut==8){ //modeA WH -SS baseline
+    if(llType==0 && 
+       fabs(mll-MZ)>10. &&
+       nCJets>=1  && nBJets==0 && nFJets==0 &&
+       l_pt[0]>30 && l_pt[1]>20)
+      return true;
+    else if(llType==1 &&
+	    l_etcone30[1]/l_pt[1]<0.1 && 
+	    l_etcone30[0]/l_pt[0]<0.1 &&
+	    l_pt[0]>30 && 
+	    nCJets>=1 && nBJets==0 && nFJets==0)
+      return true;
+    else if (llType==2 &&
+	     ( (l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || 
+	       (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0]) ) &&
+	     l_pt[0]>30 && l_pt[1]>20 &&
+	     nCJets>=1  && nBJets==0 && nFJets==0) 
+      return true;
+    else return false;
+  }
   
+
+  if(icut>=9 && icut <=16){
+    if(llType==0 && 
+       fabs(mll-MZ)>10. &&
+       nCJets>=1  && nBJets==0 && nFJets==0 &&
+       l_pt[0]>30 && l_pt[1]>20)
+      {
+	if( mWWT>150 && metrel>50){
+	  if(icut==15) return true;
+	  else if(icut==16 && mT2>90) return true;
+	}
+      }
+    
+    else if(llType==1 &&
+       l_etcone30[1]/l_pt[1]<0.1 && 
+       l_etcone30[0]/l_pt[0]<0.1 &&
+       l_pt[0]>30 && 
+       nCJets>=1 && nBJets==0 && nFJets==0)
+      {
+	if( (mEff+l_pt[0]+l_pt[1])>200 && mWWT>100){
+	  if(icut==9) return true;
+	  else{
+	    if(icut==10 && mWWT>150) return true;
+	    else if(icut==11 && mWWT>200) return true;
+	    else if(icut==12 && mWWT>200 && metrel>50) return true;
+	    else return false;
+	  }
+	}
+	else return false;
+      }
+    else if (llType==2 &&
+	     ( (l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || 
+	       (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0]) ) &&
+	     l_pt[0]>30 && l_pt[1]>20 &&
+	     nCJets>=1  && nBJets==0 && nFJets==0){
+      if((mEff+l_pt[0]+l_pt[1])>200 && mWWT>140){
+	if(icut==13) return true;
+	else if(icut==14 && metrel>50) return true;
+	else return false;
+      }
+      else return false;
+    }
+    else return false;
+  }
+
   
   return false;
 
