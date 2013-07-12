@@ -73,6 +73,8 @@ enum DG2L_SYS
   DGSys_TRIGSF_EL_DN,        // Trigger Scale factor - error
   DGSys_TRIGSF_MU_UP,        // Trigger Scale factor + error
   DGSys_TRIGSF_MU_DN,        // Trigger Scale factor - error
+  DGSys_TES_UP,              // Tau Energy scale
+  DGSys_TES_DN,              // Tau Energy scale
   DGSys_BJet_DN,             // BJet sys - sigma
   DGSys_CJet_DN,             // CJet sys - sigma
   DGSys_LJet_DN,             // LJet sys - sigma
@@ -127,6 +129,8 @@ const std::string DG2LSystNames[DGSys_N] = {
   "TRIGSF_EL_DN",
   "TRIGSF_MU_UP",
   "TRIGSF_MU_DN",
+  "TES_UP",
+  "TES_DN",
   "BTag_BJet_DN",
   "BTag_CJet_DN",
   "BTag_LJet_DN",

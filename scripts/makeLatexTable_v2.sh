@@ -1,13 +1,6 @@
 # ./makeLatexTable.sh  
 
-#date="030213_21fb_n0127_Moriond_DD_v6"
-#date="031513_21fb_n0135_Moriond_DD_v3"
-
-#date="032913_21fb_n0135_Moriond_DD_v5"
-#date="033113_21fb_n0135_Moriond_DD_v6"
-#date="040613_21fb_n0138_Moriond_DD_v1"
-
-date="041813_21fb_n0139_Moriond_DD_v3"
+date="070913_21fb_n0144_DD_v1"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts
@@ -15,28 +8,20 @@ path=${HISTOANA}/SusyAna/histos_${date}
 dir=${path}/Tables
 
 #Generate the latex table for each SR/CR
-SR=(
-    CRTOP CRWW CRWW2 CRWW3 CRWW4 CRWW5 CRWW6 \
-    ZXCRWW ZXCRWW2 ZXCRpremT2 ZXCRmT2a ZXCRmT2b\
-    preSRmT2 SRmT2a SRmT2b \
+SR=( \
+    SRmT2a SRmT2b SRmT2c \
     SRWWa SRWWb SRWWc \
-    CRTOPWWa CRTOPWWb CRTOPWWc \
-    CRWWa CRWWb CRWWc\
+    SRZjets SRSSjets \
+    CRWWmet CRWWmt2 \
+    CRTOPmet CRTOPmt2 CRTOPZjets \
+    CRZVmet CRZVmt2a CRZVmt2b CRZVmt2c CRZVmt2d \
+    CRZVZjets \
+    VRSS \
+    CRZ CRZjets CRZjveto \
+    CR2LepOS CR2LepSS CR2LepSS40 \
+    preSROSjveto preSRmT2 preSRZjets preSRWW preSRSS \
     )
 
-<<SKIP
-SR=(SROSjveto SRmT2a SRmT2b \
-    SR2jets SRZjets SRSSjets \
-    SRWWa SRWWb SRWWc \
-    ZXCRjveto ZXCR2jets ZXCRmT2a ZXCRmT2b ZXCRWW \
-    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
-    CRWW CRWW2 CRWW4 CRWW5 CRWWa CRWWb CRWWc\
-    VRSS VRSSbtag\
-    CRZ  CR2LepOS CR2LepSS CR2LepSS40\
-    preSROSjveto preSRmT2\
-    preSR2jets preSRZjets preSRSS  
-)
-SKIP
 
 cd ${pathRun}
 for sr in ${SR[@]}; do

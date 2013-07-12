@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# PBS -q  c6145
+#PBS -q  c6145
 ## PBS -q atlas
 #PBS -l nodes=1:ppn=1
 
@@ -31,8 +31,11 @@ date +"%F__%T"
 echo "${script} >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_hadd.log  "
 
 
-${script} >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_hadd.log 
+#${script} >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_hadd.log 
 
+${script}_EE.sh >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_EE_hadd.log 
+${script}_MM.sh >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_MM_hadd.log 
+${script}_EM.sh >& ${WORKAREA}/SusyWeakProdAna/run/jobLogs/${jobName}_EM_hadd.log 
 
 echo "Ending: " 
 date +"%F__%T" 

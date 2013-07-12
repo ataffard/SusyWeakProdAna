@@ -48,8 +48,8 @@ class Susy3LepAna: public SusyNtTools
     void doAnalysis();
     void fillHistograms(uint iSR,
 			const LeptonVector* leptons, 
-			const JetVector* jets,
-			const Met* met);
+			const JetVector* jets, 
+			const Susy::Met* met);
     void end();
 
     // Full event selection. Specify which leptons to use.

@@ -470,7 +470,7 @@ float Susy3LepAna::getBTagSF(const Susy::Event*, const JetVector* jets)
   }
   
   if(valJets.size()==0) return 1;//safety.
-  return bTagSF(nt->evt(),valJets);
+  return bTagSF(nt->evt(),valJets, nt->evt()->mcChannel);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -509,7 +509,7 @@ bool Susy3LepAna::passLepPtCut(const LeptonVector* leptons)
 void Susy3LepAna::fillHistograms(uint iSR,
 				 const LeptonVector* leptons, 
 				 const JetVector* jets,
-				 const Met* met)
+				 const Susy::Met* met)
 {
   _hh->H1FILL(_hh->ML_pred[iSR],0,_ww); 
 

@@ -17,18 +17,18 @@ if [[ $# = 2 ]]; then
     SR=$2
 elif [[ $# = 1 ]]; then
     mode=$1
-    SR=(preSRmT2 \
-	ZXCRmT2a \
-	ZXCRmT2b \
-	ZXCRWW \
-	CRTOP \
-	CRWW CRWW2 CRWW3 CRWW4 \
-	CRWW5 \ 
-	CRWW6 \
-	CRZ CRZjveto CR2LepOS \
-	SRmT2a \
-	SRmT2b \
-       )
+    SR=(CRWWmet \
+	CRWWmt2 \
+	CRTOPmet \
+	CRTOPmt2 \
+	CRTOPZjets \
+	CRZVmet \
+	CRZVmt2a \
+	CRZVmt2b \
+	CRZVmt2c \
+	CRZVmt2d \
+	CRZVZjets \
+	)
 fi
 
 #Update SusyAnaCommon.h to pick correct path for .root files
@@ -52,31 +52,27 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
 #PLOTS=(mllcoarse)
 
-DIL=(EE MM )
-#DIL=(EE MM EM)
-
-
-
+#DIL=(EE MM )
+DIL=(EE MM EM)
 
 <<SKIP
-SR=(SROSjveto SRmT2a SRmT2b \
-    SR2jets SRZjets SRSSjets \
+SR=( \
+    SRmT2a SRmT2b SRmT2c \
     SRWWa SRWWb SRWWc \
-    ZXCRjveto ZXCR2jets \
-    ZXCRmT2a ZXCRmT2b ZXCRWW \
-    CRTOP CRTOPWWa CRTOPWWb CRTOPWWc \
-    CRWW CRWW2 CRWW3 CRWW4 CRWW5 \
-    CRWWa CRWWb CRWWc \
-    VRSS VRSSbtag \  
-    CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
-    preSROSjveto preSRmT2 \
-    preSR2jets preSRZjets preSRSS  
+    SRZjets SRSSjets \
+    CRWWmet CRWWmt2 \
+    CRTOPmet CRTOPmt2 CRTOPZjets \
+    CRZVmet CRZVmt2a CRZVmt2b CRZVmt2c CRZVmt2d \
+    CRZVZjets \
+    VRSS \
+    CRZ CRZjets CRZjveto \
+    CR2LepOS CR2LepSS CR2LepSS40 \
+    preSROSjveto preSRmT2 preSRZjets preSRWW preSRSS \
 )
 SKIP
 
-PLOTS=(metrel1
-#mllcoarser pTll metrel mt2 mt2b metrel1 metrel2 metrel3 \
-# ePt mPt \
+PLOTS=(mllcoarser pTll metrel mt2 mt2b metrel1 metrel2 metrel3 \
+     ePt mPt \
     #mll  ptl1 ptl2 etal1 etal2 eEta mEta dPhill \    
     #nJets nCJets nFJets nBJets \
     #ptj1 ptj2  etaj1 etaj2 ptbj etabj mjj ST \

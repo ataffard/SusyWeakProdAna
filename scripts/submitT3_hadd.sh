@@ -23,7 +23,9 @@
 #!/bin/bash
 
 #Update for a given pass
-date="061413_21fb_n0140_Optim_DD_v3"
+date="070913_21fb_n0144_DD_v1"
+
+#date="061413_21fb_n0140_Optim_DD_v3"
 #date="060713_21fb_n0140_Optim_DD_v2"
 #date="041813_21fb_n0139_Moriond_DD_v3"
 #date="041413_21fb_n0139_Moriond_DD_v2"
@@ -178,30 +180,22 @@ fi
 
 
 #DIL=(MM)
-#SR=(CRWW6)
-#SR=(preSRmT2 SRmT2a SRmT2b \
-#    ZXCRpremT2 ZXCRmT2a ZXCRmT2b ZXCRWW ZXCRWW2  \
-#    CRTOP \
-#    CRWW CRWW2 CRWW3 CRWW4   )
-
+#SR=(SRmT2a)
 
 DIL=(EE MM EM)
 #<<SKIP
-SR=(preSRmT2 SRmT2a 
-    SRmT2b \
-    ZXCRpremT2 ZXCRmT2a ZXCRmT2b ZXCRWW ZXCRWW2  \
-    CRTOP \
-    CRWW CRWW2 CRWW3 CRWW4 CRWW5 CRWW6 \
-    SROSjveto  \
-    SR2jets SRZjets SRSSjets \
+SR=(SRmT2a SRmT2b SRmT2c \
     SRWWa SRWWb SRWWc \
-    ZXCRjveto ZXCR2jets \
-    CRTOPWWa CRTOPWWb CRTOPWWc \
-    CRWWa CRWWb CRWWc \
-    VRSS VRSSbtag \  
-    CRZ CRZjveto CR2LepOS CR2LepSS CR2LepSS40 \
-    preSROSjveto  \
-    preSR2jets preSRZjets preSRSS  
+    SRZjets SRSSjets \
+    CRWWmet CRWWmt2 \
+    CRTOPmet CRTOPmt2 CRTOPZjets \
+    CRZVmet CRZVmt2a CRZVmt2b CRZVmt2c CRZVmt2d \
+    CRZVZjets \
+    VRSS \
+    CRZ CRZjets CRZjveto \
+    CR2LepOS CR2LepSS CR2LepSS40 \
+    preSROSjveto preSRmT2 preSRZjets preSRWW preSRSS \
+#    optimSRZjets optimSRjets optimSRSS optimSR0jet \
 )
 #SKIP
 
@@ -267,7 +261,7 @@ while read line; do
 	
 	for sr in ${SR[@]}; do
 	    for dil in ${DIL[@]}; do
-		echo " --> ${sr}_${dil}"
+		echo "    --> ${sr}_${dil}"
 		
 		[ -f ${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh ] && rm -f ${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh
 		subdir=${sr}_${dil}
@@ -284,29 +278,32 @@ while read line; do
 		    
 		    if [[ $sample == *#* ]]; then
 			echo "Sample  $name is commented out - Skippping "
-		    else
+		   else
 		        #build the name for a given sample
 			name=histo_${sample}_${sr}_${dil}_${mth}*.root
 		        #append to file
 			if [ "$nRead" -lt "$nSample" ]; then 
 			    echo -e    ${inpath}/${subdir}/${name} '\' >> ${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh 
-			else
-			    echo -e    ${inpath}/${subdir}/${name}  >> ${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh 
-			fi
+                        else
+	                    echo -e    ${inpath}/${subdir}/${name}  >> ${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh 
+                        fi
 		    fi
 		    
 		done <${fileList}
 		
 		chmod 755 ${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh 
 		
-		jobName=${bkgGp}_${mth}_${sr}_${dil}
+		#jobName=${bkgGp}_${mth}_${sr}_${dil}
 	    #echo "${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh"
 	#echo "qsub -j oe -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh,jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh"
-		qsub -j oe -d ${PWD} -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh,jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh
+		#qsub -j oe -d ${PWD} -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh,jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh
+	  done
+	  jobName=${bkgGp}_${mth}_${sr}
+	  echo "Submitting ${jobName}"
+	  qsub -j oe -d ${PWD} -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr},jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh
+	  sleep 0.5
 		
-		sleep 0.5
-		
-	    done
+
           done
 	
     fi

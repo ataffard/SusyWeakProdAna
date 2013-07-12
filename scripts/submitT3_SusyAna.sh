@@ -59,7 +59,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-#doSys=true
+doSys=true
 
 ##
 ## Ana mode STD or DD
@@ -108,6 +108,8 @@ while read line; do
 "$sName" == "ZmumuNp0.117660" -o \
 "$sName" == "ZeeHeavyJets.128975" -o \
 "$sName" == "ZmumuHeavyJets.128976"  -o \
+"$sName" == "ZeeNp0.107650" -o \
+"$sName" == "ZmumuNp0.107660" -o \
 "$sName" == "ttbar.105200" -o \
 "$sName" == "ttbar.105861" -o \
 "$sName" == "ttbar.105860" -o \
@@ -123,9 +125,9 @@ while read line; do
 "$sName" == "ZmumuLightJets.146821"  \
 		    ]; then
 		    SYS1=("NOM"      "EES_Z_DN"    "EES_MAT_DN" "EES_PS_DN"  "EES_LOW_DN"  "EER_DN" "MS_DN" "ID_DN" "JES_DN" "SCALEST_UP" \
-"TRIGSF_EL_UP" "TRIGSF_MU_UP" "BTag_BJet_DN"  "BTag_LJet_DN" "BTag_CJet_UP" "BKGMETHOD_UP" "XS_UP")
+"TRIGSF_EL_UP" "TRIGSF_MU_UP" "TES_UP" "BTag_BJet_DN"  "BTag_LJet_DN" "BTag_CJet_UP" "BKGMETHOD_UP" "XS_UP")
 		    SYS2=("EES_Z_UP" "EES_MAT_UP"  "EES_PS_UP"  "EES_LOW_UP" "EER_UP"      "MS_UP"  "ID_UP" "JES_UP" "JER"   "RESOST"     \
-"TRIGSF_EL_DN" "TRIGSF_MU_DN"  "BTag_CJet_DN" "BTag_BJet_UP" "BTag_LJet_UP" "BKGMETHOD_DN" "XS_DN" )
+"TRIGSF_EL_DN" "TRIGSF_MU_DN" "TES_DN" "BTag_CJet_DN" "BTag_BJet_UP" "BTag_LJet_UP" "BKGMETHOD_DN" "XS_DN" )
 		    
 		    echo "Submitting MC using Sys Range "
 		    index=0

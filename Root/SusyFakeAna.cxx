@@ -101,7 +101,7 @@ void SusyFakeAna::doMuonAnalysis()
   if(_catg == 0){//Z not found - Try HF/LF tag-probe
     bool hasHF = HFTagProbe(_tag, _probe, _catg, _mode);
     if(hasHF){
-      _ww *= bTagSF(nt->evt(),*v_sigJet);
+      _ww *= bTagSF(nt->evt(),*v_sigJet,nt->evt()->mcChannel);
       fillMuonHisto(_probe,HF,_method); 
     }
     else{
@@ -150,7 +150,7 @@ void SusyFakeAna::doElectronAnalysis()
   if(_catg == 0){//Z not found - Try HF/LF tag-probe
     bool hasHF = HFTagProbe(_tag, _probe, _catg, _mode);
     if(hasHF){
-      _ww *= bTagSF(nt->evt(),*v_sigJet);
+      _ww *= bTagSF(nt->evt(),*v_sigJet,nt->evt()->mcChannel);
       fillElectronHisto(_probe,HF,_method); 
     }
     else{

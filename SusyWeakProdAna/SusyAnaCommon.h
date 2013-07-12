@@ -12,8 +12,8 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_5FB  //A->B14
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "061413";
-const std::string SUFF = "_n0140_Optim_DD_v3";
+const std::string TAG  = "070913";
+const std::string SUFF = "_n0144_DD_v1";
 
 //
 //Normal mode - all these are true
@@ -23,7 +23,7 @@ const std::string SUFF = "_n0140_Optim_DD_v3";
 const unsigned int  NBASELEPMAX      = 2;  //number of base lepton allowed - 2 for std analysis
 const unsigned int  NBASELEPMIN   = 2;  //number of base lepton allowed - 2 for std analysis
 
-const bool   FILL_TOYNT        = true;       //Write ToyNt
+const bool   FILL_TOYNT        = false;       //Write ToyNt
 //const string TOYNT_SR          ="DIL_optimSRZjets";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_optimSRZjets;     //SR used to fill ToyNt
 
@@ -40,11 +40,11 @@ const unsigned int TOYNT_iSR   = DIL_optimSRjets;     //SR used to fill ToyNt
 //const string TOYNT_SR          ="DIL_CR2LepSS";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
 
-const bool DO_SYS         = false;//true;    //Toggles systematics looper
+const bool DO_SYS         = true;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
-const bool WEIGHT_ONE     = false;  //Ignore evt->w use 1
+const bool WEIGHT_ONE     = false;          //Ignore evt->w use 1
 const bool DO_FILL_HISTO  = true;
 
 const bool USE_DGWEIGHT   = true;
@@ -58,7 +58,7 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 const bool BLIND_MC       = false;
 
 const bool DUMP_RUNEVT    = false;   //Dump run:event info
-const unsigned int  PRINT_SR = DIL_SROSjveto;
+const unsigned int  PRINT_SR = DIL_SRmT2a;
 
 const float MLLCUT = 60;
 
@@ -115,7 +115,8 @@ const int LUMIMODE =LUMI21FB;
 const string LUMW  = "Moriond";
 const std::string DATE=TAG+"_21fb"+ SUFF;
 //const float pLUMI = 20.6904; //I->J
-const float pLUMI = 20.3398; //I->J
+//const float pLUMI = 20.3398; //I->J
+const float pLUMI = 20.2769; //I->J
 const unsigned int   MINRUN = 200804;
 const unsigned int   MAXRUN = 215643;
 const bool BLIND_DATA=false;

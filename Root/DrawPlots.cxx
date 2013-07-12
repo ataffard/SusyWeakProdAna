@@ -320,23 +320,23 @@ float DrawPlots::getBkgSF(string name, int bkgType){
       ){
 
     if(bkgType==TOP){ //updated 040213
-      if(hName.Contains("EE"))       return 1.02;//1.037; 
-      else if(hName.Contains("MM"))  return 1.02;//1.011; 
-      else if(hName.Contains("EM"))  return 1.02;//1.046; 
+      if(hName.Contains("EE"))       return 1;//1.02;//1.037; 
+      else if(hName.Contains("MM"))  return 1;//1.02;//1.011; 
+      else if(hName.Contains("EM"))  return 1;//1.02;//1.046; 
     }
     else if(bkgType==WW){  //updated 031513
-      if(hName.Contains("EE"))       return 1.13;//1.1;
-      else if(hName.Contains("MM"))  return 1.13;//1.0;
-      else if(hName.Contains("EM"))  return 1.13;//1.0;
+      if(hName.Contains("EE"))       return 1;//1.13;//1.1;
+      else if(hName.Contains("MM"))  return 1;//1.13;//1.0;
+      else if(hName.Contains("EM"))  return 1;//1.13;//1.0;
     }
     else if(bkgType==Zjets){ //updated 031513     
       if(hName.Contains("EE"))       return 1;// ??
       else if(hName.Contains("MM"))  return 1;// ??
-      else if(hName.Contains("EM"))  return 1.14;// Ztt SF was 1.8
+      else if(hName.Contains("EM"))  return 1;//1.14;// Ztt SF was 1.8
     }
     else if(bkgType==ZV){//Updated 040213
-      if(hName.Contains("EE")) return 1.062;//1.0756;
-      if(hName.Contains("MM")) return 1.062;//1.1594;
+      if(hName.Contains("EE")) return 1;//1.062;//1.0756;
+      if(hName.Contains("MM")) return 1;//1.062;//1.1594;
     }
   }
 
@@ -364,19 +364,19 @@ void  DrawPlots::setGenSys(string name, int bkgType, TH1F* hNom, TH1F* h){
   float sys=0;
   if ( bkgType == WW){
     //cout << "Bkg " << MCNames[bkgType]  << " " << name << " " <<  h->Integral(0,-1) << endl;
-    if (hName.Contains("EE")) sys=0.08;//0.08;
-    if (hName.Contains("MM")) sys=0.08;//0.09;
-    if (hName.Contains("EM")) sys=0.08;//0.07;
+    if (hName.Contains("EE")) sys=0;//0.08;//0.08;
+    if (hName.Contains("MM")) sys=0;//0.08;//0.09;
+    if (hName.Contains("EM")) sys=0;//0.08;//0.07;
   }
   if ( bkgType == ZV){
-    if (hName.Contains("EE")) sys=0.36;//0.66;//0.32;
-    if (hName.Contains("MM")) sys=0.36;//0.34;//0.32;
-    if (hName.Contains("EM")) sys=0.36;//0.19;//0.18;
+    if (hName.Contains("EE")) sys=0;//0.36;//0.66;//0.32;
+    if (hName.Contains("MM")) sys=0;//0.36;//0.34;//0.32;
+    if (hName.Contains("EM")) sys=0;//0.36;//0.19;//0.18;
   }
   if(bkgType==TOP){ //updated 040713
-    if (hName.Contains("EE")) sys=0.25;
-    if (hName.Contains("MM")) sys=0.25;
-    if (hName.Contains("EM")) sys=0.25;
+    if (hName.Contains("EE")) sys=0;//0.25;
+    if (hName.Contains("MM")) sys=0;//0.25;
+    if (hName.Contains("EM")) sys=0;//0.25;
   }
 
   if (hName.Contains("UP")) h->Scale(1+sys);
@@ -751,6 +751,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   _c0->cd(1);
   _pTop->cd();
   if(_nomAsymErrors) _nomAsymErrors->Draw("SAME && E2");
+  _pTop->Modified();
   _pTop->Update();
   
   //Decoration
@@ -758,7 +759,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   drawLumi();
   drawATLAS();
   _utils->legendSetting(_leg,0.04); 
-
+  _c0->Modified();
   _c0->Update();
 
   //Bottom ratio band
@@ -945,11 +946,15 @@ void DrawPlots::drawChannelText(string name, float x, float y, bool desc)
     }
     else if(hName.Contains("SRmT2a")){
       _text = "SRmT2-90 ";
-      _text2 = _text2 + " nJets=0, Zveto, E_{T}^{miss,rel}>40 GeV, m_{T2}>90 GeV";
+      _text2 = _text2 + " nJets=0, Zveto, m_{T2}>90 GeV";
     }
     else if(hName.Contains("SRmT2b")){
-      _text = "SRmT2-110 ";
-      _text2 = _text2 + " nJets=0, Zveto, E_{T}^{miss,rel}>40 GeV, m_{T2}>110 GeV";
+      _text = "SRmT2-120 ";
+      _text2 = _text2 + " nJets=0, Zveto, m_{T2}>120 GeV";
+    }
+    else if(hName.Contains("SRmT2c")){
+      _text = "SRmT2-150 ";
+      _text2 = _text2 + " nJets=0, Zveto, m_{T2}>150 GeV";
     }
     else if(hName.Contains("ZXCRmT2a")){
       _text = "ZXCRmT2-90 ";
@@ -1038,7 +1043,7 @@ void DrawPlots::drawLumi(float x, float y)
 void DrawPlots::drawATLAS(float x, float y)
 {
   //string _text = "ATLAS Work In Progress";
-  string _text1 = "#bf{ATLAS}";
+  string _text1 = "#bf{ATLAS} ";
   _utils->myText(x,y,kBlack,_text1.c_str(),0.07);
   //  string _text2 = "Internal";
   string _text2 = "Preliminary";

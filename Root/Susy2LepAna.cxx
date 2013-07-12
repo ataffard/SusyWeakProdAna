@@ -1,4 +1,5 @@
 #include <iomanip>
+#include <iostream>
 #include "TCanvas.h"
 #include "SusyWeakProdAna/Susy2LepAna.h"
 #include "SusyWeakProdAna/PhysicsTools.h"
@@ -7,9 +8,6 @@
 
 using namespace std;
 using namespace Susy;
-
-//const char* const DIL_FLAV[] = {"EE", "MM", "EM"};
-//const char* const DIL_QQ[] = {"OS", "SS"};
 
 /*--------------------------------------------------------------------------------*/
 // Susy2LepAna Constructor
@@ -37,6 +35,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   m_vetoF      (false),
   m_vetoJ      (false),
   m_minC20     ( -1  ),
+  m_maxC20     ( -1  ),
   m_minCJet    ( -1  ),
   m_metMin     ( -1  ),
   m_metMax     ( -1  ),
@@ -50,10 +49,13 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   m_pTl1Min     ( -1  ),
   m_pTllMin     ( -1  ),
   m_pTllMax     ( -1  ),
+  m_pTllBound   (false),
   m_lowMll      ( -1  ),
   m_highMll     ( -1  ),
   m_mllIn       (false),
   m_dPhillMax   ( -1  ),
+  m_dRllMin     ( -1  ),
+  m_dRllMax     ( -1  ),
   m_lowMjj      ( -1  ),
   m_highMjj     ( -1  ),
   m_lowMTWW     ( -1  ),
@@ -80,11 +82,12 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/pass6_Apr2_2013.root"; //Spring !
-  //    "/SusyMatrixMethod/data/pass3_Mar3_2013.root"; //Spring !
-
+    "/SusyMatrixMethod/data/pass0_Summer2013.root"; //Spring 2013!
   cout << "Loading fake MM " << _fakeInput << endl;
-  m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT);
+  m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT,
+			    SusyMatrixMethod::PT,
+			    SusyMatrixMethod::PT,
+			    SusyMatrixMethod::PT);
 
 
   //Configure ChargeFlip tool
@@ -111,28 +114,33 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
 
   setAnaType(Ana_2Lep);
 
-
-  _tmp=0;
 }
 
 /*--------------------------------------------------------------------------------*/
 // Hook the containers
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::hookContainers(Susy::SusyNtObject* _ntPtr,
-				 ElectronVector* _baseEleA, ElectronVector* _sigEleA,
-				 MuonVector*     _baseMuoA, MuonVector*     _sigMuoA,
+				 ElectronVector* _preEleA, ElectronVector* _baseEleA, ElectronVector* _sigEleA,
+				 MuonVector*     _preMuoA, MuonVector*     _baseMuoA, MuonVector*     _sigMuoA,
 				 LeptonVector*   _baseLepA, LeptonVector*   _sigLepA,
-				 JetVector*      _baseJetA, JetVector*      _sigJetA)
+				 JetVector*      _preJetA, JetVector*      _baseJetA, JetVector*      _sigJetA,
+				 TauVector*      _baseTauA, TauVector*     _sigTauA
+				 )
 {
   nt         = _ntPtr;
+  v_preEle   = _preEleA;
   v_baseEle  = _baseEleA;
   v_sigEle   = _sigEleA;
+  v_preMu    = _preMuoA;
   v_baseMu   = _baseMuoA;
   v_sigMu    = _sigMuoA;
   v_baseLep  = _baseLepA;
   v_sigLep   = _sigLepA;
+  v_preJet   = _preJetA;
   v_baseJet  = _baseJetA;
   v_sigJet   = _sigJetA;
+  v_baseTau  = _baseTauA;
+  v_sigTau   = _sigTauA;
 
   if(DUMP_RUNEVT){
     string dumpName = _hh->sampleName()+ "_dump.txt";
@@ -174,48 +182,48 @@ void Susy2LepAna::end()
   cout << endl;
   cout << "**********************************************" << endl;
   cout << "Susy2LepAna::event counters" <<endl;
-
+  cout << std::setprecision(0) << std::fixed;
   cout << "read in:            " << n_readin        << endl;
   cout << "pass GRL:           " << n_pass_GRL      << endl;
-  cout << "pass LarErr:        " << n_pass_LarErr   << endl;
-  cout << "pass TileErr:       " << n_pass_TileErr  << endl;
-  cout << "pass TTCVeto:       " << n_pass_TTCVeto  << endl;
-  cout << "pass Good Vtx       " << n_pass_GoodVtx  << endl;
   cout << "pass TileTrip:      " << n_pass_TileTrip << endl;
-  cout << "pass HotSpot:       " << n_pass_HotSpot << endl;
+  cout << "pass LarErr:        " << n_pass_LarErr   << endl;
   cout << "pass BadJet:        " << n_pass_BadJet  << endl;
+  cout << "pass DeadRegion:    " << n_pass_DeadRegion << endl;
   cout << "pass BadMu:         " << n_pass_BadMuon << endl;
   cout << "pass Cosmic:        " << n_pass_Cosmic  << endl;
-  cout << "pass DeadRegion:    " << n_pass_DeadRegion << endl;
+  cout << "pass HotSpot:       " << n_pass_HotSpot << endl;
+  cout << "pass TTCVeto:       " << n_pass_TTCVeto  << endl;
+  cout << "pass Good Vtx       " << n_pass_GoodVtx  << endl;
+
   cout << "pass atleast 2 base " << n_pass_atleast2BaseLep << endl;
   cout << "pass exactly 2 base " << n_pass_exactly2BaseLep << endl;
   cout << "pass mll20          " << n_pass_mll20   << endl;
   
+  cout << std::setprecision(1) << std::fixed;
+
   string v_ET[ET_N] = {"ee","mm","em"};
   cout << "Channels        " << v_ET[0] << "\t " << v_ET[1] << "\t " << v_ET[2] <<endl;
   print_line("pass category ",n_pass_dil[0], n_pass_dil[1], n_pass_dil[2]);
   print_line("pass nLep     ",n_pass_signalLep[0], n_pass_signalLep[1], n_pass_signalLep[2]);
+  print_line("pass tau veto ",n_pass_tauVeto[0], n_pass_tauVeto[1], n_pass_tauVeto[2]);
   print_line("pass trig     ",n_pass_trig[0],n_pass_trig[1],n_pass_trig[2]);
   print_line("pass truth    ",n_pass_truth[0],n_pass_truth[1],n_pass_truth[2]);
-  print_SROSjveto();
   print_SRmT2();
-  print_SR2jets();
+  print_SRWW();
   print_SRZjets();
   print_SRSSjets();
-  print_SRWW();
-  print_CRZ();
-  print_ZXCR();
-  print_TOPCR();
+
   print_WWCR();
+  print_TOPCR();
+  print_ZVCR();
   print_VRSS();
 
-
-  cout << "CHECK INTEGRAL " << _tmp << endl;
+  print_CRZ();
+  cout << std::endl << std::endl; 
 
   if(DUMP_RUNEVT){
     evtDump.close ();
-  }
-  
+  }  
   if(m_writeHFT){ //Saving HistFitterTree - yes that's done in delete contructor!
     for(uint i=_sys1; i <= _sys2; i++) {
       if( m_histFitterTrees[i] && validSystForHFT(i)){
@@ -333,6 +341,7 @@ void Susy2LepAna::resetCounter()
   for(int i=0; i<ET_N; ++i){
     n_pass_signalLep[i]   = 0;
     n_pass_dil[i]    = 0;
+    n_pass_tauVeto[i]    = 0;
     n_pass_trig[i]    = 0;
     n_pass_truth[i]    = 0;
 
@@ -350,7 +359,9 @@ void Susy2LepAna::resetCounter()
       n_pass_leadLepPt[i][j] = 0;
       n_pass_mll[i][j]       = 0;
       n_pass_pTll[i][j]      = 0;
+      n_pass_pTllBound[i][j] = 0;
       n_pass_dPhill[i][j]    = 0;
+      n_pass_dRll[i][j]      = 0;
       n_pass_mWWT[i][j]      = 0;
       n_pass_topTag[i][j]    = 0;
       n_pass_metRel[i][j]    = 0;
@@ -397,6 +408,7 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
   m_vetoF    = false;
   m_vetoJ    = false;
   m_minC20   =    -1;
+  m_maxC20   =    -1;
   m_minCJet  =    -1;
   m_metMin     =  -1;
   m_metMax     =  -1;
@@ -406,20 +418,23 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
   m_mt2Min     =  -1;
   m_mt2Max     =  -1;
   m_lepLeadPtMin = -1;
+  m_pTl0Min      = -1;
+  m_pTl1Min      = -1;
   m_pTllMin = -1;
   m_pTllMax = -1;
+  m_pTllBound = false;
   m_lowMll    =  -1;
   m_highMll   =  -1;
   m_mllIn     = false; 
+  m_dPhillMax =  -1;
   m_lowMjj    =  -1;
   m_highMjj   =  -1;
   m_lowMTWW   =  -1;
   m_highMTWW  =  -1;
   m_pTj0Min   =  -1;
   m_pTj1Min   =  -1;
-  m_pTl0Min   =  -1;
-  m_pTl1Min   =  -1;
-  m_dPhillMax =  -1;
+  m_dRllMin   =  -1;
+  m_dRllMax   =  -1;
   m_dPhiMetll =  -1;
   m_dPhiMetl1 =  -1;
 
@@ -427,56 +442,93 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
   //----------------------------//
   // Signal Regions
   //----------------------------//
-  if(m_sel == "SROSjveto"){
-    m_selOS = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin=100;
-    m_mt2Max=90;
-  }
-  else if(m_sel == "SRmT2a"){
-    m_selOS = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin=40;
-    m_mt2Min=90;
+  if(m_sel      == "SRmT2a"){
+    m_selOS     = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 90;
   }
   else if(m_sel == "SRmT2b"){
-    m_selOS = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin=40;
-    m_mt2Min=110;
+    m_selOS     = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 120;
   }  
-  else if(m_sel == "SR2jets"){
-    m_selOS = true;
-    m_vetoZ = true;
-    m_vetoF = true;
-    m_vetoB = true;
-    m_minC20 = 2;   //C20
-    m_topTag = true;
-    m_metRelMin=50;
+  else if(m_sel == "SRmT2c"){
+    m_selOS     = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 150;
+  }  
+  else if(m_sel == "SRWWa"){
+    m_selOS     = true;
+    if(dilType==ET_ee|| dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_metRelMin = 80;
+    m_pTllMin   = 80;
+    m_highMll   = 120;
+
+  }
+  else if(m_sel == "SRWWb"){
+    m_selOS     = true;
+    if(dilType==ET_ee|| dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_highMll   = 170;
+    m_mt2Min    = 90;
+  }
+  else if(m_sel == "SRWWc"){
+    m_selOS     = true;
+    if(dilType==ET_ee|| dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 100;
   }
   else if(m_sel == "SRZjets"){
-    m_selOS = true;
-    m_selSF = true;
-    m_selZ  = true;
-    m_vetoF = true;
-    m_vetoB = true;
-    m_minC20 = 2;
-    m_pTj0Min = 50;
-    m_pTj1Min = 50;
-    m_lowMjj  = 50;
-    m_highMjj = 100;
-    m_topTag = true;
-    m_metRelMin=50;
-    m_mt2Min  = 70;
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_vetoF     = true;
+    m_vetoB     = true;
+    m_minC20    = 2;
+    m_pTj0Min   = 45;
+    m_pTj1Min   = 45;
+    m_lowMjj    = 50;
+    m_highMjj   = 100;
+    m_pTllMin   = 80;
+    m_dRllMin   = 0.3;
+    m_dRllMax   = 1.5;
+    m_metRelMin = 80;
   }
   else if(m_sel == "SRSSjets"){
-    m_selSS = true;
-    m_vetoB = true;
-    m_vetoF = true;
-    m_minC20 = 1;
+    m_selSS     = true;
+    m_vetoB     = true;
+    m_vetoF     = true;
+    m_minC20    = 1;
     if(dilType==ET_ee){
       m_mllIn     = true;
       m_lowMll    = MZ-10;
@@ -484,317 +536,179 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_highMTWW  = 70; 
       m_metRelMin = 70;
     }
-    else if(dilType==ET_mm || dilType==ET_em){
+    else if(dilType==ET_mm){
+      m_pTl0Min   = 15;
+      m_pTl1Min   = 15;
       m_highMTWW  = 50; 
       m_metRelMin = 50;
-      if(dilType==ET_mm && BLIND_SSMUON){
-	m_mllIn     = true;
-	m_lowMll  = 90;
-	m_highMll = 120;
-      }
+      m_mt2Max    = 30;
+      m_pTllMax   = 20;
+      m_pTj0Min   = 25;
+    }
+    else if(dilType==ET_em){
+      m_highMTWW  = 50; 
+      m_metRelMin = 50;
     }
   }  
-  else if(m_sel == "SRWWa"){
-    m_selOS = true;
-    m_selOF = true;
-    if(dilType==ET_em){
-      m_vetoJ     = true;
-      m_vetoB     = true;
-      m_vetoF     = true;
-      m_pTl0Min   = 35;
-      m_pTl1Min   = 20;
-      m_metRelMin = 70;
-      m_pTllMin   = 70;
-      m_highMll   = 80;
-      m_dPhillMax = 1.8;
-    }
-  }
-  else if(m_sel == "SRWWb"){
-    m_selOS = true;
-    m_selOF = true;
-    if(dilType==ET_em){
-      m_vetoJ    = true;
-      m_vetoB    = true;
-      m_vetoF    = true;
-      m_pTl0Min  = 35;
-      m_pTl1Min  = 20;
-      m_mt2Min   = 90;
-      m_pTllMax  = 170;
-      m_highMll  = 130;
-      m_dPhillMax = 1.8;
-    }
-  }
-  else if(m_sel == "SRWWc"){
-    m_selOS = true;
-    m_selOF = true;
-    if(dilType==ET_em){
-      m_vetoJ    = true;
-      m_vetoB    = true;
-      m_vetoF    = true;
-      m_pTl0Min  = 35;
-      m_pTl1Min  = 20;
-      m_mt2Min   = 100;
-      m_pTllMax  = 190;
-      m_dPhillMax = 1.8;
-    }
-  }
+
+
   //----------------------------//
   // Control regions
   //----------------------------//
-  else if(m_sel == "ZXCRjveto"){
-    m_selOS = true;
-    m_selZ  = true;
-    m_vetoJ = true;
-    m_metRelMin=100;
-  }
-  else if(m_sel == "ZXCR2jets"){
+  else if(m_sel == "CRWWmet"){
     m_selOS     = true;
-    m_selZ      = true;
-    m_vetoB     = true;
+    m_vetoJ     = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_metRelMin = 60;
+    m_metRelMax = 80;
+    m_pTllMin   = 40;
+    m_highMll   = 120;
+  }
+  else if(m_sel == "CRWWmt2"){
+    m_selOS     = true;
+    m_vetoJ     = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 50;
+    m_mt2Max    = 90;
+  }
+  else if(m_sel == "CRTOPmet"){//emm only used
+    m_selOS     = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_selB      = true;
+    m_maxC20    = 0;
     m_vetoF     = true;
+    m_metRelMin = 80;
+    m_pTllMin   = 80;
+    m_highMll   = 120;
+  }
+  else if(m_sel == "CRTOPmt2"){//em only used
+    m_selOS     = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_selB      = true;
+    m_maxC20    = 0;
+    m_vetoF     = true;
+    m_mt2Min    = 70;
+  }
+  else if(m_sel == "CRZVmet"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_metRelMin = 80;
+    m_pTllMin   = 80;
+  }
+  else if(m_sel == "CRZVmt2a"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 90;
+  }
+  else if(m_sel == "CRZVmt2b"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 100;
+  }
+  else if(m_sel == "CRZVmt2c"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 120;
+  }
+  else if(m_sel == "CRZVmt2d"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_mt2Min    = 150;
+  }
+  else if(m_sel == "CRTOPZjets"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_vetoZ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    //m_minCJet   = 2; //B20+C20 Updated 07/11 v3 cutflow
+    m_selB      = true;
+    m_vetoF     = true; 
+    m_pTllMin   = 80;
+    m_dRllMin   = 0.3;
+    m_dRllMax   = 1.5;
+    m_metRelMin = 80;
+  }
+  else if(m_sel == "CRZVZjets"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_vetoF     = true;
+    m_vetoB     = true;
     m_minC20    = 2;
-    m_topTag    = true;
-    m_metRelMin = 50;
-    m_mt2Max    = 70;
-  }
- else if(m_sel == "ZXCRpremT2"){
-    m_selOS = true;
-    m_selZ  = true;
-    m_vetoJ = true;
-    m_metRelMin=40;
- }
-  else if(m_sel == "ZXCRmT2a"){
-    m_selOS = true;
-    m_selZ  = true;
-    m_vetoJ = true;
-    m_metRelMin=40;
-    m_mt2Min=90;
-  }
-  else if(m_sel == "ZXCRmT2b"){
-    m_selOS = true;
-    m_selZ  = true;
-    m_vetoJ = true;
-    m_metRelMin=40;
-    m_mt2Min=110;
-  }
-  else if(m_sel == "ZXCRWW"){
-    m_selOS = true;
-    m_selZ  = true;
-    m_vetoJ = true;
-    m_metRelMin=70;
-    m_metRelMax=100;
-    m_mt2Max=90;
-  }
-  else if(m_sel == "ZXCRWW2"){
-    m_selOS = true;
-    m_selZ  = true;
-    m_vetoJ = true;
-    m_metRelMin=70;
-    m_metRelMax=100;
-    m_mt2Min=50;
-    m_mt2Max=90;
-  }
-  else if(m_sel == "CRTOP"){
-    m_selOS = true;
-    m_vetoZ =true;
-    //m_vetoF = true;  //Don't check fwd jets
-    m_selB=true;
-    m_minCJet=2;
-    m_metRelMin=40;
-  }
-  else if(m_sel == "CRTOPWWa"){
-    m_selOS  = true;    
-    m_selOF = true;
-    if(dilType==ET_em){
-      //m_vetoF  = true;
-      m_selB   = true;
-      m_minCJet=1;
-      m_pTl0Min = 35;
-      m_pTl1Min = 20;
-      m_metRelMin=70;
-      m_pTllMin  = 70;
-      m_highMll  = 80;
-      m_dPhillMax = 1.8;
-    }
-  }
-  else if(m_sel == "CRTOPWWb"){///<<<<
-    m_selOS  = true;
-    m_selOF = true;
-    if(dilType==ET_em){
-      //m_vetoF  = true;
-      m_selB = true;
-      m_minCJet=1;
-      m_pTl0Min = 35;
-      m_pTl1Min = 20;
-      m_mt2Min= 90;
-      m_pTllMax  = 170;
-      m_highMll  = 130;
-      m_dPhillMax = 1.8;
-    }
-  }
-  else if(m_sel == "CRTOPWWc"){
-    m_selOS  = true;
-    m_selOF = true;
-    if(dilType==ET_em){
-      //m_vetoF  = true;
-      m_selB = true;
-      m_minCJet=1;
-      m_pTl0Min = 35;
-      m_pTl1Min = 20;
-      m_mt2Min= 100;
-      m_pTllMax  = 190;
-      m_dPhillMax = 1.8;
-    }
-  }
-  else if(m_sel == "CRWW"){//metrel 70-100, MT2<90
-    m_selOS = true;
-    //m_selSF = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin = 70;
-    m_metRelMax = 100;
-    m_mt2Max    = 90;
-  }
-  else if(m_sel == "CRWW2"){//metrel 70-100, 50<mT2<90
-    m_selOS = true;
-    //m_selSF = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin = 70;
-    m_metRelMax = 100;
-    m_mt2Min    = 50;
-    m_mt2Max    = 90;
-  }
-  else if(m_sel == "CRWW3"){//metrel 70-100, MT2<90 & pTll>60
-    m_selOS = true;
-    //m_selSF = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin = 70;
-    m_metRelMax = 100;
-    m_mt2Max    = 90;
-    m_pTllMin   = 60;
-  }
-  else if(m_sel == "CRWW4"){//metrel 70-100, 50<mT2<90 & pTll>60
-    m_selOS = true;
-    //m_selSF = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin = 70;
-    m_metRelMax = 100;
-    m_mt2Min    = 50;
-    m_mt2Max    = 90;
-    m_pTllMin   = 60;
-  }
-  else if(m_sel == "CRWW5"){ //preSRmT2 + 50<mT2<90 - For EM only
-    m_selOS = true;
-    //m_selSF = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin = 40;
-    m_mt2Min    = 50;
-    m_mt2Max    = 90;
-  }
-  else if(m_sel == "CRWW6"){ //preSRmT2 + 50<mT2<90 - pTll>60 - For EE/MM only
-    m_selOS = true;
-    //m_selSF = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin = 40;
-    m_mt2Min    = 50;
-    m_mt2Max    = 90;
-    m_pTllMin   = 60;
-  }
-  else if(m_sel == "CRWWa"){
-    m_selOS    = true;
-    m_selOF = true;
-    if(dilType==ET_em){
-      m_vetoJ = true;
-      m_vetoB = true;
-      m_vetoF = true;
-      m_pTl0Min = 35;
-      m_pTl1Min = 20;
-      m_metRelMax = 70;
-      m_dPhillMax = 1.8;
-    }
-  }
-  else if(m_sel == "CRWWb"){
-    m_selOS    = true;
-    m_selOF = true;
-    if(dilType==ET_em){
-      m_vetoJ = true;
-      m_vetoB = true;
-      m_vetoF = true;
-      m_pTl0Min = 35;
-      m_pTl1Min = 20;
-      m_mt2Max = 90;
-      m_dPhillMax = 1.8;
-    }
-  }
-  else if(m_sel == "CRWWc"){ //Not used 
-    m_selOS    = true;     
-    m_selOF = true;
-    if(dilType==ET_em){
-      m_vetoJ     = true;
-      m_vetoB     = true;
-      m_vetoF     = true;
-      m_pTl0Min   = 35;
-      m_pTl1Min   = 20;
-      m_pTllMax   = 190;
-      m_dPhillMax = 1.8;
-      m_mt2Max    = 90;
-    }
+    m_pTj0Min   = 35;
+    m_pTj1Min   = 25;
+    m_dRllMin   = 1.5;
+    m_dRllMax   = 4.0;
+    m_metRelMin = 80;
+    m_pTllBound = true;
   }
   
   //----------------------------//
-  // SS Validation regions
+  // SS Validation regions  
   //----------------------------//
-  if(m_sel == "VRSS"){
+  else if(m_sel == "VRSS"){
     m_selSS = true;
-    m_vetoB = true;
-    m_vetoF = true;
-    m_minC20 = 1;
     if(dilType==ET_ee){
       m_mllIn     = true;
       m_lowMll    = MZ-10;
       m_highMll   = MZ+10;
-      m_metRelMin = 50;
-      m_lowMTWW   = 70; //reversed
     }
-    else if(dilType==ET_mm || dilType==ET_em){
-      m_metRelMin = 40;
-      m_lowMTWW   = 50; //reversed
-      if(dilType==ET_mm && BLIND_SSMUON){
-	m_mllIn     = true;
-	m_lowMll  = 90;
-	m_highMll = 120;
-      }
-    }
+    m_metRelMin = 40;
   }
-  if(m_sel == "VRSSbtag"){
-    m_selSS  = true;
-    m_selB   = true;  //reverse
-    m_vetoF  = true;
-    m_minC20 = 0;
-    if(dilType==ET_ee){
-      m_mllIn     = true;
-      m_metRelMin = 50;
-    }
-    else if(dilType==ET_mm || dilType==ET_em){
-      m_metRelMin = 50;
-      if(dilType==ET_mm && BLIND_SSMUON){
-	m_mllIn     = true;
-	m_lowMll  = 90;
-	m_highMll = 120;
-      }
-    }
-  }
+  
   //----------------------------//
   // Loose Selections
   //----------------------------//
   else if(m_sel == "CRZ"){
-    m_selOS = true;
-    m_selZ  = true;
+    m_selOS     = true;
+    m_selZ      = true;
+  }
+  else if(m_sel == "CRZjets"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_vetoF     = true;
+    m_vetoB     = true;
+    m_minC20    = 2;
   }
   else if(m_sel == "CRZjveto"){
     m_selOS = true;
@@ -811,47 +725,50 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_selSS=true;
     m_metRelMin=40;
   }
+
+
   //----------------------------//
   // Pre Signal Regions
   //----------------------------//
-  if(m_sel == "preSRjveto"){ //SROSjveto - no metRel
-    m_selOS = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin=0;
+  else if(m_sel == "preSROSjveto"){ 
+    m_selOS     = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_vetoJ     = true;
   }
   else if(m_sel == "preSRmT2"){ //SRmT2 - no Mt2
-    m_selOS = true;
-    m_vetoZ = true;
-    m_vetoJ = true;
-    m_metRelMin=40;
-    m_mt2Min=0;
+    m_selOS      = true;
+    if(dilType==ET_ee || dilType==ET_mm){
+      m_vetoZ    = true;
+    }
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_metRelMin = 40;
   }
-  else if(m_sel == "preSR2jets"){//SR2jets no metRel
-    m_selOS = true;
-    m_vetoZ = true;
-    m_vetoF = true;
-    m_vetoB = true;
-    m_minC20 = 2;
-    m_topTag = true;
-    m_metRelMin=0;
-  }
-  else if(m_sel == "preSRZjets"){//SRZjets no metRel/mT2
+  else if(m_sel == "preSRZjets"){//SRZjets no metRel,pTll,dRll
     m_selOS     = true;
     m_selSF     = true;
     m_selZ      = true;
     m_vetoF     = true;
     m_vetoB     =  true;
     m_minC20    = 2;
-    m_pTj0Min   = 50;
-    m_pTj1Min   = 50;
+    m_pTj0Min   = 45;
+    m_pTj1Min   = 45;
     m_lowMjj    = 50;
     m_highMjj   = 100;
-    m_topTag    = true;
-    m_metRelMin = 0;
-    m_mt2Min    = 0;
   }
-  else if(m_sel == "preSRSS"){ //SRSSjets metRel40, no mTWW
+  else if(m_sel == "preSRWW"){//SRWW, no metrel, pTll, mll
+    m_selOS     = true;
+    if(dilType==ET_ee|| dilType==ET_mm){
+      m_vetoZ   = true;
+    }
+    m_vetoJ     = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+  }
+  else if(m_sel == "preSRSS"){ //SRSSjets metRel40, no mTWW,mt2
     m_selSS = true;
     m_vetoB = true;
     m_vetoF = true;
@@ -860,17 +777,19 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
       m_mllIn     = true;
       m_lowMll    = MZ-10;
       m_highMll   = MZ+10;
+      m_metRelMin = 70;
+    }
+    else if(dilType==ET_mm){
+      m_pTl0Min   = 15;
+      m_pTl1Min   = 15;
+      m_pTj0Min   = 25;
       m_metRelMin = 50;
     }
-    else if(dilType==ET_mm || dilType==ET_em){
+    else if(dilType==ET_em){
       m_metRelMin = 50;
-      if(dilType==ET_mm && BLIND_SSMUON){
-	m_mllIn     = true;
-	m_lowMll  = 90;
-	m_highMll = 120;
-      }
     }
   }
+  
   
   //----------------------------//
   // Optimisation  Regions
@@ -920,32 +839,23 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   if(nt->evt()->isMC && !WEIGHT_COUNT && WEIGHT_ONE) _inc=1;
 
   if(SYST==DGSys_NOM) n_readin+=_inc;
-
+  
   if(!passEventCleaning() ){
     if(dbg()>10) cout<<"Fail cleaning" << endl;  
-      return false;
-    }
-
-  //NEW Moriond
-  if( !passDeadRegions(*v_baseJet,met, nt->evt()->run,nt->evt()->isMC)){
-     if(dbg()>10) cout<<"Fail Dead Regions" << endl; 
-     return false;
+    return false;
   }
-  if(SYST==DGSys_NOM) n_pass_DeadRegion+=_inc;
-
-
+  
   if( v_baseLep->size() < NBASELEPMIN ){ 
     if(dbg()>10) cout<<"Fail baselepMIN " << endl;  
-      return false;
-    }
+    return false;
+  }
   if(SYST==DGSys_NOM) n_pass_atleast2BaseLep+=_inc;
   if(v_baseLep->size()>NBASELEPMAX ){ 
     if(dbg()>10) cout<<"Fail baselepMAX " << endl;
-      return false;
-    }
+    return false;
+  }
   if(SYST==DGSys_NOM) n_pass_exactly2BaseLep+=_inc;
   
-
   if(! passMll20(baseLeps)){ 
     if(dbg()>10) cout<<"Fail Mll20 " << endl; 
       return false;
@@ -959,9 +869,14 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME together
   
   if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;
-  
+
   if( !passNLepCut(leptons) ){ 
     if(dbg()>10) cout<<"Fail Nlep " << endl; 
+    return false;
+  }
+
+  if( !passTauVeto(v_sigTau) ){
+    if(dbg()>10) cout << "Fail Tau veto " << endl;
     return false;
   }
   
@@ -1000,7 +915,6 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	 << " trigW " << _trigW
 	 << " bTag " << bTagWeight
 	 << " weight(w/btag) " << _ww*bTagWeight << endl;
-    // cout<< " myEvtW " << _ww*bTagWeight<<endl;
   }
  
 
@@ -1008,7 +922,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //
   //Loop over SR's & CR's
   //
-  for(uint iSR=DIL_SROSjveto; iSR<DIL_NSR; iSR++){
+  for(uint iSR=DIL_SRmT2a; iSR<DIL_NSR; iSR++){
 
     //
     //Debug, skip SS - 
@@ -1039,7 +953,6 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
       float _metRel = getMetRel(&new_met,*leptons,*signalJets);
       _ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,SYST);
       if(WEIGHT_COUNT) _inc = _ww;
-      //std::cout << " SR " << sSR << " Fake weight " << _ww << endl;
     }
     
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -1049,15 +962,13 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
 	  (iSR==DIL_SRSSjets || iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 || 
-	   iSR==DIL_preSRSS  || iSR==DIL_VRSS || iSR==DIL_VRSSbtag ||
-	   iSR==DIL_optimSRSS) ){
+	   iSR==DIL_preSRSS  || iSR==DIL_VRSS || iSR==DIL_optimSRSS) ){
 	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
 	else{ //OS ee/em event - get the qFlip prob
 	  float _ww_qFlip = getQFlipProb(leptons,&new_met,DGSys_NOM);
 	  _ww *= _ww_qFlip;
 	  if(WEIGHT_COUNT) _inc = _ww;
 	  if(SYST==DGSys_NOM) n_pass_ss[m_ET][SR]+=_inc;
-	  //cout << "QFLup " << _ww_qFlip << " " << _wwSave << " " << _ww << endl;
 	}
       }
       else
@@ -1091,7 +1002,6 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	      || iSR==DIL_CR2LepSS40 || iSR==DIL_CRZ) )
 	_ww *= bTagWeight;
 	if(WEIGHT_COUNT) _inc = _ww;
-	//cout << " Wsave " << _wwSave << " btag " <<  bTagWeight << " w " << _ww << endl;
     }
 
     if(!passFullJetVeto(signalJets)){
@@ -1130,11 +1040,16 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass Mll " << sSR << endl;
 
-
     if(!passPtll(leptons) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
+    if(!passPtllBound(leptons) ) continue;
+    _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
+
     if(!passdPhill(leptons) ) continue;
+    _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+    if(!passdRll(leptons) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     if(!passMWWT(leptons,&new_met) ) continue;
@@ -1151,12 +1066,6 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!passMT2(leptons, &new_met) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    //if(!passDPhiMetll(leptons,&new_met) ) continue;
-    //_hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
-    //if(!passDPhiMetl1(leptons,&new_met) ) continue;
-    //_hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
-
-
     if(dbg() >10 ) cout << "\t Pass All " << sSR << endl;
 
     //Blind data 
@@ -1165,21 +1074,22 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     //
     // Fill histos, ToyNt and HFT 
     //
-    if(DO_FILL_HISTO ) fillHistograms(SR,SYST,leptons, signalJets,&new_met,_ww);
-    if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
-    if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) fillToyNt(SR,SYST,leptons, signalJets,&new_met,_ww);
+    if(DO_FILL_HISTO ){
+      fillHistograms(SR,SYST,leptons, signalJets,&new_met,_ww);
+      if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
+    }
+    if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) 
+      fillToyNt(SR,SYST,leptons, signalJets,&new_met,_ww);
 
     if(m_writeHFT && validSystForHFT(SYST) ){
       float wHFT= writeIntoHistFitterTree(iSR,leptons,baseLeps,signalJets,v_baseJet,met);
-      if(wHFT>0) _tmp += wHFT;
       
       if(wHFT>0 && nt->evt()->isMC && SYST==DGSys_NOM &&
-	 !(iSR==DIL_SRSSjets || iSR==DIL_VRSS || iSR==DIL_VRSSbtag)
+	 !(iSR==DIL_SRSSjets || iSR==DIL_VRSS)
 	 && fabs(_ww-wHFT)/wHFT>0.000001) 
 	cout << "WARNING >>> run " << nt->evt()->run  
 	     << " event " << nt->evt()->event 
 	     << " mismatch weight with HFT " << _ww << " " << wHFT << endl;
-      //if(nt->evt()->isMC) restoreOriginal(*leptons,met);//Because qFlip was have been called
     }
     
     
@@ -1188,6 +1098,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     //
     //if(DUMP_RUNEVT && (iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS) ){
     //if(DUMP_RUNEVT && SYST==DGSys_NOM && (iSR==DIL_NTOP && m_ET==ET_ee) ){
+    /*
     if(DUMP_RUNEVT && (iSR==DIL_CRWW2) ){
       cout << "==>Run " << nt->evt()->run  << " : " << nt->evt()->event  << endl;
       evtDump << nt->evt()->run 
@@ -1205,8 +1116,8 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	      << endl;
       //if( nt->evt()->event==435108) dumpEvent();
     }
+    */
   }
-  
   
   if(nt->evt()->isMC) restoreOriginal(*leptons,met);
 
@@ -1412,8 +1323,7 @@ float Susy2LepAna::getBTagSF(const Susy::Event*, const JetVector* jets, uint iSy
   if(iSys==DGSys_CJet_UP) _sys=BTag_CJet_UP; 
   if(iSys==DGSys_LJet_UP) _sys=BTag_LJet_UP; 
 
-  return bTagSF(nt->evt(),valJets,USE_NOJVF_bSF, 
-		"MV1", "0_3511", MV1_80, (BTagSys) _sys);
+  return bTagSF(nt->evt(),valJets, nt->evt()->mcChannel, (BTagSys) _sys);
 
 }
 /*--------------------------------------------------------------------------------*/
@@ -1430,25 +1340,19 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   
   if(leptons->size()>2) return 0;
 
-  SusyMatrixMethod::FAKE_REGION  frSR = SusyMatrixMethod::FR_CRZXOSjveto;
+  SusyMatrixMethod::FAKE_REGION  frSR = SusyMatrixMethod::FR_SRmT2a;
   switch (iSR){
-  case DIL_SROSjveto:
-    frSR = SusyMatrixMethod::FR_SROSjveto;
-    break;
   case DIL_SRmT2a:
-    frSR = SusyMatrixMethod::FR_SRmt2a;
+    frSR = SusyMatrixMethod::FR_SRmT2a;
     break;
   case DIL_SRmT2b:
-    frSR = SusyMatrixMethod::FR_SRmt2b;
+    frSR = SusyMatrixMethod::FR_SRmT2b;
     break;
-  case DIL_SR2jets:
-    frSR = SusyMatrixMethod::FR_SR2jets; 
+  case DIL_SRmT2c:
+    frSR = SusyMatrixMethod::FR_SRmT2c;
     break;
   case DIL_SRZjets:
     frSR = SusyMatrixMethod::FR_SRZjets; 
-    break;
-  case DIL_SRSSjets:
-    frSR = SusyMatrixMethod::FR_SRSSjets;
     break;
   case DIL_SRWWa:
     frSR = SusyMatrixMethod::FR_SRWWa;
@@ -1459,113 +1363,89 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   case DIL_SRWWc:
     frSR = SusyMatrixMethod::FR_SRWWc;
     break;
-  case DIL_ZXCRjveto:
-    frSR = SusyMatrixMethod::FR_CRZXOSjveto;
+  case DIL_SRSSjets:
+    frSR = SusyMatrixMethod::FR_VRSS;
     break;
-  case DIL_ZXCR2jets:
-    frSR = SusyMatrixMethod::FR_CRZX2JETS;
+    
+  case DIL_CRWWmet:
+    frSR = SusyMatrixMethod::FR_CRWWMet;
     break;
-  case DIL_ZXCRpremT2:
-    frSR = SusyMatrixMethod::FR_CRZXMT2a;
+  case DIL_CRWWmt2:
+    frSR = SusyMatrixMethod::FR_CRWWmT2;
     break;
-  case DIL_ZXCRmT2a:
-    frSR = SusyMatrixMethod::FR_CRZXMT2a;
+  case DIL_CRTOPmet:
+    frSR = SusyMatrixMethod::FR_CRTopMet;
     break;
-  case DIL_ZXCRmT2b:
-    frSR = SusyMatrixMethod::FR_CRZXMT2b;
+  case DIL_CRTOPmt2:
+    frSR = SusyMatrixMethod::FR_CRTopmT2b;//Serhan Opt1 
     break;
-  case DIL_ZXCRWW:
-    frSR = SusyMatrixMethod::FR_CRZXWW;
+  case DIL_CRTOPZjets:
+    frSR = SusyMatrixMethod::FR_CRTopZjets;
     break;
-  case DIL_ZXCRWW2:
-    frSR = SusyMatrixMethod::FR_CRZXWW;
+  case DIL_CRZVmet:
+    frSR = SusyMatrixMethod::FR_CRZVMet;
     break;
-  case DIL_CRTOP:
-    frSR = SusyMatrixMethod::FR_CRTOP;
+  case DIL_CRZVmt2a:
+    frSR = SusyMatrixMethod::FR_CRZVmT2;
     break;
-  case DIL_CRTOPWWa:
-    frSR = SusyMatrixMethod::FR_CRTOPWWa;
+  case DIL_CRZVmt2b:
+    frSR = SusyMatrixMethod::FR_CRZVmT2;
     break;
-  case DIL_CRTOPWWb:
-    frSR = SusyMatrixMethod::FR_CRTOPWWb;
+  case DIL_CRZVmt2c:
+    frSR = SusyMatrixMethod::FR_CRZVmT2;
     break;
-  case DIL_CRTOPWWc:
-    frSR = SusyMatrixMethod::FR_CRTOPWWc;
+  case DIL_CRZVmt2d:
+    frSR = SusyMatrixMethod::FR_CRZVmT2;
     break;
-  case DIL_CRWW:
-    frSR = SusyMatrixMethod::FR_CRWW1;
-    break;    
-  case DIL_CRWW2:
-    frSR = SusyMatrixMethod::FR_CRWW1;
-    break;    
-  case DIL_CRWW3:
-    frSR = SusyMatrixMethod::FR_CRWW1;
-    break;    
-  case DIL_CRWW4:
-    frSR = SusyMatrixMethod::FR_CRWW1;
-    break;    
-  case DIL_CRWW5:
-    frSR = SusyMatrixMethod::FR_CRWW3;
-    break;    
-  case DIL_CRWW6:
-    frSR = SusyMatrixMethod::FR_CRWW2;
-    break;    
-  case DIL_CRWWa:
-    frSR = SusyMatrixMethod::FR_CRWWa;
-    break;    
-  case DIL_CRWWb:
-    frSR = SusyMatrixMethod::FR_CRWWb;
-    break;    
-  case DIL_CRWWc:
-    frSR = SusyMatrixMethod::FR_CRWWc;
-    break;    
+  case DIL_CRZVZjets:
+    frSR = SusyMatrixMethod::FR_CRZVMet;
+    break;
   case DIL_VRSS:
     frSR = SusyMatrixMethod::FR_VRSS;
-    break;    
-  case DIL_VRSSbtag:
-    frSR = SusyMatrixMethod::FR_VRSSbtag;
-    break;    
+    break;  
+    
+    //No proper weihted average defined for these
   case DIL_CRZ:
-    frSR = SusyMatrixMethod::FR_CRZXOSjveto;
+    frSR = SusyMatrixMethod::FR_SRZjets;
+    break;        
+  case DIL_CRZjets:
+    frSR = SusyMatrixMethod::FR_SRZjets;
     break;        
   case DIL_CRZjveto:
-    frSR = SusyMatrixMethod::FR_CRZXOSjveto;
+    frSR = SusyMatrixMethod::FR_SRmT2a;
     break;        
   case DIL_CR2LepOS:
-    frSR = SusyMatrixMethod::FR_CRZXOSjveto; 
+    frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
   case DIL_CR2LepSS:
-    frSR = SusyMatrixMethod::FR_VRSSbtag;
+    frSR = SusyMatrixMethod::FR_VRSS;
     break;
   case DIL_CR2LepSS40:
-    frSR = SusyMatrixMethod::FR_VRSSbtag;
+    frSR = SusyMatrixMethod::FR_VRSS;
     break;
   case DIL_preSROSjveto:
-    frSR = SusyMatrixMethod::FR_SROSjveto;
+    frSR = SusyMatrixMethod::FR_SRmT2a;
     break;
   case DIL_preSRmT2:
-    frSR = SusyMatrixMethod::FR_PreMt2;
-    break;
-  case DIL_preSR2jets:
-    frSR = SusyMatrixMethod::FR_SR2jets; 
+    frSR = SusyMatrixMethod::FR_SRmT2a;
     break;
   case DIL_preSRZjets:
     frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
   case DIL_preSRSS:
-    frSR = SusyMatrixMethod::FR_VRSSbtag;
+    frSR = SusyMatrixMethod::FR_VRSS;
     break;
   case DIL_optimSRZjets:
     frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
   case DIL_optimSRjets:
-    frSR = SusyMatrixMethod::FR_SR2jets; 
+    frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
   case DIL_optimSRSS:
-    frSR = SusyMatrixMethod::FR_SRSSjets; 
+    frSR = SusyMatrixMethod::FR_VRSS; 
     break;
   case DIL_optimSR0jet:
-    frSR = SusyMatrixMethod::FR_SROSjveto; 
+    frSR = SusyMatrixMethod::FR_SRmT2a; 
     break;
   }
 
@@ -1610,10 +1490,12 @@ bool Susy2LepAna::passEventCleaning()
   uint iiSys = SYST;
   if(SYST>DGSys_RESOST) iiSys = DGSys_NOM;
 
-  int cutFlag = nt->evt()->cutFlags[iiSys];
-
+  int cutFlag = cleaningCutFlags(nt->evt()->cutFlags[iiSys],
+				 *v_preMu, *v_baseMu,
+				 *v_preJet, *v_baseJet);
+  
   //
-  // Done in SusyNt filtering apart for TileTrip
+  // Updated Summer 2013
   //
   if(!passGRL(cutFlag)) { 
     if(dbg()>15) cout << "GRL " << endl;
@@ -1621,17 +1503,76 @@ bool Susy2LepAna::passEventCleaning()
   }
   if(SYST==DGSys_NOM) n_pass_GRL+=_inc;
 
+ 
+  if(!passTileTripCut(cutFlag)) { 
+    if(dbg()>15) cout << "TileTrip " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_TileTrip+=_inc;
+
   if(!passLarErr(cutFlag)) { 
     if(dbg()>15) cout << "LarErr " << endl;
     return false;
   }
   if(SYST==DGSys_NOM) n_pass_LarErr+=_inc;
 
+  //TEMPORARY
+  JetVector jets = getPreJets(nt, (SusyNtSys) iiSys);
+  e_j_overlap(*v_baseEle, jets, J_E_DR, true);
+  t_j_overlap(*v_sigTau, jets, J_T_DR, true);
+  if(hasBadJet(jets)){
+    if(dbg()>15) cout << "bad jet " << endl;
+    jets.clear();
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_BadJet+=_inc;
+  jets.clear();
+
+  /*
+  if(hasBadJet(*v_baseJet)){
+    if(dbg()>15) cout << "bad jet " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_BadJet+=_inc;
+  */
+
+  if(DUMP_RUNEVT  )
+    evtDump << nt->evt()->run 
+	    << " " << nt->evt()->event 
+	    << endl;
+  
+
+  if( !passDeadRegions(*v_preJet, m_met, nt->evt()->run, nt->evt()->isMC)){
+     if(dbg()>15) cout<<"Fail Dead Regions" << endl; 
+     return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_DeadRegion+=_inc;
+  
+  if(hasBadMuon(*v_preMu)) {
+    if(dbg()>15) cout << "bad muon " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_BadMuon+=_inc;
+
+  if(hasCosmicMuon(*v_baseMu)){
+    if(dbg()>15) cout << "cosmic " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_Cosmic+=_inc;
+
+  if(hasHotSpotJet(*v_preJet)) { 
+    if(dbg()>15) cout << "hot spot " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_HotSpot+=_inc;
+
+  /*
   if(!passTileErr(cutFlag)) { 
     if(dbg()>15) cout << "TileErr " << endl;
     return false;
   }
   if(SYST==DGSys_NOM) n_pass_TileErr+=_inc;
+  */
 
   if(!passTTCVeto(cutFlag)) { 
     if(dbg()>15) cout << "TTCVeto " << endl;
@@ -1644,37 +1585,6 @@ bool Susy2LepAna::passEventCleaning()
     return false;
   }
   if(SYST==DGSys_NOM) n_pass_GoodVtx+=_inc;
-
-  if(!passTileTripCut(cutFlag)) { 
-    if(dbg()>15) cout << "TileTrip " << endl;
-    return false;
-  }
-  if(SYST==DGSys_NOM) n_pass_TileTrip+=_inc;
-
-
-  if(!passHotSpot(cutFlag)) { //UPDATED MORIOND
-    if(dbg()>15) cout << "hot spot " << endl;
-    return false;
-  }
-  if(SYST==DGSys_NOM) n_pass_HotSpot+=_inc;
-
-  if(!passBadJet (cutFlag)){
-    if(dbg()>15) cout << "bad jet " << endl;
-    return false;
-  }
-  if(SYST==DGSys_NOM) n_pass_BadJet+=_inc;
- 
-  if(!passBadMuon(cutFlag)) {
-    if(dbg()>15) cout << "bad muon " << endl;
-    return false;
-  }
-  if(SYST==DGSys_NOM) n_pass_BadMuon+=_inc;
-
-  if(!passCosmic (cutFlag)){
-    if(dbg()>15) cout << "cosmic " << endl;
-    return false;
-  }
-  if(SYST==DGSys_NOM) n_pass_Cosmic+=_inc;
 
   return true;
 }
@@ -1698,11 +1608,26 @@ bool Susy2LepAna::passBadFCAL(const JetVector* jets, int run, bool isMC)
 /*--------------------------------------------------------------------------------*/
 // Generic cuts
 /*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::passTauVeto(const TauVector* taus)
+{
+  if(taus->size()==0){
+    if(SYST==DGSys_NOM) n_pass_tauVeto[m_ET]+=_inc;
+    return true;
+  }
+  return false;
+}
+/*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passNLepCut(const LeptonVector* leptons)
 {
   uint nLep = leptons->size();
   if(m_nLepMin>=0 && nLep < m_nLepMin) return false;
   if(m_nLepMax>=0 && nLep > m_nLepMax) return false;
+  //Tighten muon eta to 2.4
+  for(uint ilep=0; ilep<leptons->size(); ilep++){
+    const Susy::Lepton* _l = leptons->at(ilep);
+    if(_l->isEle()) continue;
+    if(fabs(_l->Eta())>2.4) return false;
+  }
   if(SYST==DGSys_NOM) n_pass_signalLep[m_ET]+=_inc;
   return true;
 }
@@ -1869,6 +1794,7 @@ bool Susy2LepAna::passFJet(const JetVector* jets){
 bool Susy2LepAna::passLJet(const JetVector* jets){
   int nLJet= numberOfCLJets(*jets);
   if(m_minC20>-1 && nLJet<m_minC20) return false;
+  if(m_maxC20>-1 && nLJet>m_maxC20) return false;
   if(SYST==DGSys_NOM) n_pass_LJet[m_ET][SR]+=_inc;
   return true;
 }
@@ -1882,6 +1808,8 @@ bool Susy2LepAna::passCentralJet(const JetVector* jets){
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passLead2JetsPt(const JetVector* jets){
   if(m_pTj0Min <0 && m_pTj1Min <0 ) return true; //cut not applied
+  if(m_pTj0Min >-1 && jets->size()==1 && jets->at(0)->Pt() < m_pTj0Min) return false;
+
   if(jets->size()<2) return false;
   if(jets->at(0)->Pt() < m_pTj0Min) return false;
   if(jets->at(1)->Pt() < m_pTj1Min) return false;
@@ -1964,11 +1892,39 @@ bool Susy2LepAna::passPtll(const LeptonVector* leptons)
   return true;
 }
 /*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::passPtllBound(const LeptonVector* leptons)
+{
+  if( leptons->size() < 2 ) return false;
+  TLorentzVector ll = (*leptons->at(0) + *leptons->at(1));
+  float dRll = leptons->at(0)->DeltaR(*leptons->at(1));
+  TF1* BoundLow = new TF1("expo","expo",1.5,4.0);
+  BoundLow->FixParameter(0,6.11861);
+  BoundLow->FixParameter(1,-11.18815e-01);
+  float pTll_val = BoundLow->Eval(dRll);
+  BoundLow->Delete();
+
+  if( m_pTllBound && ll.Pt() < pTll_val ) return false;
+
+  if(SYST==DGSys_NOM) n_pass_pTllBound[m_ET][SR]+=_inc;
+  return true;
+}
+
+/*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passdPhill(const LeptonVector* leptons){
   if( leptons->size() < 2 ) return false;
   float dPhi = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
   if(m_dPhillMax>-1 && dPhi>m_dPhillMax) return false;
   if(SYST==DGSys_NOM) n_pass_dPhill[m_ET][SR]+=_inc;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::passdRll(const LeptonVector* leptons){
+  if( leptons->size() < 2 ) return false;
+  float dR = leptons->at(0)->DeltaR(*leptons->at(1));
+  if(m_dRllMin>-1 && dR<m_dRllMin) return false;
+  if(m_dRllMax>-1 && dR>m_dRllMax) return false;
+
+  if(SYST==DGSys_NOM) n_pass_dRll[m_ET][SR]+=_inc;
   return true;
 }
 /*--------------------------------------------------------------------------------*/
@@ -2078,73 +2034,20 @@ float Susy2LepAna::JZBEtmiss(const Met *met, const LeptonVector* leptons)
 }
 /*--------------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------------*/
-void Susy2LepAna::print_SROSjveto()
-{
-  int j= DIL_SROSjveto;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
-  print_line("pass Zveto  ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
-  print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2(<90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-}
-/*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_SRmT2()
 {
   int j= DIL_SRmT2a;
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass Zveto  ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
   print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j], n_pass_leadLepPt[1][j], n_pass_leadLepPt[2][j]);
   print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
   j= DIL_SRmT2b;
-  print_line("pass MT2(110)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-}
-/*--------------------------------------------------------------------------------*/
-void Susy2LepAna::print_SR2jets()
-{
-  int j= DIL_SR2jets;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
-  print_line("pass SF     ",n_pass_flav[0][j], n_pass_flav[1][j], n_pass_flav[2][j]);
-  print_line("pass ZVeto  ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
-  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
-  print_line("pass 2Jets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass topTag ",n_pass_topTag[0][j], n_pass_topTag[1][j], n_pass_topTag[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-
-}
-/*--------------------------------------------------------------------------------*/
-void Susy2LepAna::print_SRZjets()
-{
-  int j= DIL_SRZjets;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
-  print_line("pass SF     ",n_pass_flav[0][j], n_pass_flav[1][j], n_pass_flav[2][j]);
-  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
-  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
-  print_line("pass 2Jets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass JetsPt ",n_pass_JetPt[0][j],n_pass_JetPt[1][j],n_pass_JetPt[2][j]);
-  print_line("pass Mjj    ",n_pass_mjj[0][j],n_pass_mjj[1][j],n_pass_mjj[2][j]);
-  print_line("pass topTag ",n_pass_topTag[0][j], n_pass_topTag[1][j], n_pass_topTag[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2(70)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-}
-/*--------------------------------------------------------------------------------*/
-void Susy2LepAna::print_SRSSjets()
-{
-  int j= DIL_SRSSjets;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
-  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
-  print_line("pass nJets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
-  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass MT2(120)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  j= DIL_SRmT2c;
+  print_line("pass MT2(150)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 }
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_SRWW()
@@ -2153,6 +2056,7 @@ void Susy2LepAna::print_SRWW()
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
   print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass ZVeto  ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
   print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
   print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
   print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
@@ -2163,16 +2067,157 @@ void Susy2LepAna::print_SRWW()
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
   print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
-  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
   print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
   
   j= DIL_SRWWc;
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
   print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 }
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::print_SRZjets()
+{
+  int j= DIL_SRZjets;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass SF     ",n_pass_flav[0][j], n_pass_flav[1][j], n_pass_flav[2][j]);
+  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
+  print_line("pass FVeto  ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
+  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass 2Jets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
+  print_line("pass JetsPt ",n_pass_JetPt[0][j],n_pass_JetPt[1][j],n_pass_JetPt[2][j]);
+  print_line("pass Mjj    ",n_pass_mjj[0][j],n_pass_mjj[1][j],n_pass_mjj[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
+  print_line("pass dRll   ",n_pass_dRll[0][j],n_pass_dRll[1][j],n_pass_dRll[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+}
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::print_SRSSjets()
+{
+  int j= DIL_SRSSjets;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
+  print_line("pass FVeto  ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
+  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass nJets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
+  print_line("pass JetsPt ",n_pass_JetPt[0][j],n_pass_JetPt[1][j],n_pass_JetPt[2][j]);
+  print_line("pass Mll    ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
+  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
+  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+}
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::print_ZVCR()
+{
+  int j= DIL_CRZVmet;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass SF     ",n_pass_flav[0][j], n_pass_flav[1][j], n_pass_flav[2][j]);
+  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
+  print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
 
+  j= DIL_CRZVmt2a;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass lepPt     ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass MT2 (90)  ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  j= DIL_CRZVmt2b;
+  print_line("pass MT2 (100) ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  j= DIL_CRZVmt2c;
+  print_line("pass MT2 (120) ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  j= DIL_CRZVmt2d;
+  print_line("pass MT2 (150) ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+
+  j= DIL_CRZVZjets;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
+  print_line("pass FVeto  ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
+  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass 2Jets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
+  print_line("pass JetsPt ",n_pass_JetPt[0][j],n_pass_JetPt[1][j],n_pass_JetPt[2][j]);
+  print_line("pass lepPt    ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass pTll (2D) ",n_pass_pTllBound[0][j],n_pass_pTllBound[1][j],n_pass_pTllBound[2][j]);
+  print_line("pass dRll   ",n_pass_dRll[0][j],n_pass_dRll[1][j],n_pass_dRll[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  
+}
+
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::print_WWCR()
+{
+  int j= DIL_CRWWmet;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass ZVeto  ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
+  print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
+  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+
+  j= DIL_CRWWmt2;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+
+}
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::print_TOPCR()
+{
+  int j= DIL_CRTOPmet;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
+  print_line("pass FVeto  ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
+  print_line("pass btag   ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass C20    ",n_pass_LJet[0][j], n_pass_LJet[1][j], n_pass_LJet[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass Mll    ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
+  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+
+  j= DIL_CRTOPmt2;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+
+  
+  j= DIL_CRTOPZjets;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass SF     ",n_pass_flav[0][j], n_pass_flav[1][j], n_pass_flav[2][j]);
+  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
+  print_line("pass FVeto  ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
+  print_line("pass btag   ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass C20    ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
+  print_line("pass pTll   ",n_pass_pTll[0][j], n_pass_pTll[1][j], n_pass_pTll[2][j]);
+  print_line("pass dRll   ",n_pass_dRll[0][j], n_pass_dRll[1][j], n_pass_dRll[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+}
+/*--------------------------------------------------------------------------------*/
+void Susy2LepAna::print_VRSS()
+{
+  int j= DIL_VRSS;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
+  print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+}
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_CRZ()
 {
@@ -2186,145 +2231,15 @@ void Susy2LepAna::print_CRZ()
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << DIL_SRNAME[j] <<endl;
   print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
-}
-/*--------------------------------------------------------------------------------*/
-void Susy2LepAna::print_ZXCR()
-{
-  int j= DIL_ZXCRjveto;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
-  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
-  print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-
-  j= DIL_ZXCRmT2a;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-  j= DIL_ZXCRmT2b;
-  print_line("pass MT2(110)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-
-  j= DIL_ZXCR2jets;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
-  print_line("pass 2Jets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass topTag ",n_pass_topTag[0][j], n_pass_topTag[1][j], n_pass_topTag[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2(55)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-
-  j= DIL_ZXCRWW;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
   
-}
-/*--------------------------------------------------------------------------------*/
-void Susy2LepAna::print_TOPCR()
-{
-  int j= DIL_CRTOP;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
-  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
-  print_line("pass btag   ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
-  print_line("pass 2Jets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-
-  j= DIL_CRTOPWWa;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
-  print_line("pass btag   ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-
-  j= DIL_CRTOPWWb;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-  
-  j= DIL_CRTOPWWc;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-}
-/*--------------------------------------------------------------------------------*/
-void Susy2LepAna::print_WWCR()
-{
-  int j= DIL_CRWW;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
-  print_line("pass Z      ",n_pass_Z[0][j], n_pass_Z[1][j], n_pass_Z[2][j]);
-  print_line("pass Jveto  ",n_pass_FullJveto[0][j], n_pass_FullJveto[1][j], n_pass_FullJveto[2][j]);
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-  j= DIL_CRWW3;
-  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
-  j= DIL_CRWW2;
-  print_line("pass MT2(50-90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-  j= DIL_CRWW4;
-  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
-  j= DIL_CRWW5;
-  print_line("pass MT2(90)",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-
-  j= DIL_CRWWa;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
-  print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
-  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
-  print_line("pass dPhill ",n_pass_dPhill[0][j],n_pass_dPhill[1][j],n_pass_dPhill[2][j]);
-
-  j= DIL_CRWWb;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
-  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
-  print_line("pass dPhill ",n_pass_dPhill[0][j],n_pass_dPhill[1][j],n_pass_dPhill[2][j]);
-  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-
-  j= DIL_CRWWc;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
-  print_line("pass dPhill ",n_pass_dPhill[0][j],n_pass_dPhill[1][j],n_pass_dPhill[2][j]);
-  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-}
-/*--------------------------------------------------------------------------------*/
-void Susy2LepAna::print_VRSS()
-{
-  int j= DIL_VRSS;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
-  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
-  print_line("pass nJets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
-  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-
-  j= DIL_VRSSbtag;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
-  print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
-  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
-  print_line("pass nJets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass Mll    ",n_pass_mll[0][j],n_pass_mll[1][j],n_pass_mll[2][j]);
-  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
-  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
 
 }
+
+
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_line(string s, float a, float b, float c)
 {
-  cout << setprecision(6)  << s << "\t" << a << "\t" << b << "\t" << c << endl;
+  cout << setprecision(2)  << s << "\t" << a << "\t" << b << "\t" << c << endl;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -2711,10 +2626,13 @@ float Susy2LepAna::writeIntoHistFitterTree(uint iSR,
 					   const Met* met)
 {
   //Save only events pass SR's or CR's cuts
-  if(iSR==DIL_CRZ || iSR==DIL_CRZjveto || 
+  if(iSR==DIL_CRZ || iSR==DIL_CRZjets || iSR==DIL_CRZjveto || 
      iSR==DIL_CR2LepOS || iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 ||
      iSR==DIL_preSROSjveto || iSR==DIL_preSRmT2 || 
-     iSR==DIL_preSR2jets || iSR==DIL_preSRZjets || iSR==DIL_preSRSS)
+     iSR==DIL_preSRZjets || iSR==DIL_preSRWW  || iSR==DIL_preSRSS ||
+     iSR==DIL_optimSRZjets || iSR==DIL_optimSRjets || 
+     iSR==DIL_optimSRSS || iSR==DIL_optimSR0jet
+     )
     return -1;
 
   // Find which event type
@@ -2860,12 +2778,13 @@ float Susy2LepAna::writeIntoHistFitterTree(uint iSR,
 
 
   //Resolve overlap CRWWa overlap with ZXCRmt2
+  /*
   if(iSR==DIL_CRWWa){
     bool _inZ = (fabs(_Mll-MZ)<10) ? true : false;
     if(_isOS && _inZ && (_nC20+_nB20+_nF30)==0 && _metRel>40 && _MT2>90)
       return 0; //event also in ZXCRmt2, don't duplicate
   }
-  
+  */
 
   // Store everything in MeV
   static const float MEV = 1000; 

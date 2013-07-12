@@ -4,16 +4,17 @@ import os,sys,subprocess
 ## Common packages required by SusyWeakProdAna
 
 lpkgs = [
-'svn co svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/D3PDTools/RootCore/tags/RootCore-00-01-61 RootCore',
-'svn co svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface/tags/CalibrationDataInterface-00-01-02/cmt svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface/tags/CalibrationDataInterface-00-01-02/CalibrationDataInterface svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface/tags/CalibrationDataInterface-00-01-02/Root svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface/tags/CalibrationDataInterface-00-01-02/src CalibrationDataInterface',
+'svn co svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/D3PDTools/RootCore/tags/RootCore-00-01-77 RootCore',
+'svn co svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface/tags/CalibrationDataInterface-00-02-01/cmt svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface/tags/CalibrationDataInterface-00-02-01/CalibrationDataInterface svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface/tags/CalibrationDataInterface-00-02-01/Root svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface/tags/CalibrationDataInterface-00-02-01/src CalibrationDataInterface',
 'svn co svn+ssh://svn.cern.ch/reps/atlasphys/Physics/SUSY/Analyses/WeakProduction/ChargeFlip/trunk ChargeFlip',
-'svn co svn+ssh://svn.cern.ch/reps/atlasphys/Physics/SUSY/Analyses/WeakProduction/DGTriggerReweight/tags/DGTriggerReweight-00-00-28 DGTriggerReweight',
+'svn co svn+ssh://svn.cern.ch/reps/atlasphys/Physics/SUSY/Analyses/WeakProduction/DGTriggerReweight/tags/DGTriggerReweight-00-00-29 DGTriggerReweight',
 'svn co svn+ssh://svn.cern.ch/reps/atlasphys/Physics/SUSY/Analyses/WeakProduction/HistFitterTree/tags/HistFitterTree-00-00-17 HistFitterTree',
 'svn co svn+ssh://svn.cern.ch/reps/atlasgrp/Institutes/UCIrvine/btoggers/Mt2/tags/Mt2-00-00-01 Mt2',
 'svn co svn+ssh://svn.cern.ch/reps/atlasoff/PhysicsAnalysis/AnalysisCommon/ReweightUtils/tags/ReweightUtils-00-02-13 ReweightUtils',
 'svn co svn+ssh://svn.cern.ch/reps/atlasphys/Physics/SUSY/Analyses/WeakProduction/SignificanceCalculator/trunk SignificanceCalculator',
-'svn co svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/UCIrvine/mrelich/SusyMatrixMethod/tags/SusyMatrixMethod-00-01-26 SusyMatrixMethod',
-'svn co svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/UCIrvine/SUSYAnalysis/SusyNtuple/trunk SusyNtuple',
+'svn co svn+ssh://svn.cern.ch/reps/atlasphys/Physics/SUSY/Analyses/WeakProduction/SusyMatrixMethod/tags/SusyMatrixMethod-00-02-01 SusyMatrixMethod',
+#'svn co svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/UCIrvine/SUSYAnalysis/SusyNtuple/trunk SusyNtuple',
+'svn co svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/UCIrvine/SUSYAnalysis/SusyNtuple/branches/SusyNtuple-00-00-60-branch SusyNtuple',
 'svn co svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/UCIrvine/mrelich/SusyXSReader/trunk SusyXSReader',
 'svn co svn+ssh://svn.cern.ch/reps/atlasgrp/Institutes/UCIrvine/btoggers/ZllR/tags/ZllR-00-00-01 ZllR',
 

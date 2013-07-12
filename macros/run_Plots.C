@@ -44,6 +44,7 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
 
   _ana = new DrawPlots(); 
+  openHist();
 }
 
 //--------------------------------------------------------------------------------
@@ -55,5 +56,6 @@ void openHist(string mode,string Top,string WW,string Zjets,string ZV,string Fak
 //--------------------------------------------------------------------------------
 void draw(string name, bool logy)
 {
-  _ana->drawPlot(name,logy);   
+  //_ana->drawPlot(name,logy);   
+  _ana->drawPlotErrBand(name,logy,true,true);   
 }

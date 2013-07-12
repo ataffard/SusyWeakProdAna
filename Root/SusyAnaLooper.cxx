@@ -25,6 +25,7 @@ SusyAnaLooper::SusyAnaLooper():
   nMllCut(0)
 {
   setAnaType(Ana_2Lep);
+  setSelectTaus(true);
 
   _histoDir = new TDirectory("Ana","Ana");
   _susyHistos = new SusyHistos();
@@ -66,10 +67,11 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
     _susy2LAna->setUseLooseLep(_useLooseLep);
     _susy2LAna->setMethod(_method);
     _susy2LAna->hookContainers(&nt,
-			       &m_baseElectrons, &m_signalElectrons,
-			       &m_baseMuons, &m_signalMuons,
+			       &m_preElectrons, &m_baseElectrons, &m_signalElectrons,
+			       &m_preMuons, &m_baseMuons, &m_signalMuons,
 			       &m_baseLeptons, &m_signalLeptons,
-			       &m_baseJets, &m_signalJets2Lep);
+			       &m_preJets, &m_baseJets, &m_signalJets2Lep,
+			       &m_baseTaus, &m_signalTaus);
     _susyHistos->Book2LHistograms(_histoDir,DO_SYS);
     if(_isSleptonGrid) _susy2LAna->setSleptonSumWs(_sleptonSumWs);
     _susy2LAna->setMCSumWs(getSumwMap());
@@ -269,9 +271,11 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       
       clearObjects();
       if(iiSyst<=DGSys_RESOST) //Only for sys up to trigger SF need reload the SusyNt obj
-	selectObjects( (SusyNtSys) iiSyst);
+	selectObjects( (SusyNtSys) iiSyst, false, TauID_medium);
+	//	selectObjects( (SusyNtSys) iiSyst);
       else
-	selectObjects((SusyNtSys) DGSys_NOM);
+	selectObjects((SusyNtSys) DGSys_NOM, false, TauID_medium);
+	//selectObjects((SusyNtSys) DGSys_NOM);
       
       if(dbg()>5) dumpEvent();
       
