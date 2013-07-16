@@ -137,6 +137,9 @@ class Susy2LepAna: public SusyNtTools
     bool passdPhi(TLorentzVector v0, TLorentzVector v1, float cut);
     bool passdPhill(const LeptonVector* leptons);
     bool passdRll(const LeptonVector* leptons);
+    bool passDPhillJ0(const LeptonVector* leptons, const JetVector* jets);
+    bool passMetMeff(const JetVector* jets, const Met* met);
+    bool passMeff(const JetVector* jets, const Met* met);
 
     bool passBlindData(bool isMC, int iSR, float metRel, float mt2);
 
@@ -312,6 +315,12 @@ class Susy2LepAna: public SusyNtTools
     float               m_dPhiMetll;    // dphi Met & ll
     float               m_dPhiMetl1;    // dphi Met & l1
 
+    float               m_dPhillJ0Min;  // min dPhi ll & lead Jet
+    float               m_dPhillJ0Max;  // max dPhi ll & lead Jet
+    float               m_MetMeffMin;   // min Met/Meff
+    float               m_MetMeffMax;   // min Met/Meff
+    float               m_MeffMin;      // min Meff
+    float               m_MeffMax;      // min Meff
     
     DiLepEvtType        m_ET;           // Dilepton event type to store cf
     std::string         m_sel;          // event selection string
@@ -365,7 +374,9 @@ class Susy2LepAna: public SusyNtTools
     float                n_pass_met[ET_N][DIL_NSR];
     float                n_pass_dPhiMetll[ET_N][DIL_NSR];
     float                n_pass_dPhiMetl1[ET_N][DIL_NSR];
-    
+    float                n_pass_dPhillJ0[ET_N][DIL_NSR];
+    float                n_pass_MetMeff[ET_N][DIL_NSR];
+    float                n_pass_Meff[ET_N][DIL_NSR];
 
     ofstream evtDump;
 

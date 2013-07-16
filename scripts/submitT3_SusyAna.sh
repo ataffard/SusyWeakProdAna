@@ -104,6 +104,10 @@ while read line; do
 "$sName" == "llnunu_WW.126892" -o \
 "$sName" == "ttbar.117209" -o \
 "$sName" == "ttbar.117210" -o \
+"$sName" == "ZeeNp0.147105" -o \
+"$sName" == "ZeeNp1.147106" -o \
+"$sName" == "ZmumuNp0.147113" -o \
+"$sName" == "ZmumuNp1.147114" -o \
 "$sName" == "ZeeNp0.117650" -o \
 "$sName" == "ZmumuNp0.117660" -o \
 "$sName" == "ZeeHeavyJets.128975" -o \

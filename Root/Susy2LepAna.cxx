@@ -64,6 +64,12 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   m_pTj1Min     ( -1  ),
   m_dPhiMetll   ( -1  ),
   m_dPhiMetl1   ( -1  ),
+  m_dPhillJ0Min ( -1  ),
+  m_dPhillJ0Max ( -1  ),
+  m_MetMeffMin  ( -1  ),
+  m_MetMeffMax  ( -1  ),
+  m_MeffMin     ( -1  ),
+  m_MeffMax     ( -1  ),
 
   m_ET(ET_Unknown)
 {
@@ -82,7 +88,7 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/pass0_Summer2013.root"; //Spring 2013!
+    "/SusyMatrixMethod/data/pass2_Summer2013.root"; //Spring 2013!
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT,
@@ -370,6 +376,11 @@ void Susy2LepAna::resetCounter()
       n_pass_met[i][j]       = 0;
       n_pass_dPhiMetll[i][j] = 0;
       n_pass_dPhiMetl1[i][j] = 0;
+
+      n_pass_dPhillJ0[i][j]  = 0;
+      n_pass_MetMeff[i][j]   = 0;
+      n_pass_Meff[i][j]      = 0;
+
     }
   }
 
@@ -437,6 +448,13 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
   m_dRllMax   =  -1;
   m_dPhiMetll =  -1;
   m_dPhiMetl1 =  -1;
+
+  m_dPhillJ0Min = -1;
+  m_dPhillJ0Max = -1;
+  m_MetMeffMin  = -1;
+  m_MetMeffMax  = -1;
+  m_MeffMin     = -1;
+  m_MeffMax     = -1;
 
 
   //----------------------------//
@@ -524,6 +542,26 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_dRllMax   = 1.5;
     m_metRelMin = 80;
   }
+  else if(m_sel == "SRZjetsb"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_vetoF     = true;
+    m_vetoB     = true;
+    m_minC20    = 2;
+    m_pTj0Min   = 40;
+    m_pTj1Min   = 25;
+    m_lowMjj    = 50;
+    m_highMjj   = 100;
+
+    m_mt2Min    = 100;
+    m_metRelMin = 50;
+    m_MeffMin   = 250;
+ }
+
+
   else if(m_sel == "SRSSjets"){
     m_selSS     = true;
     m_vetoB     = true;
@@ -680,6 +718,77 @@ void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
     m_dRllMax   = 4.0;
     m_metRelMin = 80;
     m_pTllBound = true;
+  }
+  else if(m_sel == "CRZVZjets1"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_vetoF     = true;
+    m_vetoB     = true;
+    m_minC20    = 2;
+
+    m_mt2Min     = 100;
+    m_MetMeffMin = 0.45;
+    m_metRelMin  = 40;
+  }
+  else if(m_sel == "CRZVZjets2"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_vetoF     = true;
+    m_vetoB     = true;
+    m_minC20    = 2;
+
+    m_mt2Min     = 100;
+    m_metRelMin  = 80;
+  }
+  else if(m_sel == "CRZVZjets3"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_vetoF     = true;
+    m_vetoB     = true;
+    m_minC20    = 2;
+
+    m_mt2Min      = 100;
+    m_metRelMin   = 40;
+    m_dPhillJ0Max = 2.0;
+  }
+  else if(m_sel == "CRZVZjets4"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_vetoF     = true;
+    m_vetoB     = true;
+    m_minC20    = 2;
+
+    m_dRllMin   = 1.5;
+    m_dPhillJ0Max = 2.0;
+    m_mt2Min      = 90;
+  }
+ else if(m_sel == "CRZjetsTemplate"){
+    m_selOS     = true;
+    m_selSF     = true;
+    m_selZ      = true;
+    m_pTl0Min   = 35;
+    m_pTl1Min   = 20;
+    m_vetoF     = true;
+    m_vetoB     = true;
+    m_minC20    = 2;
+    m_pTj0Min   = 45;
+    m_pTj1Min   = 45;
+    m_lowMjj    = 50;
+    m_highMjj   = 100;
+    m_pTllMin   = 80;
+    m_dRllMin   = 1.5;
   }
   
   //----------------------------//
@@ -1055,6 +1164,15 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!passMWWT(leptons,&new_met) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
+    if(!passDPhillJ0(leptons,signalJets) ) continue;
+    _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+    if(!passMeff(signalJets, &new_met) ) continue;
+    _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+    if(!passMetMeff(signalJets, &new_met) ) continue;
+    _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
+
     if(!passTopTagger(leptons,signalJets,&new_met) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass toptagger " << sSR << endl;
@@ -1354,6 +1472,9 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   case DIL_SRZjets:
     frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
+  case DIL_SRZjetsb:
+    frSR = SusyMatrixMethod::FR_SRZjets; 
+    break;
   case DIL_SRWWa:
     frSR = SusyMatrixMethod::FR_SRWWa;
     break;
@@ -1364,7 +1485,7 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SRWWc;
     break;
   case DIL_SRSSjets:
-    frSR = SusyMatrixMethod::FR_VRSS;
+    frSR = SusyMatrixMethod::FR_SRSSInc;
     break;
     
   case DIL_CRWWmet:
@@ -1377,7 +1498,7 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_CRTopMet;
     break;
   case DIL_CRTOPmt2:
-    frSR = SusyMatrixMethod::FR_CRTopmT2b;//Serhan Opt1 
+    frSR = SusyMatrixMethod::FR_CRTopmT2;
     break;
   case DIL_CRTOPZjets:
     frSR = SusyMatrixMethod::FR_CRTopZjets;
@@ -1386,19 +1507,31 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_CRZVMet;
     break;
   case DIL_CRZVmt2a:
-    frSR = SusyMatrixMethod::FR_CRZVmT2;
+    frSR = SusyMatrixMethod::FR_CRZVmT2_90;
     break;
   case DIL_CRZVmt2b:
-    frSR = SusyMatrixMethod::FR_CRZVmT2;
+    frSR = SusyMatrixMethod::FR_CRZVmT2_100;
     break;
   case DIL_CRZVmt2c:
-    frSR = SusyMatrixMethod::FR_CRZVmT2;
+    frSR = SusyMatrixMethod::FR_CRZVmT2_120;
     break;
   case DIL_CRZVmt2d:
-    frSR = SusyMatrixMethod::FR_CRZVmT2;
+    frSR = SusyMatrixMethod::FR_CRZVmT2_150;
     break;
   case DIL_CRZVZjets:
     frSR = SusyMatrixMethod::FR_CRZVMet;
+    break;
+  case DIL_CRZVZjets1:
+    frSR = SusyMatrixMethod::FR_CRZVMet; //TEMP
+    break;
+  case DIL_CRZVZjets2:
+    frSR = SusyMatrixMethod::FR_CRZVMet; //TEMP
+    break;
+  case DIL_CRZVZjets3:
+    frSR = SusyMatrixMethod::FR_CRZVMet; //TEMP
+    break;
+  case DIL_CRZVZjets4:
+    frSR = SusyMatrixMethod::FR_CRZVMet; //TEMP
     break;
   case DIL_VRSS:
     frSR = SusyMatrixMethod::FR_VRSS;
@@ -1418,7 +1551,7 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
   case DIL_CR2LepSS:
-    frSR = SusyMatrixMethod::FR_VRSS;
+    frSR = SusyMatrixMethod::FR_SRSSInc;
     break;
   case DIL_CR2LepSS40:
     frSR = SusyMatrixMethod::FR_VRSS;
@@ -1442,7 +1575,7 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SRZjets; 
     break;
   case DIL_optimSRSS:
-    frSR = SusyMatrixMethod::FR_VRSS; 
+    frSR = SusyMatrixMethod::FR_SRSSInc; 
     break;
   case DIL_optimSR0jet:
     frSR = SusyMatrixMethod::FR_SRmT2a; 
@@ -1966,7 +2099,40 @@ bool Susy2LepAna::passdPhi(TLorentzVector v0, TLorentzVector v1, float cut)
 {
   return v0.DeltaPhi(v1) > cut;
 }
+/*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::passDPhillJ0(const LeptonVector* leptons, const JetVector* jets){
+  if(jets->size()==0) return false;
+  if( leptons->size() < 2 ) return false;
+  TLorentzVector ll = (*leptons->at(0) + *leptons->at(1));
+  float dPhi = fabs(ll.DeltaPhi(*jets->at(0)));
 
+  if(m_dPhillJ0Min>-1 && dPhi<m_dPhillJ0Min) return false;
+  if(m_dPhillJ0Max>-1 && dPhi>m_dPhillJ0Max) return false;
+  if(SYST==DGSys_NOM) n_pass_dPhillJ0[m_ET][SR]+=_inc;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::passMeff(const JetVector* jets, const Met* met){
+  float mEff = Meff(*jets,met);
+  
+  if(m_MeffMin>-1 && mEff<m_MeffMin) return false;
+  if(m_MeffMax>-1 && mEff>m_MeffMax) return false;
+  if(SYST==DGSys_NOM) n_pass_Meff[m_ET][SR]+=_inc;
+  return true;
+
+}
+/*--------------------------------------------------------------------------------*/
+bool Susy2LepAna::passMetMeff(const JetVector* jets, const Met* met){
+
+  float mEff = Meff(*jets,met);
+  float ratio = (met->lv().Pt()>0) ?  met->lv().Pt()/mEff: 0;
+  
+  if(m_MetMeffMin>-1 && ratio<m_MetMeffMin) return false;
+  if(m_MetMeffMax>-1 && ratio>m_MetMeffMax) return false;
+  if(SYST==DGSys_NOM) n_pass_MetMeff[m_ET][SR]+=_inc;
+  return true;
+
+}
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passBlindData(bool isMC, int iSR, float metRel, float mt2){
   if( (!isMC && BLIND_DATA) || ( isMC && BLIND_MC)){
@@ -2092,6 +2258,18 @@ void Susy2LepAna::print_SRZjets()
   print_line("pass pTll   ",n_pass_pTll[0][j],n_pass_pTll[1][j],n_pass_pTll[2][j]);
   print_line("pass dRll   ",n_pass_dRll[0][j],n_pass_dRll[1][j],n_pass_dRll[2][j]);
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+
+  j= DIL_SRZjetsb;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass 2Jets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
+  print_line("pass JetsPt ",n_pass_JetPt[0][j],n_pass_JetPt[1][j],n_pass_JetPt[2][j]);
+  print_line("pass Mjj    ",n_pass_mjj[0][j],n_pass_mjj[1][j],n_pass_mjj[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass MEff   ",n_pass_Meff[0][j], n_pass_Meff[1][j], n_pass_Meff[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  
 }
 /*--------------------------------------------------------------------------------*/
 void Susy2LepAna::print_SRSSjets()
@@ -2149,6 +2327,36 @@ void Susy2LepAna::print_ZVCR()
   print_line("pass dRll   ",n_pass_dRll[0][j],n_pass_dRll[1][j],n_pass_dRll[2][j]);
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
   
+
+  j= DIL_CRZVZjets1;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass 2Jets  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
+  print_line("pass lepPt    ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass Met/MEff   ",n_pass_MetMeff[0][j], n_pass_MetMeff[1][j], n_pass_MetMeff[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass MT2 (100) ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  
+  j= DIL_CRZVZjets2;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass lepPt    ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass MT2 (100) ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+
+  j= DIL_CRZVZjets3;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass lepPt    ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass dPhi(ll,j0) ",n_pass_dPhillJ0[0][j], n_pass_dPhillJ0[1][j], n_pass_dPhillJ0[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+
+  j= DIL_CRZVZjets4;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << DIL_SRNAME[j] <<endl;
+  print_line("pass dRll   ",n_pass_dRll[0][j],n_pass_dRll[1][j],n_pass_dRll[2][j]);
+  print_line("pass dPhi(ll,j0) ",n_pass_dPhillJ0[0][j], n_pass_dPhillJ0[1][j], n_pass_dPhillJ0[2][j]);
+  print_line("pass MT2 (90) ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -2341,6 +2549,8 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
   float dPhill=999;
   dPhill=leptons->at(0)->DeltaPhi(*leptons->at(1));
   dPhill=TVector2::Phi_mpi_pi(dPhill)*TMath::RadToDeg(); 
+  float dRll=999;
+  dRll  = leptons->at(0)->DeltaR(*leptons->at(1));
   float dPhilMet=999; //min dPhi (l,MET)
   float mTl1=-999;
   float mTl2=-999;
@@ -2409,6 +2619,7 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
   _hh->H1FILL(_hh->DG2L_mTl1[iSR][m_ET][iSYS],mTl1,_ww);
   _hh->H1FILL(_hh->DG2L_mTl2[iSR][m_ET][iSYS],mTl2,_ww); 
   _hh->H1FILL(_hh->DG2L_dPhill[iSR][m_ET][iSYS],fabs(dPhill),_ww); 
+  _hh->H1FILL(_hh->DG2L_dRll[iSR][m_ET][iSYS],fabs(dRll),_ww); 
   _hh->H1FILL(_hh->DG2L_dPhilMet[iSR][m_ET][iSYS],fabs(dPhilMet),_ww); 
   _hh->H1FILL(_hh->DG2L_JZBJet[iSR][m_ET][iSYS],JZBJet(v_sigJet,leptons),_ww); 
   _hh->H1FILL(_hh->DG2L_JZBEtmiss[iSR][m_ET][iSYS],JZBEtmiss(met,leptons),_ww); 

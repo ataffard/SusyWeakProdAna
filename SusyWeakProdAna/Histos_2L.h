@@ -15,13 +15,14 @@ const char* const DIL_QQ[] = {"OS", "SS"};
 
 
 enum DIL_SR{DIL_SRmT2a=0, DIL_SRmT2b, DIL_SRmT2c,
-	    DIL_SRZjets, DIL_SRSSjets,
+	    DIL_SRZjets,  DIL_SRZjetsb, DIL_SRSSjets,
 	    DIL_SRWWa, DIL_SRWWb, DIL_SRWWc, 
 	    DIL_CRWWmet, DIL_CRWWmt2,
 	    DIL_CRTOPmet, DIL_CRTOPmt2, DIL_CRTOPZjets,
 	    DIL_CRZVmet, 
 	    DIL_CRZVmt2a, DIL_CRZVmt2b, DIL_CRZVmt2c, DIL_CRZVmt2d,
-	    DIL_CRZVZjets,  
+	    DIL_CRZVZjets, DIL_CRZVZjets1, DIL_CRZVZjets2, DIL_CRZVZjets3,  DIL_CRZVZjets4,  
+	    DIL_CRZjetsTemplate, 
 	    DIL_VRSS, 
 	    DIL_CRZ, DIL_CRZjets, DIL_CRZjveto,
 	    DIL_CR2LepOS, DIL_CR2LepSS, DIL_CR2LepSS40,
@@ -35,13 +36,14 @@ enum DIL_SR{DIL_SRmT2a=0, DIL_SRmT2b, DIL_SRmT2c,
 };
 
 const string DIL_SRNAME[] = {"SRmT2a", "SRmT2b","SRmT2c",
-			     "SRZjets","SRSSjets",  
+			     "SRZjets", "SRZjetsb", "SRSSjets",  
 			     "SRWWa", "SRWWb", "SRWWc", 
 			     "CRWWmet", "CRWWmt2",
 			     "CRTOPmet", "CRTOPmt2", "CRTOPZjets",
 			     "CRZVmet", 
 			     "CRZVmt2a", "CRZVmt2b", "CRZVmt2c", "CRZVmt2d", 
-			     "CRZVZjets",
+			     "CRZVZjets","CRZVZjets1","CRZVZjets2","CRZVZjets3", "CRZVZjets4",
+			     "CRZjetsTemplate", 
 			     "VRSS", 
 			     "CRZ", "CRZjets", "CRZjveto", 
 			     "CR2LepOS", "CR2LepSS", "CR2LepSS40",
@@ -90,6 +92,7 @@ class Histos_2L
   HDG2L DG2L_pTll;
   HDG2L DG2L_mWWT;
   HDG2L DG2L_dPhill;
+  HDG2L DG2L_dRll;
   HDG2L DG2L_dPhilMet; //New
   HDG2L DG2L_dPhiJetMet; //New
   HDG2L DG2L_mTl1; //Mt using leading lepton 

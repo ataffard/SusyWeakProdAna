@@ -49,7 +49,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir, bool useSys)
   
   BOOK_SRDG2L(DG2L_pred,"","",syaxis,1,-0.5,0.5);
   BOOK_SRDG2L(DG2L_Zcount,"","",syaxis,520,1,520);
-  BOOK_SRDG2L(DG2L_cutflow,"","",syaxis,20,-0.5,19.5);
+  BOOK_SRDG2L(DG2L_cutflow,"","",syaxis,30,-0.5,29.5);
   BOOK_SRDG2L(DG2L_nJets,"NJets","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nCJets,"NJets - central","",syaxis,10,-0.5,9.5);
   BOOK_SRDG2L(DG2L_nFJets,"NJets - forward ","",syaxis,10,-0.5,9.5);
@@ -63,6 +63,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRDG2L(DG2L_pTll,"p_{T}^{ll}","GeV",syaxis,42,10,220);
   BOOK_SRDG2L(DG2L_mWWT,"m_{T}^{WW}","GeV",syaxis,50,0,500);
   BOOK_SRDG2L(DG2L_dPhill,"dPhi(l,l)","degree",syaxis,9,0,180);
+  BOOK_SRDG2L(DG2L_dRll,"dR(l,l)","degree",syaxis,40,0,4);
   BOOK_SRDG2L(DG2L_dPhilMet,"dPhi(l,Met)","degree",syaxis,9,0,180);
   BOOK_SRDG2L(DG2L_dPhiJetMet,"dPhi(j,Met)","degree",syaxis,9,0,180);
   BOOK_SRDG2L(DG2L_JZBJet,"JZB","GeV",syaxis,120,-400,800);
