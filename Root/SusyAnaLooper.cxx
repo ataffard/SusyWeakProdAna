@@ -155,6 +155,7 @@ void SusyAnaLooper::printSettings()
   cout << "   TOYNT_SR          " << TOYNT_iSR      << endl;
   cout << endl;
   cout << "   DUMP EVENT        " << DUMP_RUNEVT    << endl;
+  cout << "   CUTFLOW           " << CUTFLOW        << endl;
   cout << " ================================"       <<endl;
   cout << endl;
 

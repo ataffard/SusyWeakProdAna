@@ -171,9 +171,11 @@ void Susy2LepAna::doAnalysis(unsigned int isys)
 
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
+    if(!CUTFLOW && v_baseLep->size()<2) return;
     if(!selectEvent(v_baseLep, v_baseLep, v_sigJet, m_met)) return;
   }
   else{
+    if(!CUTFLOW && v_sigLep->size()<2) return;
     if(!selectEvent(v_sigLep, v_baseLep, v_sigJet, m_met)) return;
   }
   return;
@@ -1164,6 +1166,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!passMWWT(leptons,&new_met) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
+
     if(!passDPhillJ0(leptons,signalJets) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
@@ -2101,8 +2104,10 @@ bool Susy2LepAna::passdPhi(TLorentzVector v0, TLorentzVector v1, float cut)
 }
 /*--------------------------------------------------------------------------------*/
 bool Susy2LepAna::passDPhillJ0(const LeptonVector* leptons, const JetVector* jets){
-  if(jets->size()==0) return false;
+  if( !(m_dPhillJ0Min>-1 || m_dPhillJ0Max>-1)) return true; //cut not apply
   if( leptons->size() < 2 ) return false;
+  if(jets->size()==0) return false;
+
   TLorentzVector ll = (*leptons->at(0) + *leptons->at(1));
   float dPhi = fabs(ll.DeltaPhi(*jets->at(0)));
 

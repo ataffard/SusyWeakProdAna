@@ -43,6 +43,8 @@ const unsigned int TOYNT_iSR   = DIL_optimSRjets;     //SR used to fill ToyNt
 const bool DO_SYS         = true;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
+const bool CUTFLOW        = false; //false require at least 2 tight/base lep SPEED ANA
+
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool WEIGHT_ONE     = false;          //Ignore evt->w use 1
 const bool DO_FILL_HISTO  = true;
