@@ -7,11 +7,11 @@ typedef unsigned uint;
 
 string mth = "std";
 //string dir = "histos_041413_21fb_n0139_Moriond_DD_v2/histOutputs/";
-string dir = "histos_040613_21fb_n0138_Moriond_DD_v1/histOutputs/";
+string dir = "histos_071613_21fb_n0145_DD_v1/histOutputs/";
 
-string sampleSet = "data12.txt";
+//string sampleSet = "data12.txt";
 //string sampleSet = "Zjets_SherpaAlpgenPythia.txt";
-//string sampleSet = "WZ_ZZ_PowHeg.txt";
+string sampleSet = "WZ_ZZ_PowHeg.txt";
 //string sampleSet = "WW_PowHeg_oldgg2WW.txt";
 //string sampleSet = "Higgs.txt";
 //string sampleSet = "top_MCNLO.txt";
@@ -38,9 +38,9 @@ int main(int argc, char *argv[]){
  vector<string> SR;
  //SR.push_back("CRWW");
  //SR.push_back("CRWW2");
- SR.push_back("SRmT2a");
- SR.push_back("SRmT2b");
- // SR.push_back("ZXCRWW");
+ //SR.push_back("SRmT2a");
+ //SR.push_back("SRmT2b");
+ SR.push_back("SRZjets");
 
 
  vector<string> SAMPLES;

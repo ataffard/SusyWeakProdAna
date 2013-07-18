@@ -17,17 +17,43 @@ if [[ $# = 2 ]]; then
     SR=$2
 elif [[ $# = 1 ]]; then
     mode=$1
-    SR=(CRWWmet \
-	CRWWmt2 \
-	CRTOPmet \
-	CRTOPmt2 \
-	CRTOPZjets \
-	CRZVmet \
-	CRZVmt2a \
-	CRZVmt2b \
-	CRZVmt2c \
-	CRZVmt2d \
-	CRZVZjets \
+    SR=(#CRWWmet \
+	#CRWWmt2 \
+	#CRTOPmet \
+	#CRTOPmt2 \
+	#CRTOPZjets \
+	#CRZVmet \
+	#CRZVmt2a \
+	#CRZVmt2b \
+	#CRZVmt2c \
+	#CRZVmt2d \
+	#CRZVZjets \
+	#CRZVZjets1 \
+	#CRZVZjets2 \
+	#CRZVZjets3 \
+	#CRZVZjets4 \
+	#CRZjetsTemplate  \
+	CRZ \
+	CRZjets \
+	CRZjveto \
+	CR2LepOS \
+        CR2LepSS \
+        CR2LepSS40 \
+	#preSROSjveto \
+	#preSRmT2 \
+	#preSRZjets \
+	#preSRWW \
+	#preSRSS \
+	VRSS \
+	SRmT2a \
+	SRmT2b \
+	SRmT2c \
+	SRZjets \
+	SRZjetsb \
+        SRSSjets \
+	SRWWa \
+	SRWWb \
+	SRWWc \
 	)
 fi
 
@@ -52,7 +78,7 @@ if [ "$mode" == "DG2L" ] || [ "$mode" == "ALL" ] ; then
 #PLOTS=(metrel pTll mll mllcoarse mt2 ptl1 ptl2 ePt mPt )
 #PLOTS=(mllcoarse)
 
-#DIL=(EE MM )
+#DIL=(EM )
 DIL=(EE MM EM)
 
 <<SKIP
@@ -71,8 +97,9 @@ SR=( \
 )
 SKIP
 
-PLOTS=(mllcoarser pTll metrel mt2 mt2b metrel1 metrel2 metrel3 \
-     ePt mPt \
+PLOTS=(mllcoarser \
+    pTll metrel mt2 mt2b metrel1 metrel2 metrel3 \
+     ePt mPt dRll \
     mll  ptl1 ptl2 etal1 etal2 eEta mEta dPhill \    
     nJets nCJets \
     ptj1 ptj2  etaj1 etaj2 mjj ST \
@@ -87,14 +114,22 @@ PLOTS=(mllcoarser pTll metrel mt2 mt2b metrel1 metrel2 metrel3 \
     for sr in ${SR[@]}; do
 	for dil in ${DIL[@]}; do
 	    if [ "$sr" == "SR2jet" -a "$dil" == "EM" ]; then continue; fi
-	    if [ "$sr" == "CRZ" -a "$dil" == "EM" ]; then continue; fi
-	    if [ "$sr" == "CRWW" -a "$dil" == "EM" ]; then continue; fi
-	    if [ "$sr" == "SRWWa" -o "$sr" == "SRWWb" -o "$sr" == "SRWWc" -o \
-		 "$sr" == "CRWWa" -o "$sr" == "CRWWb" -o "$sr" == "CRWWc" -o \
-		 "$sr" == "CRWWa" -o "$sr" == "CRWWb" -o "$sr" == "CRWWc" \
-		]; then
-		if [ "$dil" == "EE" -o "$dil" == "MM" ]; then continue; fi
+
+	    if [ "$dil" == "EM" ]; then
+		if [ "$sr" == "CRZVmet" -o \
+		    "$sr" == "CRZVmt2a" -o "$sr" == "CRZVmt2b" -o \
+		    "$sr" == "CRZVmt2c" -o "$sr" == "CRZVmt2d" -o \
+		    "$sr" == "CRZVZjets" -o "$sr" == "CRZVZjets1" -o \
+		    "$sr" == "CRZVZjets2" -o "$sr" == "CRZVZjets3" -o \
+		    "$sr" == "CRZVZjets4" -o "$sr" == "CRZjetsTemplate" -o \
+		    "$sr" == "preSRZjets"
+		    ]; then continue; fi
 	    fi
+	    if [ "$sr" == "CRZ" -a "$dil" == "EM" ]; then continue; fi
+	    if [ "$sr" == "CRZjets" -a "$dil" == "EM" ]; then continue; fi
+	    if [ "$sr" == "CRZjveto" -a "$dil" == "EM" ]; then continue; fi
+	    if [ "$sr" == "preSRZjets" -a "$dil" == "EM" ]; then continue; fi
+
 	    
 	    for plots in ${PLOTS[@]}; do
 		name=DG2L_${sr}_${dil}_DG2L_${plots}

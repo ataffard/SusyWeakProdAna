@@ -9,7 +9,7 @@
 #
 # ./submitT3_hadd.sh cat
 #
-# ./submitT3_hadd.sh pass + mv histOutputs
+# ./submitT3_hadd.sh pass 
 #
 # ./submitT3_hadd.sh mc rlep hadd; ./submitT3_hadd.sh data std hadd; ./submitT3_hadd.sh data flep hadd; 
 #
@@ -23,21 +23,8 @@
 #!/bin/bash
 
 #Update for a given pass
-date="070913_21fb_n0144_DD_v1"
-
-#date="061413_21fb_n0140_Optim_DD_v3"
-#date="060713_21fb_n0140_Optim_DD_v2"
-#date="041813_21fb_n0139_Moriond_DD_v3"
-#date="041413_21fb_n0139_Moriond_DD_v2"
-#date="040613_21fb_n0138_Moriond_DD_v1"
-#date="033113_21fb_n0135_Moriond_DD_v6"
-#date="032913_21fb_n0135_Moriond_DD_v5"
-#date="032813_21fb_n0135_Moriond_DD_v4"
-#date="031513_21fb_n0135_Moriond_DD_v3"
-#date="031313_21fb_n0135_Moriond_DD_v1"
-#date="030813_21fb_n0127_Moriond_DD_v8"
-#date="030613_21fb_n0127_Moriond_DD_v7"
-#date="030213_21fb_n0135_Moriond_DD_v7"
+date="071613_21fb_n0145_DD_v1"
+#date="070913_21fb_n0144_DD_v1"
 
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -184,18 +171,22 @@ fi
 
 DIL=(EE MM EM)
 #<<SKIP
-SR=(SRmT2a SRmT2b SRmT2c \
-    SRWWa SRWWb SRWWc \
-    SRZjets SRSSjets \
-    CRWWmet CRWWmt2 \
-    CRTOPmet CRTOPmt2 CRTOPZjets \
-    CRZVmet CRZVmt2a CRZVmt2b CRZVmt2c CRZVmt2d \
-    CRZVZjets \
-    VRSS \
-    CRZ CRZjets CRZjveto \
-    CR2LepOS CR2LepSS CR2LepSS40 \
-    preSROSjveto preSRmT2 preSRZjets preSRWW preSRSS \
-#    optimSRZjets optimSRjets optimSRSS optimSR0jet \
+SR=(\
+    #SRmT2a SRmT2b SRmT2c \
+    #SRWWa SRWWb SRWWc \
+    #SRZjets \
+    SRZjetsb \
+    #SRSSjets \
+    #CRWWmet CRWWmt2 \
+    #CRTOPmet CRTOPmt2 CRTOPZjets \
+    #CRZVmet CRZVmt2a CRZVmt2b CRZVmt2c CRZVmt2d \
+    #CRZVZjets \
+    #VRSS \
+    #CRZ CRZjets CRZjveto \
+    #CR2LepOS CR2LepSS CR2LepSS40 \
+    #preSROSjveto preSRmT2 preSRZjets preSRWW preSRSS \
+    #optimSRZjets optimSRjets optimSRSS optimSR0jet \
+    #CRZVZjets1 CRZVZjets2 CRZVZjets3 CRZVZjets4 CRZjetsTemplate  \
 )
 #SKIP
 

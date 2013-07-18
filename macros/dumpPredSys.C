@@ -3,7 +3,7 @@
 
 typedef unsigned uint;
 
-string dir ="histos_033113_21fb_n0135_Moriond_DD_v6/";
+string dir ="histos_071613_21fb_n0145_DD_v1/";
 //string dir ="histos_030813_21fb_n0127_Moriond_DD_v8/";
 //string dir ="";
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
   //sample.push_back("histo_data12_flep.root");
   //sample.push_back("histo_ZX_AlpgenPythia_rlep.root");
   //sample.push_back("histo_ZX_Sherpa_rlep.root");
-  sample.push_back("histo_WW_Sherpa_rlep.root");
+  //sample.push_back("histo_WW_Sherpa_rlep.root");
   //sample.push_back("histo_top_MCNLO_rlep.root");
   //sample.push_back("histo_ZTauTaujets_AlpgenPythia_rlep.root");
   //sample.push_back("histo_llnunu_WW.126892_rlep_preSRmT2.root"); 

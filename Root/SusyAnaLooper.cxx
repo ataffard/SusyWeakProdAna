@@ -251,6 +251,15 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       }
     }
     
+    //Speed processing when not dumping cutflow....
+    if(!CUTFLOW){
+      int nNtLep = nt.ele()->size() + nt.muo()->size();
+      int nNtTau = nt.tau()->size();
+      if(nNtLep < 2) return false;
+      //if(m_nTauMin >= 0 && nNtTau < m_nTauMin) return false;
+    }
+
+
     for(uint iiSyst=minSys; iiSyst<maxSys; iiSyst++){     //Syst Looper
       if(dbg()>10) cout << "Do sys? " << DG2LSystNames[iiSyst] <<endl;
 
