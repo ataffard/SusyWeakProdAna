@@ -200,7 +200,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
     TH1F* _hNom=NULL;
     for(int isys=0; isys<DGSys_N; isys++){
       if(!sysHistos && isys>0) continue;
-      string hName = name + "_" + DG2LSystNames[isys];
+      string hName = name + "_" + DGSystNames[isys];
       _h = (TH1F*) _f->Get(hName.c_str());
       if(HNAME.Contains("_metrel")) {
 	_h->GetXaxis()->SetTitle("E_{T}^{miss,rel} [GeV]");
@@ -807,7 +807,7 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
       if(_hsys && _hsys->Integral(0,-1)>0) {
 	/*
 	cout << "\t\t MC " << MCNames[imc]
-	     << "\t Sys " << DG2LSystNames[isys] 
+	     << "\t Sys " << DGSystNames[isys] 
 	     << "\t " << _hsys->Integral(0,-1) << endl;
 	
 	int ibin1 = _hsys->GetBin(70);
@@ -816,11 +816,11 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
 	*/
 	totalSysHisto->Add(_hsys);
       }
-      //else cout << " Sys " << DG2LSystNames[isys] << " empty " << endl;
+      //else cout << " Sys " << DGSystNames[isys] << " empty " << endl;
     }   
     if(totalSysHisto->Integral(0,-1)>0){
       /*
-      cout << "Sys " << DG2LSystNames[isys] 
+      cout << "Sys " << DGSystNames[isys] 
 	   << "\t " << totalSysHisto->Integral(0,-1) 
 	   << "\t nom " << _hist->Integral(0,-1) 
 	   << endl;
@@ -883,7 +883,7 @@ void DrawPlots::getFakeSys(vector<TH1F*> &sys)
       
       /*
       cout << " Fake " << MCNames[FAKE]
-	   << "\t\t Sys " << DG2LSystNames[isys] 
+	   << "\t\t Sys " << DGSystNames[isys] 
 	   << "\t " << shift << endl;
       int ibin1 = _hSys->GetBin(70);
       int ibin2 = _hSys->GetBin(75);
@@ -1061,7 +1061,7 @@ std::vector<TH1F*> DrawPlots::loadHisto(TFile* file,string DSId,
   _hArray.reserve(DGSys_N);
 
   for(int isys=0; isys<DGSys_N; isys++){
-    string _hName = name + "_" + DG2LSystNames[isys];
+    string _hName = name + "_" + DGSystNames[isys];
     _h = (TH1F*) file->Get(_hName.c_str());
     if(_h==NULL)    continue;
 
@@ -1141,7 +1141,7 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
     if(shift>0) sysUp += pow(shift,2);
     else        sysDn += pow(shift,2);
     /*
-    cout << "\t\t sys " << DG2LSystNames[isys] 
+    cout << "\t\t sys " << DGSystNames[isys] 
 	 << " " << val
 	 << " " << shift 
 	 << " + " << sysUp
@@ -1210,7 +1210,7 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
     if(val>0) mcSysUp += pow(val,2);
     else      mcSysDn += pow(val,2);
     /*
-    cout << "\t SysMC " << DG2LSystNames[isys] 
+    cout << "\t SysMC " << DGSystNames[isys] 
 	 << " " << val 
 	 << " + " << mcSysUp
 	 << " - " << mcSysDn

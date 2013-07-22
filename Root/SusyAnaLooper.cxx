@@ -10,7 +10,8 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 SusyAnaLooper::SusyAnaLooper(): 
   SusyNtAna(),
-  _do2LAna(false),
+  _do2LAna(false), 
+  _doWHAna(false),
   _doMll(false),
   _do3LAna(false),
   _doFakeAna(false),
@@ -98,7 +99,42 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
     }
     
   }
+  if(_doWHAna){
+    _susyWHAna = new SusyWHAna(_susyHistos);
+    _susyWHAna->setDebug(dbg());
+    _susyWHAna->setUseLooseLep(_useLooseLep);
+    _susyWHAna->setMethod(_method);
+    _susyWHAna->hookContainers(&nt,
+			       &m_preElectrons, &m_baseElectrons, &m_signalElectrons,
+			       &m_preMuons, &m_baseMuons, &m_signalMuons,
+			       &m_baseLeptons, &m_signalLeptons,
+			       &m_preJets, &m_baseJets, &m_signalJets2Lep,
+			       &m_baseTaus, &m_signalTaus);
+    _susyHistos->BookWHHistograms(_histoDir,DO_SYS);
+    _susyWHAna->setMCSumWs(getSumwMap());
 
+    if(DO_SYS){
+      if(_runOneSys || _runSysRange){
+	if(_systematic1.length()>2){
+	  int minSys=getSysIndex(_systematic1);
+	  if(_runOneSys)   _susyWHAna->setMcSysMinMax(minSys,minSys);
+	  else if(_runSysRange){
+	    int maxSys=getSysIndex(_systematic2);
+	    _susyWHAna->setMcSysMinMax(minSys, maxSys);
+	  }
+	}
+	else {
+	  _systematic1="";
+	  _systematic2="";
+	  _runOneSys=false;
+	  _runSysRange=false;
+	  _susyWHAna->setMcSysMinMax();
+	}
+      }
+      else _susyWHAna->setMcSysMinMax();
+    }
+    
+  }
   if(_do3LAna){
     _susy3LAna = new Susy3LepAna(_susyHistos);
     _susy3LAna->setDebug(dbg());
@@ -130,7 +166,7 @@ void SusyAnaLooper::printSettings()
   cout << "   MINRUM            " << MINRUN         << endl; 
   cout << "   MAXRUM            " << MAXRUN         << endl; 
   cout << endl;
-  cout << " 2L Settings " << endl;
+  cout << " 2L/WH Settings " << endl;
   cout << "   NBASELEPMIN       " << NBASELEPMIN    << endl;
   cout << "   NBASELEPMAX       " << NBASELEPMAX    << endl;
   if(_doMll)
@@ -232,7 +268,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 
   // grab base object and select signal objects
   uint iSys=DGSys_NOM;
-  if(_do2LAna){
+  if(_do2LAna || _doWHAna){
     uint minSys=DGSys_NOM;
     uint maxSys=DGSys_NOM+1;
     if(DO_SYS){
@@ -259,14 +295,13 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       //if(m_nTauMin >= 0 && nNtTau < m_nTauMin) return false;
     }
 
-
     for(uint iiSyst=minSys; iiSyst<maxSys; iiSyst++){     //Syst Looper
-      if(dbg()>10) cout << "Do sys? " << DG2LSystNames[iiSyst] <<endl;
+      if(dbg()>10) cout << "Do sys? " << DGSystNames[iiSyst] <<endl;
 
       if( !nt.evt()->isMC && iiSyst>DGSys_NOM){
 	if(_method==FLEP){
 	  if(iiSyst < DGSys_FAKE_EL_RE_UP || iiSyst>DGSys_FAKE_MU_FR_DN){
-	    if(dbg()>10) cout << "\tNot fake sys - skip " << DG2LSystNames[iiSyst] <<endl;
+	    if(dbg()>10) cout << "\tNot fake sys - skip " << DGSystNames[iiSyst] <<endl;
 	    continue;   //DD fake  - fake sys only
 	  }
 	}
@@ -277,20 +312,25 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       //Skip spare sys.
       if(iiSyst>= DGSys_GEN) break; // done here
      
-      if(dbg()>1) cout << "  Processing Sys " << iiSyst << " " << DG2LSystNames[iiSyst] <<endl;
+      if(dbg()>1) cout << "  Processing Sys " << iiSyst << " " << DGSystNames[iiSyst] <<endl;
       
       clearObjects();
       if(iiSyst<=DGSys_RESOST) //Only for sys up to trigger SF need reload the SusyNt obj
 	selectObjects( (SusyNtSys) iiSyst, false, TauID_medium);
-	//	selectObjects( (SusyNtSys) iiSyst);
       else
 	selectObjects((SusyNtSys) DGSys_NOM, false, TauID_medium);
-	//selectObjects((SusyNtSys) DGSys_NOM);
       
       if(dbg()>5) dumpEvent();
       
-      _susy2LAna->hookMet(m_met);
-      _susy2LAna->doAnalysis(iiSyst);
+      if(_do2LAna){
+	_susy2LAna->hookMet(m_met);
+	_susy2LAna->doAnalysis(iiSyst);
+      }
+      if(_doWHAna){
+	_susyWHAna->hookMet(m_met);
+	_susyWHAna->doAnalysis(iiSyst);
+      }
+
     }   
   }
   else{
@@ -318,6 +358,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 void SusyAnaLooper::Terminate()
 {
   if(_do2LAna) _susy2LAna->end();
+  if(_doWHAna) _susyWHAna->end();
   if(_do3LAna) _susy3LAna->end();
 
   TString _SS(sampleName());
@@ -330,9 +371,15 @@ void SusyAnaLooper::Terminate()
 				_systematic1, _systematic2);
   }
   else{
-    _susyHistos->SaveSplit2LHistograms(_histoDir,_method,
-				       _doMll,_isZAlpgenSherpa,
-				       _systematic1, _systematic2);
+    if(_do2LAna)
+      _susyHistos->SaveSplit2LHistograms(_histoDir,_method,
+					 _doMll,_isZAlpgenSherpa,
+					 _systematic1, _systematic2);
+
+    if(_doWHAna)
+      _susyHistos->SaveSplitWHHistograms(_histoDir,_method,
+					 _doMll,_isZAlpgenSherpa,
+					 _systematic1, _systematic2);
   }
 
 

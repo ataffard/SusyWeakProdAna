@@ -46,7 +46,7 @@ typedef unsigned uint;
 //
 //https://svnweb.cern.ch/trac/atlasphys/browser/Physics/SUSY/Analyses/WeakProduction/HistFitterTree/trunk/Systematics_naming.txt
 //
-enum DG2L_SYS 
+enum DG_SYS 
 {
   DGSys_NOM = 0,
   DGSys_EES_Z_UP,            // Electron Scale Zsys + sigma
@@ -103,7 +103,7 @@ enum DG2L_SYS
 
 
 // Human-readable names for enum SusyNtSys 
-const std::string DG2LSystNames[DGSys_N] = {
+const std::string DGSystNames[DGSys_N] = {
   "NOM",
   "EES_Z_UP",    
   "EES_Z_DN",    

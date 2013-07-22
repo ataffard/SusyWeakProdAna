@@ -38,7 +38,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir, bool useSys)
       for(int isys=0; isys<maxSys; isys++){				\
 	if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
 	else sx = 	string(xT);					\
-	string stype = "DG2L_" + DIL_SRNAME[j] + "_" + sFlav + #hN + "_" + DG2LSystNames[isys];	\
+	string stype = "DG2L_" + DIL_SRNAME[j] + "_" + sFlav + #hN + "_" + DGSystNames[isys];	\
 	hN[j][i][isys] = (TH1F*) _utils->myTH1F(stype.c_str(),		\
 						stype.c_str(),		\
 						__VA_ARGS__,sx.c_str() ,yT); \

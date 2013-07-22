@@ -25,6 +25,7 @@
 #include "SusyWeakProdAna/SusyHistos.h"
 #include "SusyWeakProdAna/SusyFakeAna.h"
 #include "SusyWeakProdAna/Susy2LepAna.h"
+#include "SusyWeakProdAna/SusyWHAna.h"
 #include "SusyWeakProdAna/Susy3LepAna.h"
 #include "SusyWeakProdAna/SusyAnaCommon.h"
 
@@ -45,6 +46,7 @@ class SusyAnaLooper : public SusyNtAna
     virtual Bool_t  Process(Long64_t entry);
 
     void do2L(bool b){_do2LAna=b;}
+    void doWH(bool b){_doWHAna=b;}
     void doMll(bool b){_doMll=b;}
     void do3L(bool b){_do3LAna=b;}
     void doFake(bool b){_doFakeAna=b;}
@@ -72,7 +74,7 @@ class SusyAnaLooper : public SusyNtAna
     }
     int getSysIndex(string sys){
       for(uint iiSyst=DGSys_NOM; iiSyst<DGSys_N; iiSyst++){
-	if(DG2LSystNames[iiSyst]==sys) return iiSyst;
+	if(DGSystNames[iiSyst]==sys) return iiSyst;
       }
       cout << "ERROR Sys requested not found " << sys << endl; 
       abort();
@@ -95,10 +97,12 @@ class SusyAnaLooper : public SusyNtAna
 
     SusyHistos*  _susyHistos;
     Susy2LepAna* _susy2LAna;
+    SusyWHAna*   _susyWHAna;
     Susy3LepAna* _susy3LAna;
     SusyFakeAna* _susyFakeAna;
     
     bool _do2LAna;
+    bool _doWHAna;
     bool _doMll;
     bool _do3LAna;
     bool _doFakeAna;

@@ -1,5 +1,5 @@
-#ifndef SusyWeakProdAna_Susy2LepAna_h
-#define SusyWeakProdAna_Susy2LepAna_h
+#ifndef SusyWeakProdAna_SusyWHAna_h
+#define SusyWeakProdAna_SusyWHAna_h
 
 //////////////////////////////////////////////////////////
 // General script to implement basic selection with all //
@@ -25,12 +25,12 @@
 #include "SusyWeakProdAna/ToyNt.h"
 
 
-class Susy2LepAna: public SusyBaseAna
+class SusyWHAna: public SusyBaseAna
 {
   public:
 
-    Susy2LepAna(SusyHistos* _histos);
-    virtual ~Susy2LepAna(){};
+    SusyWHAna(SusyHistos* _histos);
+    virtual ~SusyWHAna(){};
 
     float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, 
 			int iSR, float metrel, uint iSys=DGSys_NOM);
@@ -56,37 +56,14 @@ class Susy2LepAna: public SusyBaseAna
 			const Met* met,
 			float _ww);
 
-    //HFT
-    void initializeHistFitterTree();
-    float writeIntoHistFitterTree(uint iSR,
-				  LeptonVector* leptons, 
-				  const LeptonVector* baseLeptons, 
-				  const JetVector* signalJets, 
-				  const JetVector* baseJets,
-				  const Met* met);
-    bool validSystForHFT(uint iSR);
-    void moveHFTOutput();
-
     //Other functions
-    void print_SRmT2();
-    void print_SRWW();
-    void print_SRZjets();
-    void print_SRSSjets();
-    void print_WWCR();
-    void print_TOPCR();
-    void print_ZVCR();
-    void print_VRSS();
-    void print_CRZ();
-
-    ClassDef(Susy2LepAna, 1);
+    void print_SRSS();
+    void print_SROSOF2jets();
+   
+    ClassDef(SusyWHAna, 1);
 
   protected:
 
-    HistFitterTree*  m_histFitterTrees[ DGSys_GEN ];
-
-    //Analysis flags
-    bool    m_writeHFT;
-    string  HFTName;
    
 };
 

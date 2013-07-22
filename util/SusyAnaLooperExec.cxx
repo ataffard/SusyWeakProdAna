@@ -50,6 +50,9 @@ void help()
   cout << "  -do2L                           "  << endl;
   cout << "     run 2L ana                    " << endl;
 
+  cout << "  -doWH                            "  << endl;
+  cout << "     run WH ana                    " << endl;
+
   cout << "  -do3L                           "  << endl;
   cout << "     run 3L ana                    " << endl;
 
@@ -85,6 +88,7 @@ int main(int argc, char** argv)
   int dbg     = 0;
   bool dbgEvt = false; 
   bool do2L   = false;
+  bool doWH   = false;
   bool do3L   = false;
   bool doFake = false;
   bool doMll  = false;
@@ -123,6 +127,8 @@ int main(int argc, char** argv)
       dbgEvt = true;
     else if (strcmp(argv[i], "-do2L") == 0)
       do2L = true;
+    else if (strcmp(argv[i], "-doWH") == 0)
+      doWH = true;
     else if (strcmp(argv[i], "-do3L") == 0)
       do3L = true;
     else if (strcmp(argv[i], "-doFake") == 0)
@@ -136,6 +142,7 @@ int main(int argc, char** argv)
     }
     else if (strcmp(argv[i], "-doAll") == 0){
       do2L = true;
+      doWH = true;
       do3L = true;
       doFake = true;
     }
@@ -176,6 +183,7 @@ int main(int argc, char** argv)
   cout << "  dbg       " << dbg      << endl;
   cout << "  dbgEvt    " << dbgEvt   << endl;
   cout << "  do2L      " << do2L     << endl;
+  cout << "  doWH      " << doWH     << endl;
   cout << "  do3L      " << do3L     << endl;
   cout << "  doFake    " << doFake   << endl;
   cout << "  doMll     " << doMll    << endl;
@@ -254,6 +262,7 @@ int main(int argc, char** argv)
   susyAna->setSampleName(sample);
   if(dbgEvt) susyAna->setEvtDebug();
   susyAna->do2L(do2L);
+  susyAna->doWH(doWH);
   susyAna->doMll(doMll);
   susyAna->do3L(do3L);
   susyAna->doFake(doFake);

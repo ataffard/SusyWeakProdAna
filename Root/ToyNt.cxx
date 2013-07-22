@@ -23,6 +23,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
 
   tree->Branch("run",&_b_run,"run/I");
   tree->Branch("event",&_b_event,"event/I");
+  tree->Branch("mcId",&_b_mcId,"mcId/I");
   tree->Branch("npv",&_b_npv,"npv/F");
   tree->Branch("npvCorr",&_b_npvCorr,"npvCorr/F");
   tree->Branch("iSR",&_b_iSR,"iSR/I");
@@ -34,6 +35,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("l_eta",_b_l_eta,"l_eta[nlep]/F");
   tree->Branch("l_phi",_b_l_phi,"l_phi[nlep]/F");
   tree->Branch("l_e",_b_l_e,"l_e[nlep]/F");
+  tree->Branch("l_Y",_b_l_Y,"l_Y[nlep]/F");
   tree->Branch("l_q",_b_l_q,"l_q[nlep]/I");
   tree->Branch("l_ptcone30",_b_l_ptcone30,"l_ptcone30[nlep]/F");
   tree->Branch("l_etcone30",_b_l_etcone30,"l_etcone30[nlep]/F");
@@ -68,8 +70,11 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("j_eta",_b_j_eta,"j_eta[nJets]/F");
   tree->Branch("j_phi",_b_j_phi,"j_phi[nJets]/F");
   tree->Branch("j_e",_b_j_e,"j_e[nJets]/F");
+  tree->Branch("j_Y",_b_j_Y,"j_Y[nJets]/F");
   tree->Branch("j_jvf",_b_j_jvf,"j_jvf[nJets]/F");
   tree->Branch("j_mv1",_b_j_mv1,"j_mv1[nJets]/F");
+  tree->Branch("j_nEle",_b_j_nEle,"j_nEle[nJets]/I");
+  tree->Branch("j_nMu",_b_j_nMu,"j_nMu[nJets]/I");
   tree->Branch("j_isTruth",_b_j_isTruth,"j_isTruth[nJets]/O");
   tree->Branch("j_label",_b_j_label,"j_label[nJets]/I");
   tree->Branch("j_isRecoil",_b_j_isRecoil,"j_isRecoil[nJets]/O");
@@ -96,6 +101,8 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
 
   tree->Branch("mT2",&_b_mT2,"mT2/F");
   tree->Branch("mT2jj",&_b_mT2jj,"mT2jj/F");
+  tree->Branch("pTll_Tb",&_b_pTll_Tb,"pTll_Tb/F");
+  tree->Branch("dPhib",&_b_dPhib,"dPhib/F");
   tree->Branch("sphericity",&_b_sphericity,"sphericity/F");
   tree->Branch("sphericityTrans",&_b_sphericityTrans,"sphericityTrans/F");
   tree->Branch("llAcoplanarity",&_b_llAcoplanarity,"llAcoplanarity/F");
@@ -104,6 +111,8 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("mEff",&_b_mEff,"mEff/F");
   tree->Branch("ST",&_b_ST,"ST/F");
   tree->Branch("mjj",&_b_mjj,"mjj/F");
+  tree->Branch("dRjj",&_b_dRjj,"dRjj/F");
+  tree->Branch("pTjj",&_b_pTjj,"pTjj/F");
 
   tree->Branch("mct",&_b_mct,"mct/F");
   tree->Branch("mctPerp",&_b_mctPerp,"mctPerp/F");
@@ -120,6 +129,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
 void ToyNt::clearOutputBranches(void) {
   _b_run=-1;
   _b_event=-1;
+  _b_mcId=-1;
   _b_npv=-1;
   _b_npvCorr=-1;
   _b_iSR=-1; 
@@ -132,6 +142,7 @@ void ToyNt::clearOutputBranches(void) {
     _b_l_eta[i]=-999;
     _b_l_phi[i]=-999;
     _b_l_e[i]=-999;
+    _b_l_Y[i]=-999;
     _b_l_q[i]=0;
     _b_l_ptcone30[i]=-999;
     _b_l_etcone30[i]=-999;
@@ -169,8 +180,11 @@ void ToyNt::clearOutputBranches(void) {
     _b_j_eta[i]=-999;
     _b_j_phi[i]=-999;
     _b_j_e[i]=-999;
+    _b_j_Y[i]=-999;
     _b_j_jvf[i]=-999;
     _b_j_mv1[i]=-999;
+    _b_j_nEle[i]=0;
+    _b_j_nMu[i]=0;
     _b_j_isTruth[i]=false;
     _b_j_label[i]=-999;
 
@@ -208,6 +222,8 @@ void ToyNt::clearOutputBranches(void) {
 
   _b_mT2=-999;
   _b_mT2jj=-999;
+  _b_pTll_Tb=-999;
+  _b_dPhib=-999;
   _b_sphericity=-999;
   _b_sphericityTrans=-999;
   _b_llAcoplanarity=-999;
@@ -216,6 +232,8 @@ void ToyNt::clearOutputBranches(void) {
   _b_mEff=-999;
   _b_ST=-999;
   _b_mjj=-999;
+  _b_dRjj=-999;
+  _b_pTjj=-999;
 
   _b_mct=-999;
   _b_mctPerp=-999;
@@ -246,10 +264,12 @@ void ToyNt::WriteTree(){
 } 
 
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillTreeEvent(int run, int event, float  npv, float npvCorr, int iSR, int llType, double w)
+void ToyNt::FillTreeEvent(int run, int event,int mcId, 
+			  float  npv, float npvCorr, int iSR, int llType, double w)
 {
   _b_run = run;
   _b_event = event;
+  _b_mcId = mcId;
   _b_npv = npv;
   _b_npvCorr = npvCorr;
   _b_iSR = iSR;
@@ -268,20 +288,21 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
     abort();
   }
   
-  //  SusyNtTools* _ntTools = new SusyNtTools();
-
   _b_dphi_metcl=999; 
   _b_dphi_ll=999; 
   int qqType=1;
   TLorentzVector _ll;
+  TLorentzVector _pTll_b;
   for(uint ilep=0; ilep<leptons->size(); ilep++){
      const Susy::Lepton* _l = leptons->at(ilep);
     _ll = _ll + (*_l);
+    _pTll_b += (*_l);
 
     _b_l_pt[ilep] = _l->Pt();
     _b_l_eta[ilep] = _l->Eta();
     _b_l_phi[ilep] = _l->Phi();
     _b_l_e[ilep] = _l->E();
+    _b_l_Y[ilep] = _l->Rapidity();
     _b_l_q[ilep] = _l->q;
     _b_l_d0[ilep] = _l->d0Unbiased;
     _b_l_z0[ilep] = _l->z0Unbiased;
@@ -307,7 +328,10 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
     if(_dPhi<_b_dphi_metcl) _b_dphi_metcl=_dPhi;
     qqType *= _l->q;
   }
+  _pTll_b += met->lv();
 
+  _b_pTll_Tb = _pTll_b.Pt();
+  _b_dPhib = _pTll_b.DeltaPhi(met->lv());
   _b_pTll = _ll.Pt();
   _b_phill = _ll.Phi();
   _b_mll = _ll.M();
@@ -342,7 +366,9 @@ void ToyNt::FillTreeEventVar(const Met* met,float metrel, float mT2,
 
 }
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* leptons, const Met* met)
+void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* leptons, const Met* met,
+			       const ElectronVector* preElectrons, 
+			       const MuonVector* preMuons)
 {
   _b_nSJets = jets->size();
   if(_b_nSJets==0) return;
@@ -383,6 +409,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     _b_j_eta[ijet] = _j->Eta();
     _b_j_phi[ijet] = _j->Phi();
     _b_j_e[ijet]   = _j->E();
+    _b_j_Y[ijet]   = _j->Rapidity();
     _b_j_jvf[ijet] = _j->jvf;
     _b_j_mv1[ijet] = _j->mv1;
     _b_j_isTruth[ijet] = _j->matchTruth;
@@ -395,12 +422,29 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
       _jj += (*jets->at(ijet));
       njj++;
     }
-    
     //cout << "SJ " << _j->Pt() << " " << ijet << " " << _b_j_pt[ijet] << endl;
+
+    //Count preLep (pT>10 :-( ) inside jet  -- otherwise have to go back to SusyNtObject
+    for(uint iele=0; iele<preElectrons->size(); iele++){
+      const Susy::Electron* _e = preElectrons->at(iele);
+      float dR = _e->DeltaR(*_j);
+      if(dR<E_J_DR) _b_j_nEle[ijet]++;
+    }
+    for(uint imuo=0; imuo<preMuons->size(); imuo++){
+      const Susy::Muon* _m = preMuons->at(imuo);
+      float dR = _m->DeltaR(*_j);
+      if(dR<M_J_DR) _b_j_nMu[ijet]++;
+    }
 
   }
 
+  if(jets->size()>1){
+    _b_dRjj = jets->at(0)->DeltaR(*jets->at(1));
+  }
+
+
   _b_mjj = _jj.M();
+  _b_pTjj = _jj.Pt();
   _b_mEff = _b_ST + met->lv().Pt();
 
   

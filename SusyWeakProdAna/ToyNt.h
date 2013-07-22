@@ -36,7 +36,8 @@ class ToyNt: public SusyNtTools
   void setSumOfMcWeights(double sumOfMcWeights);
   string getFilename() const {return filename.Data();}
 
-  void FillTreeEvent(int run, int event, float npv, float npvCorr, int iSR, int llType, double w);
+  void FillTreeEvent(int run, int event, int mcId,
+		     float npv, float npvCorr, int iSR, int llType, double w);
   void FillTreeLeptons(const LeptonVector* leptons, 
 		       ElectronVector& baseElectrons, MuonVector& baseMuons, 
 		       const Met* met, int nVtx, bool isMc);
@@ -44,7 +45,12 @@ class ToyNt: public SusyNtTools
 			float mT2jj, float sphericity, float sphericityTrans,
 			float llAcoplanarity, float jjAcoplanarity,
 			bool topTag, float mllCollApprox);
-  void FillTreeSignalJets(const JetVector* jets, const LeptonVector* leptons, const Met* met);
+  void FillTreeSignalJets(const JetVector* jets, 
+			  const LeptonVector* leptons, 
+			  const Met* met,
+			  const ElectronVector* preElectrons, 
+			  const MuonVector* preMuons 
+			  );
   void FillTreeOtherJets(JetVector* jets, const LeptonVector* leptons, const Met* met);
 
   void FillMCT(float mct, float mctPerp, float mctPara);
@@ -65,6 +71,7 @@ private:
   //
   int     _b_run;
   int     _b_event;
+  int     _b_mcId;
   float   _b_npv;
   float   _b_npvCorr;
   int     _b_iSR;
@@ -76,6 +83,7 @@ private:
   float   _b_l_eta[2];
   float   _b_l_phi[2];
   float   _b_l_e[2];
+  float   _b_l_Y[2]; //rapidity
   int     _b_l_q[2];
   float   _b_l_ptcone30[2];
   float   _b_l_etcone30[2];
@@ -86,10 +94,10 @@ private:
   float   _b_dphi_metl[2]; 
   float   _b_mTl[2];
    
-  float   _b_pTll;
-  float   _b_phill;
-  float   _b_dR_ll;
-  float   _b_dphi_ll;
+  float   _b_pTll;  //pT dilepton system
+  float   _b_phill; //phi dilepton system
+  float   _b_dR_ll; //dR between lepton
+  float   _b_dphi_ll; //dPhi between lepton
   bool    _b_isOS;
   float   _b_mll;
   float   _b_mll_collApprox;
@@ -98,6 +106,8 @@ private:
   float   _b_dphi_metcl; //closest lepton
   float   _b_mT2;
   float   _b_mT2jj;
+  float   _b_pTll_Tb; //CONF 2013-048 
+  float   _b_dPhib; 
   float   _b_sphericity;
   float   _b_sphericityTrans;
   float   _b_llAcoplanarity;
@@ -122,8 +132,11 @@ private:
   float   _b_j_eta[25];
   float   _b_j_phi[25];
   float   _b_j_e[25];
+  float   _b_j_Y[25];//rapidity
   float   _b_j_jvf[25];
   float   _b_j_mv1[25];
+  int     _b_j_nEle[25];
+  int     _b_j_nMu[25];
   bool    _b_j_isTruth[25];
   int     _b_j_label[25];
 
@@ -146,7 +159,8 @@ private:
   float   _b_mEff;
   float   _b_ST;
   float   _b_mjj;
-
+  float   _b_dRjj;
+  float   _b_pTjj;
 
   float   _b_mct;
   float   _b_mctPerp;

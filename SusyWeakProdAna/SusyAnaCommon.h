@@ -4,6 +4,7 @@
 #include <string>
 
 #include "SusyWeakProdAna/Histos_2L.h"
+#include "SusyWeakProdAna/Histos_WH.h"
 
 enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 
@@ -13,7 +14,7 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 
 #define LUMI_21FB  //All 2012
 const std::string TAG  = "071613";
-const std::string SUFF = "_n0145_DD_v1";
+const std::string SUFF = "_n0145_DD_v2";
 
 //
 //Normal mode - all these are true
@@ -23,15 +24,15 @@ const std::string SUFF = "_n0145_DD_v1";
 const unsigned int  NBASELEPMAX      = 2;  //number of base lepton allowed - 2 for std analysis
 const unsigned int  NBASELEPMIN   = 2;  //number of base lepton allowed - 2 for std analysis
 
-const bool   FILL_TOYNT        = false;       //Write ToyNt
+const bool   FILL_TOYNT        = true;//false;       //Write ToyNt
 //const string TOYNT_SR          ="DIL_optimSRZjets";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_optimSRZjets;     //SR used to fill ToyNt
 
-const string TOYNT_SR          ="DIL_optimSRjets";    //SR used to fill ToyNt
-const unsigned int TOYNT_iSR   = DIL_optimSRjets;     //SR used to fill ToyNt
+const string TOYNT_SR          ="WH_optimSRjets";    //SR used to fill ToyNt
+const unsigned int TOYNT_iSR   = WH_optimSRjets;     //SR used to fill ToyNt
 
-//const string TOYNT_SR          ="DIL_optimSRSS";    //SR used to fill ToyNt
-//const unsigned int TOYNT_iSR   = DIL_optimSRSS;     //SR used to fill ToyNt
+//const string TOYNT_SR          ="WH_optimSRSS";    //SR used to fill ToyNt
+//const unsigned int TOYNT_iSR   = WH_optimSRSS;     //SR used to fill ToyNt
 
 //const string TOYNT_SR          ="DIL_optimSR0jet";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_optimSR0jet;     //SR used to fill ToyNt
@@ -40,10 +41,10 @@ const unsigned int TOYNT_iSR   = DIL_optimSRjets;     //SR used to fill ToyNt
 //const string TOYNT_SR          ="DIL_CR2LepSS";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
 
-const bool DO_SYS         = true;    //Toggles systematics looper
+const bool DO_SYS         = false;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
-const bool CUTFLOW        = false; //false require at least 2 tight/base lep SPEED ANA
+const bool CUTFLOW        = false;// require at least 2 tight/base lep SPEED ANA
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool WEIGHT_ONE     = false;          //Ignore evt->w use 1
