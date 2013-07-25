@@ -23,7 +23,8 @@
 #!/bin/bash
 
 #Update for a given pass
-date="071613_21fb_n0145_DD_v1"
+date="072113_21fb_n0145_DD_v2"
+#date="071613_21fb_n0145_DD_v1"
 #date="070913_21fb_n0144_DD_v1"
 
 
@@ -44,8 +45,11 @@ endpath=${HISTOANA}/SusyAna/histos_${date}
 inToyNtPath=${HISTOANA}/SusyAna/histos_${date}/ToyNtOutputs
 
 #toyNt_SR="DIL_optimSRjets"
-toyNt_SR="DIL_optimSRSS"
+#toyNt_SR="DIL_optimSRSS"
 #toyNt_SR="DIL_optimSR0jet"
+
+#toyNt_SR="WH_optimSRSS"
+toyNt_SR="WH_optimSRjets"
 
 passDir=${HISTOANA}/SusyAna/histos_${date}
 

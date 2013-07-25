@@ -5,10 +5,10 @@ WW_PowHeg
 ##WW_Sherpa
 WZ_ZZ_PowHeg
 ##WZ_ZZ_Sherpa
-Zjets_SherpaAlpgenPythia
+#Zjets_SherpaAlpgenPythia
 Higgs
-dummy
-Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO
+#dummy
+#Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO
 ##Bkg_Zjets_SherpaAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO
 ##Zjets_SherpaLFHFAlpgenPythia
 ##Bkg_Zjets_SherpaLFHFAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO

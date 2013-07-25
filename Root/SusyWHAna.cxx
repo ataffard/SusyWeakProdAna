@@ -84,6 +84,8 @@ void SusyWHAna::end()
 
   print_SRSS();
   print_SROSOF2jets();
+  print_optimSR();
+
 
   cout << std::endl << std::endl; 
 
@@ -104,7 +106,7 @@ void SusyWHAna::setSelection(std::string s, DiLepEvtType dilType)
   //----------------------------//
   // Signal Regions
   //----------------------------//
-  if(m_sel.Contains("SRSS")){
+  if(m_sel.Contains("WH_SRSS")){
     m_selSS     = true;
     m_vetoB     = true;
     m_vetoF     = true;
@@ -119,7 +121,7 @@ void SusyWHAna::setSelection(std::string s, DiLepEvtType dilType)
       m_pTl1Min   = 20;
       m_highMTWW  = 150; 
       m_metRelMin = 50;
-      if(m_sel.Contains("SRSS2")){
+      if(m_sel.Contains("WH_SRSS2")){
 	m_mt2Min    = 90;
       }
     }
@@ -127,13 +129,13 @@ void SusyWHAna::setSelection(std::string s, DiLepEvtType dilType)
       m_IsoMin    = 0.1;
       m_HTMin     = 200;
       m_highMTWW  = 100; 
-      if(m_sel.Contains("SRSS2")){
+      if(m_sel.Contains("WH_SRSS2")){
 	m_highMTWW  = 150; 
       }
-      if(m_sel.Contains("SRSS3")){
+      if(m_sel.Contains("WH_SRSS3")){
 	m_highMTWW  = 200; 
       } 
-      if(m_sel.Contains("SRSS4")){
+      if(m_sel.Contains("WH_SRSS4")){
 	m_highMTWW  = 200; 
 	m_metRelMin = 50;
       } 
@@ -144,7 +146,7 @@ void SusyWHAna::setSelection(std::string s, DiLepEvtType dilType)
       m_pTl1Min   = 20;
       m_highMTWW  = 140;
       m_HTMin     = 200;
-      if(m_sel.Contains("SRSS2")){	    
+      if(m_sel.Contains("WH_SRSS2")){	    
 	m_metRelMin = 50;
       }
     }
@@ -168,17 +170,17 @@ void SusyWHAna::setSelection(std::string s, DiLepEvtType dilType)
     
   }
 
-   //----------------------------//
+  //----------------------------//
   // Optimisation  Regions
   // Very loose selection for ToyNt making
   //----------------------------//
-  else if(m_sel == "optimSRjets"){//to optim WH >=1 jets, SRZjets, SRjets
+  if(m_sel.Contains("WH_optimSRjets")){//to optim WH >=1 jets, SRZjets, SRjets
     m_selOS = true;
     m_vetoF = true;
     m_vetoB = true;
     m_minC20 = 1;
   }
-  else if(m_sel == "optimSRSS"){//top optim SS channels
+  if(m_sel.Contains("WH_optimSRSS")){//top optim SS channels
     m_selSS = true;
   }
   
@@ -619,7 +621,23 @@ void SusyWHAna::print_SROSOF2jets()
   print_line("pass Met           ",n_pass_met[0][j], n_pass_met[1][j], n_pass_met[2][j]);
 
 }   
+/*--------------------------------------------------------------------------------*/
+void SusyWHAna::print_optimSR()
+{
+  int j= WH_optimSRSS;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << WH_SRNAME[j] <<endl;
+  print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
+  
+  j= WH_optimSRjets;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << WH_SRNAME[j] <<endl;
+  print_line("pass OS            ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass FVeto         ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
+  print_line("pass bVeto         ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass >=1 J         ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
 
+}
 /*--------------------------------------------------------------------------------*/
 // Fill histograms 
 /*--------------------------------------------------------------------------------*/

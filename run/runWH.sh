@@ -52,7 +52,7 @@ if [ "$type" == "mc12" ]; then
 elif [ "$type" == "data12" ]; then
     name=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodData}.log
+    ./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name} -D ${sample} |tee jobLogs/${name}_${methodData}.log
 elif [ "$type" == "susy" ]; then
     name=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)

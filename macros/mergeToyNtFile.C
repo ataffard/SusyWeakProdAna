@@ -30,8 +30,10 @@ void mergeToyNtFile()
       char _name[200];
       fscanf(fPtr,"%s ",&_name[0]);
       string _ss = _name;
+      uint   idx = _ss.find("ToyNtOutputs");
+      string _subName = _ss.substr(idx+strlen("ToyNtOutputs/"));
       
-      cout << "\t Adding file " << _ss << endl;
+      cout << "\t Adding file " << _subName << endl;
       nt->Add(_ss.c_str());
     }
 

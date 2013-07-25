@@ -153,7 +153,7 @@ while read line; do
 			((index++))
 		    done
 		else
-		    echo "Submitting MC "
+		    echo "Submitting MC with all Sys"
 		    echo "  method:     $methodMC"
  	            # run the job - submit with qsub
 		    cd ${pathRun}
@@ -166,7 +166,7 @@ while read line; do
 		fi
 
 	    else 
-		echo "Submitting MC "
+		echo "Submitting MC no Sys"
 		echo "  method:     $methodMC"
  	        # run the job - submit with qsub
 		cd ${pathRun}

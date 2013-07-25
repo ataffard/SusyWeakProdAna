@@ -40,16 +40,16 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
   _ana = new DrawPlots(); 
 
-  //string ver = "histos_121012_13fb_n0115_DD_MMtrial9_SYS/";
-  string ver = "";
-  //string test = "ToyNtOutputs_SSexcess_org/";
-  //  string test = "ToyNtOutputs_SSexcess_v1/"; //n114
   //string test = "ToyNtOutputs_SSexcess_v2/"; //n115 - temporary
-  string test = "ToyNtOutputs_n115_SS/"; //n115
-  string dir =  string(getenv("WORKAREA")) + "/histoAna" + "/SusyAna/" +  ver + test;
+  //  string test = "ToyNtOutputs_n115_SS/"; //n115
+  string ver = "histos_072113_21fb_n0145_DD_v2/";
+  string test = ""; //n145
+  string dir =  string(getenv("HISTOANA")) +  "/SusyAna/" +  ver + test;
 
 
   c_data = new TChain("ToyNt");
+  c_data->AddFile(string(dir+"toyNt_data12_WH_optimSRSS_std.root").c_str());
+  /*
   c_data->AddFile(string(dir+"Egamma.periodA_DATA_DIL_CR2LepSS.root").c_str());
   c_data->AddFile(string(dir+"Egamma.periodB_DATA_DIL_CR2LepSS.root").c_str());
   c_data->AddFile(string(dir+"Egamma.periodC_DATA_DIL_CR2LepSS.root").c_str());
@@ -61,8 +61,11 @@ int main(int argc, char *argv[]){
   c_data->AddFile(string(dir+"Muons.periodC_DATA_DIL_CR2LepSS.root").c_str());
   c_data->AddFile(string(dir+"Muons.periodD_DATA_DIL_CR2LepSS.root").c_str());
   c_data->AddFile(string(dir+"Muons.periodE_DATA_DIL_CR2LepSS.root").c_str());
+  */
 
   c_fake = new TChain("ToyNt");
+  c_fake->AddFile(string(dir+"toyNt_dataFake_WH_optimSRSS_flep.root").c_str());
+  /*
   c_fake->AddFile(string(dir+"Egamma.periodA_FAKE_DIL_CR2LepSS.root").c_str());
   c_fake->AddFile(string(dir+"Egamma.periodB_FAKE_DIL_CR2LepSS.root").c_str());
   c_fake->AddFile(string(dir+"Egamma.periodC_FAKE_DIL_CR2LepSS.root").c_str());
@@ -74,8 +77,11 @@ int main(int argc, char *argv[]){
   c_fake->AddFile(string(dir+"Muons.periodC_FAKE_DIL_CR2LepSS.root").c_str());
   c_fake->AddFile(string(dir+"Muons.periodD_FAKE_DIL_CR2LepSS.root").c_str());
   c_fake->AddFile(string(dir+"Muons.periodE_FAKE_DIL_CR2LepSS.root").c_str());
+  */
 
   c_WW = new TChain("ToyNt");
+  c_WW->AddFile(string(dir+"toyNt_WW_PowHeg_WH_optimSRSS_rlep.root").c_str());
+  /*
   c_WW->AddFile(string(dir+"126892_DIL_CR2LepSS.root").c_str());
   c_WW->AddFile(string(dir+"106011_DIL_CR2LepSS.root").c_str());
   c_WW->AddFile(string(dir+"106012_DIL_CR2LepSS.root").c_str());
@@ -88,19 +94,26 @@ int main(int argc, char *argv[]){
   c_WW->AddFile(string(dir+"106019_DIL_CR2LepSS.root").c_str());
   c_WW->AddFile(string(dir+"126988_DIL_CR2LepSS.root").c_str());
   c_WW->AddFile(string(dir+"126989_DIL_CR2LepSS.root").c_str());
+  */
 
   c_WZ = new TChain("ToyNt");
-  c_WZ->AddFile(string(dir+"126893_DIL_CR2LepSS.root").c_str());
+  c_WZ->AddFile(string(dir+"toyNt_WZ_PowHeg_WH_optimSRSS_rlep.root").c_str());
+  //  c_WZ->AddFile(string(dir+"126893_DIL_CR2LepSS.root").c_str());
 
   c_ZZ = new TChain("ToyNt");
+  c_ZZ->AddFile(string(dir+"toyNt_ZZ_PowHeg_WH_optimSRSS_rlep.root").c_str());
+  /*
   c_ZZ->AddFile(string(dir+"126894_DIL_CR2LepSS.root").c_str());
   c_ZZ->AddFile(string(dir+"126895_DIL_CR2LepSS.root").c_str());
   c_ZZ->AddFile(string(dir+"116600_DIL_CR2LepSS.root").c_str());
   c_ZZ->AddFile(string(dir+"116601_DIL_CR2LepSS.root").c_str());
   c_ZZ->AddFile(string(dir+"116602_DIL_CR2LepSS.root").c_str());
   c_ZZ->AddFile(string(dir+"116603_DIL_CR2LepSS.root").c_str());
+  */
 
   c_TOP = new TChain("ToyNt");
+  c_TOP->AddFile(string(dir+"toyNt_top_MCNLO_WH_optimSRSS_rlep.root").c_str());
+  /*
   c_TOP->AddFile(string(dir+"117800_DIL_CR2LepSS.root").c_str());
   c_TOP->AddFile(string(dir+"117801_DIL_CR2LepSS.root").c_str());
   c_TOP->AddFile(string(dir+"117802_DIL_CR2LepSS.root").c_str());
@@ -110,12 +123,16 @@ int main(int argc, char *argv[]){
   c_TOP->AddFile(string(dir+"119355_DIL_CR2LepSS.root").c_str());
   c_TOP->AddFile(string(dir+"119356_DIL_CR2LepSS.root").c_str());
   c_TOP->AddFile(string(dir+"119583_DIL_CR2LepSS.root").c_str());
+  */
 
   //Z+jets and Z->tautau give no event in mm
   c_ZJET= new TChain("ToyNt");
+  c_ZJET->AddFile(string(dir+"toyNt_Zjets_SherpaAlpgenPythia_WH_optimSRSS_rlep.root").c_str());
+  /*
   c_ZJET->AddFile(string(dir+"147770_DIL_CR2LepSS.root").c_str());
   c_ZJET->AddFile(string(dir+"147771_DIL_CR2LepSS.root").c_str());
   c_ZJET->AddFile(string(dir+"147772_DIL_CR2LepSS.root").c_str());
+  */
 
 
   _col.push_back(kBlack); //data
@@ -175,10 +192,10 @@ TH1F* bookHist(string var,string name)
       sX="#slash{E}_{T}^{Rel} [GeV]";
   }
   else if(VAR.CompareTo("mll")==0){
-    nbin=20; xL=0; xH=200; //10GeV
+    //nbin=20; xL=0; xH=200; //10GeV
     //nbin=40; xL=0; xH=200; //5GeV
     //nbin=30; xL=0; xH=300; ///10GeV
-    //    nbin=25; xL=50; xH=150; //4GeV - Kanisha binning
+    nbin=25; xL=50; xH=150; //4GeV - Kanisha binning
     sX="m_{ll} [GeV]";
   }
   else if(VAR.Contains("pt")){
@@ -236,15 +253,16 @@ void study(int type, bool wBkg){
   //
   bool logy=false;//true;
 
-  TCut SJ("j_isC25 ||j_isB20 ||j_isF30");
+  TCut SJ("j_isC20 || j_isB20 || j_isF30");
 
-  //TCut SEL("metrel>40 ");
+  //TCut SEL("nSJets>=0 ");
+  TCut SEL("nSJets>0 && metrel>60 ");
   //TCut SEL(SJ && "nSJets==1 && (mll>100 & mll<110) && l_pt[0]>30 ");
-  TCut SEL("nSJets==1 && metrel>40 && (mll>100 & mll<110) ");
+  //TCut SEL("nSJets==1 && metrel>40 && (mll>100 & mll<110) ");
   //TCut SEL("nSJets==1 && met>40 && l_pt[0]>30");
   //TCut SEL("nSJets==1 && metrel>40");
   //TCut SEL("nSJets==1 && metrel>40 && l_pt[0]>30");
-  //  TCut SEL(SJ && "nSJets==1 && metrel>40 && l_pt[0]>30 && (mll>100 & mll<110)");
+  //TCut SEL(SJ && "nSJets==1 && metrel>40 && l_pt[0]>30 && (mll>100 & mll<110)");
   //TCut SEL(SJ && "nSJets==1 && l_pt[0]>30 && (mll>100 & mll<110)");
   //TCut SEL("nSJets==1 && metrel>40 && mll>90 & mll<120 && l_pt[0]");
   //TCut SEL("nSJets<2 && metrel>40 ");
@@ -266,12 +284,13 @@ void study(int type, bool wBkg){
   //string var = "j_eta";
   //string var = "j_jvf";
 
+  string sName = "CR2LepSS_noCut"+ SLEP + var;
   //string sName = "CR2LepSS_VR1SS"+ SLEP + var;
   //string sName = "CR2LepSS_Jveto"+ SLEP + var;
-  //  string sName = "CR2LepSS_1J"+ SLEP + var;
+  //string sName = "CR2LepSS_ge1SJ_metrel70"+ SLEP + var;
   //string sName = "CR2LepSS_1Jptl030Mll100-110"+ SLEP + var;
   //string sName = "CR2LepSS_1JMetrel40"+ SLEP + var;
-  string sName = "CR2LepSS_Metrel40Mll100-110"+ SLEP + var;
+  //string sName = "CR2LepSS_Metrel40Mll100-110"+ SLEP + var;
   //string sName = "CR2LepSS_1JMet40ptl030"+ SLEP + var;
   //  string sName = "CR2LepSS_1JMetrel40"+ SLEP + var;
   //string sName = "CR2LepSS_1JMetrel40ptl030"+ SLEP + var;
