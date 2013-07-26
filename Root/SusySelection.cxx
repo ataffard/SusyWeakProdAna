@@ -1084,6 +1084,7 @@ void SusySelection::sumArray(){
   //3L
   for(int i=ET_eee; i<ET_lll; i++){
     n_pass_nLep3[ET_lll]+= n_pass_nLep3[i];
+    n_pass_tauVeto[ET_lll]+= n_pass_tauVeto[i];
    
     for(int iSR=0; iSR<ML_VRZZ; iSR++){
       n_pass_3Ltrig[ET_lll][iSR]+= n_pass_3Ltrig[i][iSR]; 
