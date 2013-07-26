@@ -73,8 +73,7 @@ void SusyWHAna::end()
   
   cout << std::setprecision(1) << std::fixed;
 
-  string v_ET[ET_N] = {"ee","mm","em"};
-  cout << "Channels        " << v_ET[0] << "\t " << v_ET[1] << "\t " << v_ET[2] <<endl;
+  cout << "Channels        " << WH_FLAV[0] << "\t " << WH_FLAV[1] << "\t " << WH_FLAV[2] <<endl;
   print_line("pass category ",n_pass_dil[0], n_pass_dil[1], n_pass_dil[2]);
   print_line("pass nLep     ",n_pass_signalLep[0], n_pass_signalLep[1], n_pass_signalLep[2]);
   print_line("pass tau veto ",n_pass_tauVeto[0], n_pass_tauVeto[1], n_pass_tauVeto[2]);
@@ -98,7 +97,7 @@ void SusyWHAna::end()
 /*--------------------------------------------------------------------------------*/
 // Set cut selection
 /*--------------------------------------------------------------------------------*/
-void SusyWHAna::setSelection(std::string s, DiLepEvtType dilType)
+void SusyWHAna::setSelection(std::string s, uint dilType)
 {
   TString m_sel(s);
   resetCuts();

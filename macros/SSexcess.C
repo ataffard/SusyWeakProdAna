@@ -255,8 +255,8 @@ void study(int type, bool wBkg){
 
   TCut SJ("j_isC20 || j_isB20 || j_isF30");
 
-  //TCut SEL("nSJets>=0 ");
-  TCut SEL("nSJets>0 && metrel>60 ");
+  TCut SEL("nSJets>=0 ");
+  //TCut SEL("nSJets>0 && metrel>60 ");
   //TCut SEL(SJ && "nSJets==1 && (mll>100 & mll<110) && l_pt[0]>30 ");
   //TCut SEL("nSJets==1 && metrel>40 && (mll>100 & mll<110) ");
   //TCut SEL("nSJets==1 && met>40 && l_pt[0]>30");
@@ -270,10 +270,10 @@ void study(int type, bool wBkg){
   //string var = "l_pt[1]";
   //string var = "l_q[0]+l_q[1]";
   //string var = "sqrt(2*l_pt[0]*met * (1- cos(acos(cos(l_phi[0]-met_phi)))))";
-  string var = "mll";
+  //  string var = "mll";
   //string var = "pTll";
   //string var = "met";
-  //string var = "metrel";
+  string var = "metrel";
   //string var = "met_refEle";
   //string var = "met_refMuo";
   //string var = "met_refJet";

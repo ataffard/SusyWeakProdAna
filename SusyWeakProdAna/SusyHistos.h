@@ -50,6 +50,11 @@ class SusyHistos: public Histos_Fake,
 			     bool mcMll=false, bool isZAlpgenShepa=false, 
 			     string sys1="", string sys2="");
   
+  void SaveSplit3LHistograms(TDirectory* _hDir,
+			     int method=STD, 
+			     bool mcMll=false, bool isZAlpgenShepa=false, 
+			     string sys1="", string sys2="");
+  
   void H1FILL(TH1* h, float x, float w) { h->Fill(x,w); }
   void H2FILL(TH2* h, float x, float y, float w) {h->Fill(x,y, w);}
   void H3FILL(TH3* h, float x, float y, float z, float w) {h->Fill(x,y,z,w);}

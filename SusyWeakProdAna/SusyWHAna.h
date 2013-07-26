@@ -41,7 +41,7 @@ class SusyWHAna: public SusyBaseAna
     void end();
     
     //Set cuts for a give SR, CR etc...
-    void setSelection(std::string s,DiLepEvtType dilType);
+    void setSelection(std::string s, uint dilType);
 
     // Full event selection. Specify which leptons to use.
     bool selectEvent(LeptonVector* leptons, 

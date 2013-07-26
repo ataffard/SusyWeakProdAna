@@ -75,8 +75,7 @@ void Susy2LepAna::end()
   
   cout << std::setprecision(1) << std::fixed;
 
-  string v_ET[ET_N] = {"ee","mm","em"};
-  cout << "Channels        " << v_ET[0] << "\t " << v_ET[1] << "\t " << v_ET[2] <<endl;
+  cout << "Channels        " << DIL_FLAV[0] << "\t " << DIL_FLAV[1] << "\t " << DIL_FLAV[2] <<endl;
   print_line("pass category ",n_pass_dil[0], n_pass_dil[1], n_pass_dil[2]);
   print_line("pass nLep     ",n_pass_signalLep[0], n_pass_signalLep[1], n_pass_signalLep[2]);
   print_line("pass tau veto ",n_pass_tauVeto[0], n_pass_tauVeto[1], n_pass_tauVeto[2]);
@@ -174,7 +173,7 @@ void Susy2LepAna::moveHFTOutput()
 /*--------------------------------------------------------------------------------*/
 // Set cut selection
 /*--------------------------------------------------------------------------------*/
-void Susy2LepAna::setSelection(std::string s, DiLepEvtType dilType)
+void Susy2LepAna::setSelection(std::string s, uint dilType)
 {
   std::string m_sel = s;
   resetCuts();
@@ -696,7 +695,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //
   // Get Event Type to continue cutflow
   //
-  m_ET = getDiLepEvtType(*baseLeps);
+  m_ET =  getDiLepEvtType(*baseLeps);
   if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME together
   
   if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;

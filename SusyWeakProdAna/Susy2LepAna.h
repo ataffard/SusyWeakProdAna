@@ -19,10 +19,6 @@
 
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusyBaseAna.h"
-#include "SusyWeakProdAna/SUSYCrossSection.h"
-#include "SusyWeakProdAna/SusyHistos.h"
-
-#include "SusyWeakProdAna/ToyNt.h"
 
 
 class Susy2LepAna: public SusyBaseAna
@@ -41,7 +37,7 @@ class Susy2LepAna: public SusyBaseAna
     void end();
     
     //Set cuts for a give SR, CR etc...
-    void setSelection(std::string s,DiLepEvtType dilType);
+    void setSelection(std::string s,uint dilType);
 
     // Full event selection. Specify which leptons to use.
     bool selectEvent(LeptonVector* leptons, 

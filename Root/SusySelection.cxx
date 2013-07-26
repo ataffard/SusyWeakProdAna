@@ -15,16 +15,24 @@ using namespace Susy;
 SusySelection::SusySelection():
   SusyNtTools(),
   m_dbg(0),
-  m_nLepMin(2),
-  m_nLepMax(2),
   m_cutNBaseLep(true),
+  m_nLepMin(2), //Anyes Set these in thr 2L/WH
+  m_nLepMax(2),
+  m_nLep3Min(3), //Set in 3: and 4L code note here!
+  m_nLep3Max(3),
+  m_nLep4Min(4),
+  m_nLep4Max(99),
   m_selOS(false),
   m_selSS(false),
   m_selSF    (false),
   m_selOF    (false),
   m_vetoSF   (false),
+  m_selSFOS   (false),
+  m_vetoSFOS   (false),
   m_selZ       (false),
   m_vetoZ      (false),
+  m_vetoExtZ   (false),
+  m_selZllZll  (false),
   m_selB       (false),
   m_vetoB      (false),
   m_vetoF      (false),
@@ -111,20 +119,27 @@ void SusySelection::resetCounter()
   n_pass_atleast2BaseLep = 0;
   n_pass_exactly2BaseLep = 0;
   n_pass_mll20   = 0;
+  n_pass_nBase3Lep   = 0;
+  n_pass_nBase4Lep   = 0;
 
   // The rest are channel specific.
-  for(int i=0; i<ET_N; ++i){
+  for(int i=0; i<LEP_N; ++i){
     n_pass_signalLep[i]   = 0;
-    n_pass_dil[i]    = 0;
-    n_pass_tauVeto[i]    = 0;
-    n_pass_trig[i]    = 0;
-    n_pass_truth[i]    = 0;
+    n_pass_dil[i]         = 0;
+    n_pass_nLep3[i]       = 0;
+    n_pass_nLep4[i]       = 0;
+    n_pass_tauVeto[i]     = 0;
+    n_pass_trig[i]        = 0;
+    n_pass_truth[i]       = 0;
 
-    for(int j=0; j<DIL_NSR; ++j){
+    for(int j=0; j<SR_N; ++j){
+      n_pass_3Ltrig[i][j]    = 0;
+    
       n_pass_ss[i][j]        = 0;
       n_pass_os[i][j]        = 0;
       n_pass_flav[i][j]      = 0;
       n_pass_Z[i][j]         = 0;
+      n_pass_ZllZll[i][j]    = 0;
       n_pass_FullJveto[i][j] = 0;
       n_pass_FJet[i][j]      = 0;
       n_pass_BJet[i][j]      = 0;
@@ -155,6 +170,9 @@ void SusySelection::resetCounter()
       n_pass_Meff[i][j]      = 0;
       n_pass_HT[i][j]      = 0;
 
+      n_pass_sfos[i][j]      = 0;
+      n_pass_mt3L[i][j]      = 0;
+
     }
   }
 
@@ -165,7 +183,7 @@ void SusySelection::resetCounter()
 void SusySelection::reset()
 {
   _inc = 1;
-  SR=DIL_NSR;
+  SR=0;//DIL_NSR;
   m_ET = ET_Unknown;
 
 
@@ -175,16 +193,24 @@ void SusySelection::reset()
 /*--------------------------------------------------------------------------------*/
 void SusySelection::resetCuts()
 {
+  m_cutNBaseLep = true;
   m_nLepMin = 2;
   m_nLepMax = 2;
-  m_cutNBaseLep = true;
+  m_nLep3Min = 3;
+  m_nLep3Max = 3;
+  m_nLep4Min = 4;
+  m_nLep4Max = 99;
   m_selOS    = false;
   m_selSS    = false;
   m_selSF    = false;
   m_selOF    = false;
   m_vetoSF   = false;
+  m_selSFOS  = false;
+  m_vetoSFOS = false;
   m_selZ     = false;
   m_vetoZ    = false;
+  m_vetoExtZ = false;
+  m_selZllZll = false;
   m_selB     = false;
   m_vetoB    = false;
   m_vetoF    = false;
@@ -223,7 +249,6 @@ void SusySelection::resetCuts()
   m_dRllMax   =  -1;
   m_dPhiMetll =  -1;
   m_dPhiMetl1 =  -1;
-
   m_dPhillJ0Min = -1;
   m_dPhillJ0Max = -1;
   m_dPhillMetMin = -1;
@@ -290,14 +315,14 @@ bool SusySelection::passEventCleaning()
   }
   if(SYST==DGSys_NOM) n_pass_BadJet+=_inc;
   */
- 
-
+   
   if( !passDeadRegions(*v_preJet, m_met, nt->evt()->run, nt->evt()->isMC)){
      if(dbg()>15) cout<<"Fail Dead Regions" << endl; 
      return false;
   }
   if(SYST==DGSys_NOM) n_pass_DeadRegion+=_inc;
   
+
   if(hasBadMuon(*v_preMu)) {
     if(dbg()>15) cout << "bad muon " << endl;
     return false;
@@ -382,6 +407,50 @@ bool SusySelection::passNLepCut(const LeptonVector* leptons)
   return true;
 }
 /*--------------------------------------------------------------------------------*/
+bool SusySelection::passNBase3LepCut(const LeptonVector* baseLeptons)
+{
+  if(m_cutNBaseLep){
+    uint nLep = baseLeptons->size();
+    if(m_nLep3Min>=0 && nLep < m_nLep3Min) return false;
+    if(m_nLep3Max>=0 && nLep > m_nLep3Max) return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_nBase3Lep+=_inc;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passNBase4LepCut(const LeptonVector* baseLeptons)
+{
+  if(m_cutNBaseLep){
+    uint nLep = baseLeptons->size();
+    if(m_nLep4Min>=0 && nLep < m_nLep4Min) return false;
+    if(m_nLep4Max>=0 && nLep > m_nLep4Max) return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_nBase4Lep+=_inc;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passNLep3Cut(const LeptonVector* leptons)
+{
+  uint nLep = leptons->size();
+  if(dbg()>5) cout << "3L " << m_ET << " " << n_pass_nLep3[m_ET] << endl;
+
+  if(m_nLep3Min>=0 && nLep < m_nLep3Min) return false;
+  if(m_nLep3Max>=0 && nLep > m_nLep3Max) return false;
+
+  if(SYST==DGSys_NOM) n_pass_nLep3[m_ET]+=_inc;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passNLep4Cut(const LeptonVector* leptons)
+{
+  uint nLep = leptons->size();
+  if(m_nLep4Min>=0 && nLep < m_nLep4Min) return false;
+  if(m_nLep4Max>=0 && nLep > m_nLep4Max) return false;
+
+  if(SYST==DGSys_NOM) n_pass_nLep4[m_ET]+=_inc;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
 bool SusySelection::passTrigger(const LeptonVector* leptons, DilTrigLogic* trigObj, 
 				const Met *met)
 {
@@ -392,6 +461,17 @@ bool SusySelection::passTrigger(const LeptonVector* leptons, DilTrigLogic* trigO
   }
   return false;
 }
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::pass3LTrigger(const LeptonVector* leptons, const TauVector* taus,
+				  TrilTrigLogic* trig3LObj)
+{
+  bool useDilepTrigs=true;
+  if(dbg()>5) cout << "ML type " << m_ET << " " << n_pass_3Ltrig[m_ET][SR] << endl;
+  if(!trig3LObj->passTriggerMatching(*leptons, *taus, nt->evt(), useDilepTrigs))  return false;
+  if(SYST==DGSys_NOM) n_pass_3Ltrig[m_ET][SR]+=_inc;
+  return true;
+}
+
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passIsPromptLepton(const LeptonVector* leptons, int method, bool isMC)
 {
@@ -715,6 +795,7 @@ bool SusySelection::passdRll(const LeptonVector* leptons){
 bool SusySelection::passMET(const Met *met)
 {
   float etmiss = met->lv().Pt();
+  if(dbg()>5) cout << "SR " << SR << " Met min " << m_metMin << " max " << m_metMax << " Et " << etmiss << endl;
   if(m_metMin>=0 &&  etmiss < m_metMin ) return false;
   if(m_metMax>=0 &&  etmiss > m_metMax ) return false;
   if(SYST==DGSys_NOM) n_pass_met[m_ET][SR]+=_inc;
@@ -851,6 +932,79 @@ bool SusySelection::passMll20(const LeptonVector* leptons)
   if(mll<20) return false;
   return true;
 }
+
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passSFOSCut(const LeptonVector* leptons)
+{
+  bool sfos = hasSFOS(*leptons);
+  if(m_vetoSFOS &&  sfos) return false;
+  if(m_selSFOS  && !sfos) return false;
+  if(SYST==DGSys_NOM)  n_pass_sfos[m_ET][SR]+=_inc;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passZCut(const LeptonVector* leptons)
+{
+  if(m_vetoZ || m_selZ || m_vetoExtZ){
+    bool z = hasZ(*leptons, 10., m_vetoExtZ);
+    if(dbg()>5) cout << "SR " << SR << " MLtype " << ML_FLAV[m_ET] << " hasZ " << z << endl;
+    if(m_vetoZ && z) return false;
+    if(m_selZ && !z) return false;
+    if(m_vetoExtZ && z) return false;
+  }
+  if(SYST==DGSys_NOM)  n_pass_Z[m_ET][SR]+=_inc;
+  return true;
+}
+
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passZllZll(const LeptonVector* leptons)
+{
+  uint dmy;
+  bool ZZ = hasZllZll(*leptons,&dmy,&dmy,&dmy,&dmy);
+  if(m_selZllZll && !ZZ) return false;
+
+  if(SYST==DGSys_NOM)  n_pass_ZllZll[m_ET][SR]+=_inc;
+  return true;
+
+}
+
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passMtCut(const LeptonVector* leptons, const Met* met)
+{
+  if(m_mtMin > 0 || m_mtMax > 0){
+    uint nLep = leptons->size();
+    uint zl1, zl2;
+    // Find the best Z candidate pair, use remaining lepton to form Mt
+    if(nLep==3 && findBestZ(zl1, zl2, *leptons)){
+      for(uint iL=0; iL<nLep; iL++){
+        if(iL!=zl1 && iL!=zl2){
+          // Only process the leading non-Z lepton
+          // Is this how we want to apply it generally?
+          float mt = Mt(leptons->at(iL), met);
+          if(m_mtMin > 0 && mt < m_mtMin) return false;
+          if(m_mtMax > 0 && mt > m_mtMax) return false;
+          break;
+        }
+      }
+    }
+    // For 2 leptons, use maximum mt
+    else if(nLep==2){
+      float mt = max(Mt(leptons->at(0), met), Mt(leptons->at(1), met));
+      if(m_mtMin > 0 && mt < m_mtMin) return false;
+      if(m_mtMax > 0 && mt > m_mtMax) return false;
+    }
+    // General case, use all leptons
+    else{
+      for(uint iL=0; iL<nLep; iL++){
+        float mt = Mt(leptons->at(iL), met);
+        if(m_mtMin > 0 && mt < m_mtMin) return false;
+        if(m_mtMax > 0 && mt > m_mtMax) return false;
+      }
+    }
+  }
+  if(SYST==DGSys_NOM) n_pass_mt3L[m_ET][SR]+=_inc;
+  return true;
+}
 /*--------------------------------------------------------------------------------*/
 float SusySelection::JZBJet(const JetVector* jets, const LeptonVector* leptons)
 {
@@ -877,3 +1031,83 @@ float SusySelection::JZBEtmiss(const Met *met, const LeptonVector* leptons)
 
 }
 
+/*--------------------------------------------------------------------------------*/
+uint SusySelection::get3LType(const LeptonVector& leptons)
+{
+  int ne=0;
+  int nm=0;
+
+  for(uint i=0; i<leptons.size(); ++i){
+    bool isE = leptons.at(i)->isEle();
+    if(isE)  ne++;
+    if(!isE) nm++;
+  }
+  if(dbg()>5) cout << "3LType " << ne << " " << nm << endl;
+
+  if(ne==3 && nm ==0) return ET_eee;
+  else if(ne==2 && nm ==1) return ET_eem;
+  else if(ne==1 && nm ==2) return ET_emm;
+  else if(ne==0 && nm ==3) return ET_mmm;
+  
+
+  return ET_Ukn;
+
+}
+/*--------------------------------------------------------------------------------*/
+uint SusySelection::get4LType(const LeptonVector& leptons)
+{
+  int ne=0;
+  int nm=0;
+  uint maxNLep=leptons.size();
+  if(maxNLep>4) maxNLep=4;
+  for(uint i=0; i<maxNLep; ++i){
+    bool isE = leptons.at(i)->isEle();
+    if(isE)  ne++;
+    if(!isE) nm++;
+  }
+  if(dbg()>5) cout << "4LType " << ne << " " << nm << endl;
+
+  if(ne==4 && nm ==0) return ET_eeee;
+  else if(ne==3 && nm ==1) return ET_eeem;
+  else if(ne==2 && nm ==2) return ET_eemm;
+  else if(ne==1 && nm ==3) return ET_emmm;
+  else if(ne==0 && nm ==4) return ET_mmmm;
+
+
+  return ET_Ukn;
+}
+
+
+/*--------------------------------------------------------------------------------*/
+void SusySelection::sumArray(){
+  
+  //3L
+  for(int i=ET_eee; i<ET_lll; i++){
+    n_pass_nLep3[ET_lll]+= n_pass_nLep3[i];
+   
+    for(int iSR=0; iSR<ML_VRZZ; iSR++){
+      n_pass_3Ltrig[ET_lll][iSR]+= n_pass_3Ltrig[i][iSR]; 
+      n_pass_sfos[ET_lll][iSR]+= n_pass_sfos[i][iSR]; 
+      n_pass_met[ET_lll][iSR]+= n_pass_met[i][iSR]; 
+      n_pass_Z[ET_lll][iSR]+= n_pass_Z[i][iSR];
+      n_pass_ZllZll[ET_lll][iSR]+= n_pass_ZllZll[i][iSR]; 
+      n_pass_BJet[ET_lll][iSR]+= n_pass_BJet[i][iSR]; 
+      n_pass_mt3L[ET_lll][iSR]+= n_pass_mt3L[i][iSR]; 
+    }
+  }
+
+
+  //4L
+  for(int i=ET_eeee; i<ET_llll; i++){
+    n_pass_nLep4[ET_llll]+= n_pass_nLep4[i];
+    
+    for(int iSR=ML_VRZZ; iSR<ML_NSR; iSR++){
+      n_pass_3Ltrig[ET_llll][iSR]+= n_pass_3Ltrig[i][iSR]; 
+      n_pass_met[ET_llll][iSR]+= n_pass_met[i][iSR]; 
+      n_pass_Z[ET_llll][iSR]+= n_pass_Z[i][iSR]; 
+      n_pass_ZllZll[ET_llll][iSR]+= n_pass_ZllZll[i][iSR]; 
+      n_pass_BJet[ET_llll][iSR]+= n_pass_BJet[i][iSR]; 
+    }
+  }
+
+}

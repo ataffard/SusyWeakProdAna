@@ -23,7 +23,10 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
   resetCounter();
 
   _random = new TRandom3(2012300958);
-
+  
+  //-------------------------
+  //2L trigger and Fake
+  //-------------------------
   bool useReweightUtils=false;//true;
   m_trigObj = new DilTrigLogic(LUMW,useReweightUtils);  
   if(USE_MCTRIG && !USE_DGWEIGHT){
@@ -41,6 +44,14 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
 			    SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT);
 
+  //-------------------------
+  //3L Trigger
+  //-------------------------
+  m_trig3LObj = new TrilTrigLogic();
+  m_trig3LObj->loadTriggerMaps();
+  //if(m_trigAccOnly) m_trigLogic->setAccOnly(true); //to not apply trigger, just pt Thrs
+
+
   //Open signal cross section file
   string _sSigFile = string(getenv("WORKAREA")) +
     "/SusyWeakProdAna/data/" + "Simplified_CrossSections.txt";
@@ -57,7 +68,7 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
   susyXS = new XSReader();
   susyXS->LoadXSInfo();
 
-  setAnaType(Ana_2Lep);
+  //setAnaType(Ana_2Lep);
 
 }
 
@@ -392,6 +403,26 @@ void SusyBaseAna::print_line(string s, float a, float b, float c)
        << a << "\t" 
        << b << "\t" 
        << c << endl;
+}
+/*--------------------------------------------------------------------------------*/
+void SusyBaseAna::print_line(string s, int istart, int iend, 
+			     float array[LEP_N])
+{
+  cout << setprecision(2) << std::fixed;
+  cout << s << "\t";
+  for(int i=istart; i<=iend; i++)
+    cout << array[i] << "\t";
+  cout << endl;
+}
+/*--------------------------------------------------------------------------------*/
+void SusyBaseAna::print_line(string s, int istart, int iend, int sr,
+			     float array[LEP_N][SR_N])
+{
+  cout << setprecision(2) << std::fixed;
+  cout << s << "\t";
+  for(int i=istart; i<=iend; i++)
+    cout << array[i][sr] << "\t";
+  cout << endl;
 }
 
 /*--------------------------------------------------------------------------------*/

@@ -25,7 +25,7 @@ SusyAnaLooper::SusyAnaLooper():
   nHFOR(0),
   nMllCut(0)
 {
-  setAnaType(Ana_2Lep);
+  //setAnaType(Ana_2Lep);
   setSelectTaus(true);
 
   _histoDir = new TDirectory("Ana","Ana");
@@ -140,11 +140,37 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
     _susy3LAna->setDebug(dbg());
     _susy3LAna->setUseLooseLep(_useLooseLep);
     _susy3LAna->hookContainers(&nt,
-			       &m_baseElectrons, &m_signalElectrons,
-			       &m_baseMuons, &m_signalMuons,
+			       &m_preElectrons, &m_baseElectrons, &m_signalElectrons,
+			       &m_preMuons, &m_baseMuons, &m_signalMuons,
 			       &m_baseLeptons, &m_signalLeptons,
-			       &m_baseJets, &m_signalJets);
+			       &m_preJets, &m_baseJets, &m_signalJets2Lep,
+			       &m_baseTaus, &m_signalTaus);
+
     _susyHistos->Book3LHistograms(_histoDir);
+    _susy3LAna->setMCSumWs(getSumwMap());
+
+
+    if(DO_SYS){
+      if(_runOneSys || _runSysRange){
+	if(_systematic1.length()>2){
+	  int minSys=getSysIndex(_systematic1);
+	  if(_runOneSys)   _susy3LAna->setMcSysMinMax(minSys,minSys);
+	  else if(_runSysRange){
+	    int maxSys=getSysIndex(_systematic2);
+	    _susy3LAna->setMcSysMinMax(minSys, maxSys);
+	  }
+	}
+	else {
+	  _systematic1="";
+	  _systematic2="";
+	  _runOneSys=false;
+	  _runSysRange=false;
+	  _susy3LAna->setMcSysMinMax();
+	}
+      }
+      else _susy3LAna->setMcSysMinMax();
+    }
+    
   }
 
 
@@ -268,7 +294,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 
   // grab base object and select signal objects
   uint iSys=DGSys_NOM;
-  if(_do2LAna || _doWHAna){
+  if(_do2LAna || _doWHAna ||_do3LAna){
     uint minSys=DGSys_NOM;
     uint maxSys=DGSys_NOM+1;
     if(DO_SYS){
@@ -330,11 +356,13 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 	_susyWHAna->hookMet(m_met);
 	_susyWHAna->doAnalysis(iiSyst);
       }
-
+      if(_do3LAna){
+	_susy3LAna->hookMet(m_met);
+	_susy3LAna->doAnalysis(iiSyst);
+      }
     }   
-  }
+   }
   else{
-    
     selectObjects((SusyNtSys) iSys);
     if(dbgEvt()) dumpEvent();
 
@@ -343,10 +371,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       _susyFakeAna->hookMet(m_met);
       _susyFakeAna->doAnalysis();
     }
-    if(_do3LAna){
-      _susy3LAna->hookMet(m_met);
-      _susy3LAna->doAnalysis();
-    }
+   
   }
 
   return kTRUE;
@@ -380,6 +405,13 @@ void SusyAnaLooper::Terminate()
       _susyHistos->SaveSplitWHHistograms(_histoDir,_method,
 					 _doMll,_isZAlpgenSherpa,
 					 _systematic1, _systematic2);
+
+
+    if(_do3LAna)
+      _susyHistos->SaveSplit3LHistograms(_histoDir,_method,
+					 _doMll,_isZAlpgenSherpa,
+					 _systematic1, _systematic2);
+
   }
 
 

@@ -23,7 +23,8 @@
 #!/bin/bash
 
 #Update for a given pass
-date="072113_21fb_n0145_DD_v2"
+date="072613_21fb_n0145_DD_v3"
+#date="072113_21fb_n0145_DD_v2"
 #date="071613_21fb_n0145_DD_v1"
 #date="070913_21fb_n0144_DD_v1"
 
@@ -170,16 +171,23 @@ fi
 #rm -f ${outpath}/*
 
 
+##
+## qsub_hadd.... edit between 2L 3L mode
+##
+
 #DIL=(MM)
 #SR=(SRmT2a)
 
-DIL=(EE MM EM)
+#DIL=(EE MM EM)
+DIL=(EEE EEM EMM MMM LLL \
+    EEEE EEEM EEMM EMMM MMMM LLLL)
 #<<SKIP
 SR=(\
+    ML_CF3L ML_VRWZ ML_VRZZ\
     #SRmT2a SRmT2b SRmT2c \
     #SRWWa SRWWb SRWWc \
     #SRZjets \
-    SRZjetsb \
+    #SRZjetsb \
     #SRSSjets \
     #CRWWmet CRWWmt2 \
     #CRTOPmet CRTOPmt2 CRTOPZjets \

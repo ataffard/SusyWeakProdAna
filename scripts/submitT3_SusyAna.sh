@@ -51,7 +51,8 @@ pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 ana=SusyAnaLooperExec
 #anaOpt1=doAll
 #anaOpt1=do2L
-anaOpt1=doWH
+#anaOpt1=doWH
+anaOpt1=do3L
 #anaOpt1=doFake
 anaOpt2=true #doMll 
 #anaOpt2=false #doMll 
@@ -256,7 +257,9 @@ rm -f tmp.txt
 
 if [ "$type" == "mc12" ]; then
     cd  ${pathRun}
-    ./runWH.sh mc12 dummy ${mode}
+    ./run3L.sh mc12 dummy ${mode}
+#    ./runWH.sh mc12 dummy ${mode}
+
 #    ./run.sh mc12 dummy ${mode}
 ##    ./run.sh susy 166614 ${mode}
 #    ./run.sh susy 175447 ${mode}

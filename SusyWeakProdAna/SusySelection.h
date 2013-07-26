@@ -16,11 +16,16 @@
 #include "SusyNtuple/SusyNtObject.h"
 #include "SusyNtuple/SusyNtTools.h"
 #include "SusyNtuple/DilTrigLogic.h"
+#include "SusyNtuple/TrilTrigLogic.h"
 #include "SusyNtuple/SleptonXsecReader.h"
 
 #include "ChargeFlip/chargeFlip.h"
 
 #include "SusyWeakProdAna/SusyHistos.h"
+
+static const int LEP_N = 15;    //2L, 3L, 4L channels rounded up
+static const int SR_N  = 100;   //Large enought to cover all the SR/CR/VR's for all ana
+
 
 class SusySelection: public SusyNtTools
 {
@@ -46,8 +51,13 @@ class SusySelection: public SusyNtTools
   // Cut methods
   bool passMll20(const LeptonVector* leptons);
   bool passTrigger(const LeptonVector* leptons, DilTrigLogic* trigObj, const Met *met);
+  bool pass3LTrigger(const LeptonVector* leptons, const TauVector* taus, TrilTrigLogic* trig3LObj);
   bool passTauVeto(const TauVector* taus);
   bool passNLepCut(const LeptonVector* leptons);
+  bool passNBase3LepCut(const LeptonVector* leptons);
+  bool passNBase4LepCut(const LeptonVector* leptons);
+  bool passNLep3Cut(const LeptonVector* leptons);
+  bool passNLep4Cut(const LeptonVector* leptons);
   bool passIsPromptLepton(const LeptonVector* leptons, int method, bool isMC=false);
   bool passFlavor(const LeptonVector* leptons);
   bool passQQ(const LeptonVector* leptons);
@@ -87,11 +97,25 @@ class SusySelection: public SusyNtTools
   bool  hasQFlip(const LeptonVector* leptons);
   float getQFlipProb(const LeptonVector* leptons, Met* met, uint iSys=DGSys_NOM);
   
+  //3L/4L specific
+  bool passSFOSCut(const LeptonVector* leptons);
+  bool passZCut(const LeptonVector* leptons);
+  bool passZllZll(const LeptonVector* leptons);
+  bool passMtCut(const LeptonVector* leptons, const Met* met);
+
   //Complex vars (move to another class?)
   float JZBJet(const JetVector* jets, const LeptonVector* leptons);
   float JZBEtmiss(const Met *met, const LeptonVector* leptons);
   
   
+  //Multilep classification
+  uint get3LType(const LeptonVector& leptons);
+  uint get4LType(const LeptonVector& leptons);
+
+  //Sum 3L & 4L 
+  void sumArray();
+
+
   ClassDef(SusySelection, 1);
   
  protected:
@@ -133,16 +157,25 @@ class SusySelection: public SusyNtTools
   uint   SYST;         //Current Syst being handled
   
   // Cut variables
-  uint                m_nLepMin;      // min leptons
-  uint                m_nLepMax;      // max leptons
   bool                m_cutNBaseLep;  // apply nLep cuts to baseline leptons as well as signal
+  uint                m_nLepMin;      // min 2 leptons
+  uint                m_nLepMax;      // max 2 leptons
+  uint                m_nLep3Min;     // min leptons
+  uint                m_nLep3Max;     // max leptons
+  uint                m_nLep4Min;     // min leptons
+  uint                m_nLep4Max;     // max leptons
+  
   bool                m_selOS;        // select OS 
   bool                m_selSS;        // select SS 
   bool                m_selSF;        // select SF (no flavor sel by default)
   bool                m_selOF;        // select OF (no flavor sel by default)
   bool                m_vetoSF;       // veto SF
+  bool                m_selSFOS;      // switch to select SFOS pairs
+  bool                m_vetoSFOS;     // switch to veto SFOS pairs
   bool                m_selZ;         // select Z (SFOS applied)
   bool                m_vetoZ;        // veto z
+  bool                m_vetoExtZ;     // extended multilepton Z veto
+  bool                m_selZllZll;    // select 2 SFOS pair within Z
   bool                m_selB;         // sel  b-jet using m_btagPtMin;
   bool                m_vetoB;        // veto b-jet using m_btagPtMin
   bool                m_vetoF;        // veto fwd-jet using
@@ -193,7 +226,9 @@ class SusySelection: public SusyNtTools
   float               m_HTMax;        // min HT
 
   
-  DiLepEvtType        m_ET;           // Dilepton event type to store cf
+  //DiLepEvtType        m_ET;           // Dilepton event type to store cf
+  uint       m_ET;           // Multilep event type to store cf
+  
   
   // Event counters
   float                n_readin;
@@ -212,45 +247,54 @@ class SusySelection: public SusyNtTools
   float                n_pass_atleast2BaseLep; //>=2 base lept
   float                n_pass_exactly2BaseLep; //=2 base lept
   float                n_pass_mll20;           //mll>20 SS/OS all flavors
+  float                n_pass_nBase3Lep;
+  float                n_pass_nBase4Lep;
   
-  float                n_pass_dil[ET_N];   //Channel
-  float                n_pass_tauVeto[ET_N];
-  float                n_pass_signalLep[ET_N];
-  float                n_pass_trig[ET_N];
-  float                n_pass_truth[ET_N];
-  float                n_pass_os[ET_N][DIL_NSR];
-  float                n_pass_ss[ET_N][DIL_NSR];
-  float                n_pass_flav[ET_N][DIL_NSR];
-  float                n_pass_Z[ET_N][DIL_NSR];  //Z sel or veto
-  float                n_pass_FullJveto[ET_N][DIL_NSR];  //Full jet veto
-  float                n_pass_FJet[ET_N][DIL_NSR]; //Forward jet
-  float                n_pass_BJet[ET_N][DIL_NSR]; //b-jet
-  float                n_pass_LJet[ET_N][DIL_NSR]; //central LF
-  float                n_pass_CJet[ET_N][DIL_NSR]; //central C20+B20
-  float                n_pass_JetPt[ET_N][DIL_NSR];
-  float                n_pass_mjj[ET_N][DIL_NSR];
-  float                n_pass_leadLepPt[ET_N][DIL_NSR];
-  float                n_pass_MuIso[ET_N][DIL_NSR];
-  float                n_pass_EleD0S[ET_N][DIL_NSR];
-  float                n_pass_mll[ET_N][DIL_NSR]; //Cut on  mll
-  float                n_pass_pTll[ET_N][DIL_NSR];
-  float                n_pass_pTllBound[ET_N][DIL_NSR];
-  float                n_pass_dPhill[ET_N][DIL_NSR];
-  float                n_pass_dRll[ET_N][DIL_NSR];
-  float                n_pass_mWWT[ET_N][DIL_NSR];
-  float                n_pass_topTag[ET_N][DIL_NSR];
-  float                n_pass_metRel[ET_N][DIL_NSR];
-  float                n_pass_mt2[ET_N][DIL_NSR];
-  float                n_pass_minMt[ET_N][DIL_NSR];
-  float                n_pass_met[ET_N][DIL_NSR];
-  float                n_pass_dPhiMetll[ET_N][DIL_NSR];
-  float                n_pass_dPhiMetl1[ET_N][DIL_NSR];
-  float                n_pass_dPhillJ0[ET_N][DIL_NSR];
-  float                n_pass_dPhillMet[ET_N][DIL_NSR];
-  float                n_pass_MetMeff[ET_N][DIL_NSR];
-  float                n_pass_Meff[ET_N][DIL_NSR];
-  float                n_pass_HT[ET_N][DIL_NSR];
+  float                n_pass_dil[LEP_N];   //Channel
+  float                n_pass_nLep3[LEP_N];
+  float                n_pass_nLep4[LEP_N];
+  float                n_pass_tauVeto[LEP_N];
+  float                n_pass_signalLep[LEP_N];
+  float                n_pass_trig[LEP_N];
+  float                n_pass_truth[LEP_N];
+  float                n_pass_3Ltrig[LEP_N][SR_N];
+  float                n_pass_os[LEP_N][SR_N];
+  float                n_pass_ss[LEP_N][SR_N];
+  float                n_pass_flav[LEP_N][SR_N];
+  float                n_pass_Z[LEP_N][SR_N];  //Z sel or veto
+  float                n_pass_ZllZll[LEP_N][SR_N];  //Z sel or veto
+  float                n_pass_FullJveto[LEP_N][SR_N];  //Full jet veto
+  float                n_pass_FJet[LEP_N][SR_N]; //Forward jet
+  float                n_pass_BJet[LEP_N][SR_N]; //b-jet
+  float                n_pass_LJet[LEP_N][SR_N]; //central LF
+  float                n_pass_CJet[LEP_N][SR_N]; //central C20+B20
+  float                n_pass_JetPt[LEP_N][SR_N];
+  float                n_pass_mjj[LEP_N][SR_N];
+  float                n_pass_leadLepPt[LEP_N][SR_N];
+  float                n_pass_MuIso[LEP_N][SR_N];
+  float                n_pass_EleD0S[LEP_N][SR_N];
+  float                n_pass_mll[LEP_N][SR_N]; //Cut on  mll
+  float                n_pass_pTll[LEP_N][SR_N];
+  float                n_pass_pTllBound[LEP_N][SR_N];
+  float                n_pass_dPhill[LEP_N][SR_N];
+  float                n_pass_dRll[LEP_N][SR_N];
+  float                n_pass_mWWT[LEP_N][SR_N];
+  float                n_pass_topTag[LEP_N][SR_N];
+  float                n_pass_metRel[LEP_N][SR_N];
+  float                n_pass_mt2[LEP_N][SR_N];
+  float                n_pass_minMt[LEP_N][SR_N];
+  float                n_pass_met[LEP_N][SR_N];
+  float                n_pass_dPhiMetll[LEP_N][SR_N];
+  float                n_pass_dPhiMetl1[LEP_N][SR_N];
+  float                n_pass_dPhillJ0[LEP_N][SR_N];
+  float                n_pass_dPhillMet[LEP_N][SR_N];
+  float                n_pass_MetMeff[LEP_N][SR_N];
+  float                n_pass_Meff[LEP_N][SR_N];
+  float                n_pass_HT[LEP_N][SR_N];
   
+  float                n_pass_sfos[LEP_N][SR_N];
+  float                n_pass_mt3L[LEP_N][SR_N];
+
 };
 
 #endif

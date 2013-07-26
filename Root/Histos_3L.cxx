@@ -3,9 +3,10 @@
 /*--------------------------------------------------------------------------------*/
 // SusyHistos Book3LHistograms
 /*--------------------------------------------------------------------------------*/
-void Histos_3L::Book3LHistograms(TDirectory* _hDir)
+void Histos_3L::Book3LHistograms(TDirectory* _hDir, bool useSys)
 {
   std::cout << "Booking 3L histos " << std::endl;
+  std::cout << "Number of Signal regions " << ML_NSR << endl;
 
   _hDir->cd();
 
@@ -13,30 +14,27 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   char      syaxis[200];
   sprintf(syaxis,"Entries");
 
-
+  int maxSys = DGSys_N;
+  if(useSys==false){
+    maxSys=1;
+    cout << "\t No systematics histos booked " << endl;
+  }
+  
+  
 #define BOOK_SRML(hN,xT,u,yT, ...)					\
-  for(int j=0; j<nHSR_ML; j++){						\
-    if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
-    else sx = 	string(xT);						\
-    string stype;							\
-    if(j==0) stype="ML_SR3Lep_";					\
-    if(j==1) stype="ML_SRB_";						\
-    if(j==2) stype="ML_SR1a_";						\
-    if(j==3) stype="ML_SR1b_";						\
-    if(j==4) stype="ML_SR2_";						\
-    if(j==5) stype="ML_VR0_";						\
-    if(j==6) stype="ML_VR1_";						\
-    if(j==7) stype="ML_VR2_";						\
-    if(j==8) stype="ML_VR3_";						\
-    if(j==9) stype="ML_VRWZ_";						\
-    if(j==10) stype="ML_NRWZ_";						\
-    if(j==11) stype="ML_SR4lep_";					\
-    if(j==12) stype="ML_SR4lepNoZ_";					\
-    hN[j] = _utils->myTH1F((book_s1=stype + #hN).c_str(),		\
-			   (book_s2=stype + #hN).c_str(),		\
-			   __VA_ARGS__,sx.c_str() ,yT);			\
-    _utils->yAxis(hN[j],u);						\
-    									\
+  for(int i=0; i<ML_N; i++){					 	\
+    string sFlav=string(ML_FLAV[i]) + "_";				\
+    for(int j=0; j<ML_NSR; j++){					\
+      for(int isys=0; isys<maxSys; isys++){				\
+      if(string(u).length()>0) sx = string(xT+string(" [")+u+string("]")); \
+      else sx = 	string(xT);					\
+      string stype = "ML_" + ML_SRNAME[j] + "_" + sFlav + #hN + "_" + DGSystNames[isys]; \
+      hN[j][i][isys] = (TH1F*) _utils->myTH1F(stype.c_str(),		\
+					      stype.c_str(),		\
+					      __VA_ARGS__,sx.c_str() ,yT); \
+      _utils->yAxis(hN[j][i][isys],u);					\
+      }									\
+    }									\
   }
   
   BOOK_SRML(ML_pred,"","",syaxis,1,-0.5,0.5);
@@ -51,6 +49,7 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   BOOK_SRML(ML_SFOSMlll,"M_{lll}^{SFOS}","",syaxis,105,10,220);
   BOOK_SRML(ML_AllMll,"M_{ll}^{all}","",syaxis,105,10,220);
   BOOK_SRML(ML_AllMlll,"M_{lll}^{all}","",syaxis,105,10,220);
+  BOOK_SRML(ML_SFOSMZZ,"M_{llll}^{SFOS}","",syaxis,40,10,410);
   BOOK_SRML(ML_SFOSMT,"M_{T}^{SFOS}","",syaxis,100,20,220);
   BOOK_SRML(ML_etmiss,"#slash{E}_{T}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metRefEle,"#slash{E}_{T}^{RefEle}","GeV",syaxis,40,0,200);
@@ -93,7 +92,7 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   
 #undef BOOK_SRML
 
-
+  /*
   std::vector<TString> v3Lep;
   v3Lep.clear();
   v3Lep.push_back("eee");   
@@ -118,23 +117,157 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir)
   LepType.push_back("LF");
   LepType.push_back("Unknown");
 
-
-  for(uint i=0; i<nHSR_ML; i++){
-    for(uint j=0; j<v3Lep.size(); j++)
-      ML_evtCatgUnOrdered[i]->GetXaxis()->SetBinLabel(j+1,v3Lep.at(j).Data());
-    for(uint j=0; j<v3LepOS.size(); j++)
-      ML_evtCatgOSpair[i]->GetXaxis()->SetBinLabel(j+1,v3LepOS.at(j).Data());
-
-    for(uint j=0; j<LepType.size(); j++){
-	ML_orgl1[i]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
-	ML_orgl2[i]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
-	ML_orgl3[i]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
-	ML_orgl4[i]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+  for(int i=0; i<ML_N; i++){
+    for(uint j=0; j<ML_NSR; j++){
+      for(int isys=0; isys<maxSys; isys++){
+	for(uint b=0; b<v3Lep.size(); b++)
+	  ML_evtCatgUnOrdered[j][i][isys]->GetXaxis()->SetBinLabel(b+1,v3Lep.at(b).Data());
+	for(uint b=0; b<v3LepOS.size(); b++)
+	  ML_evtCatgOSpair[j][i][isys]->GetXaxis()->SetBinLabel(b+1,v3LepOS.at(b).Data());
+	
+	for(uint j=0; j<LepType.size(); j++){
+	  ML_orgl1[j][i][isys]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	  ML_orgl2[j][i][isys]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	  ML_orgl3[j][i][isys]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	  ML_orgl4[j][i][isys]->GetXaxis()->SetBinLabel(j+1,LepType.at(j).Data());
+	}
+      }
     }
-    
   }
 
-
+  */
 
 
 }
+
+
+/*--------------------------------------------------------------------------------*/
+// SusyHistos Book3LHistograms
+/*--------------------------------------------------------------------------------*/
+void Histos_3L::Sum3LHistograms()
+{
+  std::cout << "Summing 3L histos " << std::endl;
+
+  for(int j=0; j<ML_NSR; j++){
+    for(int isys=0; isys<DGSys_N; isys++){
+      
+      //Sum 3L      
+      for(int i=ET_eee; i<ET_lll; i++){
+	ML_pred[j][ET_lll][isys]->Add(ML_pred[j][i][isys]);
+	ML_cutflow[j][ET_lll][isys]->Add(ML_cutflow[j][i][isys]);
+	ML_evtCatgUnOrdered[j][ET_lll][isys]->Add(ML_evtCatgUnOrdered[j][i][isys]);
+	ML_evtCatgOSpair[j][ET_lll][isys]->Add(ML_evtCatgOSpair[j][i][isys]);
+	ML_evtCatgSSpair[j][ET_lll][isys]->Add(ML_evtCatgSSpair[j][i][isys]);
+	ML_nLep[j][ET_lll][isys]->Add(ML_nLep[j][i][isys]);
+	ML_nJets[j][ET_lll][isys]->Add(ML_nJets[j][i][isys]);
+	ML_nBJets[j][ET_lll][isys]->Add(ML_nBJets[j][i][isys]);
+	ML_SFOSMll[j][ET_lll][isys]->Add(ML_SFOSMll[j][i][isys]);
+	ML_SFOSMlll[j][ET_lll][isys]->Add(ML_SFOSMlll[j][i][isys]);
+	ML_AllMll[j][ET_lll][isys]->Add(ML_AllMll[j][i][isys]);
+	ML_AllMlll[j][ET_lll][isys]->Add(ML_AllMlll[j][i][isys]);
+	ML_SFOSMZZ[j][ET_lll][isys]->Add(ML_SFOSMZZ[j][i][isys]);
+	ML_SFOSMT[j][ET_lll][isys]->Add(ML_SFOSMT[j][i][isys]);
+	ML_etmiss[j][ET_lll][isys]->Add(ML_etmiss[j][i][isys]);
+	ML_metRefEle[j][ET_lll][isys]->Add(ML_metRefEle[j][i][isys]);
+	ML_metRefGam[j][ET_lll][isys]->Add(ML_metRefGam[j][i][isys]);
+	ML_metRefMuo[j][ET_lll][isys]->Add(ML_metRefMuo[j][i][isys]);
+	ML_metRefJet[j][ET_lll][isys]->Add(ML_metRefJet[j][i][isys]);
+	ML_metRefSJet[j][ET_lll][isys]->Add(ML_metRefSJet[j][i][isys]);
+	ML_metCellout[j][ET_lll][isys]->Add(ML_metCellout[j][i][isys]);
+	ML_ptl1[j][ET_lll][isys]->Add(ML_ptl1[j][i][isys]);
+	ML_ptl2[j][ET_lll][isys]->Add(ML_ptl2[j][i][isys]);
+	ML_ptl3[j][ET_lll][isys]->Add(ML_ptl3[j][i][isys]);
+	ML_ptl4[j][ET_lll][isys]->Add(ML_ptl4[j][i][isys]);
+	ML_etal1[j][ET_lll][isys]->Add(ML_etal1[j][i][isys]);
+	ML_etal2[j][ET_lll][isys]->Add(ML_etal2[j][i][isys]);
+	ML_etal3[j][ET_lll][isys]->Add(ML_etal3[j][i][isys]);
+	ML_etal4[j][ET_lll][isys]->Add(ML_etal4[j][i][isys]);
+	ML_d0Sl1[j][ET_lll][isys]->Add(ML_d0Sl1[j][i][isys]);
+	ML_d0Sl2[j][ET_lll][isys]->Add(ML_d0Sl2[j][i][isys]);
+	ML_d0Sl3[j][ET_lll][isys]->Add(ML_d0Sl3[j][i][isys]);
+	ML_d0Sl4[j][ET_lll][isys]->Add(ML_d0Sl4[j][i][isys]);
+	ML_z0sinthetal1[j][ET_lll][isys]->Add(ML_z0sinthetal1[j][i][isys]);
+	ML_z0sinthetal2[j][ET_lll][isys]->Add(ML_z0sinthetal2[j][i][isys]);
+	ML_z0sinthetal3[j][ET_lll][isys]->Add(ML_z0sinthetal3[j][i][isys]);
+	ML_z0sinthetal4[j][ET_lll][isys]->Add(ML_z0sinthetal4[j][i][isys]);
+	ML_orgl1[j][ET_lll][isys]->Add(ML_orgl1[j][i][isys]);
+	ML_orgl2[j][ET_lll][isys]->Add(ML_orgl2[j][i][isys]);
+	ML_orgl3[j][ET_lll][isys]->Add(ML_orgl3[j][i][isys]);
+	ML_orgl4[j][ET_lll][isys]->Add(ML_orgl4[j][i][isys]);
+	ML_ptj1[j][ET_lll][isys]->Add(ML_ptj1[j][i][isys]);
+	ML_ptj2[j][ET_lll][isys]->Add(ML_ptj2[j][i][isys]);
+	ML_ptj3[j][ET_lll][isys]->Add(ML_ptj3[j][i][isys]);
+	ML_ptj4[j][ET_lll][isys]->Add(ML_ptj4[j][i][isys]);
+	ML_etaj1[j][ET_lll][isys]->Add(ML_etaj1[j][i][isys]);
+	ML_etaj2[j][ET_lll][isys]->Add(ML_etaj2[j][i][isys]);
+	ML_etaj3[j][ET_lll][isys]->Add(ML_etaj3[j][i][isys]);
+	ML_etaj4[j][ET_lll][isys]->Add(ML_etaj4[j][i][isys]);
+	ML_ptbj[j][ET_lll][isys]->Add(ML_ptbj[j][i][isys]);
+	ML_etabj[j][ET_lll][isys]->Add(ML_etabj[j][i][isys]);
+      }
+
+
+      //Sum 4L      
+      for(int i=ET_eeee; i<ET_llll; i++){
+	ML_pred[j][ET_llll][isys]->Add(ML_pred[j][i][isys]);
+	ML_cutflow[j][ET_llll][isys]->Add(ML_cutflow[j][i][isys]);
+	ML_evtCatgUnOrdered[j][ET_llll][isys]->Add(ML_evtCatgUnOrdered[j][i][isys]);
+	ML_evtCatgOSpair[j][ET_llll][isys]->Add(ML_evtCatgOSpair[j][i][isys]);
+	ML_evtCatgSSpair[j][ET_llll][isys]->Add(ML_evtCatgSSpair[j][i][isys]);
+	ML_nLep[j][ET_llll][isys]->Add(ML_nLep[j][i][isys]);
+	ML_nJets[j][ET_llll][isys]->Add(ML_nJets[j][i][isys]);
+	ML_nBJets[j][ET_llll][isys]->Add(ML_nBJets[j][i][isys]);
+	ML_SFOSMll[j][ET_llll][isys]->Add(ML_SFOSMll[j][i][isys]);
+	ML_SFOSMlll[j][ET_llll][isys]->Add(ML_SFOSMlll[j][i][isys]);
+	ML_AllMll[j][ET_llll][isys]->Add(ML_AllMll[j][i][isys]);
+	ML_AllMlll[j][ET_llll][isys]->Add(ML_AllMlll[j][i][isys]);
+	ML_SFOSMZZ[j][ET_llll][isys]->Add(ML_SFOSMZZ[j][i][isys]);
+	ML_SFOSMT[j][ET_llll][isys]->Add(ML_SFOSMT[j][i][isys]);
+	ML_etmiss[j][ET_llll][isys]->Add(ML_etmiss[j][i][isys]);
+	ML_metRefEle[j][ET_llll][isys]->Add(ML_metRefEle[j][i][isys]);
+	ML_metRefGam[j][ET_llll][isys]->Add(ML_metRefGam[j][i][isys]);
+	ML_metRefMuo[j][ET_llll][isys]->Add(ML_metRefMuo[j][i][isys]);
+	ML_metRefJet[j][ET_llll][isys]->Add(ML_metRefJet[j][i][isys]);
+	ML_metRefSJet[j][ET_llll][isys]->Add(ML_metRefSJet[j][i][isys]);
+	ML_metCellout[j][ET_llll][isys]->Add(ML_metCellout[j][i][isys]);
+	ML_ptl1[j][ET_llll][isys]->Add(ML_ptl1[j][i][isys]);
+	ML_ptl2[j][ET_llll][isys]->Add(ML_ptl2[j][i][isys]);
+	ML_ptl3[j][ET_llll][isys]->Add(ML_ptl3[j][i][isys]);
+	ML_ptl4[j][ET_llll][isys]->Add(ML_ptl4[j][i][isys]);
+	ML_etal1[j][ET_llll][isys]->Add(ML_etal1[j][i][isys]);
+	ML_etal2[j][ET_llll][isys]->Add(ML_etal2[j][i][isys]);
+	ML_etal3[j][ET_llll][isys]->Add(ML_etal3[j][i][isys]);
+	ML_etal4[j][ET_llll][isys]->Add(ML_etal4[j][i][isys]);
+	ML_d0Sl1[j][ET_llll][isys]->Add(ML_d0Sl1[j][i][isys]);
+	ML_d0Sl2[j][ET_llll][isys]->Add(ML_d0Sl2[j][i][isys]);
+	ML_d0Sl3[j][ET_llll][isys]->Add(ML_d0Sl3[j][i][isys]);
+	ML_d0Sl4[j][ET_llll][isys]->Add(ML_d0Sl4[j][i][isys]);
+	ML_z0sinthetal1[j][ET_llll][isys]->Add(ML_z0sinthetal1[j][i][isys]);
+	ML_z0sinthetal2[j][ET_llll][isys]->Add(ML_z0sinthetal2[j][i][isys]);
+	ML_z0sinthetal3[j][ET_llll][isys]->Add(ML_z0sinthetal3[j][i][isys]);
+	ML_z0sinthetal4[j][ET_llll][isys]->Add(ML_z0sinthetal4[j][i][isys]);
+	ML_orgl1[j][ET_llll][isys]->Add(ML_orgl1[j][i][isys]);
+	ML_orgl2[j][ET_llll][isys]->Add(ML_orgl2[j][i][isys]);
+	ML_orgl3[j][ET_llll][isys]->Add(ML_orgl3[j][i][isys]);
+	ML_orgl4[j][ET_llll][isys]->Add(ML_orgl4[j][i][isys]);
+	ML_ptj1[j][ET_llll][isys]->Add(ML_ptj1[j][i][isys]);
+	ML_ptj2[j][ET_llll][isys]->Add(ML_ptj2[j][i][isys]);
+	ML_ptj3[j][ET_llll][isys]->Add(ML_ptj3[j][i][isys]);
+	ML_ptj4[j][ET_llll][isys]->Add(ML_ptj4[j][i][isys]);
+	ML_etaj1[j][ET_llll][isys]->Add(ML_etaj1[j][i][isys]);
+	ML_etaj2[j][ET_llll][isys]->Add(ML_etaj2[j][i][isys]);
+	ML_etaj3[j][ET_llll][isys]->Add(ML_etaj3[j][i][isys]);
+	ML_etaj4[j][ET_llll][isys]->Add(ML_etaj4[j][i][isys]);
+	ML_ptbj[j][ET_llll][isys]->Add(ML_ptbj[j][i][isys]);
+	ML_etabj[j][ET_llll][isys]->Add(ML_etabj[j][i][isys]);
+
+      }
+         
+
+      
+    }
+  }
+
+
+}
+  

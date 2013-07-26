@@ -78,6 +78,9 @@ class SusyBaseAna: public SusySelection
 
     //To print cutflow
     void print_line(string s, float a, float b, float c);
+    void print_line(string s, int istart, int iend, float array[LEP_N]);
+    void print_line(string s, int istart, int iend, int sr, float array[LEP_N][SR_N]);
+
     
  
     //Save orginal Met and lepton
@@ -116,6 +119,8 @@ class SusyBaseAna: public SusySelection
 
     //External packages
     DilTrigLogic*       m_trigObj;      // 2L trigger logic
+    TrilTrigLogic*      m_trig3LObj;    // 3L trigger logic class
+
     SusyMatrixMethod::DiLeptonMatrixMethod m_matrix_method;
 
     //Analysis flags
