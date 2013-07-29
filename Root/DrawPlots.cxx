@@ -92,7 +92,14 @@ void DrawPlots::openHistoFiles(string mode,
   for(uint i=0; i<_mcFileName.size(); i++){
     std::cout << "Loading " << SFILE[i] << " " << _mcFileName[i].c_str() << std::endl;
     string fName = _pathHisto + "/" + _mcFileName[i];
-    TFile* _f = new TFile(fName.c_str(),"READ",SFILE[i].c_str());
+    TFile* _f;
+    _f = new TFile(fName.c_str(),"READ",SFILE[i].c_str());
+    if(_f->IsOpen()==kFALSE){
+      _f->Clear();
+      _f->Open(string(_pathHisto+"/"+"histo_dummy_std.root").c_str(), "READ", SFILE[i].c_str());
+      cout << "==> opening dummy file instead" << endl;
+      _f->ls();
+    }
     _mcFile.push_back(_f);
   }
 
@@ -108,7 +115,11 @@ void DrawPlots::openHistoFiles(string mode,
     std::cout << "Loading " << SIGFILE[i].c_str() << " " << _sigFileName[i] << std::endl;
     string fName =  _pathHisto + "/" + _sigFileName[i];
     TFile* _f = new TFile(fName.c_str(),"READ",SIGFILE[i].c_str());
-    _sigFile.push_back(_f);
+    if(_f->IsOpen()==kFALSE){
+      _f->Open(string(_pathHisto+"/"+"histo_dummy_std.root").c_str(), "READ", SFILE[i].c_str());
+      cout << "==> opening dummy file instead" << endl;
+    }
+    _sigFile.push_back(_f);   
   }
 
 
@@ -139,24 +150,20 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   string dname =  name + "_NOM"; 
   title = "DATA_"+dname;
   _h = (TH1F*) _dataFile->Get(dname.c_str());
-  if(HIDEDATA) blindMT2(name,_h);
   
   if(_h==NULL){
     cerr <<" Could not find histo " << dname << " in data file " << _dataFile->GetName() << endl;
     abort();
   }
+  if(HIDEDATA) blindMT2(name,_h);
+
   if(_moveUO) _utils->moveUnderOverFlow(_h);
   _dataH1 = (TH1F*) _h->Clone(title.c_str());
   if(HNAME.Contains("_metrel")) {
     _dataH1->GetXaxis()->SetTitle("E_{T}^{miss,rel} [GeV]");
   }
   _utils->yAxis(_dataH1,"GeV");		\
-  /*
-  if(HNAME.Contains("_metrel")){
-    _dataH1->Rebin(2);
-    cout << "REBIN METREL " << endl;
-  }
-  */
+
   if(HIDEDATA) blindDataSR();
 
   if(!quiet) cout << "Got " << _dataH1->GetName() << endl;
@@ -205,7 +212,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
       if(HNAME.Contains("_metrel")) {
 	_h->GetXaxis()->SetTitle("E_{T}^{miss,rel} [GeV]");
       }
-      _utils->yAxis(_h,"GeV");		\
+      _utils->yAxis(_h,"GeV");			\
 
       if(USESF)	_h->Scale(SF);
       if(isys==DGSys_NOM) _hNom = (TH1F*) _h->Clone();
@@ -674,7 +681,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   TLegend*  _leg = new TLegend(0.58,0.40,0.85,0.9);
 
   //Grabs all histos: data, MC, signal points including the sys histos
-  grabHisto(name,true,sysBand);
+  grabHisto(name,false,sysBand);
 
   
   //Data

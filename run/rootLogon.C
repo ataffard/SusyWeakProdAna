@@ -11,6 +11,7 @@
 #include <iomanip.h>
 #include <time.h>
 #include <TObjectTable.h>
+  //#include "SusyNtuple/TGuiUtils.h"
 
   using namespace std;  
 
@@ -58,7 +59,7 @@
   gInterpreter->AddIncludePath("$ROOTCOREDIR/include");
   gSystem->AddIncludePath(" -D__STANDARD_CPLUSPLUS -DDEFECT_NO_EXEPTIONS ");  
 
-#include <SusyNtuple/TGuiUtils.h>
+
   TGuiUtils* utils = new TGuiUtils();
   gROOT->SetStyle("ATLAS");
   utils->atlasStyle->SetOptStat("emr");

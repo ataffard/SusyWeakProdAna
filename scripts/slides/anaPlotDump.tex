@@ -53,9 +53,9 @@
 \begin{document}
 
 \author{Anyes Taffard}
-\date{07/17/2013}
+\date{07/27/2013}
 
-\title[SUSY 2L DG Plot Dump]{SUSY 2L DG Plot Dump}
+\title[SUSY 2L DG WZ/ZZ CR]{SUSY 2L DG Plot Dump}
 
 \begin{frame}[plain]
   \titlepage
@@ -63,25 +63,37 @@
 
 \section{Introduction}
 \begin{frame}{Introduction}
-  \begin{block}{SUSY 2L DG - Plot Dump }
-    Here are all my plots for all SR's and CR's base on SusyNt n0145, p1512 (SusyTools 00-03-04)
+  \begin{block}{SUSY 2L DG - WZ/ZZ nJets }
+    Here's are the plots for the $WZ\ra lllv$ and $ZZ \ra llll$ based on SusyNt n0145, p1512 (SusyTools 00-03-04)
 
-    Naming convention:
-    \begin{itemize}
-      \item pred\_DG2L\_SRmT2a\_EE\_DG2L\_metrel.eps: mT2a signal region, EE channel, metrel variable. 
-    \end{itemize}
-
-    MC samples
-    \begin{itemize}
-      \item Top MCATNLO
-      \item Z+jets Sherpa+Alpgen (LF+HF)
-      \item WW, WZ/ZZ PowHeg
-	\item No SF applied 
-    \end{itemize}
-
+%    Naming convention:
 %    \begin{itemize}
+%      \item pred\_DG2L\_SRmT2a\_EE\_DG2L\_metrel.eps: mT2a signal region, EE channel, metrel variable. 
 %    \end{itemize}
-    
+
+%    MC samples
+%    \begin{itemize}
+%      \item Top MCATNLO
+%      \item Z+jets Sherpa+Alpgen (LF+HF)
+%      \item WW, WZ/ZZ PowHeg
+%	\item No SF applied 
+%    \end{itemize}
+
+    WZ selection
+    \begin{itemize}
+      \item exactly 3 leptons 
+      \item One SF pair inside Z   
+      \item Etmiss$>$30
+      \item MT$>$40
+      \item b veto  
+    \end{itemize}
+    ZZ selection
+    \begin{itemize}    
+      \item Exactly 4 leptons
+      \item Etmiss$<$50
+      \item Select 2 Z's within   
+      \item b veto
+    \end{itemize}
 
   \end{block}
 \end{frame}

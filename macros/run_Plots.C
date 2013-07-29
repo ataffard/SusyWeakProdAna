@@ -44,7 +44,8 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
 
   _ana = new DrawPlots(); 
-  openHist();
+  //openHist();
+  openHist("STD");
 }
 
 //--------------------------------------------------------------------------------

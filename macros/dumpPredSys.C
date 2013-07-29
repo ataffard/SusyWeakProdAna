@@ -3,7 +3,7 @@
 
 typedef unsigned uint;
 
-string dir ="histos_071613_21fb_n0145_DD_v1/";
+string dir ="histos_072613_21fb_n0145_DD_v3/";
 //string dir ="histos_030813_21fb_n0127_Moriond_DD_v8/";
 //string dir ="";
 
@@ -35,6 +35,7 @@ int main(int argc, char *argv[]){
   //sample.push_back("histo_llnunu_WW.126892_rlep_preSRmT2.root"); 
   //sample.push_back("histo_ttbar.105200_CRWW_rlep.root");
   //sample.push_back("histo_WW_PowHeg_rlep.root");
+  sample.push_back("histo_ZZ_PowHeg_std.root");
   //sample.push_back("histo_Zjets_SherpaAlpgenPythia_rlep.root");
 
   vector<string> SR;
@@ -43,11 +44,12 @@ int main(int argc, char *argv[]){
   //SR.push_back("DG2L_SRSSjveto_");
   //SR.push_back("DG2L_SROSjveto_");
   //SR.push_back("DG2L_ZXCRWW_");
-  SR.push_back("DG2L_CRWW5_");
+  //SR.push_back("DG2L_CRWW5_");
   //SR.push_back("DG2L_ZXCRWW2_");
   //SR.push_back("DG2L_preSRmT2_");
   //SR.push_back("DG2L_CRTOP_");
-  //SR.push_back("DG2L_SRmT2a_");
+  //SR.push_back("DG2L_SRmT2a_")
+  SR.push_back("ML_VRZZ_");
 
   /*
     SR.push_back("DG2L_SR2jets_");
@@ -61,18 +63,20 @@ int main(int argc, char *argv[]){
   */
   
   vector<string> LEP;
+  LEP.push_back("LLLL");
+  /*
   LEP.push_back("EE");
   LEP.push_back("MM");
   LEP.push_back("EM");
-
+  */
   TH2F* _pred = _utils->myTH2F("Pred", "Pred", 
 			       DGSys_N,DGSys_EES_Z_UP,DGSys_N-1,
 			       3,0,2,"","");
-  for(uint ilep=0; ilep<3; ilep++){	
+  for(uint ilep=0; ilep<LEP.size(); ilep++){	
     _pred->GetYaxis()->SetBinLabel(ilep+1,LEP[ilep].c_str());
   }
-  for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
-    _pred->GetXaxis()->SetBinLabel(isys+1,DG2LSystNames[isys].c_str());
+  for(uint isys=DGSys_NOM;isys<DGSys_N; isys++){
+    _pred->GetXaxis()->SetBinLabel(isys+1,DGSystNames[isys].c_str());
   }
   _pred->GetXaxis()->LabelsOption("v");
 
@@ -86,12 +90,13 @@ int main(int argc, char *argv[]){
 	cout << " ******************* " << LEP[il] << " ***************** "  << endl;
 	float nom=0;
 	for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
-	  string sHName = SR[is] + LEP[il] + "_DG2L_pred_"+ DG2LSystNames[isys];
+	  //string sHName = SR[is] + LEP[il] + "_DG2L_pred_"+ DG2LSystNames[isys];
+	  string sHName = SR[is] + LEP[il] + "_ML_pred_"+ DGSystNames[isys];
 	  TH1F* _h = (TH1F*)  _f->Get(sHName.c_str())->Clone();
 	  float fracErr = 0;
 	  if(isys==DGSys_NOM) nom=_h->Integral(0,-1);
 	  else   fracErr = (nom>0 || nom<0) ? (_h->Integral(0,-1) - nom)/nom : 0.;
-	  cout << SR[is] << LEP[il] << "_" << DG2LSystNames[isys]<< "\t";
+	  cout << SR[is] << LEP[il] << "_" << DGSystNames[isys]<< "\t";
 	  printf("\t\t %3.4f \t %3.4f \n",_h->Integral(0,-1),fracErr); 
 
 	  double val,err;
