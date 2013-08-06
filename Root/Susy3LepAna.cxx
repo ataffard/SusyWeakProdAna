@@ -30,7 +30,7 @@ void Susy3LepAna::doAnalysis(unsigned int isys)
   SYST = isys;
   
   //Call this here, since have multiple instances of SusyNtTools
-  setAnaType(Ana_2Lep); //Use 2L iso
+  //setAnaType(Ana_2Lep); //Use 2L iso
   //setAnaType(Ana_3Lep); //Use 3L iso
   
   // Check Event
@@ -212,7 +212,7 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
        if(!passZCut(leptons))     continue;
        _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww); 
               
-       float bWeight = getBTagSF(nt->evt(),v_sigJet);
+       float bWeight = getBTagSF(nt->evt(),v_sigJet,SYST);
        if(USE_BWEIGHT && nt->evt()->isMC) {
 	 _ww *= bWeight;
 	 if(WEIGHT_COUNT) _inc = _ww;
@@ -247,7 +247,7 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
       if(!passZCut(leptons))     continue;
       _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww); 
       
-      float bWeight = getBTagSF(nt->evt(),v_sigJet);
+      float bWeight = getBTagSF(nt->evt(),v_sigJet,SYST);
       if(USE_BWEIGHT && nt->evt()->isMC) {
 	_ww *= bWeight;
 	if(WEIGHT_COUNT) _inc = _ww;

@@ -40,6 +40,8 @@ SusySelection::SusySelection():
   m_minC20     ( -1  ),
   m_maxC20     ( -1  ),
   m_minCJet    ( -1  ),
+  m_minB20     ( -1  ),
+  m_maxB20     ( -1  ),
   m_metMin     ( -1  ),
   m_metMax     ( -1  ),
   m_metRelMin  ( -1  ),
@@ -143,7 +145,9 @@ void SusySelection::resetCounter()
       n_pass_FullJveto[i][j] = 0;
       n_pass_FJet[i][j]      = 0;
       n_pass_BJet[i][j]      = 0;
+      n_pass_LJet[i][j]      = 0;
       n_pass_CJet[i][j]      = 0;
+      n_pass_NBJet[i][j]      = 0;
       n_pass_JetPt[i][j]     = 0;
       n_pass_mjj[i][j]       = 0;
       n_pass_leadLepPt[i][j] = 0;
@@ -218,6 +222,8 @@ void SusySelection::resetCuts()
   m_minC20   =    -1;
   m_maxC20   =    -1;
   m_minCJet  =    -1;
+  m_minB20   =    -1;
+  m_maxB20   =    -1;
   m_metMin     =  -1;
   m_metMax     =  -1;
   m_metRelMin  =  -1;
@@ -637,6 +643,14 @@ bool SusySelection::passCentralJet(const JetVector* jets){
   return true;
 }
 /*--------------------------------------------------------------------------------*/
+bool SusySelection::passNBJet(const JetVector* jets){
+  int nBJet= numberOfCBJets(*jets);
+  if(m_minB20>-1 && nBJet<m_minB20) return false;
+  if(m_maxB20>-1 && nBJet>m_maxB20) return false;
+  if(SYST==DGSys_NOM) n_pass_NBJet[m_ET][SR]+=_inc;
+  return true;
+}
+/*--------------------------------------------------------------------------------*/
 bool SusySelection::passLead2JetsPt(const JetVector* jets){
   if(m_pTj0Min <0 && m_pTj1Min <0 ) return true; //cut not applied
   if(m_pTj0Min >-1 && jets->size()==1 && jets->at(0)->Pt() < m_pTj0Min) return false;
@@ -861,7 +875,7 @@ bool SusySelection::passDPhillMET(const LeptonVector* leptons, const Met* met){
 
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passMeff(const JetVector* jets, const Met* met){
-  float mEff = Meff(*jets,met);
+  float mEff = Meff(*jets,met,JET_PT_CUT);
   
   if(m_MeffMin>-1 && mEff<m_MeffMin) return false;
   if(m_MeffMax>-1 && mEff>m_MeffMax) return false;
@@ -870,9 +884,11 @@ bool SusySelection::passMeff(const JetVector* jets, const Met* met){
 
 }
 /*--------------------------------------------------------------------------------*/
-bool SusySelection::passMetMeff(const JetVector* jets, const Met* met){
+bool SusySelection::passMetMeff(const LeptonVector* leptons,const JetVector* jets, const Met* met, bool useLepton){
 
-  float mEff = Meff(*jets,met);
+  float mEff;
+  if(useLepton) mEff=Meff(*leptons,*jets,met,JET_PT_CUT);
+  else mEff = Meff(*jets,met);
   float ratio = (met->lv().Pt()>0) ?  met->lv().Pt()/mEff: 0;
   
   if(m_MetMeffMin>-1 && ratio<m_MetMeffMin) return false;
@@ -1093,7 +1109,8 @@ void SusySelection::sumArray(){
       n_pass_Z[ET_lll][iSR]+= n_pass_Z[i][iSR];
       n_pass_ZllZll[ET_lll][iSR]+= n_pass_ZllZll[i][iSR]; 
       n_pass_BJet[ET_lll][iSR]+= n_pass_BJet[i][iSR]; 
-      n_pass_mt3L[ET_lll][iSR]+= n_pass_mt3L[i][iSR]; 
+      n_pass_mt3L[ET_lll][iSR]+= n_pass_mt3L[i][iSR];
+      n_pass_NBJet[ET_lll][iSR]+= n_pass_NBJet[i][iSR]; 
     }
   }
 
@@ -1108,6 +1125,7 @@ void SusySelection::sumArray(){
       n_pass_Z[ET_llll][iSR]+= n_pass_Z[i][iSR]; 
       n_pass_ZllZll[ET_llll][iSR]+= n_pass_ZllZll[i][iSR]; 
       n_pass_BJet[ET_llll][iSR]+= n_pass_BJet[i][iSR]; 
+      n_pass_NBJet[ET_llll][iSR]+= n_pass_NBJet[i][iSR]; 
     }
   }
 

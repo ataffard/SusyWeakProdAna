@@ -31,7 +31,7 @@ void SusyWHAna::doAnalysis(unsigned int isys)
   if(FILL_TOYNT && isys==DGSys_NOM) initializeToyNt();
 
   //Call this here, since have multiple instances of SusyNtTools
-  setAnaType(Ana_2Lep);
+  //setAnaType(Ana_2Lep);
 
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
@@ -83,6 +83,7 @@ void SusyWHAna::end()
 
   print_SRSS();
   print_SROSOF2jets();
+  print_SRZb();
   print_optimSR();
 
 
@@ -102,6 +103,9 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
   TString m_sel(s);
   resetCuts();
  
+  m_nLepMin=2;
+  m_nLepMax=2;
+  
   //----------------------------//
   // Signal Regions
   //----------------------------//
@@ -118,7 +122,7 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
       m_lowMll    = MZ-10;
       m_highMll   = MZ+10;
       m_pTl1Min   = 20;
-      m_highMTWW  = 150; 
+      m_lowMTWW  = 150; 
       m_metRelMin = 50;
       if(m_sel.Contains("WH_SRSS2")){
 	m_mt2Min    = 90;
@@ -127,15 +131,15 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
     else if(dilType==ET_mm){
       m_IsoMin    = 0.1;
       m_HTMin     = 200;
-      m_highMTWW  = 100; 
+      m_lowMTWW  = 100; 
       if(m_sel.Contains("WH_SRSS2")){
-	m_highMTWW  = 150; 
+	m_lowMTWW  = 150; 
       }
       if(m_sel.Contains("WH_SRSS3")){
-	m_highMTWW  = 200; 
+	m_lowMTWW  = 200; 
       } 
       if(m_sel.Contains("WH_SRSS4")){
-	m_highMTWW  = 200; 
+	m_lowMTWW  = 200; 
 	m_metRelMin = 50;
       } 
     }
@@ -143,7 +147,7 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
       m_d0SMin    = 3;
       m_IsoMin    = 0.1;
       m_pTl1Min   = 20;
-      m_highMTWW  = 140;
+      m_lowMTWW  = 140;
       m_HTMin     = 200;
       if(m_sel.Contains("WH_SRSS2")){	    
 	m_metRelMin = 50;
@@ -166,7 +170,29 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
     m_lowMjj    = 50;
     m_highMjj   = 100;
     m_metMin    = 80;
-    
+  }
+  else if(m_sel.EqualTo("WH_SRZb")){  
+    m_selOS     = true;
+    m_selSF     = true;
+    m_lowMll    = MZ-15;
+    m_highMll   = MZ+15;
+    m_pTl0Min   = 20;
+    m_pTl1Min   = 20;
+    m_selB      = true;
+    m_minB20    = 1;
+    m_maxB20    = 1;
+  }
+  else if(m_sel.EqualTo("WH_SRZbb")){ 
+    m_selOS     = true;
+    m_selSF     = true;
+    m_lowMll    = MZ-15;
+    m_highMll   = MZ+15;
+    m_pTl0Min   = 20;
+    m_pTl1Min   = 20;
+    m_selB      = true;
+    m_minB20    = 2;
+    m_maxB20    = 999; 
+    //ADD metSig cut
   }
 
   //----------------------------//
@@ -384,6 +410,9 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passCentralJet(signalJets)) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 	
+    if(!passNBJet(signalJets)) continue;
+    _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
+
     if(!passLead2JetsPt(signalJets) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass Jet pT " << sSR << endl;
@@ -430,7 +459,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passHT(leptons,signalJets, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    if(!passMetMeff(signalJets, &new_met) ) continue;
+    if(!passMetMeff(leptons,signalJets, &new_met,true) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     if(!passTopTagger(leptons,signalJets,&new_met) ) continue;
@@ -620,6 +649,30 @@ void SusyWHAna::print_SROSOF2jets()
   print_line("pass Met           ",n_pass_met[0][j], n_pass_met[1][j], n_pass_met[2][j]);
 
 }   
+
+/*--------------------------------------------------------------------------------*/
+void SusyWHAna::print_SRZb()
+{
+  int j= WH_SRZb;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << WH_SRNAME[j] <<endl;
+  print_line("pass OS     ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass SF     ",n_pass_flav[0][j], n_pass_flav[1][j], n_pass_flav[2][j]);
+  print_line("pass btag   ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass ==1b   ",n_pass_NBJet[0][j], n_pass_NBJet[1][j], n_pass_NBJet[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass Mll    ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
+   
+  j= WH_SRZbb;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << WH_SRNAME[j] <<endl;
+  print_line("pass btag   ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass >=2b   ",n_pass_NBJet[0][j], n_pass_NBJet[1][j], n_pass_NBJet[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass Mll    ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
+
+}
+
 /*--------------------------------------------------------------------------------*/
 void SusyWHAna::print_optimSR()
 {
@@ -797,7 +850,10 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
     ST += _j->Pt();
 
   }
-  mEff = ST + met->lv().Pt();
+  mEff = Meff(*leptons,*jets,met,JET_PT_CUT); //ST + met->lv().Pt();
+
+  float metSig = mEff/met->lv().Pt();
+  _hh->H1FILL(_hh->DGWH_MetSig[iSR][m_ET][iSYS],metSig,_ww); 
 
   dPhiJMet = TVector2::Phi_mpi_pi(dPhiJMet)*TMath::RadToDeg();  
 

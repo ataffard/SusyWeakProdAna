@@ -81,22 +81,69 @@
 
     WZ selection
     \begin{itemize}
-      \item exactly 3 leptons 
+      \item Exactly 3 leptons 
       \item One SF pair inside Z   
-      \item Etmiss$>$30
-      \item MT$>$40
-      \item b veto  
+      \item Etmiss$>$30 GeV
+      \item MT$>$40 GeV
+      \item b-jet veto  
     \end{itemize}
     ZZ selection
     \begin{itemize}    
       \item Exactly 4 leptons
-      \item Etmiss$<$50
-      \item Select 2 Z's within   
-      \item b veto
+      \item Etmiss$<$50 GeV
+      \item Select 2 Z's within mass window  
+      \item b-jet veto
     \end{itemize}
 
+    Note: Fake are taken from MC since this contribution is totally neglible for these CR's.
   \end{block}
 \end{frame}
+
+\begin{frame}{WZ/ZZ ISR/FSR systematic uncertainty}
+\begin{block}{WZ enriched}
+  
+\begin{table}
+\begin{center} 
+\begin{tabular}{l|c|c}
+\hline \hline
+     & $\ge 0$ jets & $\ge 2$ jets  \\ 
+\hline
+Observed & 1430 &  340 \\
+\hline
+Predicted  & $1404^{+66}_{-98} $ & $286^{+30}_{-15} $  \\
+\hline
+data/SM & $1.021\pm0.077$ & $1.187\pm0.140$ \\
+\hline \hline
+\end{tabular}
+\end{center}
+\end{table}
+\end{block}
+
+\begin{block}{ZZ enriched}
+
+\begin{table}
+\begin{center} 
+\begin{tabular}{l|c|c}
+\hline \hline
+     & $\ge 0$ jets & $\ge 2$ jets  \\ 
+\hline
+Observed & 122 &  18 \\
+\hline
+Predicted  & $132^{+5}_{-10} $ & $20.7^{+3.1}_{-1.5} $  \\
+\hline
+data/SM & $0.925\pm0.107$ & $0.869\pm0.244$ \\
+\hline \hline
+\end{tabular}
+\end{center}
+\end{table}
+\end{block}
+
+Recommend 20\% systematics that can be applied to both WZ and ZZ
+
+\end{frame}
+
+
+
 
 \include{plots}
 \end{document}

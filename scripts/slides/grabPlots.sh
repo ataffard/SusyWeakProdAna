@@ -2,8 +2,8 @@
 
 histPath=${PWD}
 
-#if [ -d plots ]; then rm -rf plots; fi
+if [ -d plots ]; then rm -rf plots; fi
 
-#cp -r ${histPath}/Plots plots
+cp -r ${histPath}/Plots plots
 
 

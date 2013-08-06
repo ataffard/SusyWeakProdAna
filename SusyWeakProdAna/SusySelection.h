@@ -69,6 +69,7 @@ class SusySelection: public SusyNtTools
   bool passBJet(const JetVector* jets);
   bool passLJet(const JetVector* jets);
   bool passCentralJet(const JetVector* jets);
+  bool passNBJet(const JetVector* jets);
   bool passLead2JetsPt(const JetVector* jets);
   bool passMjj(const JetVector* jets);
   bool passMT2(const LeptonVector* leptons, const Met* met);
@@ -88,7 +89,7 @@ class SusySelection: public SusyNtTools
   bool passdRll(const LeptonVector* leptons);
   bool passDPhillJ0(const LeptonVector* leptons, const JetVector* jets);
   bool passDPhillMET(const LeptonVector* leptons, const Met* met);
-  bool passMetMeff(const JetVector* jets, const Met* met);
+  bool passMetMeff(const LeptonVector* leptons,const JetVector* jets, const Met* met, bool useLepton=false);
   bool passMeff(const JetVector* jets, const Met* met);
   bool passHT(const LeptonVector* leptons,const JetVector* jets, const Met* met);
   
@@ -183,6 +184,8 @@ class SusySelection: public SusyNtTools
   int                 m_minC20;       // min number of C20
   int                 m_maxC20;       // max number of C20
   int                 m_minCJet;      // min number of central C20+B20
+  int                 m_minB20;       // min number of B20
+  int                 m_maxB20;       // max number of B20
   float               m_metMin;       // min Met
   float               m_metMax;       // max Met
   float               m_metRelMin;    // min MetRel
@@ -268,6 +271,7 @@ class SusySelection: public SusyNtTools
   float                n_pass_BJet[LEP_N][SR_N]; //b-jet
   float                n_pass_LJet[LEP_N][SR_N]; //central LF
   float                n_pass_CJet[LEP_N][SR_N]; //central C20+B20
+  float                n_pass_NBJet[LEP_N][SR_N]; //b-jets
   float                n_pass_JetPt[LEP_N][SR_N];
   float                n_pass_mjj[LEP_N][SR_N];
   float                n_pass_leadLepPt[LEP_N][SR_N];

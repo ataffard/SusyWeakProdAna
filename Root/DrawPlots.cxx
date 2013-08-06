@@ -782,6 +782,10 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
    _c0->SaveAs((fName+".eps").c_str());
  }
 
+
+ //dumpBinContent(_dataH1, _mcStackH, _nomAsymErrors);
+ 
+
 }
 //-------------------------------------------//
 // Get systematic error band for loaded histo
@@ -920,7 +924,25 @@ void DrawPlots::getFakeSys(vector<TH1F*> &sys)
   */
 
 }
+//-------------------------------------------//
+// To dump the bin content and errors
+//-------------------------------------------//
+void DrawPlots::dumpBinContent(TH1* _dataH, TH1* _mcH, TGraphAsymmErrors* _sysBand)
+{
+  int nbins = _dataH->GetNbinsX();  
+  for(int bin=1; bin<nbins+1; ++bin){
+    std::cout << "Bin " << bin 
+	      << " data " << _dataH->GetBinContent(bin)
+	      << " SM " << _mcH->GetBinContent(bin)
+	      << " +/- " << _sysBand->GetErrorYlow(bin-1)
+	      << " " << _sysBand->GetErrorYhigh(bin-1)
+	      << std::endl;
+  }
 
+  
+
+
+}
 //-------------------------------------------//
 // Draw channel label
 //-------------------------------------------//

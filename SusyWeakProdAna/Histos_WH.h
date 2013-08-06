@@ -16,6 +16,7 @@ const char* const WH_QQ[] = {"OS", "SS"};
 
 enum WH_SR{WH_SRSS1=0, WH_SRSS2, WH_SRSS3, WH_SRSS4, 
 	   WH_SROSOF2jets,
+	   WH_SRZb, WH_SRZbb,
 	   WH_optimSRjets,
 	   WH_optimSRSS,
 	   WH_NSR
@@ -23,6 +24,7 @@ enum WH_SR{WH_SRSS1=0, WH_SRSS2, WH_SRSS3, WH_SRSS4,
 
 const string WH_SRNAME[] = { "WH_SRSS1", "WH_SRSS2", "WH_SRSS3", "WH_SRSS4",
 			     "WH_SROSOF2jets",
+			     "WH_SRZb", "WH_SRZbb",
 			     "WH_optimSRjets",
 			     "WH_optimSRSS",
 
@@ -85,8 +87,9 @@ class Histos_WH
   HDGWH DGWH_metCellout;
   HDGWH DGWH_mt2;
   HDGWH DGWH_mt2b;
-  HDGWH DGWH_mEff; //New
+  HDGWH DGWH_mEff; //New Jets, leptons
   HDGWH DGWH_ST;   //New
+  HDGWH DGWH_MetSig;  //New mEff/Etmiss
   HDGWH DGWH_npv;
   HDGWH DGWH_mu;
   HDGWH DGWH_ptl1;

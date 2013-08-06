@@ -25,8 +25,15 @@ SusyAnaLooper::SusyAnaLooper():
   nHFOR(0),
   nMllCut(0)
 {
-  //setAnaType(Ana_2Lep);
+  setAnaType(Ana_2Lep);
   setSelectTaus(true);
+
+  cout << "--------------------------" << endl;
+  cout << "SusyAnaLooper " << endl;
+  cout << "  2L Ana type " << endl;
+  cout << "  Select Taus: true " << endl;
+  cout << "--------------------------" << endl;
+
 
   _histoDir = new TDirectory("Ana","Ana");
   _susyHistos = new SusyHistos();

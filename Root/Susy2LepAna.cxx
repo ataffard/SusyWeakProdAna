@@ -33,7 +33,7 @@ void Susy2LepAna::doAnalysis(unsigned int isys)
   if(FILL_TOYNT && !m_writeToyNt && isys==DGSys_NOM) initializeToyNt();
 
   //Call this here, since have multiple instances of SusyNtTools
-  setAnaType(Ana_2Lep);
+  //setAnaType(Ana_2Lep);
 
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
@@ -892,7 +892,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     if(!passMeff(signalJets, &new_met) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    if(!passMetMeff(signalJets, &new_met) ) continue;
+    if(!passMetMeff(leptons,signalJets, &new_met,false) ) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     if(!passTopTagger(leptons,signalJets,&new_met) ) continue;

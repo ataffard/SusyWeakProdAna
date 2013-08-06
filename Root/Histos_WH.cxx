@@ -83,6 +83,7 @@ void Histos_WH::BookWHHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRDGWH(DGWH_mt2b,"m_{T2}","GeV",syaxis,40,0,400);
   BOOK_SRDGWH(DGWH_mEff,"m_{eff}","GeV",syaxis,100,0,1000);
   BOOK_SRDGWH(DGWH_ST,"S_{T}","GeV",syaxis,100,0,1000);
+  BOOK_SRDGWH(DGWH_MetSig,"E_{T}^{miss,signif}","",syaxis,40,0,20);
   BOOK_SRDGWH(DGWH_mTl1,"m_{T}^{l1}","GeV",syaxis,100,0,500);
   BOOK_SRDGWH(DGWH_mTl2,"m_{T}^{l2}","GeV",syaxis,100,0,500);
   BOOK_SRDGWH(DGWH_npv,"N_{pv}","",syaxis,30,-0.5,29.5);

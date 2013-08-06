@@ -88,7 +88,9 @@ class DrawPlots {
   void drawPlot(string name, bool logy);
   /* To view bkg prediction & data with error bands */
   void drawPlotErrBand(string name, bool logy=true, bool wSig=true, bool sysBand=true);
-  
+  void dumpBinContent(TH1* _dataH, TH1* _mcH, TGraphAsymmErrors* _sysBand);
+
+
   TGraphAsymmErrors* getSysErrorBand(TH1F* _hist, bool sysBand=true);
   
   void getFakeSys(vector<TH1F*> &sys);

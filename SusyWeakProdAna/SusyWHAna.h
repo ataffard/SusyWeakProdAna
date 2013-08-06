@@ -61,6 +61,8 @@ class SusyWHAna: public SusyBaseAna
     void print_SROSOF2jets();
     void print_optimSR();
 
+    void print_SRZb();
+
     ClassDef(SusyWHAna, 1);
 
   protected:
