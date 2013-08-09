@@ -63,7 +63,7 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRDG2L(DG2L_pTll,"p_{T}^{ll}","GeV",syaxis,42,10,220);
   BOOK_SRDG2L(DG2L_mWWT,"m_{T}^{WW}","GeV",syaxis,50,0,500);
   BOOK_SRDG2L(DG2L_dPhill,"dPhi(l,l)","degree",syaxis,9,0,180);
-  BOOK_SRDG2L(DG2L_dRll,"dR(l,l)","degree",syaxis,40,0,4);
+  BOOK_SRDG2L(DG2L_dRll,"dR_{ll}","",syaxis,40,0,4);
   BOOK_SRDG2L(DG2L_dPhilMet,"dPhi(l,Met)","degree",syaxis,9,0,180);
   BOOK_SRDG2L(DG2L_dPhiJetMet,"dPhi(j,Met)","degree",syaxis,9,0,180);
   BOOK_SRDG2L(DG2L_JZBJet,"JZB","GeV",syaxis,120,-400,800);
@@ -82,7 +82,12 @@ void Histos_2L::Book2LHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRDG2L(DG2L_metCellout,"#slash{E}_{T}^{Cellout}","GeV",syaxis,20,0,200);
   BOOK_SRDG2L(DG2L_mt2,"m_{T2}","GeV",syaxis,20,0,200);
   BOOK_SRDG2L(DG2L_mt2b,"m_{T2}","GeV",syaxis,40,0,400);
+  BOOK_SRDG2L(DG2L_mct,"m_{CT}","GeV",syaxis,29,00,300);
+  BOOK_SRDG2L(DG2L_mctPerp,"m_{CT#perp}","GeV",syaxis,29,10,300);
   BOOK_SRDG2L(DG2L_mEff,"m_{eff}","GeV",syaxis,100,0,1000);
+  BOOK_SRDG2L(DG2L_metSig,"MET significance","",syaxis,20,0,10);
+  BOOK_SRDG2L(DG2L_mEffwLep,"m_{eff}","GeV",syaxis,100,0,1000);
+  BOOK_SRDG2L(DG2L_metSigwLep,"MET significance","",syaxis,20,0,10);
   BOOK_SRDG2L(DG2L_ST,"S_{T}","GeV",syaxis,100,0,1000);
   BOOK_SRDG2L(DG2L_mTl1,"m_{T}^{l1}","GeV",syaxis,100,0,500);
   BOOK_SRDG2L(DG2L_mTl2,"m_{T}^{l2}","GeV",syaxis,100,0,500);

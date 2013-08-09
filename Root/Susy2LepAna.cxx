@@ -1472,6 +1472,9 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
   float mWT = mT(_ll, met->lv());
   float mT2 = getMT2(*leptons, met);
   float metRel = getMetRel(met,*leptons,*jets);
+  float mct     = mCT(*leptons->at(0),*leptons->at(1));
+  TLorentzVector recoil = -met->lv() - (*leptons->at(0)) - (*leptons->at(1));
+  float mctPerp = mCTperp(*leptons->at(0),*leptons->at(1),recoil) ;
 
   _hh->H1FILL(_hh->DG2L_mll[iSR][m_ET][iSYS],_ll.M(),_ww); 
   _hh->H1FILL(_hh->DG2L_mllcoarse[iSR][m_ET][iSYS],_ll.M(),_ww); 
@@ -1481,7 +1484,7 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
   _hh->H1FILL(_hh->DG2L_mTl1[iSR][m_ET][iSYS],mTl1,_ww);
   _hh->H1FILL(_hh->DG2L_mTl2[iSR][m_ET][iSYS],mTl2,_ww); 
   _hh->H1FILL(_hh->DG2L_dPhill[iSR][m_ET][iSYS],fabs(dPhill),_ww); 
-  _hh->H1FILL(_hh->DG2L_dRll[iSR][m_ET][iSYS],fabs(dRll),_ww); 
+  _hh->H1FILL(_hh->DG2L_dRll[iSR][m_ET][iSYS],dRll,_ww); 
   _hh->H1FILL(_hh->DG2L_dPhilMet[iSR][m_ET][iSYS],fabs(dPhilMet),_ww); 
   _hh->H1FILL(_hh->DG2L_JZBJet[iSR][m_ET][iSYS],JZBJet(v_sigJet,leptons),_ww); 
   _hh->H1FILL(_hh->DG2L_JZBEtmiss[iSR][m_ET][iSYS],JZBEtmiss(met,leptons),_ww); 
@@ -1499,6 +1502,9 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
   _hh->H1FILL(_hh->DG2L_metCellout[iSR][m_ET][iSYS],met->refCell,_ww); 
   _hh->H1FILL(_hh->DG2L_mt2[iSR][m_ET][iSYS],mT2,_ww); 
   _hh->H1FILL(_hh->DG2L_mt2b[iSR][m_ET][iSYS],mT2,_ww); 
+  _hh->H1FILL(_hh->DG2L_mct[iSR][m_ET][iSYS],mct,_ww);
+  _hh->H1FILL(_hh->DG2L_mctPerp[iSR][m_ET][iSYS],mctPerp,_ww); 
+
 
   float corrNpv = nt->evt()->nVtx;
   if(nt->evt()->isMC) corrNpv = GetNVertexBsCorrected(nt->evt()->nVtx);
@@ -1550,11 +1556,17 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
 
   }
   mEff = ST + met->lv().Pt();
+  float metSig = mEff/met->lv().Pt();
+  float mEffwLep = mEff + (*leptons->at(0)).Pt() + (*leptons->at(1)).Pt();
+  float metSigwLep = mEffwLep/met->lv().Pt();
 
   dPhiJMet = TVector2::Phi_mpi_pi(dPhiJMet)*TMath::RadToDeg();  
 
   _hh->H1FILL(_hh->DG2L_ST[iSR][m_ET][iSYS],ST,_ww); 
   _hh->H1FILL(_hh->DG2L_mEff[iSR][m_ET][iSYS],mEff,_ww); 
+  _hh->H1FILL(_hh->DG2L_metSig[iSR][m_ET][iSYS],metSig,_ww); 
+  _hh->H1FILL(_hh->DG2L_mEffwLep[iSR][m_ET][iSYS],mEffwLep,_ww); 
+  _hh->H1FILL(_hh->DG2L_metSigwLep[iSR][m_ET][iSYS],metSigwLep,_ww); 
   _hh->H1FILL(_hh->DG2L_dPhiJetMet[iSR][m_ET][iSYS],fabs(dPhiJMet),_ww); 
   _hh->H1FILL(_hh->DG2L_nJets[iSR][m_ET][iSYS],nSigJet,_ww); 
   _hh->H1FILL(_hh->DG2L_nCJets[iSR][m_ET][iSYS],nSigCJet,_ww); 

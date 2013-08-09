@@ -113,7 +113,12 @@ class Histos_2L
   HDG2L DG2L_metCellout;
   HDG2L DG2L_mt2;
   HDG2L DG2L_mt2b;
+  HDG2L DG2L_mct;
+  HDG2L DG2L_mctPerp;
   HDG2L DG2L_mEff; //New
+  HDG2L DG2L_mEffwLep; //New
+  HDG2L DG2L_metSig; //New
+  HDG2L DG2L_metSigwLep; //New
   HDG2L DG2L_ST;   //New
   HDG2L DG2L_npv;
   HDG2L DG2L_mu;

@@ -23,7 +23,7 @@
 #!/bin/bash
 
 #Update for a given pass
-date="072613_21fb_n0145_DD_v3"
+date="080813_21fb_n0145_DD_v4"
 #date="072113_21fb_n0145_DD_v2"
 #date="071613_21fb_n0145_DD_v1"
 #date="070913_21fb_n0144_DD_v1"
@@ -183,7 +183,7 @@ DIL=(EEE EEM EMM MMM LLL \
     EEEE EEEM EEMM EMMM MMMM LLLL)
 #<<SKIP
 SR=(\
-    ML_CF3L ML_VRWZ ML_VRZZ \
+    ML_CF3L ML_VRWZ ML_VRZZ ML_VRemulWW \
     #SRmT2a SRmT2b SRmT2c \
     #SRWWa SRWWb SRWWc \
     #SRZjets \

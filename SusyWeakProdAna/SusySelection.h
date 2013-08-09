@@ -107,14 +107,17 @@ class SusySelection: public SusyNtTools
   //Complex vars (move to another class?)
   float JZBJet(const JetVector* jets, const LeptonVector* leptons);
   float JZBEtmiss(const Met *met, const LeptonVector* leptons);
-  
-  
+   
+  //Emulation WW from WZ: 1 lepton -> neutrino
+  bool emulateWW(LeptonVector* leptons, Met* met);
+
   //Multilep classification
   uint get3LType(const LeptonVector& leptons);
   uint get4LType(const LeptonVector& leptons);
 
   //Sum 3L & 4L 
   void sumArray();
+
 
 
   ClassDef(SusySelection, 1);
@@ -146,7 +149,7 @@ class SusySelection: public SusyNtTools
   
   //These are save copy of the original values from SusyNt
   //Use to restore to original within the SR's loop
-  //Since fro SS region, Ele pt, met are modified
+  //Since for SS region, Ele pt, met are modified, or emulation of WW from WZ events
   ElectronVector       v_save_sigEle;  // signal electrons 
   MuonVector           v_save_sigMu;   // signal muon 
   LeptonVector         v_save_sigLep;  // baseline leptons 

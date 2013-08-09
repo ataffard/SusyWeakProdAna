@@ -33,10 +33,10 @@ enum MultiLepType
   };
 
 
-enum ML_SR{ML_CF3L, ML_VRWZ, ML_VRZZ,
+enum ML_SR{ML_CF3L, ML_VRWZ, ML_VRZZ, ML_VRemulWW,
 	   ML_NSR};
 
-const string ML_SRNAME[] = {"CF3L", "VRWZ", "VRZZ"
+const string ML_SRNAME[] = {"CF3L", "VRWZ", "VRZZ", "VRemulWW",
 };
 
 
@@ -61,6 +61,7 @@ class Histos_3L
   typedef TH1F        *HML[ML_NSR][ML_N][DGSys_N]; 
   
   HML   ML_pred;
+  HML   ML_predGe2J;
   HML   ML_cutflow;
   HML   ML_evtCatgUnOrdered;
   HML   ML_evtCatgOSpair;
@@ -74,6 +75,8 @@ class Histos_3L
   HML   ML_AllMlll;
   HML   ML_SFOSMZZ;
   HML   ML_SFOSMT;
+  HML   ML_mct;
+  HML   ML_mctPerp;
   HML   ML_etmiss;
   HML   ML_metRefEle;
   HML   ML_metRefGam;

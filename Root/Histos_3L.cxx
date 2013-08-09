@@ -38,6 +38,7 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir, bool useSys)
   }
   
   BOOK_SRML(ML_pred,"","",syaxis,1,-0.5,0.5);
+  BOOK_SRML(ML_predGe2J,"","",syaxis,1,-0.5,0.5);
   BOOK_SRML(ML_cutflow,"","",syaxis,10,-0.5,9.5);
   BOOK_SRML(ML_evtCatgUnOrdered,"","",syaxis,4,-0.5,3.5); //eee, mmm, eem, mme
   BOOK_SRML(ML_evtCatgOSpair,"","",syaxis,6,-0.5,5.5); //(ee)e, (ee)m, (mm)e, (mm)m, (em/me)e, (em/me)m,  
@@ -49,9 +50,11 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRML(ML_SFOSMlll,"M_{lll}^{SFOS}","",syaxis,105,10,220);
   BOOK_SRML(ML_AllMll,"M_{ll}^{all}","",syaxis,105,10,220);
   BOOK_SRML(ML_AllMlll,"M_{lll}^{all}","",syaxis,105,10,220);
-  BOOK_SRML(ML_SFOSMZZ,"M_{llll}^{SFOS}","",syaxis,40,10,410);
-  BOOK_SRML(ML_SFOSMT,"M_{T}^{SFOS}","",syaxis,100,20,220);
+  BOOK_SRML(ML_SFOSMZZ,"M_{llll}^{SFOS}","",syaxis,50,100,600);
+  BOOK_SRML(ML_SFOSMT,"M_{T}^{SFOS}","",syaxis,50,20,220);
   BOOK_SRML(ML_etmiss,"#slash{E}_{T}","GeV",syaxis,40,0,200);
+  BOOK_SRML(ML_mct,"m_{CT}","GeV",syaxis,29,10,300);
+  BOOK_SRML(ML_mctPerp,"m_{CT#perp}","GeV",syaxis,29,10,300);
   BOOK_SRML(ML_metRefEle,"#slash{E}_{T}^{RefEle}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metRefGam,"#slash{E}_{T}^{RefGam}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metRefMuo,"#slash{E}_{T}^{RefMuo}","GeV",syaxis,40,0,200);
@@ -154,6 +157,7 @@ void Histos_3L::Sum3LHistograms()
       //Sum 3L      
       for(int i=ET_eee; i<ET_lll; i++){
 	ML_pred[j][ET_lll][isys]->Add(ML_pred[j][i][isys]);
+	ML_predGe2J[j][ET_lll][isys]->Add(ML_predGe2J[j][i][isys]);
 	ML_cutflow[j][ET_lll][isys]->Add(ML_cutflow[j][i][isys]);
 	ML_evtCatgUnOrdered[j][ET_lll][isys]->Add(ML_evtCatgUnOrdered[j][i][isys]);
 	ML_evtCatgOSpair[j][ET_lll][isys]->Add(ML_evtCatgOSpair[j][i][isys]);
@@ -168,6 +172,8 @@ void Histos_3L::Sum3LHistograms()
 	ML_SFOSMZZ[j][ET_lll][isys]->Add(ML_SFOSMZZ[j][i][isys]);
 	ML_SFOSMT[j][ET_lll][isys]->Add(ML_SFOSMT[j][i][isys]);
 	ML_etmiss[j][ET_lll][isys]->Add(ML_etmiss[j][i][isys]);
+	ML_mct[j][ET_lll][isys]->Add(ML_mct[j][i][isys]);
+	ML_mctPerp[j][ET_lll][isys]->Add(ML_mctPerp[j][i][isys]);
 	ML_metRefEle[j][ET_lll][isys]->Add(ML_metRefEle[j][i][isys]);
 	ML_metRefGam[j][ET_lll][isys]->Add(ML_metRefGam[j][i][isys]);
 	ML_metRefMuo[j][ET_lll][isys]->Add(ML_metRefMuo[j][i][isys]);
@@ -210,6 +216,7 @@ void Histos_3L::Sum3LHistograms()
       //Sum 4L      
       for(int i=ET_eeee; i<ET_llll; i++){
 	ML_pred[j][ET_llll][isys]->Add(ML_pred[j][i][isys]);
+	ML_predGe2J[j][ET_llll][isys]->Add(ML_predGe2J[j][i][isys]);
 	ML_cutflow[j][ET_llll][isys]->Add(ML_cutflow[j][i][isys]);
 	ML_evtCatgUnOrdered[j][ET_llll][isys]->Add(ML_evtCatgUnOrdered[j][i][isys]);
 	ML_evtCatgOSpair[j][ET_llll][isys]->Add(ML_evtCatgOSpair[j][i][isys]);
@@ -224,6 +231,8 @@ void Histos_3L::Sum3LHistograms()
 	ML_SFOSMZZ[j][ET_llll][isys]->Add(ML_SFOSMZZ[j][i][isys]);
 	ML_SFOSMT[j][ET_llll][isys]->Add(ML_SFOSMT[j][i][isys]);
 	ML_etmiss[j][ET_llll][isys]->Add(ML_etmiss[j][i][isys]);
+	ML_mct[j][ET_llll][isys]->Add(ML_mct[j][i][isys]);
+	ML_mctPerp[j][ET_llll][isys]->Add(ML_mctPerp[j][i][isys]);
 	ML_metRefEle[j][ET_llll][isys]->Add(ML_metRefEle[j][i][isys]);
 	ML_metRefGam[j][ET_llll][isys]->Add(ML_metRefGam[j][i][isys]);
 	ML_metRefMuo[j][ET_llll][isys]->Add(ML_metRefMuo[j][i][isys]);

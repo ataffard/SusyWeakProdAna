@@ -438,7 +438,6 @@ bool SusySelection::passNBase4LepCut(const LeptonVector* baseLeptons)
 bool SusySelection::passNLep3Cut(const LeptonVector* leptons)
 {
   uint nLep = leptons->size();
-  if(dbg()>5) cout << "3L " << m_ET << " " << n_pass_nLep3[m_ET] << endl;
 
   if(m_nLep3Min>=0 && nLep < m_nLep3Min) return false;
   if(m_nLep3Max>=0 && nLep > m_nLep3Max) return false;
@@ -472,7 +471,6 @@ bool SusySelection::pass3LTrigger(const LeptonVector* leptons, const TauVector* 
 				  TrilTrigLogic* trig3LObj)
 {
   bool useDilepTrigs=true;
-  if(dbg()>5) cout << "ML type " << m_ET << " " << n_pass_3Ltrig[m_ET][SR] << endl;
   if(!trig3LObj->passTriggerMatching(*leptons, *taus, nt->evt(), useDilepTrigs))  return false;
   if(SYST==DGSys_NOM) n_pass_3Ltrig[m_ET][SR]+=_inc;
   return true;
@@ -809,7 +807,6 @@ bool SusySelection::passdRll(const LeptonVector* leptons){
 bool SusySelection::passMET(const Met *met)
 {
   float etmiss = met->lv().Pt();
-  if(dbg()>5) cout << "SR " << SR << " Met min " << m_metMin << " max " << m_metMax << " Et " << etmiss << endl;
   if(m_metMin>=0 &&  etmiss < m_metMin ) return false;
   if(m_metMax>=0 &&  etmiss > m_metMax ) return false;
   if(SYST==DGSys_NOM) n_pass_met[m_ET][SR]+=_inc;
@@ -963,7 +960,6 @@ bool SusySelection::passZCut(const LeptonVector* leptons)
 {
   if(m_vetoZ || m_selZ || m_vetoExtZ){
     bool z = hasZ(*leptons, 10., m_vetoExtZ);
-    if(dbg()>5) cout << "SR " << SR << " MLtype " << ML_FLAV[m_ET] << " hasZ " << z << endl;
     if(m_vetoZ && z) return false;
     if(m_selZ && !z) return false;
     if(m_vetoExtZ && z) return false;
@@ -1048,6 +1044,84 @@ float SusySelection::JZBEtmiss(const Met *met, const LeptonVector* leptons)
 }
 
 /*--------------------------------------------------------------------------------*/
+bool SusySelection::emulateWW(LeptonVector* leptons, Met* met)
+{
+  //Pick randomly the lepton to transform into v
+  // maintain that the 2 remaining leptons are OS
+  uint idx_l1=-999;
+  uint idx_l2=-999;
+  bool z = hasZ(*leptons, &idx_l1, &idx_l2, 10., m_vetoExtZ);
+  if(!z) {
+    cout << "no Z"  << endl;
+    return false; //Cannot emulate, not WZ event
+  }
+
+  uint idx_l3=-999;
+  if(idx_l1==0 && idx_l2==1) idx_l3=2;
+  else if(idx_l1==0 && idx_l2==2) idx_l3=1;
+  else if(idx_l1==1 && idx_l2==0) idx_l3=2;
+  else if(idx_l1==1 && idx_l2==2) idx_l3=0;
+  else if(idx_l1==2 && idx_l2==0) idx_l3=1;
+  else if(idx_l1==2 && idx_l2==1) idx_l3=0;
+  if(idx_l3<0){
+    cout << "l3 idx " << endl;
+    return false;
+  }
+
+  TLorentzVector Z = (*leptons->at(idx_l1) + *leptons->at(idx_l2));
+  uint idx_l=-999;
+  
+  if((*leptons->at(idx_l3)).q<0)
+    idx_l = ((*leptons->at(idx_l1)).q<0)? idx_l1 : idx_l2;
+  if((*leptons->at(idx_l3)).q>0)
+    idx_l = ((*leptons->at(idx_l1)).q>0)? idx_l1 : idx_l2;
+  
+  if(idx_l<0){
+    cout << "idx l " << endl;
+    return false;
+  }
+
+  //randomly pick between idx_l and idx_l3
+  //float x = _random->Rndm();
+  //Pick the lepton from the Z, maintaining OS events
+  uint idx_pick = idx_l; //(x<0.5)? idx_l3 : idx_l;
+
+  if(dbg()>5){
+    cout << "\nEmul WW run: " << nt->evt()->run  << " event: " << nt->evt()->event  << endl;
+    cout << "  Z " << Z.M() 
+	 << " l1 idx " << idx_l1 << " q " << (*leptons->at(idx_l1)).q << " " << (*leptons->at(idx_l1)).Pt() 
+	 << "   l2 idx " << idx_l2 << " q " << (*leptons->at(idx_l2)).q << " " << (*leptons->at(idx_l2)).Pt() 
+	 << "   l3 idx " << idx_l3 << " q " << (*leptons->at(idx_l3)).q << " " << (*leptons->at(idx_l3)).Pt() 
+	 << endl;
+    cout << "  pick idx " << idx_pick << " pt " << (*leptons->at(idx_pick)).Pt()
+	 << " org met " << met->lv().Pt() << " " << met->lv().Phi() << endl;
+  }
+
+  //Add lepton to met
+  float met_px = met->lv().Px() - (*leptons->at(idx_pick)).Px();
+  float met_py = met->lv().Py() - (*leptons->at(idx_pick)).Py();
+
+  met->Et = sqrt(pow(met_px,2) + pow(met_py,2));
+  met->phi = atan(met_py/met_px);
+  
+
+  //Reset TLV of the picked lepton
+  Susy::Lepton* _l = leptons->at(idx_pick);
+  _l->pt=0; _l->eta=0; _l->phi=0; _l->m=0;
+  _l->resetTLV();
+
+  if(dbg()>5){
+    cout << "  new met " << met->lv().Pt() << " " << met->lv().Phi() << endl;
+    cout << "   reset lepton " << idx_pick << " " << (*leptons->at(idx_pick)).Pt() << endl; 
+  }
+
+  //leptons->erase(leptons->begin()+idx_pick);//not comptible w/ save-restore original
+  
+  return true;
+}
+
+
+/*--------------------------------------------------------------------------------*/
 uint SusySelection::get3LType(const LeptonVector& leptons)
 {
   int ne=0;
@@ -1058,7 +1132,6 @@ uint SusySelection::get3LType(const LeptonVector& leptons)
     if(isE)  ne++;
     if(!isE) nm++;
   }
-  if(dbg()>5) cout << "3LType " << ne << " " << nm << endl;
 
   if(ne==3 && nm ==0) return ET_eee;
   else if(ne==2 && nm ==1) return ET_eem;
@@ -1081,7 +1154,6 @@ uint SusySelection::get4LType(const LeptonVector& leptons)
     if(isE)  ne++;
     if(!isE) nm++;
   }
-  if(dbg()>5) cout << "4LType " << ne << " " << nm << endl;
 
   if(ne==4 && nm ==0) return ET_eeee;
   else if(ne==3 && nm ==1) return ET_eeem;

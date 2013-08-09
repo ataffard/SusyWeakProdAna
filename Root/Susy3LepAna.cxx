@@ -144,6 +144,16 @@ void Susy3LepAna::setSelection(std::string s)
     m_vetoB=true;
     m_selZllZll=true;
   }
+  if(m_sel=="VRemulWW"){ //Emulate WW from WZ events
+    m_cutNBaseLep = true;
+    m_nLep3Min=3;
+    m_nLep3Max=3;
+    m_selSFOS=true;
+    m_selZ=true;
+    //m_metMin=30;
+    m_vetoB=true;
+    //m_mtMin=40;
+  }
 
  
 }
@@ -167,12 +177,18 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
     if(dbg()>10) cout << "Fail Tau veto " << endl;
     return false;
   }
+  
+  //Backup met/lepton
+  saveOriginal(); //Backup Met & leptons  --> for WW emulation
 
   int nTightLep=0;
   for(uint iSR=0; iSR<ML_NSR; iSR++){
     string sSR=ML_SRNAME[iSR];
     setSelection(sSR);
     SR=iSR;
+
+    //Restore leptons/met
+    restoreOriginal(*leptons,met);
 
     float _ww = eventWeight(LUMIMODE); //set _ww to the appropriate weighting
     if(!WEIGHT_COUNT) _ww=1;
@@ -194,11 +210,15 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
       nTightLep=4;
     }
 
- 
-    if(iSR>=ML_VRZZ && nTightLep==4){ //4Lep
+   
+
+    //*********************//
+    //  >=4 Leptons
+    //*********************//
+    if(iSR>=ML_VRZZ && nTightLep==4){ 
        int icut=0;
        m_ET =  get4LType(*leptons);
-       if(dbg()>5) cout << "SR" << ML_SRNAME[iSR] << "\t4L " << ML_FLAV[m_ET] << endl;
+       if(dbg()>5) cout << "** SR" << ML_SRNAME[iSR] << "\t4L " << ML_FLAV[m_ET] << endl;
 
        if(!passNLep4Cut(leptons)) continue;
 
@@ -206,10 +226,11 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
   
        _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-       if( !passMET (met))     continue;
-       _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww); 
-      
        if(!passZCut(leptons))     continue;
+       _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww); 
+
+
+       if( !passMET (&new_met))     continue;
        _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww); 
               
        float bWeight = getBTagSF(nt->evt(),v_sigJet,SYST);
@@ -225,12 +246,15 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
        _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     }
-    else{ //3Lep
+    //*********************//
+    //  3 Leptons
+    //*********************//
+    else{ 
       if(nTightLep!=3) continue;
       int icut=0;
       
       m_ET =  get3LType(*leptons);
-      if(dbg()>5) cout << "SR" << ML_SRNAME[iSR] << "\t3L " << ML_FLAV[m_ET] << endl;
+      if(dbg()>5) cout << "** SR: " << ML_SRNAME[iSR] << "\t3L " << ML_FLAV[m_ET] << endl;
 
       if(!passNLep3Cut(leptons)) continue;
 
@@ -241,10 +265,19 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
       if( !passSFOSCut(leptons)) continue;
       _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww); 
       
-      if( !passMET (met))     continue;
+      if(!passZCut(leptons))     continue;
       _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww); 
 
-      if(!passZCut(leptons))     continue;
+      if(iSR==ML_VRemulWW){
+	bool isOK = emulateWW(leptons,&new_met);
+	if(!isOK){
+	  cout << "WW emulation issue run " << nt->evt()->run 
+	       << " event " << nt->evt()->event  << endl;
+	  abort();
+	}
+      }
+      
+      if( !passMET (&new_met))     continue;
       _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww); 
       
       float bWeight = getBTagSF(nt->evt(),v_sigJet,SYST);
@@ -252,12 +285,11 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
 	_ww *= bWeight;
 	if(WEIGHT_COUNT) _inc = _ww;
       }
-
-      
+     
       if( !passBJet(jets))        continue;
       _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-      if( !passMtCut(leptons,met))        continue;
+      if( !passMtCut(leptons,&new_met))        continue;
       _hh->H1FILL(_hh->ML_cutflow[SR][m_ET][SYST],icut++,_ww);
 
 
@@ -282,10 +314,11 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
     if(dbg()==-99) cout << "PASS " << ML_SRNAME[SR] 
 			<< " " << nt->evt()->run 
 			<< " " << nt->evt()->event <<endl;
-    fillHistograms(iSR, SYST, leptons, jets, met,_ww);
+    fillHistograms(iSR, SYST, leptons, jets, &new_met,_ww);
   }
 
 
+  restoreOriginal(*leptons,met);
 
   return true;
 }
@@ -300,8 +333,8 @@ void Susy3LepAna::print_CF3L(){
 
   print_line("pass Trig        ", ET_eee, ET_lll, j, n_pass_3Ltrig);
   print_line("pass SFOS        ", ET_eee, ET_lll, j, n_pass_sfos);
-  print_line("pass MET         ", ET_eee, ET_lll, j, n_pass_met);
   print_line("pass Zveto       ", ET_eee, ET_lll, j, n_pass_Z);
+  print_line("pass MET         ", ET_eee, ET_lll, j, n_pass_met);
   print_line("pass Bveto       ", ET_eee, ET_lll, j, n_pass_BJet);
   
 }
@@ -315,8 +348,8 @@ void Susy3LepAna::print_VRWZ(){
 
   print_line("pass Trig        ", ET_eee, ET_lll, j, n_pass_3Ltrig);
   print_line("pass SFOS        ", ET_eee, ET_lll, j, n_pass_sfos);
-  print_line("pass MET         ", ET_eee, ET_lll, j, n_pass_met);
   print_line("pass selZ        ", ET_eee, ET_lll, j, n_pass_Z);
+  print_line("pass MET         ", ET_eee, ET_lll, j, n_pass_met);
   print_line("pass Bveto       ", ET_eee, ET_lll, j, n_pass_BJet);
   print_line("pass mT          ", ET_eee, ET_lll, j, n_pass_mt3L);
   
@@ -331,8 +364,8 @@ void Susy3LepAna::print_VRZZ()
   cout << ">>> SR " << ML_SRNAME[j] <<endl;
 
   print_line("pass Trig        ", ET_eeee, ET_llll, j, n_pass_3Ltrig);
-  print_line("pass MET         ", ET_eeee, ET_llll, j, n_pass_met);
   print_line("pass selZ        ", ET_eeee, ET_llll, j, n_pass_Z);
+  print_line("pass MET         ", ET_eeee, ET_llll, j, n_pass_met);
   print_line("pass Bveto       ", ET_eeee, ET_llll, j, n_pass_BJet);
   print_line("pass ZZ->llll    ", ET_eeee, ET_llll, j, n_pass_ZllZll);
 
@@ -359,9 +392,15 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
   TLorentzVector _3l;
   TLorentzVector _4l;
   TLorentzVector _ZZ4l;
+  uint idx_l[2]={-999};
+  uint idx=0;
   for(uint ilep=0; ilep<leptons->size(); ilep++){
     const Susy::Lepton* _l = leptons->at(ilep);
     if(ilep>=4) continue;
+    if(iSR==ML_VRemulWW){
+      if(_l->Pt()<=0.) continue;
+      idx_l[idx++]=ilep;
+    }
     if(ilep<3) _3l += (*_l);
     if(ilep<4) _4l += (*_l);
     bool isChargeFlip =  _l->isEle() ? ((Electron*) _l)->isChargeFlip : false; 
@@ -428,10 +467,20 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
     TLorentzVector Z2 = *(leptons->at(idx_Z2l1)) + *(leptons->at(idx_Z2l2));
     TLorentzVector ZZ = Z1+Z2;
     _hh->H1FILL(_hh->ML_SFOSMZZ[iSR][m_ET][iSYS],ZZ.M(),_ww);
-    
+   
   }
   
-  
+  //mCT for the emulate WW 
+  if(iSR==ML_VRemulWW){
+    float mWmZ    = MW/MZ;
+    float mct     = mCT(*leptons->at(idx_l[0]),*leptons->at(idx_l[1])) * mWmZ;
+    TLorentzVector recoil = -met->lv() - (*leptons->at(idx_l[0])) - (*leptons->at(idx_l[1]));
+    float mctPerp = mCTperp(*leptons->at(idx_l[0]),*leptons->at(idx_l[1]),recoil) * mWmZ;
+
+    _hh->H1FILL(_hh->ML_mct[iSR][m_ET][iSYS],mct,_ww); 
+    _hh->H1FILL(_hh->ML_mctPerp[iSR][m_ET][iSYS],mctPerp,_ww); 
+  }
+
   //Etmiss
   _hh->H1FILL(_hh->ML_etmiss[iSR][m_ET][iSYS],met->lv().Pt(),_ww); 
   _hh->H1FILL(_hh->ML_metRefEle[iSR][m_ET][iSYS],met->refEle,_ww); 
@@ -478,6 +527,10 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
     }
   }
   _hh->H1FILL(_hh->ML_nBJets[iSR][m_ET][iSYS],nBJets,_ww); 
+
+  if(jets->size()>1)
+    _hh->H1FILL(_hh->ML_predGe2J[iSR][m_ET][iSYS],0,_ww); 
+
   
 }
 /*--------------------------------------------------------------------------------*/

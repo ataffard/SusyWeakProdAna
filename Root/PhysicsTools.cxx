@@ -218,6 +218,7 @@ float mCT(TLorentzVector v1, TLorentzVector v2){
 
 //-----------------------------------------------------------------------------
 float mCTperp(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met){
+  /*
   // Get 3 vectors for objects
   TVector3 U_t  = (-met-lep0-lep1).Vect();
   U_t.SetZ(0);
@@ -232,14 +233,54 @@ float mCTperp(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met){
   float value = 2*(p0_t.Mag()*p1_t.Mag() + p0_t*p1_t);
   if( value < 0 ) return 0;
   return sqrt(value);
+  */
+ // Access the 3-D vectors
+  
+  TVector3 v13D = lep0.Vect();
+  TVector3 v23D = lep1.Vect();
+  TVector3 u3D  = met.Vect();
+  u3D.SetZ(0);
+  u3D = u3D.Unit();
+  
+  // Calculate p[1,2]Perp
+  TVector3 p1Perp = u3D.Cross(v13D.Cross(u3D));
+  TVector3 p2Perp = u3D.Cross(v23D.Cross(u3D));
+  
+  double ET1Perp  = sqrt(p1Perp.Perp2() + lep0.M2());
+  double ET2Perp  = sqrt(p2Perp.Perp2() + lep1.M2());
+  
+  double mCTSQ = pow(ET1Perp + ET2Perp,2) - (p1Perp-p2Perp).Perp2();
+  
+  return ((mCTSQ > 0.) ? sqrt(mCTSQ) : 0.);
+  
+
 };
 
 //-----------------------------------------------------------------------------
 float mCTpara(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met){
+  /*
   TVector3 U_t  = (-met-lep0-lep1).Vect().Unit();
   TVector3 p0_t = (lep0.Vect() * U_t) * U_t;
   TVector3 p1_t = (lep1.Vect() * U_t) * U_t;
   return sqrt( 2*(p0_t.Perp()*p1_t.Perp() + p0_t.X()*p1_t.X() + p0_t.Y()*p1_t.Y()) );
+  */
+  TVector3 v13D = lep0.Vect();
+  TVector3 v23D = lep1.Vect();
+  TVector3 u3D  = met.Vect();
+  u3D.SetZ(0);
+  u3D = u3D.Unit();
+  
+  // Calculate p[1,2]Para
+  TVector3 p1Para = v13D.Dot(u3D)*u3D;
+  TVector3 p2Para = v23D.Dot(u3D)*u3D;
+  
+  double ET1Para  = sqrt(p1Para.Perp2() + lep0.M2());
+  double ET2Para  = sqrt(p2Para.Perp2() + lep1.M2());
+  
+  double mCTSQ = pow(ET1Para + ET2Para,2) - (p1Para-p2Para).Perp2();
+  
+  return ((mCTSQ > 0.) ? sqrt(mCTSQ) : 0.);
+  
 };
 
 //-----------------------------------------------------------------------------

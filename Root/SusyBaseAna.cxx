@@ -44,13 +44,13 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
 			    SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT);
 
+
   //-------------------------
   //3L Trigger
   //-------------------------
   m_trig3LObj = new TrilTrigLogic();
   m_trig3LObj->loadTriggerMaps();
   //if(m_trigAccOnly) m_trigLogic->setAccOnly(true); //to not apply trigger, just pt Thrs
-
 
   //Open signal cross section file
   string _sSigFile = string(getenv("WORKAREA")) +
@@ -68,6 +68,7 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
   susyXS = new XSReader();
   susyXS->LoadXSInfo();
 
+  
   //setAnaType(Ana_2Lep);
 
 }
@@ -366,7 +367,12 @@ void SusyBaseAna::restoreOriginal(LeptonVector& leptons, const Met *met)
     _e->clear();
     _e->operator=(*(v_save_sigEle.at(iEle)));
   }
-  
+  for(uint iMuo=0; iMuo<v_sigMu->size(); iMuo++){
+    Susy::Muon* _m = v_sigMu->at(iMuo);
+    _m->clear();
+    _m->operator=(*(v_save_sigMu.at(iMuo)));
+  }  
+
   leptons.clear();
   buildLeptons(leptons, *v_sigEle, *v_sigMu);
 
