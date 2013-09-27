@@ -41,6 +41,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("l_etcone30",_b_l_etcone30,"l_etcone30[nlep]/F");
   tree->Branch("l_etconetopo30",_b_l_etconetopo30,"l_etconetopo30[nlep]/F");
   tree->Branch("l_d0",_b_l_d0,"l_d0[nlep]/F");
+  tree->Branch("l_d0Err",_b_l_d0Err,"l_d0Err[nlep]/F");
   tree->Branch("l_z0",_b_l_z0,"l_z0[nlep]/F");
   tree->Branch("l_isEle",_b_l_isEle,"l_isEle[nlep]/O");
   tree->Branch("dphi_metl",_b_dphi_metl,"dphi_metl[nlep]/F");
@@ -148,6 +149,7 @@ void ToyNt::clearOutputBranches(void) {
     _b_l_etcone30[i]=-999;
     _b_l_etconetopo30[i]=-999;
     _b_l_d0[i]=-999;
+    _b_l_d0Err[i]=-999;
     _b_l_z0[i]=-999;
     _b_l_isEle[i]=false;
     _b_dphi_metl[i]=-999; 
@@ -305,6 +307,7 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
     _b_l_Y[ilep] = _l->Rapidity();
     _b_l_q[ilep] = _l->q;
     _b_l_d0[ilep] = _l->d0Unbiased;
+    _b_l_d0Err[ilep] = _l->errD0Unbiased;
     _b_l_z0[ilep] = _l->z0Unbiased;
     if(_l->isEle()){
       Electron* _e = (Electron*) _l;
@@ -316,7 +319,7 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
     else{
       Muon* _m = (Muon*) _l;
       float ptcone = muPtConeCorr(_m, baseElectrons, baseMuons, nVtx,isMc);
-      _b_l_etcone30[ilep] = _m->etcone30;
+      _b_l_etcone30[ilep] = muEtConeCorr(_m, baseElectrons, baseMuons, nVtx,isMc); //_m->etcone30;
       _b_l_ptcone30[ilep] = ptcone;
     }
 
@@ -445,7 +448,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
 
   _b_mjj = _jj.M();
   _b_pTjj = _jj.Pt();
-  _b_mEff = _b_ST + met->lv().Pt();
+  _b_mEff =  Meff(*leptons,*jets,met,JET_PT_CUT);; //_b_ST + met->lv().Pt();
 
   
   //  delete _ntTools;

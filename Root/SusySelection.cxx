@@ -12,7 +12,7 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 // SusySelection Constructor
 /*--------------------------------------------------------------------------------*/
-SusySelection::SusySelection():
+SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
   SusyNtTools(),
   m_dbg(0),
   m_cutNBaseLep(true),
@@ -93,8 +93,12 @@ SusySelection::SusySelection():
 
   //Configure ChargeFlip tool
   string chargeFlipInput =  string(getenv("WORKAREA")) + 
-    "/ChargeFlip/data/chargeFlip.root";
+    "/ChargeFlip/data/chargeflip_map.root";
+  if(qFlipd0) chargeFlipInput =  string(getenv("WORKAREA")) + 
+    "/ChargeFlip/data/d0_chargeflip_map.root";
+  cout << "Using flip map: " << chargeFlipInput <<endl;
   m_chargeFlip = new chargeFlip(chargeFlipInput);
+
 
 
 
@@ -105,6 +109,7 @@ SusySelection::SusySelection():
 /*--------------------------------------------------------------------------------*/
 void SusySelection::resetCounter()
 {
+  n_pass_SUSYGrid = 0;
   n_readin       = 0;
   n_pass_GRL     = 0;
   n_pass_LarErr  = 0;
@@ -280,6 +285,12 @@ bool SusySelection::passEventCleaning()
 				 *v_preMu, *v_baseMu,
 				 *v_preJet, *v_baseJet);
   
+  //
+  // SUSY grid simplified model: remove higgsino events
+  //
+  if( nt->evt()->eventWithSusyProp ) return false;
+  if(SYST==DGSys_NOM) n_pass_SUSYGrid +=_inc;
+
   //
   // Updated Summer 2013
   //
@@ -521,7 +532,7 @@ bool SusySelection::hasQFlip(const LeptonVector* leptons){
 }
 
 /*--------------------------------------------------------------------------------*/
-float SusySelection::getQFlipProb(const LeptonVector* leptons, Met* met, uint iSys)
+float SusySelection::getQFlipProb(LeptonVector* leptons, Met* met, uint iSys)
 {
   if(leptons->size() < 1) return 1;
   Susy::Lepton* _l1 = leptons->at(0);
@@ -537,6 +548,7 @@ float SusySelection::getQFlipProb(const LeptonVector* leptons, Met* met, uint iS
   if(iSys==DGSys_BKGMETHOD_UP) _sys=1;
   if(iSys==DGSys_BKGMETHOD_DN) _sys=-1;
 
+  m_chargeFlip->setSeed(nt->evt()->event); //Do the seed here using evt #
   float cfP = m_chargeFlip->OS2SS(_pdg1, &_l1_tlv, 
 				  _pdg2, &_l2_tlv, 
 				  &_new_met, _sys);
@@ -548,23 +560,32 @@ float SusySelection::getQFlipProb(const LeptonVector* leptons, Met* met, uint iS
     cout << "qFlip - original " <<endl;
     cout << "\t l1 org_pt " << _l1->Pt() 
 	 << "\t l2 org_pt " << _l2->Pt() 
-	 << "\t org met   " << met->lv().Pt() 
+	 << "\t org met Pt  " << met->lv().Pt() 
+	 << " met Phi " << met->lv().Phi()
 	 << endl;
   }
   
   float _new_met_Et = sqrt(pow(_new_met.Px(),2) + pow(_new_met.Py(),2)); 
   met->Et = _new_met_Et;
+  met->phi = atan(_new_met.Py()/_new_met.Px());
+  
   _l1->pt = _l1_tlv.Pt(); _l1->resetTLV();
   _l2->pt = _l2_tlv.Pt(); _l2->resetTLV();
 
+  //resort the vector
+  std::sort(leptons->begin(), leptons->end(), comparePt);
+
   if(dbg()>5){
     cout << "qFlip - smear " <<endl;
-    cout << "\t l1 new_pt " << _l1->Pt() << " " << _l1_tlv.Pt()
-	 << "\t l2 new_pt " << _l2->Pt() << " " << _l2_tlv.Pt()
-	 << "\t new met   " << met->lv().Pt() 
+    cout << "\t l1 new_pt " << _l1->Pt() 
+	 << "\t l2 new_pt " << _l2->Pt() 
+	 << "\t new met   " << met->lv().Pt() << " phi " << met->lv().Phi()
 	 << "\t cfP " << cfP << " " << QFLIP_RESCLALE
 	 << endl;
   }
+
+
+
 
   return cfP;  
 }
@@ -885,7 +906,7 @@ bool SusySelection::passMetMeff(const LeptonVector* leptons,const JetVector* jet
 
   float mEff;
   if(useLepton) mEff=Meff(*leptons,*jets,met,JET_PT_CUT);
-  else mEff = Meff(*jets,met);
+  else mEff = Meff(*jets,met,JET_PT_CUT);
   float ratio = (met->lv().Pt()>0) ?  met->lv().Pt()/mEff: 0;
   
   if(m_MetMeffMin>-1 && ratio<m_MetMeffMin) return false;
@@ -896,7 +917,7 @@ bool SusySelection::passMetMeff(const LeptonVector* leptons,const JetVector* jet
 }
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passHT(const LeptonVector* leptons,const JetVector* jets, const Met* met){
-  float ht = Meff(*leptons,*jets,met);
+  float ht = Meff(*leptons,*jets,met,JET_PT_CUT);
   
   if(m_HTMin>-1 && ht<m_HTMin) return false;
   if(m_HTMax>-1 && ht>m_HTMax) return false;
@@ -1109,6 +1130,8 @@ bool SusySelection::emulateWW(LeptonVector* leptons, Met* met)
   Susy::Lepton* _l = leptons->at(idx_pick);
   _l->pt=0; _l->eta=0; _l->phi=0; _l->m=0;
   _l->resetTLV();
+
+  std::sort(leptons->begin(), leptons->end(), comparePt);
 
   if(dbg()>5){
     cout << "  new met " << met->lv().Pt() << " " << met->lv().Phi() << endl;

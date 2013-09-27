@@ -88,7 +88,8 @@ private:
   float   _b_l_ptcone30[2];
   float   _b_l_etcone30[2];
   float   _b_l_etconetopo30[2];
-  float   _b_l_d0[2];
+  float   _b_l_d0[2];  
+  float   _b_l_d0Err[2]; 
   float   _b_l_z0[2];
   bool    _b_l_isEle[2];
   float   _b_dphi_metl[2]; 

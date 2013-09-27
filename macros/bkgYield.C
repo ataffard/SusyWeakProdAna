@@ -26,7 +26,7 @@ Produce the tex tables as well
 using namespace std;
 typedef unsigned uint;
 
-static const bool blindData=false;//true;
+static const bool blindData=true;
 bool verbose = false;// true;
 
 //
@@ -338,7 +338,8 @@ void loadBkg(string DSId, string sReg,std::vector<TH1F*> *_H1){
 
   for(uint ilep=0; ilep<LEP.size()-1; ilep++){
     _ana->clearHistVect(_H1[ilep]);
-    string hName = "DG2L_" + sReg + "_" + LEP[ilep] + "_DG2L_pred";
+    //    string hName = "DG2L_" + sReg + "_" + LEP[ilep] + "_DG2L_pred";
+    string hName = "DGWH_WH_" + sReg + "_" + LEP[ilep] + "_DGWH_pred";
     _H1[ilep] = _ana->loadHisto(_bkgFile,DSId,hName,verbose);
   }
 
@@ -360,7 +361,13 @@ bool isSR(string sReg){
      sReg=="SRSSjets" ||
      sReg=="SRWWa" ||
      sReg=="SRWWb" ||
-     sReg=="SRWWc" 
+     sReg=="SRWWc" ||
+
+     sReg=="SRSS1" ||
+     sReg=="SRSS2" ||
+     sReg=="SRSS3" ||
+     sReg=="SRSS4" ||
+     sReg=="SROSOF2jets" 
    ) return true;
 
  return false;

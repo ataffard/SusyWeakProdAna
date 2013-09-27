@@ -51,8 +51,8 @@ pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 ana=SusyAnaLooperExec
 #anaOpt1=doAll
 #anaOpt1=do2L
-#anaOpt1=doWH
-anaOpt1=do3L
+anaOpt1=doWH
+#anaOpt1=do3L
 #anaOpt1=doFake
 anaOpt2=true #doMll 
 #anaOpt2=false #doMll 
@@ -61,7 +61,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-doSys=true
+#doSys=true
 
 ##
 ## Ana mode STD or DD
@@ -97,7 +97,7 @@ while read line; do
 	echo "  doMll:      $anaOpt2"
 	echo 
 	
- 	if [ "$type" == "mc12" -o "$type" == "susy" ]; then
+ 	if [ "$type" == "mc12"  -o "$type" == "susy" ]; then
 	    if [ $doSys ]; then
 	        #For large sample - split the sys
 		if [ "$sName" == "Zee.147770" -o \
@@ -257,7 +257,7 @@ rm -f tmp.txt
 
 if [ "$type" == "mc12" ]; then
     cd  ${pathRun}
-    ./run3L.sh mc12 dummy ${mode}
+#    ./run3L.sh mc12 dummy ${mode}
 #    ./runWH.sh mc12 dummy ${mode}
 
 #    ./run.sh mc12 dummy ${mode}
@@ -274,5 +274,22 @@ if [ "$type" == "mc12" ]; then
 ##    ./run.sh susy 176322 ${mode}
 ##    ./run.sh susy 176325 ${mode}
 ##    ./run.sh susy 176480 ${mode}
+
+#    ./run.sh susy 177502 ${mode}
+#    ./run.sh susy 177503 ${mode}
+#    ./run.sh susy 177506 ${mode}
+#    ./run.sh susy 177508 ${mode}
+#    ./run.sh susy 177509 ${mode}
+#    ./run.sh susy 177510 ${mode}
+#    ./run.sh susy 177512 ${mode}
+#    ./run.sh susy 177513 ${mode}
+#    ./run.sh susy 177514 ${mode}
+#    ./run.sh susy 177517 ${mode}
+#    ./run.sh susy 177521 ${mode}
+#    ./run.sh susy 177522 ${mode}
+#    ./run.sh susy 177523 ${mode}
+#    ./run.sh susy 177524 ${mode}
+#    ./run.sh susy 177525 ${mode}
+#    ./run.sh susy 177527 ${mode}
 
 fi

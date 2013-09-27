@@ -23,7 +23,8 @@
 #!/bin/bash
 
 #Update for a given pass
-date="080813_21fb_n0145_DD_v4"
+date="091313_21fb_n0145_DD_WH_v1"
+#date="081513_21fb_n0145_DD_v6"
 #date="072113_21fb_n0145_DD_v2"
 #date="071613_21fb_n0145_DD_v1"
 #date="070913_21fb_n0144_DD_v1"
@@ -49,8 +50,8 @@ inToyNtPath=${HISTOANA}/SusyAna/histos_${date}/ToyNtOutputs
 #toyNt_SR="DIL_optimSRSS"
 #toyNt_SR="DIL_optimSR0jet"
 
-#toyNt_SR="WH_optimSRSS"
-toyNt_SR="WH_optimSRjets"
+toyNt_SR="WH_optimSRSS"
+#toyNt_SR="WH_optimSRjets"
 
 passDir=${HISTOANA}/SusyAna/histos_${date}
 
@@ -178,12 +179,13 @@ fi
 #DIL=(MM)
 #SR=(SRmT2a)
 
-#DIL=(EE MM EM)
-DIL=(EEE EEM EMM MMM LLL \
-    EEEE EEEM EEMM EMMM MMMM LLLL)
+DIL=(EE MM EM)
+#DIL=(EEE EEM EMM MMM LLL \
+#    EEEE EEEM EEMM EMMM MMMM LLLL)
 #<<SKIP
 SR=(\
-    ML_CF3L ML_VRWZ ML_VRZZ ML_VRemulWW \
+    WH_SRSS1 WH_SRSS2 WH_SRSS3 WH_SRSS4 WH_SROSOF2jets WH_SRZbb WH_SRZb
+    #ML_CF3L ML_VRWZ ML_VRZZ ML_VRemulWW \
     #SRmT2a SRmT2b SRmT2c \
     #SRWWa SRWWb SRWWc \
     #SRZjets \

@@ -13,8 +13,8 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_5FB  //A->B14
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "080813";
-const std::string SUFF = "_n0145_DD_v4";
+const std::string TAG  = "091313";
+const std::string SUFF = "_n0145_DD_WH_v1";
 
 //
 //Normal mode - all these are true
@@ -24,15 +24,15 @@ const std::string SUFF = "_n0145_DD_v4";
 const unsigned int  NBASELEPMAX      = 2;  //number of base lepton allowed - 2 for std analysis
 const unsigned int  NBASELEPMIN   = 2;  //number of base lepton allowed - 2 for std analysis
 
-const bool   FILL_TOYNT        = false;       //Write ToyNt
+const bool   FILL_TOYNT        = true;       //Write ToyNt
 //const string TOYNT_SR          ="DIL_optimSRZjets";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_optimSRZjets;     //SR used to fill ToyNt
 
-const string TOYNT_SR          ="WH_optimSRjets";    //SR used to fill ToyNt
-const unsigned int TOYNT_iSR   = WH_optimSRjets;     //SR used to fill ToyNt
+//const string TOYNT_SR          ="WH_optimSRjets";    //SR used to fill ToyNt
+//const unsigned int TOYNT_iSR   = WH_optimSRjets;     //SR used to fill ToyNt
 
-//const string TOYNT_SR          ="WH_optimSRSS";    //SR used to fill ToyNt
-//const unsigned int TOYNT_iSR   = WH_optimSRSS;     //SR used to fill ToyNt
+const string TOYNT_SR          ="WH_optimSRSS";    //SR used to fill ToyNt
+const unsigned int TOYNT_iSR   = WH_optimSRSS;     //SR used to fill ToyNt
 
 //const string TOYNT_SR          ="DIL_optimSR0jet";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_optimSR0jet;     //SR used to fill ToyNt
@@ -41,12 +41,12 @@ const unsigned int TOYNT_iSR   = WH_optimSRjets;     //SR used to fill ToyNt
 //const string TOYNT_SR          ="DIL_CR2LepSS";    //SR used to fill ToyNt
 //const unsigned int TOYNT_iSR   = DIL_CR2LepSS;     //SR used to fill ToyNt
 
-const bool DO_SYS         = true;    //Toggles systematics looper
+const bool DO_SYS         = false;//true;    //Toggles systematics looper
 const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
 const bool CUTFLOW        = false;// require at least 2 tight/base lep SPEED ANA
 
-const bool WEIGHT_COUNT   = true;//false;   //Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool WEIGHT_ONE     = false;          //Ignore evt->w use 1
 const bool DO_FILL_HISTO  = true;
 
@@ -61,7 +61,7 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 const bool BLIND_MC       = false;
 
 const bool DUMP_RUNEVT    = false;   //Dump run:event info
-const unsigned int  PRINT_SR = DIL_SRmT2a;
+const unsigned int  PRINT_SR = WH_SRSS1;
 
 const float MLLCUT = 60;
 

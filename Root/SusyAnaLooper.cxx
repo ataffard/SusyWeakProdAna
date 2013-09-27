@@ -25,16 +25,10 @@ SusyAnaLooper::SusyAnaLooper():
   nHFOR(0),
   nMllCut(0)
 {
-  setAnaType(Ana_2Lep);
+  //setAnaType(Ana_2Lep);
   setSelectTaus(true);
 
-  cout << "--------------------------" << endl;
-  cout << "SusyAnaLooper " << endl;
-  cout << "  2L Ana type " << endl;
-  cout << "  Select Taus: true " << endl;
-  cout << "--------------------------" << endl;
-
-
+ 
   _histoDir = new TDirectory("Ana","Ana");
   _susyHistos = new SusyHistos();
 
@@ -49,6 +43,17 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 {
   SusyNtAna::Begin(0);
   if(dbg()>0) cout << "SusyAnaLooper::Begin" << endl;
+
+  cout << "--------------------------" << endl;
+  cout << "SusyAnaLooper " << endl;
+  cout << "  Ana type " << endl;
+  cout << "     2LAna " << _do2LAna << endl;
+  cout << "     WHAna " << _doWHAna << endl;
+  cout << "     3LAna " << _do3LAna << endl;
+  cout << "  Select Taus: true " << endl;
+  cout << "--------------------------" << endl;
+
+
 
   cout << ">>> Weighting MC to " << pLUMI << " fb^-1 corresponding to " << LUMW << endl;
   cout << " \t output dir " << DATE.c_str() << endl;
@@ -396,6 +401,7 @@ void SusyAnaLooper::Terminate()
   TString _SS(sampleName());
 
   if( _SS.Contains("simplifiedModel") ||
+      _SS.Contains("sM_wA") ||
       _SS.Contains("DGemt") ||
       _SS.Contains("DLiSlep") ){
     _susyHistos->SaveHistograms(_histoDir,_method,

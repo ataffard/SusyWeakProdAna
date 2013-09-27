@@ -58,6 +58,7 @@ void Susy2LepAna::end()
   cout << "Susy2LepAna::event counters" <<endl;
   cout << std::setprecision(0) << std::fixed;
   cout << "read in:            " << n_readin        << endl;
+  cout << "pass SUSY grid:     " << n_pass_SUSYGrid << endl;
   cout << "pass GRL:           " << n_pass_GRL      << endl;
   cout << "pass TileTrip:      " << n_pass_TileTrip << endl;
   cout << "pass LarErr:        " << n_pass_LarErr   << endl;

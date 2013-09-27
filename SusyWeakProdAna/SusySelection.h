@@ -31,7 +31,7 @@ class SusySelection: public SusyNtTools
 {
  public:
   
-  SusySelection();
+  SusySelection(bool is2LAna, bool qFlipd0);
   virtual ~SusySelection(){};
   
   // Debug level
@@ -96,7 +96,7 @@ class SusySelection: public SusyNtTools
   //SS & charge flip 
   bool  isGenuineSS(const LeptonVector* leptons);
   bool  hasQFlip(const LeptonVector* leptons);
-  float getQFlipProb(const LeptonVector* leptons, Met* met, uint iSys=DGSys_NOM);
+  float getQFlipProb(LeptonVector* leptons, Met* met, uint iSys=DGSys_NOM);
   
   //3L/4L specific
   bool passSFOSCut(const LeptonVector* leptons);
@@ -238,6 +238,7 @@ class SusySelection: public SusyNtTools
   
   // Event counters
   float                n_readin;
+  float                n_pass_SUSYGrid;
   float                n_pass_GRL;
   float                n_pass_LarErr;
   float                n_pass_TileErr;

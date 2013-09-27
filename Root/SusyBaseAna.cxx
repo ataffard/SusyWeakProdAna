@@ -12,8 +12,8 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 // SusyBaseAna Constructor
 /*--------------------------------------------------------------------------------*/
-SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
-  SusySelection(),
+SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool qFlipd0):
+  SusySelection(is2LAna,qFlipd0),
   _hh(_histos),
   m_useLooseLep(false),
   m_writeToyNt(false),
@@ -36,8 +36,10 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
 
   // Configure using fake rates file
   // Currently rates are provided as function of pT only, so only use PT as second option
+  //string _fakeInput  =  string(getenv("WORKAREA")) + 
+  //"/SusyMatrixMethod/data/pass3_Summer2013.root"; //Summer 2013 2L paper!
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/pass3_Summer2013.root"; //Spring 2013!
+    "/SusyMatrixMethod/data/forDavide_Sep11_2013.root"; //WH ana!
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT,
@@ -60,7 +62,11 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
   // Get the handle on the SleptonXsecReader
   string sleptonXSecFile = string(getenv("ROOTCOREDIR")) +
     "/data/SusyNtuple/DLiSlep_SignalUncertainties_All.root" ;
-  m_SleptonXSecReader    = new SleptonXsecReader(sleptonXSecFile.c_str(),"SignalUncertainties"); 
+  string sleptonDSIDFile =  string(getenv("ROOTCOREDIR")) +
+    "/data/SusyNtuple/samplesList_pMSSM_DLiSlep.txt";
+
+  m_SleptonXSecReader    = new SleptonXsecReader();
+  //  sleptonDSIDFile.c_str(),sleptonXSecFile.c_str(),"SignalUncertainties"); 
   
   string xsecFileName  = gSystem->ExpandPathName("$ROOTCOREDIR/data/SusyWeakProdAna/susy_crosssections_8TeV.txt");
   m_susyXsec = new SUSY::CrossSectionDB(xsecFileName);
@@ -68,8 +74,10 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos):
   susyXS = new XSReader();
   susyXS->LoadXSInfo();
 
-  
-  //setAnaType(Ana_2Lep);
+  if(is2LAna)      setAnaType(Ana_2Lep);
+  else if(isWHAna) setAnaType(Ana_2LepWH);
+  else             setAnaType(Ana_3Lep);
+
 
 }
 
@@ -230,12 +238,19 @@ float SusyBaseAna::eventWeight(int mode)
 /*--------------------------------------------------------------------------------*/
 bool SusyBaseAna::isSimplifiedModelGrid(int dsId)
 {
-  if( (dsId >= 144871 && dsId <= 144895) || (dsId >= 157461 && dsId <= 157968) ||
-      (dsId >= 144902 && dsId <= 144927) || (dsId >= 157969 && dsId <= 157986) ||
-      (dsId >= 164274 && dsId <= 164323 ) ||
-      (dsId >= 164324 && dsId <= 164373 ) ||
-      (dsId >= 164374 && dsId <= 164423) ||
-      (dsId >= 176574 && dsId <= 176707) )
+  if(//mode A w/ slepton 
+     (dsId >= 144871 && dsId <= 144896) || (dsId >= 176531 && dsId <= 176557) || (dsId >= 157461 && dsId <= 157968) ||
+     //mode C w/ slepton
+     (dsId >= 144902 && dsId <= 144927) || (dsId >= 157969 && dsId <= 157986) || (dsId >= 176558 && dsId <= 176573) ||
+     //mode A lepW
+     (dsId >= 164274 && dsId <= 164323 ) || (dsId >= 174665 && dsId <= 174840 ) || (dsId >= 178792 && dsId <= 178801 ) ||
+     //mode A hadW
+     (dsId >= 164324 && dsId <= 164373 ) || (dsId >= 178766 && dsId <= 178791 ) ||                                         
+     //mode C lepW
+     (dsId >= 164374 && dsId <= 164423) ||
+     //WH 
+     (dsId >= 176574 && dsId <= 176707)  || (dsId >= 177501 && dsId <= 177528) 
+      )
     return true;
 
   return false;

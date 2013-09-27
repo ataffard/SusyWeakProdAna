@@ -23,6 +23,7 @@ DrawPlots::DrawPlots(){
 
   _logy=false;					
   _moveUO=true;
+  disableFake = false;
 
   _mcStack = new THStack("tmpStack","tmpStack");
 
@@ -46,9 +47,9 @@ DrawPlots::DrawPlots(){
 // Open histo files
 //-------------------------------------------//
 void DrawPlots::openHistoFiles(string mode, 
-			       string Top, string WW, 
-			       string Zjets,  string ZV, 
-			       string Fake, string Higgs)
+			       string sTop, string sWW, 
+			       string sZjets,  string sZV, 
+			       string sFake, string sHiggs)
 {
   std::cout << "loading histo from method " << mode << endl;
   std::cout << "Using histo path " << _pathHisto <<endl;
@@ -65,12 +66,12 @@ void DrawPlots::openHistoFiles(string mode,
   if(strcmp(mode.c_str(),"STD")==0){
     cout << "Loading STD MC mode " << endl;
     method="std";
-    _mcFileName.push_back(string(Higgs + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(Fake + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(ZV + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(Zjets + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sHiggs + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sFake + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sZV + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sZjets + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sTop + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sWW + "_" + method + ".root").c_str());
 
   }
   else if(strcmp(mode.c_str(),"DD")==0){
@@ -79,12 +80,12 @@ void DrawPlots::openHistoFiles(string mode,
     method="rlep";
     //Some overlap but - top ->semi lep not included 
     //method="std";
-    _mcFileName.push_back(string(Higgs + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sHiggs + "_" + method + ".root").c_str());
     _mcFileName.push_back(string("histo_data12_flep.root").c_str());
-    _mcFileName.push_back(string(ZV + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(Zjets + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(Top + "_" + method + ".root").c_str());
-    _mcFileName.push_back(string(WW + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sZV + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sZjets + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sTop + "_" + method + ".root").c_str());
+    _mcFileName.push_back(string(sWW + "_" + method + ".root").c_str());
 
     SFILE[1]="Fake leptons";
   }
@@ -102,6 +103,35 @@ void DrawPlots::openHistoFiles(string mode,
     }
     _mcFile.push_back(_f);
   }
+
+  //Set the bkg color scheme & markers
+  _mcColor.clear();
+  _mcMarker.clear();
+  for(uint i=0; i<_mcFile.size(); i++){
+    
+    switch (i){
+    case HIGGS:
+      _mcColor.push_back(C_HIGGS);
+      break;
+    case FAKE:
+      _mcColor.push_back(C_FAKE);
+      break;
+    case ZV:
+      _mcColor.push_back(C_ZV);
+      break;
+    case WW:
+      _mcColor.push_back(C_WW);
+      break;
+    case TOP:
+      _mcColor.push_back(C_TOP);
+      break;
+    case Zjets:
+      _mcColor.push_back(C_Zjets);
+      break;
+    }
+    _mcMarker.push_back(iMarker[i+1]);
+  }
+
 
   _sigFileName.clear();
   _sigFile.clear();
@@ -138,8 +168,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   }
   _mcH1.clear();
   _mcH1.reserve(OTHER);
-  _mcColor.clear();
-  _mcMarker.clear();
+
   //if(_dataH1!=NULL) _dataH1->Clear();
 
   string title;
@@ -174,29 +203,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
 
   int nLoad=0;
   for(uint i=0; i<_mcFile.size(); i++){
-    
-    switch (i){
-    case HIGGS:
-      _mcColor.push_back(C_HIGGS);
-      break;
-    case FAKE:
-      _mcColor.push_back(C_FAKE);
-      break;
-    case ZV:
-      _mcColor.push_back(C_ZV);
-      break;
-    case WW:
-      _mcColor.push_back(C_WW);
-      break;
-    case TOP:
-      _mcColor.push_back(C_TOP);
-      break;
-    case Zjets:
-      _mcColor.push_back(C_Zjets);
-      break;
-    }
-    _mcMarker.push_back(iMarker[i+1]);
-
+     
     float SF = 1;
     if(USESF) SF = getBkgSF(name,i);
 
@@ -813,7 +820,7 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
 
     for(uint imc=0; imc<_mcH1.size(); imc++){ //100% correlation between sample - add linear
       TH1F* _hsys;
-      if(imc==FAKE)_hsys = _mcH1[FAKE][DGSys_NOM]; //add the nominal values since those sys have no effect
+      if(imc==FAKE && !disableFake)_hsys = _mcH1[FAKE][DGSys_NOM]; //add the nominal values since those sys have no effect
       else  _hsys = _mcH1[imc][isys];
       if(_hsys && _hsys->Integral(0,-1)>0) {
 	/*
@@ -843,29 +850,31 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
   }
 
   //Add the fake systematics
-  vector<TH1F*> fakeSys;
-  TH1F* sys0 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
-  TH1F* sys1 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
-  sys0->Reset();
-  sys1->Reset();
-  fakeSys.push_back(sys0);
-  fakeSys.push_back(sys1);
-  getFakeSys(fakeSys);
-
-
-  for(uint i=0; i<fakeSys.size(); i++){
-    if(totalSysHisto->Integral(0,-1)>0){
-      totalSysHisto->Add(fakeSys[i]);
-      transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
-      _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+  if(!disableFake){
+    vector<TH1F*> fakeSys;
+    TH1F* sys0 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
+    TH1F* sys1 = (TH1F*) _mcH1[FAKE][DGSys_NOM]->Clone();
+    sys0->Reset();
+    sys1->Reset();
+    fakeSys.push_back(sys0);
+    fakeSys.push_back(sys1);
+    getFakeSys(fakeSys);
+    
+    
+    for(uint i=0; i<fakeSys.size(); i++){
+      if(totalSysHisto->Integral(0,-1)>0){
+	totalSysHisto->Add(fakeSys[i]);
+	transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+	_utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+      }
+      totalSysHisto->Reset();
     }
-    totalSysHisto->Reset();
+    
+    
+    //clean up 
+    for(uint i=0; i<fakeSys.size(); i++) fakeSys[i]->Delete();
+    fakeSys.clear();
   }
-
- 
-  //clean up 
-  for(uint i=0; i<fakeSys.size(); i++) fakeSys[i]->Delete();
-  fakeSys.clear();
   
   return _asymErrors;
 
@@ -952,7 +961,7 @@ void DrawPlots::drawChannelText(string name, float x, float y, bool desc)
   string _text2;
  
   TString hName(name);
-  if(hName.Contains("DG2L_")){
+  if(hName.Contains("DG2L_") || hName.Contains("ML_")){
 
     if(hName.Contains("EE")) _text += "ee";
     else if(hName.Contains("MM")) _text += "#mu#mu";
@@ -993,7 +1002,14 @@ void DrawPlots::drawChannelText(string name, float x, float y, bool desc)
       _text = "ZXCRmT2-110 ";
       _text2 = _text2 + " nJets=0, Z-window, E_{T}^{miss,rel}>40 GeV, m_{T2}>110 GeV";
     }
-
+    else if(hName.Contains("VRWZ")){
+      _text ="";
+      _text2 = "lll, SFOS Z-window, E_{T}^{miss}>30 GeV, m_{T}>40 GeV, NB=0";
+    }
+    else if(hName.Contains("VRZZ")){
+      _text ="";
+      _text2 = "llll, 2 SFOS Z-window, E_{T}^{miss}<50 GeV, NB=0";
+    }
 
     else if(hName.Contains("preSR2jets"))   _text = "preSR2jets ";
     else if(hName.Contains("preSRZjets"))   _text = "preSRZjets ";
@@ -1149,13 +1165,16 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
 			 Double_t &stat_err,
 			 Double_t &sysUp, Double_t &sysDn,
 			 bool verbose){
-  
-  sysUp=0;
-  sysDn=0;
+  nom      = 0; 
+  stat_err = 0;
+  sysUp    = 0;
+  sysDn    = 0;
+ 
 
   if(histV[DGSys_NOM]==NULL){
     cerr << "Empty hist " << endl;
-    abort();
+    return;
+    //abort();
   }
 
   nom = histV[DGSys_NOM]->IntegralAndError(0,-1,stat_err);

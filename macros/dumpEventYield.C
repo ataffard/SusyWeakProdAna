@@ -7,7 +7,7 @@ typedef unsigned uint;
 
 string mth = "std";
 //string dir = "histos_041413_21fb_n0139_Moriond_DD_v2/histOutputs/";
-string dir = "histos_071613_21fb_n0145_DD_v1/histOutputs/";
+string dir = "histos_091313_21fb_n0145_DD_WH_v1/";
 
 //string sampleSet = "data12.txt";
 //string sampleSet = "Zjets_SherpaAlpgenPythia.txt";
@@ -15,6 +15,9 @@ string sampleSet = "WZ_ZZ_PowHeg.txt";
 //string sampleSet = "WW_PowHeg_oldgg2WW.txt";
 //string sampleSet = "Higgs.txt";
 //string sampleSet = "top_MCNLO.txt";
+//string sampleSet = "wA_noslep_WH_2LepNew.txt";
+
+bool DOSYS = false;
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
@@ -26,8 +29,9 @@ int main(int argc, char *argv[]){
   _utils->atlasStyle->SetOptStat("emr");
  _ana = new DrawPlots(); 
 
- string _pathHisto  = string(getenv("HISTOANA")) + "/SusyAna/" +dir;
- cout << "Using dir " << _pathHisto << endl;
+ string _pathHisto  = string(getenv("HISTOANA")) + "/SusyAna/" +dir +"/histOutputs/";
+ string _pathHisto2  = string(getenv("HISTOANA")) + "/SusyAna/" +dir +"/";
+ //cout << "Using dir " << _pathHisto << endl;
 
 
  vector<string> LEP;
@@ -40,7 +44,12 @@ int main(int argc, char *argv[]){
  //SR.push_back("CRWW2");
  //SR.push_back("SRmT2a");
  //SR.push_back("SRmT2b");
- SR.push_back("SRZjets");
+ // SR.push_back("SRZjets");
+ SR.push_back("SRSS1");
+ // SR.push_back("SRSS2");
+ // SR.push_back("SRSS3");
+ // SR.push_back("SRSS4");
+ // SR.push_back("SROSOF2jets");
 
 
  vector<string> SAMPLES;
@@ -68,25 +77,39 @@ int main(int argc, char *argv[]){
      cout << "----- " << SR[iSR]+"_"+LEP[iLEP] <<  " ----- " << endl;;
          
      for(uint iS=0; iS<SAMPLES.size(); iS++){
-       string _hName  = "DG2L_" + SR[iSR] + "_" + LEP[iLEP] + "_DG2L_pred_NOM";
+       //string _hName  = "DG2L_" + SR[iSR] + "_" + LEP[iLEP] + "_DG2L_pred_NOM";
+       string _hName  = "DGWH_WH_" + SR[iSR] + "_" + LEP[iLEP] + "_DGWH_pred_NOM";
        
-       string _subDir = SR[iSR] + "_" + LEP[iLEP] + "/";
+       string _subDir = "WH_" + SR[iSR] + "_" + LEP[iLEP] + "/";
        string _fHist;
        
        TString _sSample(SAMPLES[iS]);
        if(_sSample.Contains("Egamma") || _sSample.Contains("Muons")){
 	 _fHist = "histo_" + SAMPLES[iS] + "_" + SR[iSR] + "_" + LEP[iLEP] + "_std.root";
        }
-       else{
-	 _fHist = "histo_" + SAMPLES[iS] + "_" + SR[iSR] + "_" + LEP[iLEP] + "_rlep.root";
+       else if(_sSample.Contains("wA_noslep_notauhad")){
+	 _fHist = "histo_" + SAMPLES[iS] + ".root";
+	 _subDir = "";
        }
+       else{
+	 _fHist = "histo_" + SAMPLES[iS] + "_WH_" + SR[iSR] + "_" + LEP[iLEP] + "_rlep.root";
+       }
+       //cout << _fHist << endl;
 
        const char* test = gSystem->FindFile((_pathHisto+ _subDir).c_str(),TString(_fHist));
+       if(_sSample.Contains("sM_wA_noslep_notauhad")){
+	 test = gSystem->FindFile((string(getenv("HISTOANA")) + "/SusyAna/" + dir).c_str(),TString(_fHist));
+	 cout << string(getenv("HISTOANA")) + "/SusyAna/" + dir << endl;
+       }
        
+
        TFile* _f;
-       if(test==0){
+       if(DOSYS && test==0 && !_sSample.Contains("wA_noslep_notauhad")){
 	 _fHist  = "histo_" + SAMPLES[iS] + "_" + SR[iSR] + "_" + LEP[iLEP] + "_rlep_NOM_EES_Z_UP.root";	 
 	 _f = new TFile( (_pathHisto+ _subDir +_fHist).c_str(),"READ");
+       }
+       else if(_sSample.Contains("wA_noslep_notauhad")){
+	 _f = new TFile( (_pathHisto2 + _fHist).c_str(),"READ");
        }
        else{
 	 _f = new TFile( (_pathHisto+ _subDir +_fHist).c_str(),"READ");

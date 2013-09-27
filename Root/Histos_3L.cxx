@@ -53,8 +53,17 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRML(ML_SFOSMZZ,"M_{llll}^{SFOS}","",syaxis,50,100,600);
   BOOK_SRML(ML_SFOSMT,"M_{T}^{SFOS}","",syaxis,50,20,220);
   BOOK_SRML(ML_etmiss,"#slash{E}_{T}","GeV",syaxis,40,0,200);
+  BOOK_SRML(ML_metrel,"E_{T}^{miss,rel}","GeV",syaxis,15,0,300);
+  BOOK_SRML(ML_meff,"m_{eff}","GeV",syaxis,100,0,1000);
+  BOOK_SRML(ML_metSig,"MET significance","",syaxis,20,0,10);
+  BOOK_SRML(ML_mt2,"m_{T2}","GeV",syaxis,20,0,200);
+  BOOK_SRML(ML_mt2b,"m_{T2}","GeV",syaxis,40,0,400);
   BOOK_SRML(ML_mct,"m_{CT}","GeV",syaxis,29,10,300);
   BOOK_SRML(ML_mctPerp,"m_{CT#perp}","GeV",syaxis,29,10,300);
+  BOOK_SRML(ML_mt2_0J,"m_{T2}","GeV",syaxis,20,0,200);
+  BOOK_SRML(ML_mt2b_0J,"m_{T2}","GeV",syaxis,40,0,400);
+  BOOK_SRML(ML_mct_0J,"m_{CT}","GeV",syaxis,29,10,300);
+  BOOK_SRML(ML_mctPerp_0J,"m_{CT#perp}","GeV",syaxis,29,10,300);
   BOOK_SRML(ML_metRefEle,"#slash{E}_{T}^{RefEle}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metRefGam,"#slash{E}_{T}^{RefGam}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_metRefMuo,"#slash{E}_{T}^{RefMuo}","GeV",syaxis,40,0,200);
@@ -81,6 +90,8 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRML(ML_orgl2,"MC Origin","",syaxis,5,-0.5,4.5);
   BOOK_SRML(ML_orgl3,"MC Origin","",syaxis,5,-0.5,4.5);
   BOOK_SRML(ML_orgl4,"MC Origin","",syaxis,5,-0.5,4.5);
+  BOOK_SRML(ML_pTll,"p_{T}^{ll}","GeV",syaxis,42,10,220);
+  BOOK_SRML(ML_dRll,"dR_{ll}","",syaxis,40,0,4);
   BOOK_SRML(ML_ptj1,"P_{T}^{j1}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptj2,"P_{T}^{j2}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_ptj3,"P_{T}^{j3}","GeV",syaxis,40,0,200);
@@ -91,6 +102,7 @@ void Histos_3L::Book3LHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRML(ML_etaj4,"#eta^{j4}","",syaxis,25,-2.5,2.5);
   BOOK_SRML(ML_ptbj,"P_{T}^{bjet}","GeV",syaxis,40,0,200);
   BOOK_SRML(ML_etabj,"#eta^{bjet}","",syaxis,25,-2.5,2.5);
+  BOOK_SRML(ML_mjj,"m_{jj}","GeV",syaxis,50,0,500);
 
   
 #undef BOOK_SRML
@@ -172,8 +184,17 @@ void Histos_3L::Sum3LHistograms()
 	ML_SFOSMZZ[j][ET_lll][isys]->Add(ML_SFOSMZZ[j][i][isys]);
 	ML_SFOSMT[j][ET_lll][isys]->Add(ML_SFOSMT[j][i][isys]);
 	ML_etmiss[j][ET_lll][isys]->Add(ML_etmiss[j][i][isys]);
+	ML_metrel[j][ET_lll][isys]->Add(ML_metrel[j][i][isys]);
+	ML_meff[j][ET_lll][isys]->Add(ML_meff[j][i][isys]);
+	ML_metSig[j][ET_lll][isys]->Add(ML_metSig[j][i][isys]);
 	ML_mct[j][ET_lll][isys]->Add(ML_mct[j][i][isys]);
 	ML_mctPerp[j][ET_lll][isys]->Add(ML_mctPerp[j][i][isys]);
+	ML_mt2[j][ET_lll][isys]->Add(ML_mt2[j][i][isys]);
+	ML_mt2b[j][ET_lll][isys]->Add(ML_mt2b[j][i][isys]);
+	ML_mct_0J[j][ET_lll][isys]->Add(ML_mct_0J[j][i][isys]);
+	ML_mctPerp_0J[j][ET_lll][isys]->Add(ML_mctPerp_0J[j][i][isys]);
+	ML_mt2_0J[j][ET_lll][isys]->Add(ML_mt2_0J[j][i][isys]);
+	ML_mt2b_0J[j][ET_lll][isys]->Add(ML_mt2b_0J[j][i][isys]);
 	ML_metRefEle[j][ET_lll][isys]->Add(ML_metRefEle[j][i][isys]);
 	ML_metRefGam[j][ET_lll][isys]->Add(ML_metRefGam[j][i][isys]);
 	ML_metRefMuo[j][ET_lll][isys]->Add(ML_metRefMuo[j][i][isys]);
@@ -200,6 +221,8 @@ void Histos_3L::Sum3LHistograms()
 	ML_orgl2[j][ET_lll][isys]->Add(ML_orgl2[j][i][isys]);
 	ML_orgl3[j][ET_lll][isys]->Add(ML_orgl3[j][i][isys]);
 	ML_orgl4[j][ET_lll][isys]->Add(ML_orgl4[j][i][isys]);
+	ML_pTll[j][ET_lll][isys]->Add(ML_pTll[j][i][isys]);
+	ML_dRll[j][ET_lll][isys]->Add(ML_dRll[j][i][isys]);
 	ML_ptj1[j][ET_lll][isys]->Add(ML_ptj1[j][i][isys]);
 	ML_ptj2[j][ET_lll][isys]->Add(ML_ptj2[j][i][isys]);
 	ML_ptj3[j][ET_lll][isys]->Add(ML_ptj3[j][i][isys]);
@@ -210,6 +233,7 @@ void Histos_3L::Sum3LHistograms()
 	ML_etaj4[j][ET_lll][isys]->Add(ML_etaj4[j][i][isys]);
 	ML_ptbj[j][ET_lll][isys]->Add(ML_ptbj[j][i][isys]);
 	ML_etabj[j][ET_lll][isys]->Add(ML_etabj[j][i][isys]);
+	ML_mjj[j][ET_lll][isys]->Add(ML_mjj[j][i][isys]);
       }
 
 
@@ -231,8 +255,17 @@ void Histos_3L::Sum3LHistograms()
 	ML_SFOSMZZ[j][ET_llll][isys]->Add(ML_SFOSMZZ[j][i][isys]);
 	ML_SFOSMT[j][ET_llll][isys]->Add(ML_SFOSMT[j][i][isys]);
 	ML_etmiss[j][ET_llll][isys]->Add(ML_etmiss[j][i][isys]);
+	ML_metrel[j][ET_llll][isys]->Add(ML_metrel[j][i][isys]);
+	ML_meff[j][ET_llll][isys]->Add(ML_meff[j][i][isys]);
+	ML_metSig[j][ET_llll][isys]->Add(ML_metSig[j][i][isys]);
 	ML_mct[j][ET_llll][isys]->Add(ML_mct[j][i][isys]);
 	ML_mctPerp[j][ET_llll][isys]->Add(ML_mctPerp[j][i][isys]);
+	ML_mt2[j][ET_llll][isys]->Add(ML_mt2[j][i][isys]);
+	ML_mt2b[j][ET_llll][isys]->Add(ML_mt2b[j][i][isys]);
+	ML_mct_0J[j][ET_llll][isys]->Add(ML_mct_0J[j][i][isys]);
+	ML_mctPerp_0J[j][ET_llll][isys]->Add(ML_mctPerp_0J[j][i][isys]);
+	ML_mt2_0J[j][ET_llll][isys]->Add(ML_mt2_0J[j][i][isys]);
+	ML_mt2b_0J[j][ET_llll][isys]->Add(ML_mt2b_0J[j][i][isys]);
 	ML_metRefEle[j][ET_llll][isys]->Add(ML_metRefEle[j][i][isys]);
 	ML_metRefGam[j][ET_llll][isys]->Add(ML_metRefGam[j][i][isys]);
 	ML_metRefMuo[j][ET_llll][isys]->Add(ML_metRefMuo[j][i][isys]);
@@ -259,6 +292,8 @@ void Histos_3L::Sum3LHistograms()
 	ML_orgl2[j][ET_llll][isys]->Add(ML_orgl2[j][i][isys]);
 	ML_orgl3[j][ET_llll][isys]->Add(ML_orgl3[j][i][isys]);
 	ML_orgl4[j][ET_llll][isys]->Add(ML_orgl4[j][i][isys]);
+	ML_pTll[j][ET_llll][isys]->Add(ML_pTll[j][i][isys]);
+	ML_dRll[j][ET_llll][isys]->Add(ML_dRll[j][i][isys]);
 	ML_ptj1[j][ET_llll][isys]->Add(ML_ptj1[j][i][isys]);
 	ML_ptj2[j][ET_llll][isys]->Add(ML_ptj2[j][i][isys]);
 	ML_ptj3[j][ET_llll][isys]->Add(ML_ptj3[j][i][isys]);
@@ -269,7 +304,7 @@ void Histos_3L::Sum3LHistograms()
 	ML_etaj4[j][ET_llll][isys]->Add(ML_etaj4[j][i][isys]);
 	ML_ptbj[j][ET_llll][isys]->Add(ML_ptbj[j][i][isys]);
 	ML_etabj[j][ET_llll][isys]->Add(ML_etabj[j][i][isys]);
-
+	ML_mjj[j][ET_llll][isys]->Add(ML_mjj[j][i][isys]);
       }
          
 

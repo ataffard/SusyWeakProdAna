@@ -23,15 +23,16 @@
 #include "SusyNtuple/TGuiUtils.h"
 
 //_____________________________________________________________________________//
-static const string ver       = "histos_072113_21fb_n0145_DD_v2/";
-static const string SR        = "_WH_optimSRjets";
+static const string ver       = "histos_091313_21fb_n0145_DD_WH_v1/";
+//static const string SR        = "_WH_optimSRjets";
+static const string SR        = "_WH_optimSRSS";
 //static const string SR        = "_DIL_optimSRjets";
 //static const string SR        = "_DIL_optimSR0jet";
 //static const string SR        = "_DIL_optimSRSS";
 
-static const bool   showData = false;
+static const bool   showData = true;//false; //if false show Zn below
 
-static const int    selCuts   = 11;
+static const int    selCuts   = 6;
 static const int    selDil    = 3; //EE, MM, EM for SS and C1C1 grids
 
 //wA no slepton had W grids
@@ -59,8 +60,8 @@ static const int    selDil    = 3; //EE, MM, EM for SS and C1C1 grids
 //static const string sigSample = "144907"; // wC_slep [150,50]] //low mass diag
 
 //wA WH grids
-//static const string sigSample = "176574"; // wH
-static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group1"; // WH
+static const string sigSample = "177503"; // wH
+//static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group1"; // WH
 //static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group2"; // WH
 //static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group3"; // WH
 //static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group4"; // WH
@@ -228,6 +229,8 @@ int main(int argc, char *argv[]){
     //  else 
     //    _bkgFileNames.push_back(string("toyNt_dummy" + SR + "_rlep.root").c_str()); //Dummy FAKE
   _bkgFileNames.push_back(string("toyNt_WZ_ZZ_PowHeg" + SR + "_rlep.root").c_str());
+  //_bkgFileNames.push_back(string("ToyNtOutputs/129480_WH_optimSRSS.root").c_str());
+
   _bkgFileNames.push_back(string("toyNt_Zjets_SherpaAlpgenPythia" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_top_MCNLO" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_WW_PowHeg" + SR + "_rlep.root").c_str());
@@ -301,8 +304,8 @@ void signalAcceptance(int opt)
   init();
 
 
-  int istart = 176574;
-  int iend   = 176640;
+  int istart = 177502;
+  int iend   = 177527;
   string dir =  string(getenv("HISTOANA")) + "/SusyAna/" +  ver ;
   string subDir = "ToyNtOutputs/";
 
@@ -876,7 +879,7 @@ TCut setSelection(string SR, int isel, int dilType)
     else if(isel==5) _sel=sel_AnyesZjets(5);//low mll
 
 
-    else if(isel>=10) _sel = sel_AnyesWH(isel-10);
+    //else if(isel>=10) _sel = sel_AnyesWH(isel-10);
 
   }
   else if(SR == "_DIL_optimSRSS" ){
@@ -884,7 +887,9 @@ TCut setSelection(string SR, int isel, int dilType)
     else if(isel<10) {
       _sel=sel_AnyesSRSS(isel,dilType);
     }
-    else if(isel>=10) _sel = sel_AnyesWH(isel-10);
+  }
+  else if(SR == "_WH_optimSRSS" ){
+    _sel = sel_AnyesWH(isel);
   }
   else if(SR == "_DIL_optimSR0jet" ){
     _sel = sel_AnyesSRjveto(isel,dilType);
@@ -1296,20 +1301,27 @@ TCut sel_AnyesWH(int opt, int dilType)
     _vCut.push_back(TCut("metrel>90"));
 
   }
+  //
+  // SAME - SIGN
+  //
   else if(opt==5){
     cout << " \tSS-EE " << endl;
     _vCut.push_back(TCut("llType==0"));
     _vCut.push_back(TCut("!isOS"));//remove charge flip
-    _vCut.push_back(TCut("abs(mll-91.2)>10"));
-    _vCut.push_back(TCut("nCJets>=1 && nBJets==0 && nFJets==0"));
+    _vCut.push_back(TCut("abs(l_d0[0]/l_d0Err[0])<3"));
+    _vCut.push_back(TCut("abs(l_d0[1]/l_d0Err[1])<3"));
+    _vCut.push_back(TCut("nFJets==0"));
+    _vCut.push_back(TCut("nBJets==0"));
+    _vCut.push_back(TCut("nCJets>=1"));
     _vCut.push_back(TCut("l_pt[0]>30"));
-    _vCut.push_back(TCut("l_pt[0]>20"));
-    
+    _vCut.push_back(TCut("l_pt[1]>20"));
+    _vCut.push_back(TCut("abs(mll-91.2)>10"));
+     
     _vCut.push_back(TCut("mWWT>150"));
     _vCut.push_back(TCut("metrel>50")); 
-    _vCut.push_back(TCut("mT2>90")); //GP3
+    //_vCut.push_back(TCut("mT2>90")); //SRSS2
     
-    //_vCut.push_back(TCut("(mEff+l_pt[0]+l_pt[1])>200"));
+
 
   }
   else if(opt==6){
@@ -1317,30 +1329,36 @@ TCut sel_AnyesWH(int opt, int dilType)
     _vCut.push_back(TCut("llType==1 && !isOS"));
     _vCut.push_back(TCut("l_etcone30[1]/l_pt[1]<0.1"));
     _vCut.push_back(TCut("l_etcone30[0]/l_pt[0]<0.1"));
-    _vCut.push_back(TCut("l_pt[0]>30"));
-    _vCut.push_back(TCut("nBJets==0"));
     _vCut.push_back(TCut("nFJets==0"));
-    _vCut.push_back(TCut("nCJets>=1"));
+    _vCut.push_back(TCut("nBJets==0"));
+    //_vCut.push_back(TCut("nCJets>=1"));
+    // _vCut.push_back(TCut("l_pt[0]>30"));
 
-    _vCut.push_back(TCut("(mEff+l_pt[0]+l_pt[1])>200"));
-    _vCut.push_back(TCut("mWWT>100"));
-    _vCut.push_back(TCut("mWWT>150"));//GP3
-    _vCut.push_back(TCut("mWWT>200"));//GP4 // GP5
-    _vCut.push_back(TCut("metrel>50")); //GP5
+    //    _vCut.push_back(TCut("mWWT>100"));
+    // _vCut.push_back(TCut("mEff>200")); //HT
+
+    //_vCut.push_back(TCut("mWWT>150"));//SRSS2
+    //_vCut.push_back(TCut("mWWT>200"));//SRSS3
+    // _vCut.push_back(TCut("metrel>50")); //SRSS4
+    
 
   }
   else if(opt==7){
     cout << " \tSS-EM " << endl;
     _vCut.push_back(TCut("llType==2"));
     _vCut.push_back(TCut("!isOS"));//remove charge flip
+    _vCut.push_back(TCut("(l_isEle[0] && abs(l_d0[0]/l_d0Err[0])<3) || !l_isEle[0]"));
+    _vCut.push_back(TCut("(l_isEle[1] && abs(l_d0[1]/l_d0Err[1])<3) || !l_isEle[1]"));
     _vCut.push_back(TCut("(l_etcone30[1]/l_pt[1]<0.1 && !l_isEle[1]) || (l_etcone30[0]/l_pt[0]<0.1 && !l_isEle[0])"));
-    _vCut.push_back(TCut("nCJets>=1 && nBJets==0 && nFJets==0 "));
+    _vCut.push_back(TCut("nFJets==0"));
+    _vCut.push_back(TCut("nBJets==0"));
+    _vCut.push_back(TCut("nCJets>=1"));    
     _vCut.push_back(TCut("l_pt[0]>30"));
     _vCut.push_back(TCut("l_pt[1]>20"));
 
-    _vCut.push_back(TCut("(mEff+l_pt[0]+l_pt[1])>200"));
+    _vCut.push_back(TCut("mEff>200"));
     _vCut.push_back(TCut("mWWT>140"));
-    _vCut.push_back(TCut("metrel>50")); //GP3
+    //_vCut.push_back(TCut("metrel>50")); //SRSS2
     
   }
 

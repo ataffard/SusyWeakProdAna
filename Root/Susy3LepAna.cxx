@@ -389,17 +389,28 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
   _hh->H1FILL(_hh->ML_evtCatgSSpair[iSR][m_ET][iSYS], evtCatgOrd(leptons,false), _ww);
   
   bool sfos = hasSFOS(*leptons);
+  TLorentzVector _2l;
   TLorentzVector _3l;
   TLorentzVector _4l;
   TLorentzVector _ZZ4l;
-  uint idx_l[2]={-999};
+  uint idx_l[4]={-999};
   uint idx=0;
+  float dRll=999;
+
+  //cout << "PASS " << ML_SRNAME[iSR] << endl;
   for(uint ilep=0; ilep<leptons->size(); ilep++){
     const Susy::Lepton* _l = leptons->at(ilep);
     if(ilep>=4) continue;
     if(iSR==ML_VRemulWW){
       if(_l->Pt()<=0.) continue;
       idx_l[idx++]=ilep;
+    }
+    //_l->print();
+
+    if(ilep<2){
+      //cout <<" 2l ilep " << ilep << "\t"; _l->print();
+      _2l += (*_l);
+      if(ilep==1) dRll  = leptons->at(0)->DeltaR(*leptons->at(1));
     }
     if(ilep<3) _3l += (*_l);
     if(ilep<4) _4l += (*_l);
@@ -440,7 +451,11 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
       _hh->H1FILL(_hh->ML_orgl4[iSR][m_ET][iSYS],lType,_ww); 
     }
   }
+
+  _hh->H1FILL(_hh->ML_dRll[iSR][m_ET][iSYS],dRll,_ww); 
+  _hh->H1FILL(_hh->ML_pTll[iSR][m_ET][iSYS],_2l.Pt(),_ww); 
   
+
   _hh->H1FILL(_hh->ML_AllMlll[iSR][m_ET][iSYS],_3l.M(),_ww); 
   if(sfos){
     _hh->H1FILL(_hh->ML_SFOSMlll[iSR][m_ET][iSYS],_3l.M(),_ww); 
@@ -476,9 +491,22 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
     float mct     = mCT(*leptons->at(idx_l[0]),*leptons->at(idx_l[1])) * mWmZ;
     TLorentzVector recoil = -met->lv() - (*leptons->at(idx_l[0])) - (*leptons->at(idx_l[1]));
     float mctPerp = mCTperp(*leptons->at(idx_l[0]),*leptons->at(idx_l[1]),recoil) * mWmZ;
-
+    LeptonVector _myLeptons;
+    _myLeptons.push_back(leptons->at(idx_l[0]));
+    _myLeptons.push_back(leptons->at(idx_l[1]));
+    float mT2 = getMT2(_myLeptons, met);
+    
     _hh->H1FILL(_hh->ML_mct[iSR][m_ET][iSYS],mct,_ww); 
     _hh->H1FILL(_hh->ML_mctPerp[iSR][m_ET][iSYS],mctPerp,_ww); 
+    _hh->H1FILL(_hh->ML_mt2[iSR][m_ET][iSYS],mT2,_ww); 
+    _hh->H1FILL(_hh->ML_mt2b[iSR][m_ET][iSYS],mT2,_ww); 
+
+    if(jets->size()==0){
+      _hh->H1FILL(_hh->ML_mct_0J[iSR][m_ET][iSYS],mct,_ww); 
+      _hh->H1FILL(_hh->ML_mctPerp_0J[iSR][m_ET][iSYS],mctPerp,_ww); 
+      _hh->H1FILL(_hh->ML_mt2_0J[iSR][m_ET][iSYS],mT2,_ww); 
+      _hh->H1FILL(_hh->ML_mt2b_0J[iSR][m_ET][iSYS],mT2,_ww); 
+    }
   }
 
   //Etmiss
@@ -490,15 +518,26 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
   _hh->H1FILL(_hh->ML_metRefSJet[iSR][m_ET][iSYS],met->softJet,_ww); 
   _hh->H1FILL(_hh->ML_metCellout[iSR][m_ET][iSYS],met->refCell,_ww); 
 
+  float metRel = getMetRel(met,*leptons,*jets);
+  float mEff   = Meff(*leptons,*jets,met,JET_PT_CUT);
+  float metSig = mEff/met->lv().Pt();
+
+  _hh->H1FILL(_hh->ML_metrel[iSR][m_ET][iSYS],metRel,_ww); 
+  _hh->H1FILL(_hh->ML_meff[iSR][m_ET][iSYS],mEff,_ww); 
+  _hh->H1FILL(_hh->ML_metSig[iSR][m_ET][iSYS],metSig,_ww); 
+
   //Dilepton mass
-  for(uint iL1=0; iL1<leptons->size(); iL1++)
+  for(uint iL1=0; iL1<leptons->size(); iL1++){
+    if(leptons->at(iL1)->Pt()<=0.) continue;
     for(uint iL2=iL1+1; iL2<leptons->size(); iL2++){
+      if(leptons->at(iL2)->Pt()<=0.) continue;
       float mll = Mll(leptons->at(iL1),leptons->at(iL2));
       _hh->H1FILL(_hh->ML_AllMll[iSR][m_ET][iSYS],mll,_ww); 
       if(isSFOS(leptons->at(iL1),leptons->at(iL2)))
 	_hh->H1FILL(_hh->ML_SFOSMll[iSR][m_ET][iSYS],mll,_ww); 
     }
-  
+  }
+
   int nBJets=0;
   _hh->H1FILL(_hh->ML_nJets[iSR][m_ET][iSYS],jets->size(),_ww); 
   for(uint ijet=0; ijet<jets->size(); ijet++){
@@ -528,9 +567,11 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
   }
   _hh->H1FILL(_hh->ML_nBJets[iSR][m_ET][iSYS],nBJets,_ww); 
 
-  if(jets->size()>1)
+  if(jets->size()>1){
     _hh->H1FILL(_hh->ML_predGe2J[iSR][m_ET][iSYS],0,_ww); 
-
+    TLorentzVector _jj = (*jets->at(0)) + (*jets->at(1));
+    _hh->H1FILL(_hh->ML_mjj[iSR][m_ET][iSYS],_jj.M(),_ww); 
+  }
   
 }
 /*--------------------------------------------------------------------------------*/

@@ -29,7 +29,7 @@ class SusyBaseAna: public SusySelection
 {
   public:
 
-    SusyBaseAna(SusyHistos* _histos);
+  SusyBaseAna(SusyHistos* _histos, bool is2LAna=true, bool isWHAna=false, bool qFlipd0=false);
     virtual ~SusyBaseAna(){};
 
 

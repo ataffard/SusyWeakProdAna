@@ -94,6 +94,13 @@ class DrawPlots {
   TGraphAsymmErrors* getSysErrorBand(TH1F* _hist, bool sysBand=true);
   
   void getFakeSys(vector<TH1F*> &sys);
+  /* Toggle this to true to use a Mc sample instead of data driven fake 
+     Default is false
+  */
+  void fudgeFake(bool fudge=false){
+    disableFake=fudge;
+    std::cout << "Fake will be disable " << fudge << endl;
+  };
 
   /*  Fake composition */
   void  getFakeComposition(string sAna="DG2L", string sSR="SR0_OS", string lep="E");
@@ -193,7 +200,7 @@ class DrawPlots {
   THStack*          _mcStack;
   TH1F*             _mcStackH;
   vector< vector<TH1F*> >   _mcH1;
-
+  vector<Color_t> _mcColor;
 
   ClassDef(DrawPlots,1);
 
@@ -206,7 +213,7 @@ class DrawPlots {
   bool _moveUO;
 
   
-  vector<Color_t> _mcColor;
+ 
   vector<int>     _mcMarker;
 
   vector<Color_t> _sigColor;
@@ -219,7 +226,7 @@ class DrawPlots {
   void setMoveUnderOver(bool b){_moveUO=b;}
   void setLogy(bool b) {_logy=b;}
 
-
+  bool disableFake;
 
 };
 #endif

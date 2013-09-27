@@ -16,6 +16,8 @@
 
 static const float SYS_ERR = 0.15;//30% systematic on Bkg
 
+using namespace std;
+
 //------------------------------------//
 // Enum for process
 //------------------------------------//

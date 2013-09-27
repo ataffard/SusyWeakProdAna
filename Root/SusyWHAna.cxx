@@ -13,7 +13,7 @@ using namespace Susy;
 // SusyWHAna Constructor
 /*--------------------------------------------------------------------------------*/
 SusyWHAna::SusyWHAna(SusyHistos* _histos):
-  SusyBaseAna(_histos)
+  SusyBaseAna(_histos,false,true,true)
 {
   cout << "-------------------------------" << endl;
   cout << "    Running WH Analysis        " << endl;
@@ -56,6 +56,7 @@ void SusyWHAna::end()
   cout << "SusyWHAna::event counters" <<endl;
   cout << std::setprecision(0) << std::fixed;
   cout << "read in:            " << n_readin        << endl;
+  cout << "pass SUSY grid:     " << n_pass_SUSYGrid << endl;
   cout << "pass GRL:           " << n_pass_GRL      << endl;
   cout << "pass TileTrip:      " << n_pass_TileTrip << endl;
   cout << "pass LarErr:        " << n_pass_LarErr   << endl;
@@ -366,12 +367,13 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     }
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
+    /*
     if(!passMuoIso(leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-
+    
     if(!passEleD0S(leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-
+    */
 
     if(!passZVeto(leptons)) {
       if(dbg()>5 && iSR==PRINT_SR) cout << "Fail Zveto " << nt->evt()->run << " " << nt->evt()->event <<endl;
@@ -447,6 +449,27 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passMWWT(leptons,&new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
+    if(DUMP_RUNEVT && iSR==PRINT_SR){
+      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event  
+	      << " " << new_met.lv().Pt() << " " << new_met.lv().Phi() << endl;
+      /*
+      evtDump << nt->evt()->run 
+	      << " " << nt->evt()->event 
+	      << " " << sSR 
+	      << " " << DIL_FLAV[m_ET] 
+	      << " " << _lepSFW
+	      << " " << bTagWeight
+	      << " " << _trigW
+	      << " " << nt->evt()->w
+	      << " " << nt->evt()->wPileup
+	      << " " << nt->evt()->sumw
+	      << " " << nt->evt()->xsec
+	      << " " << _ww 
+	      << endl;
+      */
+      //if( nt->evt()->event==435108) dumpEvent();
+    }
+
     if(!passDPhillJ0(leptons,signalJets) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
@@ -470,6 +493,10 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass MetRel " << sSR << endl;
 
+    if(!passMET(&new_met) ) continue;
+    _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >10 ) cout << "\t Pass Met " << sSR << endl;
+
     if(!passMT2(leptons, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
@@ -489,25 +516,9 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     //
     // Debugging - Dump run event
     //
-    /*
-    if(DUMP_RUNEVT && (iSR==DIL_CRWW2) ){
-      cout << "==>Run " << nt->evt()->run  << " : " << nt->evt()->event  << endl;
-      evtDump << nt->evt()->run 
-	      << " " << nt->evt()->event 
-	      << " " << sSR 
-	      << " " << DIL_FLAV[m_ET] 
-	      << " " << _lepSFW
-	      << " " << bTagWeight
-	      << " " << _trigW
-	      << " " << nt->evt()->w
-	      << " " << nt->evt()->wPileup
-	      << " " << nt->evt()->sumw
-	      << " " << nt->evt()->xsec
-	      << " " << _ww 
-	      << endl;
-      //if( nt->evt()->event==435108) dumpEvent();
-    }
-    */
+
+  
+    
   }
   
   if(nt->evt()->isMC) restoreOriginal(*leptons,met);
@@ -533,16 +544,16 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   switch (iSR){
 
   case WH_SRSS1:
-    frSR = SusyMatrixMethod::FR_SRSSInc;
+    frSR = SusyMatrixMethod::FR_SRDavide;
     break;
   case WH_SRSS2:
-    frSR = SusyMatrixMethod::FR_SRSSInc;
+    frSR = SusyMatrixMethod::FR_SRDavide;
     break;
   case WH_SRSS3:
-    frSR = SusyMatrixMethod::FR_SRSSInc;
+    frSR = SusyMatrixMethod::FR_SRDavide;
     break;
   case WH_SRSS4:
-    frSR = SusyMatrixMethod::FR_SRSSInc;
+    frSR = SusyMatrixMethod::FR_SRDavide;
     break;
   case WH_SROSOF2jets:
     frSR = SusyMatrixMethod::FR_SRmT2a;//TEMP
@@ -641,8 +652,8 @@ void SusyWHAna::print_SROSOF2jets()
   print_line("pass FVeto         ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
   print_line("pass bVeto         ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
   print_line("pass >=2 J         ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass lepPt         ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
   print_line("pass Mjj           ",n_pass_mjj[0][j],n_pass_mjj[1][j],n_pass_mjj[2][j]);
+  print_line("pass lepPt         ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
   print_line("pass dRll          ",n_pass_dRll[0][j],n_pass_dRll[1][j],n_pass_dRll[2][j]);
   print_line("pass min(mT1,mT2)  ",n_pass_minMt[0][j], n_pass_minMt[1][j], n_pass_minMt[2][j]);
   print_line("pass dPhi(ll,Met)  ",n_pass_dPhillMet[0][j], n_pass_dPhillMet[1][j], n_pass_dPhillMet[2][j]);
@@ -699,7 +710,7 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
 				 const Met* met,
 				 float _ww)
 {
-  if(dbg()>5) cout << "Fill histo " << WH_FLAV[m_ET] << " " << WH_SRNAME[iSR] << endl;
+  if(dbg()>1) cout << "Fill histo " << WH_FLAV[m_ET] << " " << WH_SRNAME[iSR] << endl;
 
   _hh->H1FILL(_hh->DGWH_pred[iSR][m_ET][iSYS],0.,_ww); 
 
@@ -773,6 +784,16 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
   float mWT = mT(_ll, met->lv());
   float mT2 = getMT2(*leptons, met);
   float metRel = getMetRel(met,*leptons,*jets);
+  float HT = Meff(*leptons,*jets,met);
+  if(dbg()>1){
+    cout << "\t met " <<met->lv().Pt()
+	 << " metPhi " << met->lv().Phi()
+	 << " metrel " << metRel 
+	 << " mWWT " << mWT
+	 << " mT2 " << mT2 
+	 << " HT " << HT
+	 << endl;
+  }
 
   _hh->H1FILL(_hh->DGWH_mll[iSR][m_ET][iSYS],_ll.M(),_ww); 
   _hh->H1FILL(_hh->DGWH_mllcoarse[iSR][m_ET][iSYS],_ll.M(),_ww); 
