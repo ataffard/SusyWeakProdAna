@@ -8,12 +8,12 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 // SusyAnaLooper Constructor
 /*--------------------------------------------------------------------------------*/
-SusyAnaLooper::SusyAnaLooper(): 
+SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH): 
   SusyNtAna(),
-  _do2LAna(false), 
-  _doWHAna(false),
+  _do2LAna(do2L), 
+  _doWHAna(doWH),
   _doMll(false),
-  _do3LAna(false),
+  _do3LAna(do3L),
   _doFakeAna(false),
   _useLooseLep(false),
   _method(STD),
@@ -25,14 +25,15 @@ SusyAnaLooper::SusyAnaLooper():
   nHFOR(0),
   nMllCut(0)
 {
-  //setAnaType(Ana_2Lep);
+  if(_do2LAna)      setAnaType(Ana_2Lep);
+  else if(_doWHAna) setAnaType(Ana_2LepWH);
+  else if(_do3LAna) setAnaType(Ana_3Lep);
+  else setAnaType(Ana_2Lep);
+
   setSelectTaus(true);
 
- 
   _histoDir = new TDirectory("Ana","Ana");
   _susyHistos = new SusyHistos();
-
-
 
 }
 

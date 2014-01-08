@@ -188,8 +188,11 @@ void binomialError(float Num, float Den, float& Eff, float& EffErr){
 // Transverse mass 
 float mT(TLorentzVector _l, TLorentzVector _nu)
 {
-  float dphi = acos(cos(_l.Phi()-_nu.Phi()));
-  return sqrt(2*_l.Pt()*_nu.Pt() * (1- cos(dphi)) ); 
+  //  float dphi = acos(cos(_l.Phi()-_nu.Phi()));
+  //  return sqrt(2*_l.Pt()*_nu.Pt() * (1- cos(dphi)) ); 
+
+  return sqrt(2*_l.Pt()*_nu.Pt() * (1- cos(_l.DeltaPhi(_nu))) ); 
+
 }
 
 //-----------------------------------------------------------------------------

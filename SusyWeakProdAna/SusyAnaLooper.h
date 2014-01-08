@@ -33,7 +33,7 @@ class SusyAnaLooper : public SusyNtAna
 {
   public:
 
-    SusyAnaLooper();
+  SusyAnaLooper(bool do2L, bool do3L, bool doWH);
     virtual ~SusyAnaLooper(){};
 
     ofstream out;

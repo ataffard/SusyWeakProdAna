@@ -256,15 +256,12 @@ int main(int argc, char** argv)
   }
 
   // Build the TSelector
-  SusyAnaLooper* susyAna = new SusyAnaLooper();
+  SusyAnaLooper* susyAna = new SusyAnaLooper(do2L, do3L, doWH);
   susyAna->setDebug(dbg);
   susyAna->toggleCheckDuplicates(true);
   susyAna->setSampleName(sample);
   if(dbgEvt) susyAna->setEvtDebug();
-  susyAna->do2L(do2L);
-  susyAna->doWH(doWH);
   susyAna->doMll(doMll);
-  susyAna->do3L(do3L);
   susyAna->doFake(doFake);
   susyAna->useLooseLep(useLoose);
   susyAna->setMethod(method);
@@ -274,13 +271,11 @@ int main(int argc, char** argv)
     susyAna->setSystematic(sys1);
 
   //Grab sumW for the samples
-  //susyAna->buildSumwMap(chain);
   if(sample.find("period") == string::npos) {
     bool isSimplifiedModel = (sample.find("wA") != string::npos || sample.find("wC") != string::npos) ? true:false; 
     map<unsigned int, float> mcSumOfWeights = susyAna->SusyNtTools::buildSumwMap(chain,isSimplifiedModel); 
     cout << "Using SumW map for simplifiedModel " << isSimplifiedModel << endl;
     susyAna->setSumwMap(mcSumOfWeights);
-    //susyAna->setMCSumWs(mcSumOfWeights);
   }
 
   if(isSlepton) susyAna->setSleptonSumWs(sleptonSumWs); 

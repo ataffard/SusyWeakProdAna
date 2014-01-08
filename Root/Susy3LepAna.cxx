@@ -29,10 +29,6 @@ void Susy3LepAna::doAnalysis(unsigned int isys)
   reset();
   SYST = isys;
   
-  //Call this here, since have multiple instances of SusyNtTools
-  //setAnaType(Ana_2Lep); //Use 2L iso
-  //setAnaType(Ana_3Lep); //Use 3L iso
-  
   // Check Event
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
     if(!CUTFLOW && v_baseLep->size()<3) return;

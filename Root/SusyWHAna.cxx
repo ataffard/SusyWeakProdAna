@@ -30,9 +30,6 @@ void SusyWHAna::doAnalysis(unsigned int isys)
 
   if(FILL_TOYNT && isys==DGSys_NOM) initializeToyNt();
 
-  //Call this here, since have multiple instances of SusyNtTools
-  //setAnaType(Ana_2Lep);
-
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
     if(!CUTFLOW && v_baseLep->size()<2) return;
@@ -125,6 +122,7 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
       m_pTl1Min   = 20;
       m_lowMTWW  = 150; 
       m_metRelMin = 50;
+      m_HTMin     = 200;
       if(m_sel.Contains("WH_SRSS2")){
 	m_mt2Min    = 90;
       }
@@ -254,7 +252,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   // Get Event Type to continue cutflow
   //
   m_ET = getDiLepEvtType(*baseLeps);
-  if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME together
+  if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME togetherxs
   
   if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;
 
@@ -295,7 +293,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   float _wwSave = _ww;
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
     
-  if(dbg()>10){ 
+  if(dbg()>-10){ 
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DGSystNames[SYST]
@@ -315,7 +313,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     string sSR=WH_SRNAME[iSR];
     setSelection(sSR,m_ET);
     SR=iSR;
-    if(dbg() > 2 ) cout << "Signal region " << sSR << endl;
+    if(dbg() > -2 ) cout << "Signal region " << sSR << endl;
 
     //Reset weight in case used btagWeight in previous SR
     _ww=_wwSave; 
@@ -448,27 +446,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 
     if(!passMWWT(leptons,&new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-
-    if(DUMP_RUNEVT && iSR==PRINT_SR){
-      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event  
-	      << " " << new_met.lv().Pt() << " " << new_met.lv().Phi() << endl;
-      /*
-      evtDump << nt->evt()->run 
-	      << " " << nt->evt()->event 
-	      << " " << sSR 
-	      << " " << DIL_FLAV[m_ET] 
-	      << " " << _lepSFW
-	      << " " << bTagWeight
-	      << " " << _trigW
-	      << " " << nt->evt()->w
-	      << " " << nt->evt()->wPileup
-	      << " " << nt->evt()->sumw
-	      << " " << nt->evt()->xsec
-	      << " " << _ww 
-	      << endl;
-      */
-      //if( nt->evt()->event==435108) dumpEvent();
-    }
+ 
 
     if(!passDPhillJ0(leptons,signalJets) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -479,9 +457,34 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passMeff(signalJets, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
+    if(DUMP_RUNEVT && iSR==PRINT_SR){
+      float ht  = Meff(*leptons, *signalJets, &new_met,JET_PT_CUT);
+
+      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event  
+	      << " " << new_met.lv().Pt() << " " << new_met.lv().Phi() << " " << ht << endl;
+      
+     //  evtDump << nt->evt()->run 
+// 	      << " " << nt->evt()->event 
+// 	      << " " << sSR 
+// 	      << " " << DIL_FLAV[m_ET] 
+// 	      << " " << _lepSFW
+// 	      << " " << bTagWeight
+// 	      << " " << _trigW
+// 	      << " " << nt->evt()->w
+// 	      << " " << nt->evt()->wPileup
+// 	      << " " << nt->evt()->sumw
+// 	      << " " << nt->evt()->xsec
+// 	      << " " << _ww 
+// 	      << endl;
+     
+      //if( nt->evt()->event==435108) 
+      dumpEvent();
+    }
+
     if(!passHT(leptons,signalJets, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
+ 
     if(!passMetMeff(leptons,signalJets, &new_met,true) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 

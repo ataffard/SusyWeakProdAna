@@ -74,11 +74,6 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
   susyXS = new XSReader();
   susyXS->LoadXSInfo();
 
-  if(is2LAna)      setAnaType(Ana_2Lep);
-  else if(isWHAna) setAnaType(Ana_2LepWH);
-  else             setAnaType(Ana_3Lep);
-
-
 }
 
 /*--------------------------------------------------------------------------------*/

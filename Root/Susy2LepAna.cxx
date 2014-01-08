@@ -32,9 +32,6 @@ void Susy2LepAna::doAnalysis(unsigned int isys)
   if(FILL_HFT && !m_writeHFT) initializeHistFitterTree();
   if(FILL_TOYNT && !m_writeToyNt && isys==DGSys_NOM) initializeToyNt();
 
-  //Call this here, since have multiple instances of SusyNtTools
-  //setAnaType(Ana_2Lep);
-
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
     if(!CUTFLOW && v_baseLep->size()<2) return;

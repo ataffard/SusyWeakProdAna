@@ -565,9 +565,8 @@ float SusySelection::getQFlipProb(LeptonVector* leptons, Met* met, uint iSys)
 	 << endl;
   }
   
-  float _new_met_Et = sqrt(pow(_new_met.Px(),2) + pow(_new_met.Py(),2)); 
-  met->Et = _new_met_Et;
-  met->phi = atan(_new_met.Py()/_new_met.Px());
+   met->Et = _new_met.Mod();
+   met->phi = _new_met.Phi();
   
   _l1->pt = _l1_tlv.Pt(); _l1->resetTLV();
   _l2->pt = _l2_tlv.Pt(); _l2->resetTLV();
@@ -919,6 +918,8 @@ bool SusySelection::passMetMeff(const LeptonVector* leptons,const JetVector* jet
 bool SusySelection::passHT(const LeptonVector* leptons,const JetVector* jets, const Met* met){
   float ht = Meff(*leptons,*jets,met,JET_PT_CUT);
   
+  cout << " HT " << ht << endl;
+
   if(m_HTMin>-1 && ht<m_HTMin) return false;
   if(m_HTMax>-1 && ht>m_HTMax) return false;
   if(SYST==DGSys_NOM) n_pass_HT[m_ET][SR]+=_inc;
@@ -953,7 +954,7 @@ bool SusySelection::passMWWT(const LeptonVector* leptons, const Met* met)
   if( leptons->size() < 2 ) return false;
   TLorentzVector _ll = (*leptons->at(0) + *leptons->at(1));
   float mWT = mT(_ll, met->lv());
-
+  
   if(m_lowMTWW>-1 && mWT<m_lowMTWW) return false;
   if(m_highMTWW>-1 && mWT>m_highMTWW) return false;
   if(SYST==DGSys_NOM) n_pass_mWWT[m_ET][SR]+=_inc;
