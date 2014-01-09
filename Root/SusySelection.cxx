@@ -83,6 +83,7 @@ SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
   m_MeffMax     ( -1  ),
   m_HTMin     ( -1  ),
   m_HTMax     ( -1  ),
+  m_vetoLooseSFOSinZ (false),
 
   m_ET(ET_Unknown)
 {
@@ -173,11 +174,12 @@ void SusySelection::resetCounter()
       n_pass_dPhiMetll[i][j] = 0;
       n_pass_dPhiMetl1[i][j] = 0;
 
-      n_pass_dPhillJ0[i][j]  = 0;
+      n_pass_dPhillJ0[i][j]   = 0;
       n_pass_dPhillMet[i][j]  = 0;
-      n_pass_MetMeff[i][j]   = 0;
-      n_pass_Meff[i][j]      = 0;
-      n_pass_HT[i][j]      = 0;
+      n_pass_MetMeff[i][j]    = 0;
+      n_pass_Meff[i][j]       = 0;
+      n_pass_HT[i][j]         = 0;
+      n_pass_looseSFOSinZ[i][j] = 0;
 
       n_pass_sfos[i][j]      = 0;
       n_pass_mt3L[i][j]      = 0;
@@ -270,6 +272,7 @@ void SusySelection::resetCuts()
   m_MeffMax     = -1;
   m_HTMin       = -1;
   m_HTMax       = -1;
+  m_vetoLooseSFOSinZ = false;
 
 }
 
@@ -918,8 +921,6 @@ bool SusySelection::passMetMeff(const LeptonVector* leptons,const JetVector* jet
 bool SusySelection::passHT(const LeptonVector* leptons,const JetVector* jets, const Met* met){
   float ht = Meff(*leptons,*jets,met,JET_PT_CUT);
   
-  cout << " HT " << ht << endl;
-
   if(m_HTMin>-1 && ht<m_HTMin) return false;
   if(m_HTMax>-1 && ht>m_HTMax) return false;
   if(SYST==DGSys_NOM) n_pass_HT[m_ET][SR]+=_inc;
@@ -1064,7 +1065,23 @@ float SusySelection::JZBEtmiss(const Met *met, const LeptonVector* leptons)
   return fabs(vv.Mod())-fabs(Z.Pt());
 
 }
+/*--------------------------------------------------------------------------------*/
+bool  SusySelection::passSFOSLooseLepton(LeptonVector preLeptons, const LeptonVector leptons, 
+					 float minMll, float maxMll)
+{
+  if(!m_vetoLooseSFOSinZ) return true;
 
+  bool hasSFOSinZ=false;
+  LeptonVector candLooseLep = findSFOSinZ(&preLeptons, &leptons, hasSFOSinZ, minMll, maxMll);
+
+  if(dbg()>-1 && candLooseLep.size()>0){
+    cout << "Found loose lepton SFOS in Z " << candLooseLep.size() << endl;
+  }
+
+  if(hasSFOSinZ) return false;
+  if(SYST==DGSys_NOM) n_pass_looseSFOSinZ[m_ET][SR]+=_inc;
+  return true;
+}
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::emulateWW(LeptonVector* leptons, Met* met)
 {
@@ -1224,5 +1241,75 @@ void SusySelection::sumArray(){
       n_pass_NBJet[ET_llll][iSR]+= n_pass_NBJet[i][iSR]; 
     }
   }
+
+}
+
+
+
+/*--------------------------------------------------------------------------------*/
+// Select Loose leptons 
+/*--------------------------------------------------------------------------------*/
+LeptonVector SusySelection::getLooseLeptons(LeptonVector* preLeptons,
+					    const LeptonVector*  leptons)
+{
+  LeptonVector looseLeptons;
+
+  for(uint ilep=0; ilep<preLeptons->size(); ++ilep){
+    bool overlap=false;
+    for(uint slep=0; slep<leptons->size(); ++slep){
+      if(preLeptons->at(ilep) == leptons->at(slep)) overlap=true;
+    }
+    
+    if(overlap) continue;
+    if(!passBasicLeptonSelection(preLeptons->at(ilep)) ) continue;
+    
+    if(dbg()>10) cout << " looseLep " << preLeptons->at(ilep)->Pt() << endl;
+    looseLeptons.push_back(static_cast<Lepton*>(preLeptons->at(ilep)));
+  }
+  
+  return looseLeptons;
+}
+
+/*--------------------------------------------------------------------------------*/
+// Check pass IP cuts 
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passBasicLeptonSelection(const Lepton* l)
+{
+
+  if(fabs(l->d0Sig(true)) >= ELECTRON_D0SIG_CUT_WH) return false;
+  if(fabs(l->z0SinTheta(true)) >= ELECTRON_Z0_SINTHETA_CUT) return false;
+  return true;
+}
+
+/*--------------------------------------------------------------------------------*/
+// find loose leptons that have SFOS w/ input leptons and within mass window
+/*--------------------------------------------------------------------------------*/
+LeptonVector SusySelection::findSFOSinZ(LeptonVector* preLeptons, const LeptonVector* leptons, 
+					bool &hasSFOSinZ, float minMll, float maxMll){
+  
+  hasSFOSinZ=false;
+  LeptonVector candLooseLeptons;
+
+  if(dbg()>10) cout << "Input prelepton " << preLeptons->size() << endl;
+
+  LeptonVector looseLeptons = getLooseLeptons(preLeptons, leptons);
+
+  for(uint ilep=0; ilep<looseLeptons.size(); ++ilep){
+    for(uint slep=0; slep<leptons->size(); ++slep){
+      if(!isSFOS(looseLeptons.at(ilep), leptons->at(slep))) continue;
+      if(isZWindow(looseLeptons.at(ilep), leptons->at(slep), minMll, maxMll)){
+	hasSFOSinZ=true;
+	float mll = Mll(looseLeptons.at(ilep), leptons->at(slep)); 
+	cout << "\t\t sigLep " << leptons->at(slep)->Pt() 
+	     << "\t\t candLoose " << looseLeptons.at(ilep)->Pt()
+	     << "\t\t mll " <<  mll 
+	     << endl;
+	candLooseLeptons.push_back(static_cast<Lepton*>(looseLeptons.at(ilep)));
+      }
+    }
+  }
+
+  if(dbg()>10) cout << " \t output cand preLepton " << candLooseLeptons.size() << endl;
+  return candLooseLeptons;
 
 }

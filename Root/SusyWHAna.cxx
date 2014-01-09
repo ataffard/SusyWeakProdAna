@@ -30,6 +30,10 @@ void SusyWHAna::doAnalysis(unsigned int isys)
 
   if(FILL_TOYNT && isys==DGSys_NOM) initializeToyNt();
 
+
+  v_preLep.clear();
+  buildLeptons(v_preLep, *v_preEle, *v_preMu);
+
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
     if(!CUTFLOW && v_baseLep->size()<2) return;
@@ -113,6 +117,7 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
     m_vetoF     = true;
     m_minC20    = 1;
     m_pTl0Min   = 30;
+    m_vetoLooseSFOSinZ = true;
     
     if(dilType==ET_ee){
       m_d0SMin    = 3;
@@ -293,7 +298,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   float _wwSave = _ww;
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
     
-  if(dbg()>-10){ 
+  if(dbg()>10){ 
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DGSystNames[SYST]
@@ -313,7 +318,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     string sSR=WH_SRNAME[iSR];
     setSelection(sSR,m_ET);
     SR=iSR;
-    if(dbg() > -2 ) cout << "Signal region " << sSR << endl;
+    if(dbg() > 2 ) cout << "Signal region " << sSR << endl;
 
     //Reset weight in case used btagWeight in previous SR
     _ww=_wwSave; 
@@ -447,7 +452,6 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passMWWT(leptons,&new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
  
-
     if(!passDPhillJ0(leptons,signalJets) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
@@ -457,35 +461,10 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passMeff(signalJets, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    if(DUMP_RUNEVT && iSR==PRINT_SR){
-      float ht  = Meff(*leptons, *signalJets, &new_met,JET_PT_CUT);
-
-      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event  
-	      << " " << new_met.lv().Pt() << " " << new_met.lv().Phi() << " " << ht << endl;
-      
-     //  evtDump << nt->evt()->run 
-// 	      << " " << nt->evt()->event 
-// 	      << " " << sSR 
-// 	      << " " << DIL_FLAV[m_ET] 
-// 	      << " " << _lepSFW
-// 	      << " " << bTagWeight
-// 	      << " " << _trigW
-// 	      << " " << nt->evt()->w
-// 	      << " " << nt->evt()->wPileup
-// 	      << " " << nt->evt()->sumw
-// 	      << " " << nt->evt()->xsec
-// 	      << " " << _ww 
-// 	      << endl;
-     
-      //if( nt->evt()->event==435108) 
-      dumpEvent();
-    }
-
-    if(!passHT(leptons,signalJets, &new_met) ) continue;
+     if(!passHT(leptons,signalJets, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
- 
-    if(!passMetMeff(leptons,signalJets, &new_met,true) ) continue;
+     if(!passMetMeff(leptons,signalJets, &new_met,true) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     if(!passTopTagger(leptons,signalJets,&new_met) ) continue;
@@ -501,6 +480,10 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(dbg() >10 ) cout << "\t Pass Met " << sSR << endl;
 
     if(!passMT2(leptons, &new_met) ) continue;
+    _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+
+    if(!passSFOSLooseLepton(v_preLep,*leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     if(dbg() >10 ) cout << "\t Pass All " << sSR << endl;
@@ -519,7 +502,29 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     //
     // Debugging - Dump run event
     //
-
+    if(DUMP_RUNEVT && iSR==PRINT_SR){
+      float ht  = Meff(*leptons, *signalJets, &new_met,JET_PT_CUT);
+      
+      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event  
+	      << " " << new_met.lv().Pt() << " " << new_met.lv().Phi() << " " << ht << endl;
+      
+      //  evtDump << nt->evt()->run 
+      // 	      << " " << nt->evt()->event 
+      // 	      << " " << sSR 
+      // 	      << " " << DIL_FLAV[m_ET] 
+      // 	      << " " << _lepSFW
+      // 	      << " " << bTagWeight
+      // 	      << " " << _trigW
+      // 	      << " " << nt->evt()->w
+      // 	      << " " << nt->evt()->wPileup
+      // 	      << " " << nt->evt()->sumw
+      // 	      << " " << nt->evt()->xsec
+      // 	      << " " << _ww 
+      // 	      << endl;
+      
+      //if( nt->evt()->event==435108) 
+      dumpEvent();
+    }
   
     
   }
@@ -622,6 +627,7 @@ void SusyWHAna::print_SRSS()
   print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
   print_line("pass HT     ",n_pass_HT[0][j], n_pass_HT[1][j], n_pass_HT[2][j]);
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+  print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
 
   j= WH_SRSS2;
   cout << "---------------------------------"    << endl;
@@ -629,6 +635,7 @@ void SusyWHAna::print_SRSS()
   print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
   print_line("pass HT     ",n_pass_HT[0][j], n_pass_HT[1][j], n_pass_HT[2][j]);
   print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
 
   j= WH_SRSS3;
   cout << "---------------------------------"    << endl;
@@ -636,6 +643,7 @@ void SusyWHAna::print_SRSS()
   print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
   print_line("pass HT     ",n_pass_HT[0][j], n_pass_HT[1][j], n_pass_HT[2][j]);
   print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
 
   j= WH_SRSS4;
   cout << "---------------------------------"    << endl;
@@ -643,6 +651,7 @@ void SusyWHAna::print_SRSS()
   print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
   print_line("pass HT     ",n_pass_HT[0][j], n_pass_HT[1][j], n_pass_HT[2][j]);
   print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
+  print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
 }
 /*--------------------------------------------------------------------------------*/
 void SusyWHAna::print_SROSOF2jets()

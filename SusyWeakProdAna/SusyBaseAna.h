@@ -88,7 +88,7 @@ class SusyBaseAna: public SusySelection
     void saveOriginal();
     void restoreOriginal(LeptonVector& leptons, const Met *met);
     void clearVectors();
-    
+  
     void setMcSysMinMax(uint sys1=DGSys_NOM, uint sys2=DGSys_XS_DN){
       _sys1 = sys1;
       _sys2 = sys2;

@@ -74,6 +74,7 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
   susyXS = new XSReader();
   susyXS->LoadXSInfo();
 
+  
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -101,6 +102,8 @@ void SusyBaseAna::hookContainers(Susy::SusyNtObject* _ntPtr,
   v_sigJet   = _sigJetA;
   v_baseTau  = _baseTauA;
   v_sigTau   = _sigTauA;
+
+ 
 
   if(DUMP_RUNEVT){
     string dumpName = _hh->sampleName()+ "_dump.txt";

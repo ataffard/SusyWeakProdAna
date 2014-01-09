@@ -92,6 +92,8 @@ class SusySelection: public SusyNtTools
   bool passMetMeff(const LeptonVector* leptons,const JetVector* jets, const Met* met, bool useLepton=false);
   bool passMeff(const JetVector* jets, const Met* met);
   bool passHT(const LeptonVector* leptons,const JetVector* jets, const Met* met);
+  bool passSFOSLooseLepton(LeptonVector preLeptons, const LeptonVector leptons, 
+			   float minMll=MZ-20, float maxMll=MZ+20);
   
   //SS & charge flip 
   bool  isGenuineSS(const LeptonVector* leptons);
@@ -118,6 +120,11 @@ class SusySelection: public SusyNtTools
   //Sum 3L & 4L 
   void sumArray();
 
+  //Functions to find loose lepton reconstructing Z
+  LeptonVector findSFOSinZ(LeptonVector* preLeptons, const LeptonVector* leptons, 
+			   bool &hasSFOSinZ, float minMll=MZ-20, float maxMll=MZ+20);
+  LeptonVector getLooseLeptons(LeptonVector* preLeptons,const LeptonVector*  leptons); 
+  bool         passBasicLeptonSelection(const Lepton* l);
 
 
   ClassDef(SusySelection, 1);
@@ -134,6 +141,7 @@ class SusySelection: public SusyNtTools
   //containers - from SusyNt
   ElectronVector*      v_preEle;      //selected electrons before ORing
   MuonVector*          v_preMu;       //selected muons before ORing
+  LeptonVector         v_preLep;      //selected lepton (sum of above)
   JetVector*           v_preJet;      //selected jets before ORing
   ElectronVector*      v_baseEle;     // baseline electrons
   ElectronVector*      v_sigEle;      // signal electrons
@@ -230,7 +238,7 @@ class SusySelection: public SusyNtTools
   float               m_MeffMax;      // min Meff
   float               m_HTMin;        // min HT
   float               m_HTMax;        // min HT
-
+  bool                m_vetoLooseSFOSinZ;  // veto SF
   
   //DiLepEvtType        m_ET;           // Dilepton event type to store cf
   uint       m_ET;           // Multilep event type to store cf
@@ -299,6 +307,7 @@ class SusySelection: public SusyNtTools
   float                n_pass_MetMeff[LEP_N][SR_N];
   float                n_pass_Meff[LEP_N][SR_N];
   float                n_pass_HT[LEP_N][SR_N];
+  float                n_pass_looseSFOSinZ[LEP_N][SR_N];
   
   float                n_pass_sfos[LEP_N][SR_N];
   float                n_pass_mt3L[LEP_N][SR_N];
