@@ -92,7 +92,7 @@ class SusySelection: public SusyNtTools
   bool passMetMeff(const LeptonVector* leptons,const JetVector* jets, const Met* met, bool useLepton=false);
   bool passMeff(const JetVector* jets, const Met* met);
   bool passHT(const LeptonVector* leptons,const JetVector* jets, const Met* met);
-  bool passSFOSLooseLepton(LeptonVector preLeptons, const LeptonVector leptons, 
+  bool passSFOSLooseLepton(SusyNtObject* susyNt, const LeptonVector leptons, 
 			   float minMll=MZ-20, float maxMll=MZ+20);
   
   //SS & charge flip 
@@ -123,6 +123,7 @@ class SusySelection: public SusyNtTools
   //Functions to find loose lepton reconstructing Z
   LeptonVector findSFOSinZ(LeptonVector* preLeptons, const LeptonVector* leptons, 
 			   bool &hasSFOSinZ, float minMll=MZ-20, float maxMll=MZ+20);
+  void         getPreLeptons(Susy::SusyNtObject* susyNt);
   LeptonVector getLooseLeptons(LeptonVector* preLeptons,const LeptonVector*  leptons); 
   bool         passBasicLeptonSelection(const Lepton* l);
 
@@ -141,7 +142,7 @@ class SusySelection: public SusyNtTools
   //containers - from SusyNt
   ElectronVector*      v_preEle;      //selected electrons before ORing
   MuonVector*          v_preMu;       //selected muons before ORing
-  LeptonVector         v_preLep;      //selected lepton (sum of above)
+  LeptonVector         v_preLep;      //selected lepton (sum of ele+mu pT>6)
   JetVector*           v_preJet;      //selected jets before ORing
   ElectronVector*      v_baseEle;     // baseline electrons
   ElectronVector*      v_sigEle;      // signal electrons

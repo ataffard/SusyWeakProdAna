@@ -23,7 +23,7 @@
 #include "SusyNtuple/TGuiUtils.h"
 
 //_____________________________________________________________________________//
-static const string ver       = "histos_091313_21fb_n0145_DD_WH_v1/";
+static const string ver       = "histos_011114_21fb_n0145_DD_WH_v1/";
 //static const string SR        = "_WH_optimSRjets";
 static const string SR        = "_WH_optimSRSS";
 //static const string SR        = "_DIL_optimSRjets";
@@ -60,7 +60,7 @@ static const int    selDil    = 3; //EE, MM, EM for SS and C1C1 grids
 //static const string sigSample = "144907"; // wC_slep [150,50]] //low mass diag
 
 //wA WH grids
-static const string sigSample = "177503"; // wH
+static const string sigSample = "177501"; // wH
 //static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group1"; // WH
 //static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group2"; // WH
 //static const string sigSample = "toyNt_wA_noslep_WH_2Lep_group3"; // WH
@@ -234,7 +234,7 @@ int main(int argc, char *argv[]){
   _bkgFileNames.push_back(string("toyNt_Zjets_SherpaAlpgenPythia" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_top_MCNLO" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_WW_PowHeg" + SR + "_rlep.root").c_str());
-  if(SR=="_DIL_optimSRSS")
+  if(SR=="_WH_optimSRSS")
     _bkgFileNames.push_back(string("toyNt_Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_FAKE" + SR + ".root").c_str());
   else 
     _bkgFileNames.push_back(string("toyNt_Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO" + SR + "_rlep.root").c_str());
@@ -1327,11 +1327,11 @@ TCut sel_AnyesWH(int opt, int dilType)
   else if(opt==6){
     cout << " \tSS-MM " << endl;
     _vCut.push_back(TCut("llType==1 && !isOS"));
-    _vCut.push_back(TCut("l_etcone30[1]/l_pt[1]<0.1"));
-    _vCut.push_back(TCut("l_etcone30[0]/l_pt[0]<0.1"));
+    //    _vCut.push_back(TCut("l_etcone30[1]/l_pt[1]<0.1"));
+    //    _vCut.push_back(TCut("l_etcone30[0]/l_pt[0]<0.1"));
     _vCut.push_back(TCut("nFJets==0"));
     _vCut.push_back(TCut("nBJets==0"));
-    //_vCut.push_back(TCut("nCJets>=1"));
+    _vCut.push_back(TCut("nCJets>=1"));
     // _vCut.push_back(TCut("l_pt[0]>30"));
 
     //    _vCut.push_back(TCut("mWWT>100"));

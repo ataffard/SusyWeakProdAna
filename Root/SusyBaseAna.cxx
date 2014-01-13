@@ -559,7 +559,19 @@ void SusyBaseAna::fillToyNt(uint iSR,uint iSYS,
   pz.push_back(leptons->at(1)->Pz());
 
   float mt2jj=-999;
+  float mt2J=-999;
+  float mljj=-999;
+  float mlj=-999;
+
   float jjAcoplanarity=-999;
+  if(jets->size()==1){
+    float dR1 = leptons->at(0)->DeltaR(*jets->at(0));
+    float dR2 = leptons->at(1)->DeltaR(*jets->at(0));
+    TLorentzVector l0 = *leptons->at(0);
+    TLorentzVector l1 = *leptons->at(1);
+    TLorentzVector j0 = *jets->at(0);
+    mlj = (dR1<dR2) ? (j0+l0).M() : (j0+l1).M();
+  }
   if(jets->size()>=2){
     const TLorentzVector* j1TLV=NULL;
     const TLorentzVector* j2TLV=NULL;
@@ -583,6 +595,17 @@ void SusyBaseAna::fillToyNt(uint iSR,uint iSYS,
     }
     if(j1TLV && j2TLV){
       mt2jj = getMT2(j1TLV, j2TLV, met);
+      TLorentzVector jj = *j1TLV+*j2TLV;
+      TLorentzVector l0 = *leptons->at(0);
+      TLorentzVector l1 = *leptons->at(1);
+      float dR1 = jj.DeltaR(l0);
+      float dR2 = jj.DeltaR(l1);
+      mljj = (dR1<dR2) ? (jj+l0).M() : (jj+l1).M();
+      
+      float mt2_a = getMT2(&(l0+*j1TLV),&(l1+*j2TLV),met,false);
+      float mt2_b = getMT2(&(l0+*j2TLV),&(l1+*j1TLV),met,false);
+      mt2J = min(mt2_a, mt2_b);
+
       jjAcoplanarity = acoplanarity(*j1TLV, *j2TLV);
     }
   }
@@ -592,8 +615,10 @@ void SusyBaseAna::fillToyNt(uint iSR,uint iSYS,
   sphericity = Sphericity(px,py,pz,false);
   sphericityTrans = Sphericity(px,py,pz,true);
 
-  m_toyNt->FillTreeEventVar(met,metRel,mt2,
-			    mt2jj, sphericity, sphericityTrans,
+  m_toyNt->FillTreeEventVar(met,metRel,
+			    mt2, mt2jj, mt2J,
+			    mlj, mljj,
+			    sphericity, sphericityTrans,
 			    llAcoplanarity,jjAcoplanarity,
 			    _topTag,mll_collApprox);
   m_toyNt->FillTreeSignalJets(jets,leptons,met,v_preEle, v_preMu);

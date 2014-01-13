@@ -1179,7 +1179,13 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
 
   nom = histV[DGSys_NOM]->IntegralAndError(0,-1,stat_err);
 
-  if(histV.size()==1) return; //No sys available 
+  if(histV.size()==1) {
+    if(verbose)
+      cout << "\t Yield " << nom 
+	   << " +/- " << stat_err
+	   << endl;
+    return; //No sys available 
+  }
 
   for(uint isys=DGSys_NOM+1; isys<DGSys_N; isys++){
     if(histV[isys]==NULL) continue;

@@ -53,6 +53,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("mll_collApprox",&_b_mll_collApprox,"mll_collApprox/F");
   tree->Branch("dR_ll",&_b_dR_ll,"dR_ll/F");
   tree->Branch("dphi_ll",&_b_dphi_ll,"dphi_ll/F");
+  tree->Branch("deta_ll",&_b_deta_ll,"deta_ll/F");
   tree->Branch("isOS",&_b_isOS,"isOS/O");
 
   tree->Branch("nJets",&_b_nJets,"nJets/I");
@@ -102,6 +103,9 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
 
   tree->Branch("mT2",&_b_mT2,"mT2/F");
   tree->Branch("mT2jj",&_b_mT2jj,"mT2jj/F");
+  tree->Branch("mT2J",&_b_mT2J,"mT2J/F");
+  tree->Branch("mlj",&_b_mlj,"mlj/F");
+  tree->Branch("mljj",&_b_mljj,"mljj/F");
   tree->Branch("pTll_Tb",&_b_pTll_Tb,"pTll_Tb/F");
   tree->Branch("dPhib",&_b_dPhib,"dPhib/F");
   tree->Branch("sphericity",&_b_sphericity,"sphericity/F");
@@ -113,6 +117,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   tree->Branch("ST",&_b_ST,"ST/F");
   tree->Branch("mjj",&_b_mjj,"mjj/F");
   tree->Branch("dRjj",&_b_dRjj,"dRjj/F");
+  tree->Branch("dEtajj",&_b_dEtajj,"dEtajj/F");
   tree->Branch("pTjj",&_b_pTjj,"pTjj/F");
 
   tree->Branch("mct",&_b_mct,"mct/F");
@@ -163,6 +168,7 @@ void ToyNt::clearOutputBranches(void) {
   _b_mll_collApprox=-999;
   _b_dR_ll=-999;
   _b_dphi_ll=-999;
+  _b_deta_ll=-999;
   _b_isOS=false;
 
   _b_nJets=0; 
@@ -224,6 +230,9 @@ void ToyNt::clearOutputBranches(void) {
 
   _b_mT2=-999;
   _b_mT2jj=-999;
+  _b_mT2J=-999;
+  _b_mlj=-999;
+  _b_mljj=-999;
   _b_pTll_Tb=-999;
   _b_dPhib=-999;
   _b_sphericity=-999;
@@ -235,6 +244,7 @@ void ToyNt::clearOutputBranches(void) {
   _b_ST=-999;
   _b_mjj=-999;
   _b_dRjj=-999;
+  _b_dEtajj=-999;
   _b_pTjj=-999;
 
   _b_mct=-999;
@@ -292,6 +302,7 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
   
   _b_dphi_metcl=999; 
   _b_dphi_ll=999; 
+  _b_deta_ll=999; 
   int qqType=1;
   TLorentzVector _ll;
   TLorentzVector _pTll_b;
@@ -340,14 +351,17 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
   _b_mll = _ll.M();
   _b_mWWT = mT(_ll, met->lv());
   _b_dphi_ll = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
+  _b_deta_ll = leptons->at(0)->Eta()-leptons->at(1)->Eta();
   _b_dR_ll = leptons->at(0)->DeltaR(*leptons->at(1));
   _b_isOS = (qqType<0) ? true : false;
 
   //  delete _ntTools;
 }
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillTreeEventVar(const Met* met,float metrel, float mT2, 
-			     float mT2jj, float sphericity, float sphericityTrans, 
+void ToyNt::FillTreeEventVar(const Met* met,float metrel, 
+			     float mT2, float mT2jj, float mT2J,
+			     float mlj, float mljj,
+			     float sphericity, float sphericityTrans, 
 			     float llAcoplanarity, float jjAcoplanarity,
 			     bool topTag, float mllCollApprox)
 {
@@ -360,6 +374,9 @@ void ToyNt::FillTreeEventVar(const Met* met,float metrel, float mT2,
   _b_met_cellout=met->refCell;
   _b_mT2=mT2;
   _b_mT2jj=mT2jj;
+  _b_mT2J=mT2J;
+  _b_mlj=mlj;
+  _b_mljj=mljj;
   _b_sphericity=sphericity;  
   _b_sphericityTrans=sphericityTrans;  
   _b_llAcoplanarity=llAcoplanarity;
@@ -443,6 +460,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
 
   if(jets->size()>1){
     _b_dRjj = jets->at(0)->DeltaR(*jets->at(1));
+    _b_dEtajj = jets->at(0)->Eta() - jets->at(1)->Eta();
   }
 
 

@@ -41,8 +41,10 @@ class ToyNt: public SusyNtTools
   void FillTreeLeptons(const LeptonVector* leptons, 
 		       ElectronVector& baseElectrons, MuonVector& baseMuons, 
 		       const Met* met, int nVtx, bool isMc);
-  void FillTreeEventVar(const Met* met,float metrel, float mT2,
-			float mT2jj, float sphericity, float sphericityTrans,
+  void FillTreeEventVar(const Met* met,float metrel, 
+			float mT2, float mT2jj, float mT2J,
+			float mlj, float mljj,
+			float sphericity, float sphericityTrans,
 			float llAcoplanarity, float jjAcoplanarity,
 			bool topTag, float mllCollApprox);
   void FillTreeSignalJets(const JetVector* jets, 
@@ -99,6 +101,7 @@ private:
   float   _b_phill; //phi dilepton system
   float   _b_dR_ll; //dR between lepton
   float   _b_dphi_ll; //dPhi between lepton
+  float   _b_deta_ll; //dPhi between lepton
   bool    _b_isOS;
   float   _b_mll;
   float   _b_mll_collApprox;
@@ -107,6 +110,9 @@ private:
   float   _b_dphi_metcl; //closest lepton
   float   _b_mT2;
   float   _b_mT2jj;
+  float   _b_mT2J;
+  float   _b_mlj;
+  float   _b_mljj;
   float   _b_pTll_Tb; //CONF 2013-048 
   float   _b_dPhib; 
   float   _b_sphericity;
@@ -161,6 +167,7 @@ private:
   float   _b_ST;
   float   _b_mjj;
   float   _b_dRjj;
+  float   _b_dEtajj;
   float   _b_pTjj;
 
   float   _b_mct;

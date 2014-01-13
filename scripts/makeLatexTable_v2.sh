@@ -1,7 +1,7 @@
 # ./makeLatexTable.sh  
 
 #date="081513_21fb_n0145_DD_v6"
-date="091313_21fb_n0145_DD_WH_v1"
+date="011114_21fb_n0145_DD_WH_v1"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts
@@ -10,11 +10,12 @@ dir=${path}/Tables
 
 #Generate the latex table for each SR/CR
 SR=( \
-    SRSS1
-    SRSS2
-    SRSS3
+    optimSRSS \
+    SRSS1\
+    SRSS2\
+    SRSS3\
     SRSS4
-    SROSOF2jets
+#    SROSOF2jets
 #    VRWZ
 #    VRZZ
 #    SRmT2a SRmT2b SRmT2c \

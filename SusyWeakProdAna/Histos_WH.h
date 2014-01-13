@@ -87,6 +87,9 @@ class Histos_WH
   HDGWH DGWH_metCellout;
   HDGWH DGWH_mt2;
   HDGWH DGWH_mt2b;
+  HDGWH DGWH_mt2j;
+  HDGWH DGWH_mljj;
+  HDGWH DGWH_mlj;
   HDGWH DGWH_mEff; //New Jets, leptons
   HDGWH DGWH_ST;   //New
   HDGWH DGWH_MetSig;  //New mEff/Etmiss
