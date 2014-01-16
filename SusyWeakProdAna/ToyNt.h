@@ -101,7 +101,7 @@ private:
   float   _b_phill; //phi dilepton system
   float   _b_dR_ll; //dR between lepton
   float   _b_dphi_ll; //dPhi between lepton
-  float   _b_deta_ll; //dPhi between lepton
+  float   _b_deta_ll; //dEta between lepton
   bool    _b_isOS;
   float   _b_mll;
   float   _b_mll_collApprox;
