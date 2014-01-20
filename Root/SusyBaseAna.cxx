@@ -39,7 +39,8 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
   //string _fakeInput  =  string(getenv("WORKAREA")) + 
   //"/SusyMatrixMethod/data/pass3_Summer2013.root"; //Summer 2013 2L paper!
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    "/SusyMatrixMethod/data/forDavide_Sep11_2013.root"; //WH ana!
+    //"/SusyMatrixMethod/data/forDavide_Sep11_2013.root"; //WH ana!
+    "/SusyMatrixMethod/data/FinalFakeHist_Jan_02.root";
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT,
@@ -156,7 +157,8 @@ float SusyBaseAna::eventWeight(int mode)
   if(mode==LUMI21FB){ //Moriond dataset
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
     else{
-      int id = nt->evt()->mcChannel;
+      unsigned int mcid = nt->evt()->mcChannel;   
+
       _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs);
 
       //Replace XS for Higgs samples
@@ -164,37 +166,41 @@ float SusyBaseAna::eventWeight(int mode)
       if((nt->evt()->mcChannel >= 129477 && nt->evt()->mcChannel <= 129494)|| //WZ Powheg update XS MCNLO !!!
 	 (nt->evt()->mcChannel >= 126949 && nt->evt()->mcChannel <= 126951)   //ZZ->llvv x3 Xs
 	 ){
-	if(m_xsecMap.find(id) == m_xsecMap.end()) {
-	  m_xsecMap[id] = m_susyXsec->process(id);
+	if(m_xsecMap.find(mcid) == m_xsecMap.end()) {
+	  m_xsecMap[mcid] = m_susyXsec->process(mcid);
 	}
-	xs = m_xsecMap[id].xsect() * m_xsecMap[id].kfactor() * m_xsecMap[id].efficiency();
+	xs = m_xsecMap[mcid].xsect() * m_xsecMap[mcid].kfactor() * m_xsecMap[mcid].efficiency();
       }
       */
             
       //Overwrite Xs value
-      if(isSimplifiedModelGrid(id)){
-	float xs    = susyXS->GetXS(id);
+      if(isSimplifiedModelGrid(mcid)){
+	//_evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,true,true); //Anyes 01-16-14 Not yet working for all signals
+	
+	float xs    = susyXS->GetXS(mcid);
 	float sumw  = 0;
-	map<unsigned int, float>::const_iterator sumwMapIter = m_MCSumWs->find(id);
+	SumwMapKey key(mcid, nt->evt()->susyFinalState);
+	SumwMap::const_iterator sumwMapIter = m_MCSumWs->find(key);
         if(sumwMapIter != m_MCSumWs->end()) sumw = sumwMapIter->second;
         else{
           cout << "SusyBaseAna::eventWeight - ERROR - requesting to use sumw map but "
-               << "mcid " << id << " not found!" << endl;
+               << "mcid " << mcid << " not found!" << endl;
           abort();
         }
 	if(dbg()>10) cout << " Xs org " << nt->evt()->xsec << " new " << xs 
 			  << " sumW file " <<  nt->evt()->sumw << " on-the-fly " << sumw << endl;
 	_evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
+	
       }
       
       
-      if(id==176322 || id==176325 || id==176480){
+      if(mcid==176322 || mcid==176325 || mcid==176480){
 	float xs = nt->evt()->xsec;
 	float sumw = nt->evt()->sumw;
 	//SUSY WW-like
-	if(id==176322) xs = 0.425175*0.9;
-	if(id==176325) xs = 0.167127*0.9;
-	if(id==176480) xs = 0.5420344;//0.616257;
+	if(mcid==176322) xs = 0.425175*0.9;
+	if(mcid==176325) xs = 0.167127*0.9;
+	if(mcid==176480) xs = 0.5420344;//0.616257;
 	_evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
       }
 

@@ -6,6 +6,8 @@
 
 #include "SusyWeakProdAna/SusyAnaCommon.h"
 
+
+
 using namespace std;
 using namespace Susy;
 
@@ -506,11 +508,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     }
     if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) 
       fillToyNt(SR,SYST,leptons, signalJets,&new_met,_ww);
-
-    
-   
-  
-    
+       
   }
   
   if(nt->evt()->isMC) restoreOriginal(*leptons,met);
@@ -532,30 +530,29 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   
   if(leptons->size()>2) return 0;
 
-  SusyMatrixMethod::FAKE_REGION  frSR = SusyMatrixMethod::FR_SRmT2a;
+  susy::fake::Region frSR = susy::fake::CR_SRWHSS;
   switch (iSR){
-
   case WH_SRSS1:
-    frSR = SusyMatrixMethod::FR_SRDavide;
+    frSR = susy::fake::CR_SRWHSS;
     break;
   case WH_SRSS2:
-    frSR = SusyMatrixMethod::FR_SRDavide;
+    frSR = susy::fake::CR_SRWHSS;
     break;
   case WH_SRSS3:
-    frSR = SusyMatrixMethod::FR_SRDavide;
+    frSR = susy::fake::CR_SRWHSS;
     break;
   case WH_SRSS4:
-    frSR = SusyMatrixMethod::FR_SRDavide;
+    frSR = susy::fake::CR_SRWHSS;
     break;
   case WH_SROSOF2jets:
-    frSR = SusyMatrixMethod::FR_SRmT2a;//TEMP
+    frSR = susy::fake::CR_SRWHSS;//TEMP
     break;
 
   case WH_optimSRSS:
-    frSR = SusyMatrixMethod::FR_SRSSInc;
+    frSR = susy::fake::CR_SRWHSS;
     break;
   case WH_optimSRjets:
-    frSR = SusyMatrixMethod::FR_SRZjets; 
+    frSR = susy::fake::CR_SRWHSS; 
     break;
     
   }

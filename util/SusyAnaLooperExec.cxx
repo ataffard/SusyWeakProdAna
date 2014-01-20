@@ -273,7 +273,7 @@ int main(int argc, char** argv)
   //Grab sumW for the samples
   if(sample.find("period") == string::npos) {
     bool isSimplifiedModel = (sample.find("wA") != string::npos || sample.find("wC") != string::npos) ? true:false; 
-    map<unsigned int, float> mcSumOfWeights = susyAna->SusyNtTools::buildSumwMap(chain,isSimplifiedModel); 
+    SumwMap mcSumOfWeights = susyAna->SusyNtTools::buildSumwMap(chain,isSimplifiedModel); 
     cout << "Using SumW map for simplifiedModel " << isSimplifiedModel << endl;
     susyAna->setSumwMap(mcSumOfWeights);
   }

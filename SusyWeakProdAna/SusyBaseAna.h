@@ -14,6 +14,8 @@
 // Susy Common
 #include "SusyNtuple/SleptonXsecReader.h"
 #include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
+#include "SusyMatrixMethod/FakeRegions.h"
+
 #include "HistFitterTree/HistFitterTree.h"
 #include "SusyXSReader/XSReader.h"
 
@@ -70,8 +72,8 @@ class SusyBaseAna: public SusySelection
     map<int,float> getSleptonSumWs(                      ) { return m_sleptonSumWs;  };
     void           setSleptonSumWs( map<int,float> sumws ) { m_sleptonSumWs = sumws; };
 
-    const map<unsigned int,float>* getMCSumWs(           ) { return m_MCSumWs;  };
-    void           setMCSumWs( const map<unsigned int,float>* sumwMap ) { m_MCSumWs = sumwMap; };
+    const SumwMap* getMCSumWs(           ) { return m_MCSumWs;  };
+    void           setMCSumWs( const SumwMap* sumwMap ) { m_MCSumWs = sumwMap; };
 
     
     void finish();
@@ -137,7 +139,7 @@ class SusyBaseAna: public SusySelection
     SUSY::CrossSectionDB*                       m_susyXsec;     // SUSY cross section database
     std::map<int,SUSY::CrossSectionDB::Process> m_xsecMap;      // our own xsec map for faster lookup times
 
-    const map<unsigned int,float>*       m_MCSumWs;    
+    const SumwMap*       m_MCSumWs;    
 
     ofstream out;
     ofstream evtDump;

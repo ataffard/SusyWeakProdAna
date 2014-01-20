@@ -13,8 +13,8 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_5FB  //A->B14
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "011114";
-const std::string SUFF = "_n0145_DD_WH_v1";
+const std::string TAG  = "011814";
+const std::string SUFF = "_n0145_DD_WH_v2";
 
 //
 //Normal mode - all these are true

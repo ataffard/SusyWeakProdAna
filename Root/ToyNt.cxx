@@ -329,7 +329,7 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
     }
     else{
       Muon* _m = (Muon*) _l;
-      float ptcone = muPtConeCorr(_m, baseElectrons, baseMuons, nVtx,isMc);
+      float ptcone = _m->ptcone30ElStyle; //muPtConeCorr(_m, baseElectrons, baseMuons, nVtx,isMc);
       _b_l_etcone30[ilep] = muEtConeCorr(_m, baseElectrons, baseMuons, nVtx,isMc); //_m->etcone30;
       _b_l_ptcone30[ilep] = ptcone;
     }

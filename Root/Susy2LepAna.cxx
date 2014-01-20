@@ -972,7 +972,8 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   float _eta[2];
   
   if(leptons->size()>2) return 0;
-
+  /*
+    ANYES 01-17-14  ---- NEED COMPATIBILITY w/ 2 MM packages
   SusyMatrixMethod::FAKE_REGION  frSR = SusyMatrixMethod::FR_SRmT2a;
   switch (iSR){
   case DIL_SRmT2a:
@@ -1099,6 +1100,7 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = SusyMatrixMethod::FR_SRmT2a; 
     break;
   }
+  */
 
   for(uint i=0; i<leptons->size(); i++){
     _isEle[i]=leptons->at(i)->isEle();
@@ -1120,15 +1122,16 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=SusyMatrixMethod::SYS_MU_FR_UP;
   if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=SusyMatrixMethod::SYS_MU_FR_DOWN;
 
+  /*
   _fw = m_matrix_method.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
 				     _isSignal[1], _isEle[1], _pt[1],_eta[1],
 				     frSR, metrel, 
 				     (SusyMatrixMethod::SYSTEMATIC) iiSys);  
-
+  
   if(dbg()>10) cout << "SR " << DIL_SRNAME[iSR] 
 		    << " applying Ssys " << SYST 
 		    << " " << DGSystNames[SYST] << " fw " << _fw << endl;
-  
+  */
   return _fw;
 }
 
@@ -1749,15 +1752,15 @@ float Susy2LepAna::writeIntoHistFitterTree(uint iSR,
   if(nt->evt()->isMC){
     histFitWeight  = nt->evt()->w * nt->evt()->wPileup / nt->evt()->sumw;
     //Nominal values
-    float _xs     = getCrossSection(sigXsfile,nt->evt()->mcChannel,nt->evt()->xsec,DGSys_NOM);
+    float _xs     = 0;//getCrossSection(nt->evt()); //ANYES UPDATE 01-16-14
     float w_l1_sf = leptons->at(0)->effSF;
     float w_l2_sf = leptons->at(1)->effSF;
     float w_trig  = getTriggerWeight(leptons, _metET, signalJets->size(), nt->evt()->nVtx, DGSys_NOM);
     float w_btag  = getBTagSF(nt->evt(),baseJets, DGSys_NOM);
 
-    //Obtain the weights for each sys variation and take ratio to nominal
-    _xs_up = getCrossSection(sigXsfile,nt->evt()->mcChannel,nt->evt()->xsec,1)  / _xs;
-    _xs_dn = getCrossSection(sigXsfile,nt->evt()->mcChannel,nt->evt()->xsec,-1) / _xs;
+    //Obtain the weights for each sys variation and take ratio to nominal  // UPDATE Anyes 01-16-14
+    _xs_up = 0;//getCrossSection(nt->evt())  / _xs; //ANYES UPDATE 01-16-14
+    _xs_dn = 0;//getCrossSection(nt->evt())  / _xs; //ANYES UPDATE 01-16-14
     
     _eTrig_up = getTriggerWeight(leptons, _metET, signalJets->size(), nt->evt()->nVtx, DGSys_TRIGSF_EL_UP) / w_trig;
     _eTrig_dn = getTriggerWeight(leptons, _metET, signalJets->size(), nt->evt()->nVtx, DGSys_TRIGSF_EL_DN) / w_trig;
