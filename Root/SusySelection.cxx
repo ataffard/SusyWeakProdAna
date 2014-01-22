@@ -1289,8 +1289,9 @@ LeptonVector SusySelection::getLooseLeptons(LeptonVector* preLeptons,
     
     float mindR=999;//Not within 0.05 of signal/baseline leptons
     for(uint slep=0; slep<leptons->size(); ++slep){
+      /*
       if( (preLeptons->at(ilep)->isEle()==leptons->at(slep)->isEle()) ||
-	  (preLeptons->at(ilep)->isMu()==leptons->at(slep)->isMu()) )
+      (preLeptons->at(ilep)->isMu()==leptons->at(slep)->isMu()) )*/
 	mindR = preLeptons->at(ilep)->DeltaR(*leptons->at(slep));
     }
     if(mindR<E_E_DR) {

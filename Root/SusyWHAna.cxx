@@ -549,7 +549,7 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     break;
 
   case WH_optimSRSS:
-    frSR = susy::fake::CR_SRWHSS;
+    frSR = susy::fake::CR_SSInc;
     break;
   case WH_optimSRjets:
     frSR = susy::fake::CR_SRWHSS; 
