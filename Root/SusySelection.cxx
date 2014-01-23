@@ -51,6 +51,8 @@ SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
   m_mt2Max     ( -1  ),
   m_mtMin      ( -1  ),
   m_mtMax      ( -1  ),
+  m_mtMaxLow    ( -1  ),
+  m_mtMaxHigh   ( -1  ),
   m_lepLeadPtMin( -1  ),
   m_pTl0Min     ( -1  ),
   m_pTl1Min     ( -1  ),
@@ -63,10 +65,12 @@ SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
   m_highMll     ( -1  ),
   m_mllIn       (false),
   m_dPhillMax   ( -1  ),
+  m_dEtallMax   ( -1  ),
   m_dRllMin     ( -1  ),
   m_dRllMax     ( -1  ),
   m_lowMjj      ( -1  ),
   m_highMjj     ( -1  ),
+  m_highMljj     ( -1  ),
   m_lowMTWW     ( -1  ),
   m_highMTWW    ( -1  ),
   m_pTj0Min     ( -1  ),
@@ -153,9 +157,10 @@ void SusySelection::resetCounter()
       n_pass_BJet[i][j]      = 0;
       n_pass_LJet[i][j]      = 0;
       n_pass_CJet[i][j]      = 0;
-      n_pass_NBJet[i][j]      = 0;
+      n_pass_NBJet[i][j]     = 0;
       n_pass_JetPt[i][j]     = 0;
       n_pass_mjj[i][j]       = 0;
+      n_pass_mljj[i][j]      = 0;
       n_pass_leadLepPt[i][j] = 0;
       n_pass_MuIso[i][j]     = 0;
       n_pass_EleD0S[i][j]    = 0;
@@ -163,12 +168,13 @@ void SusySelection::resetCounter()
       n_pass_pTll[i][j]      = 0;
       n_pass_pTllBound[i][j] = 0;
       n_pass_dPhill[i][j]    = 0;
+      n_pass_dEtall[i][j]    = 0;
       n_pass_dRll[i][j]      = 0;
       n_pass_mWWT[i][j]      = 0;
       n_pass_topTag[i][j]    = 0;
       n_pass_metRel[i][j]    = 0;
       n_pass_mt2[i][j]       = 0;
-      n_pass_minMt[i][j]     = 0;
+      n_pass_maxMt[i][j]     = 0;
 
       n_pass_met[i][j]       = 0;
       n_pass_dPhiMetll[i][j] = 0;
@@ -240,6 +246,8 @@ void SusySelection::resetCuts()
   m_mt2Max     =  -1;
   m_mtMin     =  -1;
   m_mtMax     =  -1;
+  m_mtMaxLow    = -1;
+  m_mtMaxHigh   = -1;
   m_lepLeadPtMin = -1;
   m_pTl0Min      = -1;
   m_pTl1Min      = -1;
@@ -252,8 +260,10 @@ void SusySelection::resetCuts()
   m_highMll   =  -1;
   m_mllIn     = false; 
   m_dPhillMax =  -1;
+  m_dEtallMax =  -1;
   m_lowMjj    =  -1;
   m_highMjj   =  -1;
+  m_highMljj   =  -1;
   m_lowMTWW   =  -1;
   m_highMTWW  =  -1;
   m_pTj0Min   =  -1;
@@ -693,6 +703,17 @@ bool SusySelection::passMjj(const JetVector* jets){
   return true;
 }
 /*--------------------------------------------------------------------------------*/
+bool SusySelection::passMljj(const LeptonVector* leptons, const JetVector* jets){
+  if(m_highMljj <0 ) return true; //cut not applied 
+  if(jets->size()<1) return false;
+  float Mljj = mljj(*leptons,*jets);
+  if(Mljj > m_highMljj) return false;
+  
+  if(SYST==DGSys_NOM) n_pass_mljj[m_ET][SR]+=_inc;
+  return true;
+}
+
+/*--------------------------------------------------------------------------------*/
 bool SusySelection::passZVeto(const LeptonVector* leptons, float Zlow, float Zhigh)
 {
   if( leptons->size() < 2 ) return false;
@@ -816,6 +837,16 @@ bool SusySelection::passdPhill(const LeptonVector* leptons){
   if(SYST==DGSys_NOM) n_pass_dPhill[m_ET][SR]+=_inc;
   return true;
 }
+
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::passdEtall(const LeptonVector* leptons){
+  if( leptons->size() < 2 ) return false;
+  float dEta = fabs(leptons->at(0)->Eta()-leptons->at(1)->Eta());
+  if(m_dEtallMax>-1 && dEta>m_dEtallMax) return false;
+  if(SYST==DGSys_NOM) n_pass_dEtall[m_ET][SR]+=_inc;
+  return true;
+}
+
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passdRll(const LeptonVector* leptons){
   if( leptons->size() < 2 ) return false;
@@ -937,15 +968,15 @@ bool SusySelection::passMT2(const LeptonVector* leptons, const Met* met)
   return true;
 }
 /*--------------------------------------------------------------------------------*/
-bool SusySelection::passMinMT(const LeptonVector* leptons, const Met* met)
+bool SusySelection::passMaxMT(const LeptonVector* leptons, const Met* met)
 {
   if( leptons->size() < 2 ) return false;
   float mT1 = Mt(leptons->at(0), met);
   float mT2 = Mt(leptons->at(1), met);
-  float minMt = TMath::Min(mT1,mT2);
-  if(m_mtMin>-1 && minMt<m_mtMin) return false;
-  if(m_mtMax>-1 && minMt>m_mtMax) return false;
-  if(SYST==DGSys_NOM) n_pass_minMt[m_ET][SR]+=_inc;
+  float maxMt = TMath::Max(mT1,mT2);
+  if(m_mtMaxLow>-1 && maxMt<m_mtMaxLow) return false;
+  if(m_mtMaxHigh>-1 && maxMt>m_mtMaxHigh) return false;
+  if(SYST==DGSys_NOM) n_pass_maxMt[m_ET][SR]+=_inc;
   return true;
 }
 

@@ -6,6 +6,7 @@
 
 #include "SusyWeakProdAna/SusyAnaCommon.h"
 
+
 using namespace std;
 using namespace Susy;
 
@@ -160,50 +161,14 @@ float SusyBaseAna::eventWeight(int mode)
       unsigned int mcid = nt->evt()->mcChannel;   
 
       _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs);
-
-      //Replace XS for Higgs samples
-      /*
-      if((nt->evt()->mcChannel >= 129477 && nt->evt()->mcChannel <= 129494)|| //WZ Powheg update XS MCNLO !!!
-	 (nt->evt()->mcChannel >= 126949 && nt->evt()->mcChannel <= 126951)   //ZZ->llvv x3 Xs
-	 ){
-	if(m_xsecMap.find(mcid) == m_xsecMap.end()) {
-	  m_xsecMap[mcid] = m_susyXsec->process(mcid);
-	}
-	xs = m_xsecMap[mcid].xsect() * m_xsecMap[mcid].kfactor() * m_xsecMap[mcid].efficiency();
-      }
-      */
             
       //Overwrite Xs value
       if(isSimplifiedModelGrid(mcid)){
-	//_evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,true,true); //Anyes 01-16-14 Not yet working for all signals
-	
-	float xs    = susyXS->GetXS(mcid);
-	float sumw  = 0;
-	SumwMapKey key(mcid, nt->evt()->susyFinalState);
-	SumwMap::const_iterator sumwMapIter = m_MCSumWs->find(key);
-        if(sumwMapIter != m_MCSumWs->end()) sumw = sumwMapIter->second;
-        else{
-          cout << "SusyBaseAna::eventWeight - ERROR - requesting to use sumw map but "
-               << "mcid " << mcid << " not found!" << endl;
-          abort();
-        }
-	if(dbg()>10) cout << " Xs org " << nt->evt()->xsec << " new " << xs 
-			  << " sumW file " <<  nt->evt()->sumw << " on-the-fly " << sumw << endl;
-	_evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
-	
+	// TO DO: update to get Cross section from SusyNt
+	_evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,true,false); 
+	_evtW = _evtW/nt->evt()->xsec * susyXS->GetXS(mcid);		
       }
       
-      
-      if(mcid==176322 || mcid==176325 || mcid==176480){
-	float xs = nt->evt()->xsec;
-	float sumw = nt->evt()->sumw;
-	//SUSY WW-like
-	if(mcid==176322) xs = 0.425175*0.9;
-	if(mcid==176325) xs = 0.167127*0.9;
-	if(mcid==176480) xs = 0.5420344;//0.616257;
-	_evtW = nt->evt()->w * nt->evt()->wPileup * xs * LUMI_A_L / sumw;
-      }
-
       if(dbg()>10)
 	cout << "Ana W: " << nt->evt()->w 
 	     << " pileup " << nt->evt()->wPileup 

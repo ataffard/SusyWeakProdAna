@@ -46,7 +46,7 @@ const bool FILL_HFT       = false;//true;    //Write the HistFitterTree
 
 const bool CUTFLOW        = false;//true; // require at least 2 tight/base lep SPEED ANA
 
-const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_COUNT   = false;   //Apply weight to dump count table - NLO weight always applied
 const bool WEIGHT_ONE     = false;          //Ignore evt->w use 1
 const bool DO_FILL_HISTO  = true;
 
@@ -61,7 +61,7 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 const bool BLIND_MC       = false;
 
 const bool DUMP_RUNEVT    = false;//true;   //Dump run:event info
-const unsigned int  PRINT_SR = WH_SRSS1;
+const unsigned int  PRINT_SR = WH_SRSS1j;
 
 const float MLLCUT = 60;
 

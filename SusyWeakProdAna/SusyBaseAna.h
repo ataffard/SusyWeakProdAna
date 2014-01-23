@@ -25,6 +25,7 @@
 #include "SusyWeakProdAna/SusyHistos.h"
 
 #include "SusyWeakProdAna/ToyNt.h"
+#include "SusyNtuple/SusyNtAna.h"
 
 
 class SusyBaseAna: public SusySelection

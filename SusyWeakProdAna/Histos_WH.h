@@ -14,20 +14,15 @@ const char* const WH_FLAV[] = {"EE", "MM", "EM"};
 const char* const WH_QQ[] = {"OS", "SS"};
 
 
-enum WH_SR{WH_SRSS1=0, WH_SRSS2, WH_SRSS3, WH_SRSS4, 
-	   WH_SROSOF2jets,
-	   WH_SRZb, WH_SRZbb,
-	   WH_optimSRjets,
+enum WH_SR{WH_SRSS1j=0, WH_SRSS23j, 
 	   WH_optimSRSS,
+	   //	   WH_SRZb, WH_SRZbb,
 	   WH_NSR
 };
 
-const string WH_SRNAME[] = { "WH_SRSS1", "WH_SRSS2", "WH_SRSS3", "WH_SRSS4",
-			     "WH_SROSOF2jets",
-			     "WH_SRZb", "WH_SRZbb",
-			     "WH_optimSRjets",
+const string WH_SRNAME[] = { "WH_SRSS1j", "WH_SRSS23j", 
 			     "WH_optimSRSS",
-
+			     //"WH_SRZb", "WH_SRZbb",
 };
 
 
@@ -89,7 +84,6 @@ class Histos_WH
   HDGWH DGWH_mt2b;
   HDGWH DGWH_mt2j;
   HDGWH DGWH_mljj;
-  HDGWH DGWH_mlj;
   HDGWH DGWH_mEff; //New Jets, leptons
   HDGWH DGWH_ST;   //New
   HDGWH DGWH_MetSig;  //New mEff/Etmiss

@@ -72,8 +72,9 @@ class SusySelection: public SusyNtTools
   bool passNBJet(const JetVector* jets);
   bool passLead2JetsPt(const JetVector* jets);
   bool passMjj(const JetVector* jets);
+  bool passMljj(const LeptonVector* leptons,const JetVector* jets); //if only 1-jet reco mlj
   bool passMT2(const LeptonVector* leptons, const Met* met);
-  bool passMinMT(const LeptonVector* leptons, const Met* met);
+  bool passMaxMT(const LeptonVector* leptons, const Met* met);
   bool passMWWT(const LeptonVector* leptons, const Met* met);
   bool passMll(const LeptonVector* leptons);
   bool passTopTagger(const LeptonVector* leptons, const JetVector* jets, const Met* met);
@@ -86,6 +87,7 @@ class SusySelection: public SusyNtTools
   bool passDPhiMetl1(const LeptonVector* leptons, const Met* met);
   bool passdPhi(TLorentzVector v0, TLorentzVector v1, float cut);
   bool passdPhill(const LeptonVector* leptons);
+  bool passdEtall(const LeptonVector* leptons);
   bool passdRll(const LeptonVector* leptons);
   bool passDPhillJ0(const LeptonVector* leptons, const JetVector* jets);
   bool passDPhillMET(const LeptonVector* leptons, const Met* met);
@@ -95,6 +97,10 @@ class SusySelection: public SusyNtTools
   bool passSFOSLooseLepton(SusyNtObject* susyNt, const LeptonVector leptons, 
 			   float minMll=MZ-20, float maxMll=MZ+20);
   
+
+
+
+
   //SS & charge flip 
   bool  isGenuineSS(const LeptonVector* leptons);
   bool  hasQFlip(const LeptonVector* leptons);
@@ -207,6 +213,8 @@ class SusySelection: public SusyNtTools
   float               m_mt2Max;       // max MT2 
   float               m_mtMin;        // min MT 
   float               m_mtMax;        // max MT 
+  float               m_mtMaxLow;     // max MT lower bound
+  float               m_mtMaxHigh;    // max MT upper bound 
   float               m_lepLeadPtMin; // lead lepton pt min 
   float               m_pTl0Min;      // min pT (leading lepton)
   float               m_pTl1Min;      // min pT (second leading lepton)
@@ -219,10 +227,12 @@ class SusySelection: public SusyNtTools
   float               m_highMll;      // high Mll bound
   bool                m_mllIn;        // Apply mll cut rejecting event inside
   float               m_dPhillMax;    // max dPhi(ll) 
+  float               m_dEtallMax;    // max dPhi(ll) 
   float               m_dRllMin;      // min dR(ll) 
   float               m_dRllMax;      // max dR(ll) 
   float               m_lowMjj;       // min Mjj (leading jets)
   float               m_highMjj;      // max Mjj (leading jets)
+  float               m_highMljj;     // max Mljj (dijet system closest to one lepton)
   float               m_lowMTWW;      // min MT(ll,Etmiss)
   float               m_highMTWW;     // max MT(ll,Etmiss)
   float               m_pTj0Min;      // min pT (leading jets)
@@ -287,6 +297,7 @@ class SusySelection: public SusyNtTools
   float                n_pass_NBJet[LEP_N][SR_N]; //b-jets
   float                n_pass_JetPt[LEP_N][SR_N];
   float                n_pass_mjj[LEP_N][SR_N];
+  float                n_pass_mljj[LEP_N][SR_N];
   float                n_pass_leadLepPt[LEP_N][SR_N];
   float                n_pass_MuIso[LEP_N][SR_N];
   float                n_pass_EleD0S[LEP_N][SR_N];
@@ -294,12 +305,13 @@ class SusySelection: public SusyNtTools
   float                n_pass_pTll[LEP_N][SR_N];
   float                n_pass_pTllBound[LEP_N][SR_N];
   float                n_pass_dPhill[LEP_N][SR_N];
+  float                n_pass_dEtall[LEP_N][SR_N];
   float                n_pass_dRll[LEP_N][SR_N];
   float                n_pass_mWWT[LEP_N][SR_N];
   float                n_pass_topTag[LEP_N][SR_N];
   float                n_pass_metRel[LEP_N][SR_N];
   float                n_pass_mt2[LEP_N][SR_N];
-  float                n_pass_minMt[LEP_N][SR_N];
+  float                n_pass_maxMt[LEP_N][SR_N];
   float                n_pass_met[LEP_N][SR_N];
   float                n_pass_dPhiMetll[LEP_N][SR_N];
   float                n_pass_dPhiMetl1[LEP_N][SR_N];

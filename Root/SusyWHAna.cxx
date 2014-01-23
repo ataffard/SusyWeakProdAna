@@ -82,8 +82,8 @@ void SusyWHAna::end()
 
 
   print_SRSS();
-  print_SROSOF2jets();
-  print_SRZb();
+  //  print_SROSOF2jets();
+  //  print_SRZb();
   print_optimSR();
 
 
@@ -111,43 +111,67 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
   //----------------------------//
   if(m_sel.Contains("WH_SRSS")){
     m_selSS     = true;
+    m_vetoLooseSFOSinZ = true;
     m_vetoB     = true;
     m_vetoF     = true;
+
     m_pTl0Min   = 30;
-    m_vetoLooseSFOSinZ = true;
-    
-    m_minC20    = 1;
-    if(m_sel.Contains("WH_SRSS2")){
+    m_pTl1Min   = 20;//30 EM
+
+    if(m_sel.Contains("WH_SRSS1j")){
       m_minC20    = 1;
       m_maxC20    = 1;
-    }
-    if(m_sel.Contains("WH_SRSS3")){
-      m_minC20    = 2;
-      m_maxC20    = -1;
-    }
-    
-    m_HTMin     = 200;
 
-    
-    if(dilType==ET_ee){
-      m_mllIn     = true;
-      m_lowMll    = MZ-10;
-      m_highMll   = MZ+10;
-      m_pTl1Min   = 20;
-      m_lowMTWW  = 150; 
-      m_metRelMin = 50;
+      if(dilType==ET_ee){
+	m_mllIn      = true;
+	m_lowMll     = 70;
+	m_highMll    = 100;
+	m_metRelMin  = 55;
+	m_highMljj   = 90;
+	m_HTMin      = 200;
+      }
+      else if(dilType==ET_mm){
+	m_dEtallMax  = 1.5;
+	m_mtMaxLow   = 100;
+	m_highMljj = 90;
+	m_HTMin      = 200;
+      }
+      else if(dilType==ET_em){
+	m_pTl1Min    = 30;
+	m_dEtallMax  = 1.5;
+	m_highMljj   = 90;
+	m_mtMaxLow   = 110;
+	m_lowMTWW    = 110;
+      }
     }
-    else if(dilType==ET_mm){
-      m_lowMTWW  = 100;
-    }
-    else if(dilType==ET_em){
-      m_pTl1Min   = 20;
-      m_lowMTWW  = 140;
-      m_metRelMin = 50;
-      
+    if(m_sel.Contains("WH_SRSS23j")){
+      m_minC20    = 2;
+      m_maxC20    = 3;
+
+      if(dilType==ET_ee){
+	m_mllIn      = true;
+	m_lowMll     = 70;
+	m_highMll    = 100;
+	m_metRelMin  = 55;
+	m_highMljj   = 120;
+	m_mtMaxLow   = 100;
+      }
+      else if(dilType==ET_mm){
+	m_dEtallMax  = 1.5;
+	m_pTl1Min    = 30;
+	m_highMljj  = 120;
+	m_HTMin      = 220;
+      }
+      else if(dilType==ET_em){
+	m_pTl1Min    = 30;
+	m_dEtallMax  = 1.5;
+	m_highMljj = 120;
+	m_mtMaxLow   = 120;
+      }
     }
   }
-  
+
+  /*
   else if(m_sel.Contains("SROSOF2jets")){  
     m_selOS     = true;
     m_vetoB     = true;
@@ -186,22 +210,17 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
     m_maxB20    = 999; 
     //ADD metSig cut
   }
+  */
 
   //----------------------------//
   // Optimisation  Regions
   // Very loose selection for ToyNt making
   //----------------------------//
-  if(m_sel.Contains("WH_optimSRjets")){//to optim WH >=1 jets, SRZjets, SRjets
-    m_selOS = true;
-    m_vetoF = true;
-    m_vetoB = true;
-    m_minC20 = 1;
-  }
   if(m_sel.Contains("WH_optimSRSS")){//top optim SS channels
     m_selSS = true;
+    m_vetoLooseSFOSinZ = true;
     m_vetoB     = true;
     m_vetoF     = true;
-    m_vetoLooseSFOSinZ = true;
     m_minC20    = 1;
   }
   
@@ -305,7 +324,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   //
   //Loop over SR's & CR's
   //
-  for(uint iSR=WH_SRSS1; iSR< WH_NSR; iSR++){
+  for(uint iSR=WH_SRSS1j; iSR< WH_NSR; iSR++){
     int icut =0;
     string sSR=WH_SRNAME[iSR];
     setSelection(sSR,m_ET);
@@ -335,8 +354,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!USE_QFLIP && !passQQ(leptons)) continue;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
-	  (iSR==WH_SRSS1 || iSR==WH_SRSS2 || 
-	   iSR==WH_SRSS3 || iSR==WH_SRSS4 ||
+	  (iSR==WH_SRSS1j || iSR==WH_SRSS23j || 
 	   iSR==WH_optimSRSS) ){
 	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
 	else{ //OS ee/em event - get the qFlip prob
@@ -440,15 +458,18 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passdPhill(leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
+    if(!passdEtall(leptons) ) continue;
+    _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
+
     if(!passdRll(leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
-    if(!passMinMT(leptons,&new_met) ) continue;
+    if(!passMaxMT(leptons,&new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
-    if(!passMWWT(leptons,&new_met) ) continue;
+    if(!passMljj(leptons,signalJets)) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    
+
     if(!passDPhillJ0(leptons,signalJets) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
@@ -479,6 +500,13 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passMT2(leptons, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
+
+    if(!passMWWT(leptons,&new_met) ) continue;
+    _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+
+
+
     
     //
     // Debugging - Dump run event
@@ -532,29 +560,15 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
 
   susy::fake::Region frSR = susy::fake::CR_SRWHSS;
   switch (iSR){
-  case WH_SRSS1:
+  case WH_SRSS1j:
     frSR = susy::fake::CR_SRWHSS;
     break;
-  case WH_SRSS2:
+  case WH_SRSS23j:
     frSR = susy::fake::CR_SRWHSS;
     break;
-  case WH_SRSS3:
-    frSR = susy::fake::CR_SRWHSS;
-    break;
-  case WH_SRSS4:
-    frSR = susy::fake::CR_SRWHSS;
-    break;
-  case WH_SROSOF2jets:
-    frSR = susy::fake::CR_SRWHSS;//TEMP
-    break;
-
   case WH_optimSRSS:
     frSR = susy::fake::CR_SSInc;
     break;
-  case WH_optimSRjets:
-    frSR = susy::fake::CR_SRWHSS; 
-    break;
-    
   }
 
   for(uint i=0; i<leptons->size(); i++){
@@ -593,50 +607,44 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
 /*--------------------------------------------------------------------------------*/
 void SusyWHAna::print_SRSS()
 {
-  int j= WH_SRSS1;
+  int j= WH_SRSS1j;
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << WH_SRNAME[j] <<endl;
   print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
   print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
-  print_line("pass FVeto  ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
-  print_line("pass bVeto  ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass FVeto   ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
+  print_line("pass bVeto   ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+  print_line("pass =1 J    ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
 
-  print_line("pass >=1 J  ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
-  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
-  print_line("pass Mll    ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
+  print_line("pass lepPt   ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass Mll     ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
+  print_line("pass dEtall  ",n_pass_dEtall[0][j],  n_pass_dEtall[1][j],  n_pass_dEtall[2][j]);
 
-  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
+
+  print_line("pass max MT ",n_pass_maxMt[0][j], n_pass_maxMt[1][j], n_pass_maxMt[2][j]);
+  print_line("pass mljj   ",n_pass_mljj[0][j], n_pass_mljj[1][j], n_pass_mljj[2][j]);  
   print_line("pass HT     ",n_pass_HT[0][j], n_pass_HT[1][j], n_pass_HT[2][j]);
   print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
-  //  print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
+  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
 
-  j= WH_SRSS2;
+
+  j= WH_SRSS23j;
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << WH_SRNAME[j] <<endl;
-  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
+  print_line("pass =2/3 J ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
+  print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass Mll    ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
+  print_line("pass dEtall ",n_pass_dEtall[0][j],  n_pass_dEtall[1][j],  n_pass_dEtall[2][j]);
+  print_line("pass max MT ",n_pass_maxMt[0][j], n_pass_maxMt[1][j], n_pass_maxMt[2][j]);
+  print_line("pass mljj   ",n_pass_mljj[0][j], n_pass_mljj[1][j], n_pass_mljj[2][j]);  
   print_line("pass HT     ",n_pass_HT[0][j], n_pass_HT[1][j], n_pass_HT[2][j]);
-  print_line("pass MetRel    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-  // print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
 
-  j= WH_SRSS3;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << WH_SRNAME[j] <<endl;
-  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
-  print_line("pass HT     ",n_pass_HT[0][j], n_pass_HT[1][j], n_pass_HT[2][j]);
-  print_line("pass MetRel    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-  //print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
-
-  j= WH_SRSS4;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << WH_SRNAME[j] <<endl;
-  print_line("pass mWWT   ",n_pass_mWWT[0][j], n_pass_mWWT[1][j], n_pass_mWWT[2][j]);  
-  print_line("pass HT     ",n_pass_HT[0][j], n_pass_HT[1][j], n_pass_HT[2][j]);
-  print_line("pass MT2    ",n_pass_mt2[0][j], n_pass_mt2[1][j], n_pass_mt2[2][j]);
-  //print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
 }
 /*--------------------------------------------------------------------------------*/
 void SusyWHAna::print_SROSOF2jets()
 {
+  /*
   int j= WH_SROSOF2jets;
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << WH_SRNAME[j] <<endl;
@@ -651,12 +659,13 @@ void SusyWHAna::print_SROSOF2jets()
   print_line("pass min(mT1,mT2)  ",n_pass_minMt[0][j], n_pass_minMt[1][j], n_pass_minMt[2][j]);
   print_line("pass dPhi(ll,Met)  ",n_pass_dPhillMet[0][j], n_pass_dPhillMet[1][j], n_pass_dPhillMet[2][j]);
   print_line("pass Met           ",n_pass_met[0][j], n_pass_met[1][j], n_pass_met[2][j]);
-
+  */
 }   
 
 /*--------------------------------------------------------------------------------*/
 void SusyWHAna::print_SRZb()
 {
+  /*
   int j= WH_SRZb;
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << WH_SRNAME[j] <<endl;
@@ -674,7 +683,7 @@ void SusyWHAna::print_SRZb()
   print_line("pass >=2b   ",n_pass_NBJet[0][j], n_pass_NBJet[1][j], n_pass_NBJet[2][j]);
   print_line("pass lepPt  ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
   print_line("pass Mll    ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
-
+  */
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -684,11 +693,7 @@ void SusyWHAna::print_optimSR()
   cout << "---------------------------------"    << endl;
   cout << ">>> SR " << WH_SRNAME[j] <<endl;
   print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
-  
-  j= WH_optimSRjets;
-  cout << "---------------------------------"    << endl;
-  cout << ">>> SR " << WH_SRNAME[j] <<endl;
-  print_line("pass OS            ",n_pass_os[0][j], n_pass_os[1][j], n_pass_os[2][j]);
+  print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
   print_line("pass FVeto         ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
   print_line("pass bVeto         ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
   print_line("pass >=1 J         ",n_pass_CJet[0][j], n_pass_CJet[1][j], n_pass_CJet[2][j]);
@@ -828,8 +833,7 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
   float mEff=0;
   float ST=0;
   float mt2J=-999;
-  float mljj=-999;
-  float mlj=-999;
+  float Mljj = mljj(*leptons,*jets);
 
   for(uint ijet=0; ijet<jets->size(); ijet++){
     const Susy::Jet* _j = jets->at(ijet);
@@ -867,33 +871,19 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
     ST += _j->Pt();
 
   }
-  if(jets->size()==1){
-    float dR1 = leptons->at(0)->DeltaR(*jets->at(0));
-    float dR2 = leptons->at(1)->DeltaR(*jets->at(0));
-    TLorentzVector l0 = *leptons->at(0);
-    TLorentzVector l1 = *leptons->at(1);
-    TLorentzVector j0 = *jets->at(0);
-    mlj = (dR1<dR2) ? (j0+l0).M() : (j0+l1).M();
 
-  }
   if(jets->size()>=2){
     TLorentzVector j0 = *jets->at(0);
     TLorentzVector j1 = *jets->at(1);
-    TLorentzVector jj = j0+j1;
     TLorentzVector l0 = *leptons->at(0);
     TLorentzVector l1 = *leptons->at(1);
-    float dR1 = jj.DeltaR(l0);
-    float dR2 = jj.DeltaR(l1);
-    mljj = (dR1<dR2) ? (jj+l0).M() : (jj+l1).M();
-
 
     float mt2_a = getMT2(&(l0+j0),&(l1+j1),met,false);
     float mt2_b = getMT2(&(l0+j1),&(l1+j0),met,false);
     mt2J = min(mt2_a, mt2_b);
   }
   _hh->H1FILL(_hh->DGWH_mt2j[iSR][m_ET][iSYS],mt2J,_ww); 
-  _hh->H1FILL(_hh->DGWH_mljj[iSR][m_ET][iSYS],mljj,_ww); 
-  _hh->H1FILL(_hh->DGWH_mlj[iSR][m_ET][iSYS],mlj,_ww); 
+  _hh->H1FILL(_hh->DGWH_mljj[iSR][m_ET][iSYS],Mljj,_ww); 
 
 
   mEff = Meff(*leptons,*jets,met,JET_PT_CUT); //ST + met->lv().Pt();
