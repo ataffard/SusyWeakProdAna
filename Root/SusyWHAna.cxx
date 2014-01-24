@@ -82,6 +82,7 @@ void SusyWHAna::end()
 
 
   print_SRSS();
+  print_CRSS();
   //  print_SROSOF2jets();
   //  print_SRZb();
   print_optimSR();
@@ -107,7 +108,7 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
   m_nLepMax=2;
   
   //----------------------------//
-  // Signal Regions
+  // SS Signal Regions
   //----------------------------//
   if(m_sel.Contains("WH_SRSS")){
     m_selSS     = true;
@@ -124,8 +125,8 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
 
       if(dilType==ET_ee){
 	m_mllIn      = true;
-	m_lowMll     = 70;
-	m_highMll    = 100;
+	m_lowMll     = MZ-10;//70;
+	m_highMll    = MZ+10;//100;
 	m_metRelMin  = 55;
 	m_highMljj   = 90;
 	m_HTMin      = 200;
@@ -141,7 +142,7 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
 	m_dEtallMax  = 1.5;
 	m_highMljj   = 90;
 	m_mtMaxLow   = 110;
-	m_lowMTWW    = 110;
+	m_lowMTWW    = 120;//110;
       }
     }
     if(m_sel.Contains("WH_SRSS23j")){
@@ -150,9 +151,9 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
 
       if(dilType==ET_ee){
 	m_mllIn      = true;
-	m_lowMll     = 70;
-	m_highMll    = 100;
-	m_metRelMin  = 55;
+	m_lowMll     = MZ-10;//70;
+	m_highMll    = MZ+10;//100;
+	m_metRelMin  = 30;//55;
 	m_highMljj   = 120;
 	m_mtMaxLow   = 100;
       }
@@ -166,10 +167,59 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
 	m_pTl1Min    = 30;
 	m_dEtallMax  = 1.5;
 	m_highMljj = 120;
-	m_mtMaxLow   = 120;
+	m_lowMTWW    = 110;
+	//m_mtMaxLow   = 120;
       }
     }
   }
+
+  //----------------------------//
+  // SS Control Regions
+  //----------------------------//
+  if(m_sel.Contains("WH_CRSS")){
+    m_selSS     = true;
+    m_vetoLooseSFOSinZ = true;
+    m_vetoB     = true;
+    m_vetoF     = true;
+
+
+    if(m_sel.Contains("WH_CRSSZVFAKE")){
+      if(dilType==ET_ee){
+	m_mllIn      = true;
+	m_lowMll     = MZ-10;
+	m_highMll    = MZ+10;
+	m_metRelMin  = 40;
+	m_lowMljj    = 90;//120   //Cut depends on nC20J, raised to 120 fror 2+3j !!!
+      }
+      else if(dilType==ET_mm){///ZV enriched !
+	m_pTl0Min    = 30;
+	m_pTl1Min    = 30;
+	m_lowMljj    = 90;//120   //Cut depends on nC20J, raised to 120 fror 2+3j  !!!
+      }
+      else if(dilType==ET_em){
+	m_pTl0Min    = 30;
+	m_pTl1Min    = 30;
+	m_lowMljj    = 90;//120   //Cut depends on nC20J, raised to 120 fror 2+3j  !!!
+      }
+    }
+    if(m_sel.Contains("WH_CRSSFAKE")){
+      if(dilType==ET_ee){//NOT DEFINE
+      }
+      else if(dilType==ET_mm){
+	m_pTl1Max    = 30;
+	m_lowMljj    = 90;//120   //Cut depends on nC20J, raised to 120 fror 2+3j  !!!
+      }
+      else if(dilType==ET_em){
+	m_pTl0Min    = 30;
+	m_pTl1Max    = 30;
+	m_lowMljj    = 90;//120   //Cut depends on nC20J, raised to 120 fror 2+3j  !!!
+      }
+    }
+
+  }
+
+
+
 
   /*
   else if(m_sel.Contains("SROSOF2jets")){  
@@ -309,14 +359,15 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   float _wwSave = _ww;
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
     
-  if(dbg()>10){ 
+  if(dbg()>1){ 
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DGSystNames[SYST]
 	 << " lepSF " << _lepSFW
 	 << " trigW " << _trigW
 	 << " bTag " << bTagWeight
-	 << " weight(w/btag) " << _ww*bTagWeight << endl;
+	 << " ww " << _ww 
+	 << " weight(w/btag) " << _ww*bTagWeight << " wwSave " << _wwSave << endl;
   }
  
 
@@ -331,8 +382,10 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     SR=iSR;
     if(dbg() > 2 ) cout << "Signal region " << sSR << endl;
 
+    //    if(dbg()>-1) cout << "\t " << sSR << " weight check 0 " << _ww << endl;
     //Reset weight in case used btagWeight in previous SR
     _ww=_wwSave; 
+    //    if(dbg()>-1) cout << "\t " << sSR << "  weight check 1 " << _ww << endl;
     if(WEIGHT_COUNT) _inc = _ww;
     else{
       if(!WEIGHT_ONE) _inc = nt->evt()->w;
@@ -347,7 +400,8 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
       _ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,SYST);
       if(WEIGHT_COUNT) _inc = _ww;
     }
-    
+    //    if(dbg()>-1) cout << "\t " << sSR << "  weight check 2 " << _ww << endl;
+
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
     //Deal with Charge flip estimate - obtain approprate weighting
@@ -355,10 +409,11 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
 	  (iSR==WH_SRSS1j || iSR==WH_SRSS23j || 
+	   iSR==WH_CRSSZVFAKE || iSR==WH_CRSSFAKE ||
 	   iSR==WH_optimSRSS) ){
 	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
-	else{ //OS ee/em event - get the qFlip prob
-	  float _ww_qFlip = getQFlipProb(leptons,&new_met,DGSys_NOM);
+	if(!isGenuineSS(leptons)){ //OS ee/em event - get the qFlip prob
+	  float _ww_qFlip = getQFlipProb(leptons,&new_met,SYST);
 	  _ww *= _ww_qFlip;
 	  if(WEIGHT_COUNT) _inc = _ww;
 	  if(SYST==DGSys_NOM) n_pass_ss[m_ET][SR]+=_inc;
@@ -367,6 +422,8 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
       else
 	if(!passQQ(leptons)) continue;
     }
+
+    //    if(dbg()>-1) cout << "\t " << sSR << "  weight check last " << _ww << endl;
 
     //
     // Apply event selection cuts
@@ -383,7 +440,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     
     if(!passSFOSLooseLepton(nt,*leptons) ){
       /*
-	if(DUMP_RUNEVT && iSR==PRINT_SR){
+      if(DUMP_RUNEVT && iSR==PRINT_SR){
 	
 	evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  
 	<< " " << nt->evt()->event 
@@ -392,6 +449,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
       */
       continue;
     }
+	
 
     if(!passZVeto(leptons)) {
       if(dbg()>5 && iSR==PRINT_SR) cout << "Fail Zveto " << nt->evt()->run << " " << nt->evt()->event <<endl;
@@ -467,6 +525,10 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passMaxMT(leptons,&new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
+    //Special for the CR - raise mljj cut in 2+3 (save histo booking!)
+    if((iSR == WH_CRSSZVFAKE || iSR == WH_CRSSFAKE) && signalJets->size()>1) m_lowMljj = 120;
+
+
     if(!passMljj(leptons,signalJets)) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
@@ -525,7 +587,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
-    if(dbg() >10 ) cout << "\t Pass All " << sSR << endl;
+    if(dbg() >1 ) cout << "\t Pass All " << sSR << endl;
 
     //
     // Fill histos, ToyNt and HFT 
@@ -565,6 +627,12 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     break;
   case WH_SRSS23j:
     frSR = susy::fake::CR_SRWHSS;
+    break;
+  case WH_CRSSZVFAKE:
+    frSR = susy::fake::CR_SSInc;
+    break;
+  case WH_CRSSFAKE:
+    frSR = susy::fake::CR_SSInc;
     break;
   case WH_optimSRSS:
     frSR = susy::fake::CR_SSInc;
@@ -642,6 +710,34 @@ void SusyWHAna::print_SRSS()
 
 }
 /*--------------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------*/
+void SusyWHAna::print_CRSS()
+{
+  int j= WH_CRSSZVFAKE;
+
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << WH_SRNAME[j] <<endl;
+  print_line("pass SS     ",n_pass_ss[0][j], n_pass_ss[1][j], n_pass_ss[2][j]);
+  print_line("pass 3rd lep ",n_pass_looseSFOSinZ[0][j], n_pass_looseSFOSinZ[1][j], n_pass_looseSFOSinZ[2][j]);
+  print_line("pass FVeto   ",n_pass_FJet[0][j], n_pass_FJet[1][j], n_pass_FJet[2][j]);
+  print_line("pass bVeto   ",n_pass_BJet[0][j], n_pass_BJet[1][j], n_pass_BJet[2][j]);
+
+  print_line("pass lepPt   ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass Mll     ",n_pass_mll[0][j],  n_pass_mll[1][j],  n_pass_mll[2][j]);
+  print_line("pass mljj   ",n_pass_mljj[0][j], n_pass_mljj[1][j], n_pass_mljj[2][j]);  
+  print_line("pass MetRel ",n_pass_metRel[0][j], n_pass_metRel[1][j], n_pass_metRel[2][j]);
+
+  j= WH_CRSSFAKE;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << WH_SRNAME[j] <<endl;
+  print_line("pass lepPt   ",n_pass_leadLepPt[0][j],n_pass_leadLepPt[1][j],n_pass_leadLepPt[2][j]);
+  print_line("pass mljj   ",n_pass_mljj[0][j], n_pass_mljj[1][j], n_pass_mljj[2][j]);  
+
+
+}
+
+
+/*--------------------------------------------------------------------------------*/
 void SusyWHAna::print_SROSOF2jets()
 {
   /*
@@ -708,7 +804,8 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
 				 const Met* met,
 				 float _ww)
 {
-  if(dbg()>1) cout << "Fill histo " << WH_FLAV[m_ET] << " " << WH_SRNAME[iSR] << endl;
+  if(dbg()>1) cout << "\t Fill histo " << WH_FLAV[m_ET] << " " 
+		     << WH_SRNAME[iSR] << " " << DGSystNames[iSYS] << " w " << _ww << endl;
 
   _hh->H1FILL(_hh->DGWH_pred[iSR][m_ET][iSYS],0.,_ww); 
 

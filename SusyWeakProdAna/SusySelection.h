@@ -218,6 +218,7 @@ class SusySelection: public SusyNtTools
   float               m_lepLeadPtMin; // lead lepton pt min 
   float               m_pTl0Min;      // min pT (leading lepton)
   float               m_pTl1Min;      // min pT (second leading lepton)
+  float               m_pTl1Max;      // max pT (second leading lepton)
   float               m_IsoMin;       // min iso value
   float               m_d0SMin;       // min d0signif value
   float               m_pTllMin;      // min Ptll
@@ -233,6 +234,7 @@ class SusySelection: public SusyNtTools
   float               m_lowMjj;       // min Mjj (leading jets)
   float               m_highMjj;      // max Mjj (leading jets)
   float               m_highMljj;     // max Mljj (dijet system closest to one lepton)
+  float               m_lowMljj;     // max Mljj (dijet system closest to one lepton)
   float               m_lowMTWW;      // min MT(ll,Etmiss)
   float               m_highMTWW;     // max MT(ll,Etmiss)
   float               m_pTj0Min;      // min pT (leading jets)

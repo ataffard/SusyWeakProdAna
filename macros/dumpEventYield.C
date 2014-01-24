@@ -7,17 +7,17 @@ typedef unsigned uint;
 
 string mth = "std";
 //string dir = "histos_041413_21fb_n0139_Moriond_DD_v2/histOutputs/";
-string dir = "histos_091313_21fb_n0145_DD_WH_v1/";
+string dir = "";//histos_091313_21fb_n0145_DD_WH_v1/";
 
 //string sampleSet = "data12.txt";
 //string sampleSet = "Zjets_SherpaAlpgenPythia.txt";
-string sampleSet = "WZ_ZZ_PowHeg.txt";
+//string sampleSet = "WZ_ZZ_PowHeg.txt";
 //string sampleSet = "WW_PowHeg_oldgg2WW.txt";
 //string sampleSet = "Higgs.txt";
 //string sampleSet = "top_MCNLO.txt";
-//string sampleSet = "wA_noslep_WH_2LepNew.txt";
+string sampleSet = "wA_noslep_WH_2LepNew.txt";
 
-bool DOSYS = false;
+bool DOSYS = true;//false;
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
  //SR.push_back("SRmT2a");
  //SR.push_back("SRmT2b");
  // SR.push_back("SRZjets");
- SR.push_back("SRSS1");
+ SR.push_back("SRSS1j");
  // SR.push_back("SRSS2");
  // SR.push_back("SRSS3");
  // SR.push_back("SRSS4");
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]){
 	 _fHist = "histo_" + SAMPLES[iS] + "_" + SR[iSR] + "_" + LEP[iLEP] + "_std.root";
        }
        else if(_sSample.Contains("wA_noslep_notauhad")){
-	 _fHist = "histo_" + SAMPLES[iS] + ".root";
+	 _fHist = "histo_" + SAMPLES[iS] + "_rlep.root";
 	 _subDir = "";
        }
        else{

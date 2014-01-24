@@ -56,6 +56,7 @@ SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
   m_lepLeadPtMin( -1  ),
   m_pTl0Min     ( -1  ),
   m_pTl1Min     ( -1  ),
+  m_pTl1Max     ( -1  ),
   m_IsoMin      ( -1  ),
   m_d0SMin      ( -1  ),
   m_pTllMin     ( -1  ),
@@ -251,6 +252,7 @@ void SusySelection::resetCuts()
   m_lepLeadPtMin = -1;
   m_pTl0Min      = -1;
   m_pTl1Min      = -1;
+  m_pTl1Max      = -1;
   m_IsoMin       = -1;
   m_d0SMin       = -1;
   m_pTllMin = -1;
@@ -264,6 +266,7 @@ void SusySelection::resetCuts()
   m_lowMjj    =  -1;
   m_highMjj   =  -1;
   m_highMljj   =  -1;
+  m_lowMljj   =  -1;
   m_lowMTWW   =  -1;
   m_highMTWW  =  -1;
   m_pTj0Min   =  -1;
@@ -704,10 +707,12 @@ bool SusySelection::passMjj(const JetVector* jets){
 }
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passMljj(const LeptonVector* leptons, const JetVector* jets){
-  if(m_highMljj <0 ) return true; //cut not applied 
+  if(m_lowMljj <0 && m_highMljj < 0) return true; //cut not applied 
+
   if(jets->size()<1) return false;
   float Mljj = mljj(*leptons,*jets);
-  if(Mljj > m_highMljj) return false;
+  if(m_lowMljj > 0  && Mljj < m_lowMljj) return false;
+  if(m_highMljj >0 && Mljj > m_highMljj) return false;
   
   if(SYST==DGSys_NOM) n_pass_mljj[m_ET][SR]+=_inc;
   return true;
@@ -765,6 +770,7 @@ bool SusySelection::passLead2LepPt(const LeptonVector* leptons)
   if( leptons->size() < 1 ) return false;
   if(m_pTl0Min >-1 && leptons->at(0)->Pt() < m_pTl0Min) return false;
   if(m_pTl1Min >-1 && leptons->at(1)->Pt() < m_pTl1Min) return false;
+  if(m_pTl1Max >-1 && leptons->at(1)->Pt() > m_pTl1Max) return false;
   if(SYST==DGSys_NOM) n_pass_leadLepPt[m_ET][SR]+=_inc;
   return true;
 }

@@ -3,10 +3,10 @@
 
 typedef unsigned uint;
 
-string dir ="histOutputs/";
+//string dir ="histOutputs/";
 //string dir ="histos_080813_21fb_n0145_DD_v4/histOutputs/";
 //string dir ="histos_030813_21fb_n0127_Moriond_DD_v8/";
-//string dir ="";
+string dir ="";
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
@@ -40,7 +40,8 @@ int main(int argc, char *argv[]){
   //sample.push_back("histo_WZ_PowHeg_std.root");
   //sample.push_back("histo_Zjets_SherpaAlpgenPythia_rlep.root");
   //sample.push_back("ML_VRWZ_LLL/histo_WZ.129478_ML_VRWZ_LLL_std.root");
-  sample.push_back("ML_VRWZ_LLL/histo_WZ.129478_ML_VRWZ_LLL_rlep_NOM_XS_DN.root");
+  //sample.push_back("ML_VRWZ_LLL/histo_WZ.129478_ML_VRWZ_LLL_rlep_NOM_XS_DN.root");
+  sample.push_back("histo_Herwigpp_sM_wA_noslep_notauhad_WH_2Lep_1.177501_rlep.root");
 
   vector<string> SR;
   //SR.push_back("DG2L_CR2LepOS_");
@@ -53,7 +54,9 @@ int main(int argc, char *argv[]){
   //SR.push_back("DG2L_preSRmT2_");
   //SR.push_back("DG2L_CRTOP_");
   //SR.push_back("DG2L_SRmT2a_")
-  SR.push_back("ML_VRWZ_");
+  //SR.push_back("ML_VRWZ_");
+  SR.push_back("DGWH_WH_SRSS1j_");
+  SR.push_back("DGWH_WH_SRSS23j_");
 
   /*
     SR.push_back("DG2L_SR2jets_");
@@ -67,12 +70,12 @@ int main(int argc, char *argv[]){
   */
   
   vector<string> LEP;
-  LEP.push_back("LLL");
-  /*
+  //LEP.push_back("LLL");
+  
   LEP.push_back("EE");
   LEP.push_back("MM");
   LEP.push_back("EM");
-  */
+  
   TH2F* _pred = _utils->myTH2F("Pred", "Pred", 
 			       DGSys_N,DGSys_EES_Z_UP,DGSys_N-1,
 			       3,0,2,"","");
@@ -95,7 +98,8 @@ int main(int argc, char *argv[]){
 	float nom=0;
 	for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
 	  //string sHName = SR[is] + LEP[il] + "_DG2L_pred_"+ DG2LSystNames[isys];
-	  string sHName = SR[is] + LEP[il] + "_ML_pred_"+ DGSystNames[isys];
+	  //string sHName = SR[is] + LEP[il] + "_ML_pred_"+ DGSystNames[isys];
+	  string sHName = SR[is] + LEP[il] + "_DGWH_pred_"+ DGSystNames[isys];
 	  TH1F* _h = (TH1F*)  _f->Get(sHName.c_str())->Clone();
 	  float fracErr = 0;
 	  if(isys==DGSys_NOM) nom=_h->Integral(0,-1);

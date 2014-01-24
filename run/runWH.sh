@@ -29,7 +29,9 @@ fi
 
 NOM=""
 #NOM="-sys1 NOM"
+#NOM="-sys1 EES_Z_UP"
 #NOM="-sys1 NOM -sys2 XS_DN"
+
 
 methodMC=std
 methodData=std
@@ -49,7 +51,7 @@ if [ "$type" == "mc12" ]; then
 	sample=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
 	./SusyAnaLooperExec  ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
         #./SusyAnaLooperExec  -dbgEvt -d 1 ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
-	#./SusyAnaLooperExec  -n 5000 -d 2 ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
+	#./SusyAnaLooperExec  -n 10 -d 11 ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
     fi
 elif [ "$type" == "data12" ]; then
     name=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
@@ -59,6 +61,7 @@ elif [ "$type" == "susy" ]; then
     name=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
     ./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
+    #./SusyAnaLooperExec -n 6 -d 11 ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
 fi
 
 

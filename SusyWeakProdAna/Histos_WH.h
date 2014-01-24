@@ -16,12 +16,14 @@ const char* const WH_QQ[] = {"OS", "SS"};
 
 enum WH_SR{WH_SRSS1j=0, WH_SRSS23j, 
 	   WH_optimSRSS,
+	   WH_CRSSZVFAKE, WH_CRSSFAKE,
 	   //	   WH_SRZb, WH_SRZbb,
 	   WH_NSR
 };
 
 const string WH_SRNAME[] = { "WH_SRSS1j", "WH_SRSS23j", 
 			     "WH_optimSRSS",
+			     "WH_CRSSZVFAKE", "WH_CRSSFAKE",
 			     //"WH_SRZb", "WH_SRZbb",
 };
 
