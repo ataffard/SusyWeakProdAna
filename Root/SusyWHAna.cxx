@@ -363,6 +363,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DGSystNames[SYST]
+	 << " evtWeight " << eventWeight(LUMIMODE)
 	 << " lepSF " << _lepSFW
 	 << " trigW " << _trigW
 	 << " bTag " << bTagWeight
@@ -439,6 +440,11 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 
     
     if(!passSFOSLooseLepton(nt,*leptons) ){
+      if(dbg()>10) 
+	cout << WH_FLAV[m_ET] << " " << nt->evt()->run  
+	     << " " << nt->evt()->event 
+	     << " nJets " << numberOfCLJets(*signalJets) << " fail 3rd loose lep veto" << endl;
+	
       /*
       if(DUMP_RUNEVT && iSR==PRINT_SR){
 	
@@ -448,6 +454,12 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 	}
       */
       continue;
+    }
+    else {
+      if(dbg()>10)
+	cout << WH_FLAV[m_ET] << " " << nt->evt()->run  
+	     << " " << nt->evt()->event 
+	     << " nJets " << numberOfCLJets(*signalJets) << " pass 3rd loose lep veto" << endl;
     }
 	
 

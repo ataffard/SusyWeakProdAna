@@ -28,7 +28,7 @@ const bool   FILL_TOYNT        = false;//true;       //Write ToyNt
 const string TOYNT_SR          ="WH_optimSRSS";    //SR used to fill ToyNt
 const unsigned int TOYNT_iSR   = WH_optimSRSS;     //SR used to fill ToyNt
 
-const bool DO_SYS         = true;   //Toggles systematics looper
+const bool DO_SYS         = false;//true;   //Toggles systematics looper
 const bool FILL_HFT       = false;  //Write the HistFitterTree
 
 const bool CUTFLOW        = false;//true;   // require at least 2 tight/base lep SPEED ANA

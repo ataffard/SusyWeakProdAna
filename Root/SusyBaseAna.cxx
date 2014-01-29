@@ -166,6 +166,7 @@ float SusyBaseAna::eventWeight(int mode)
       if(isSimplifiedModelGrid(mcid)){
 	// TO DO: update to get Cross section from SusyNt  MCWeighter
 	_evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,true,false); 
+	//_evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,true,true); 
 	_evtW = _evtW/nt->evt()->xsec * susyXS->GetXS(mcid);		
       }
       

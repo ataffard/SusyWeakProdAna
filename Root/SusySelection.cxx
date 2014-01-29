@@ -1112,7 +1112,7 @@ bool  SusySelection::passSFOSLooseLepton(SusyNtObject* susyNt, const LeptonVecto
   bool hasSFOSinZ=false;
   LeptonVector candLooseLep = findSFOSinZ(&v_preLep, &leptons, hasSFOSinZ, minMll, maxMll);
 
-  if(dbg()>0 && candLooseLep.size()>0){
+  if(dbg()>10 && candLooseLep.size()>0){
     cout << "Found loose lepton SFOS in Z " << candLooseLep.size() << endl;
   }
 
@@ -1316,13 +1316,19 @@ LeptonVector SusySelection::getLooseLeptons(LeptonVector* preLeptons,
 
   for(uint ilep=0; ilep<preLeptons->size(); ++ilep){
     bool overlap=false;
-    if(dbg()>0) cout << "prelep pT " << preLeptons->at(ilep)->Pt() << endl;
+    if(dbg()>10) cout << "prelep pT " << preLeptons->at(ilep)->Pt() << endl;
     for(uint slep=0; slep<leptons->size(); ++slep){
       if(preLeptons->at(ilep) == leptons->at(slep)) overlap=true;
     }
     
-    if(overlap) continue; //Not signal/baseline lepton
-    if(!passBasicLeptonSelection(preLeptons->at(ilep)) )  continue; //pass IP
+    if(overlap){
+      if(dbg()>10) cout << " \t Is signal lepton " <<  endl; 
+      continue; //Not signal/baseline lepton
+    }
+    if(!passBasicLeptonSelection(preLeptons->at(ilep)) ){
+      if(dbg()>10) cout << " \t Fail IP " <<  endl; 
+      continue; //pass IP
+    }
     
     float mindR=999;//Not within 0.05 of signal/baseline leptons
     for(uint slep=0; slep<leptons->size(); ++slep){
@@ -1330,13 +1336,15 @@ LeptonVector SusySelection::getLooseLeptons(LeptonVector* preLeptons,
       if( (preLeptons->at(ilep)->isEle()==leptons->at(slep)->isEle()) ||
       (preLeptons->at(ilep)->isMu()==leptons->at(slep)->isMu()) )*/
 	mindR = preLeptons->at(ilep)->DeltaR(*leptons->at(slep));
+	if(dbg() >10) cout << "dR with signal lepton " 
+			  << (*leptons->at(slep)).Pt() << " " << mindR << endl;
     }
     if(mindR<E_E_DR) {
-      //cout << " \t too close DR "<< mindR << endl; 
+      if(dbg()>10) cout << " \t too close DR "<< mindR << endl; 
       continue;
     }
     
-    if(dbg()>0) cout << " looseLep " << preLeptons->at(ilep)->Pt() << endl;
+    if(dbg()>10) cout << " looseLep " << preLeptons->at(ilep)->Pt() << endl;
     looseLeptons.push_back(static_cast<Lepton*>(preLeptons->at(ilep)));
   }
   
@@ -1369,27 +1377,34 @@ LeptonVector SusySelection::findSFOSinZ(LeptonVector* preLeptons, const LeptonVe
   hasSFOSinZ=false;
   LeptonVector candLooseLeptons;
 
-  if(dbg()>0) cout << "Input prelepton " << preLeptons->size() << endl;
+  if(dbg()>10) cout << "Input prelepton " << preLeptons->size() << endl;
 
   LeptonVector looseLeptons = getLooseLeptons(preLeptons, leptons);
 
   for(uint ilep=0; ilep<looseLeptons.size(); ++ilep){
     for(uint slep=0; slep<leptons->size(); ++slep){
-      if(!isSFOS(looseLeptons.at(ilep), leptons->at(slep))) continue;
+      if(!isSFOS(looseLeptons.at(ilep), leptons->at(slep))){
+	if(dbg()>10) cout << "Candidate fail SFOS" << endl;
+	continue;
+      }
       if(isZWindow(looseLeptons.at(ilep), leptons->at(slep), minMll, maxMll)){
 	hasSFOSinZ=true;
 	float mll = Mll(looseLeptons.at(ilep), leptons->at(slep)); 
-	if(dbg()>0)
+	if(dbg()>10)
 	  cout << "\t\t sigLep " << leptons->at(slep)->Pt() 
 	       << "\t\t candLoose " << looseLeptons.at(ilep)->Pt()
 	       << "\t\t mll " <<  mll 
 	       << endl;
 	candLooseLeptons.push_back(static_cast<Lepton*>(looseLeptons.at(ilep)));
       }
+      else {
+	float mll = Mll(looseLeptons.at(ilep), leptons->at(slep)); 
+	if(dbg()>10) cout << " Is not in Z window " << mll <<  endl;
+      }
     }
   }
 
-  if(dbg()>0) cout << " \t output cand preLepton " << candLooseLeptons.size() << endl;
+  if(dbg()>10) cout << " \t output cand preLepton " << candLooseLeptons.size() << endl;
   return candLooseLeptons;
 
 }
