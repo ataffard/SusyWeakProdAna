@@ -33,7 +33,7 @@ class SusyWHAna: public SusyBaseAna
     virtual ~SusyWHAna(){};
 
     float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, 
-			int iSR, float metrel, uint iSys=DGSys_NOM);
+			int iSR, int nJet, float metrel, uint iSys=DGSys_NOM);
    
     //Analysis main 
     void doAnalysis(unsigned int isys=DGSys_NOM);

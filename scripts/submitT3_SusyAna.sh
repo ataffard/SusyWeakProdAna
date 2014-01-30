@@ -61,7 +61,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-#doSys=true
+doSys=true
 
 ##
 ## Ana mode STD or DD

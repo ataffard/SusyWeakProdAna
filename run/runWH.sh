@@ -16,7 +16,16 @@ Opt1=doWH
 Opt2=true
 #Opt2=false
 
-debug=2
+#####
+# Run flags
+#####
+dbgEvt=""
+#dbgEvt="-dbgEvt"
+debug=0
+#debug=2
+nEvt="-n -1"
+#nEvt="-n 100000"
+
 
 if [[ $# -eq 3 ]]; then
     type=$1
@@ -34,15 +43,12 @@ NOM=""
 #NOM="-sys1 EES_Z_UP"
 #NOM="-sys1 NOM -sys2 XS_DN"
 
-
 methodMC=std
 methodData=std
 if [ "$mode" == "DD" ]; then
     methodMC=rlep
     methodData=flep
 fi
-
-
 
 if [ "$type" == "mc12" ]; then
     if [ "${DS}" == "dummy" ] ; then
@@ -51,19 +57,16 @@ if [ "$type" == "mc12" ]; then
     else
 	name=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
 	sample=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-	#./SusyAnaLooperExec  ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
-        ./SusyAnaLooperExec  -dbgEvt -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
-	#./SusyAnaLooperExec  -n 10 -d 11 ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
+        ./SusyAnaLooperExec  ${dbgEvt} ${nEvt} -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
     fi
 elif [ "$type" == "data12" ]; then
     name=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name} -D ${sample} |tee jobLogs/${name}_${methodData}.log
+    ./SusyAnaLooperExec  ${dbgEvt} ${nEvt} -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name} -D ${sample} |tee jobLogs/${name}_${methodData}.log
 elif [ "$type" == "susy" ]; then
     name=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec -n 50 -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
-    #./SusyAnaLooperExec -n 6 -d 11 ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
+    ./SusyAnaLooperExec  ${dbgEvt} ${nEvt} -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
 fi
 
 

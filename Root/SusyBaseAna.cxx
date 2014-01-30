@@ -41,7 +41,8 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
   //"/SusyMatrixMethod/data/pass3_Summer2013.root"; //Summer 2013 2L paper!
   string _fakeInput  =  string(getenv("WORKAREA")) + 
     //"/SusyMatrixMethod/data/forDavide_Sep11_2013.root"; //WH ana!
-    "/SusyMatrixMethod/data/FinalFakeHist_Jan_02.root";
+    //"/SusyMatrixMethod/data/FinalFakeHist_Jan_02.root"; //WH new Iso
+    "/SusyMatrixMethod/data/FinalFakeHist_Jan_29.root"; //WH new Iso update CR/SR
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT,
@@ -287,10 +288,12 @@ float SusyBaseAna::getBTagSF(const Susy::Event*, const JetVector* jets, uint iSy
 
   JetVector  valJets;
   valJets.clear();
+  if(dbg()>0) cout << "Jets used for b-Tag weight " << endl;
   for(uint i=0; i<jets->size(); ++i){
     Jet* jet = jets->at(i);
     if( jet->Pt() < JET_PT_L20_CUT        ) continue;
     if( fabs(jet->detEta) > JET_ETA_CUT_2L ) continue;
+    if(dbg()>0) cout << " jet " << jet->Pt() << endl;
     valJets.push_back(jet);
   }
   

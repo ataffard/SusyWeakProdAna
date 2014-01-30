@@ -398,7 +398,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     //For data - fake estimate
     if( !nt->evt()->isMC && m_useLooseLep){
       float _metRel = getMetRel(&new_met,*leptons,*signalJets);
-      _ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,_metRel,SYST);
+      _ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,signalJets->size(),_metRel,SYST);
       if(WEIGHT_COUNT) _inc = _ww;
     }
     //    if(dbg()>-1) cout << "\t " << sSR << "  weight check 2 " << _ww << endl;
@@ -622,7 +622,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 // Fake Bkg estimate event weight
 /*--------------------------------------------------------------------------------*/
 float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx, 
-				 bool isMC, int iSR, float metrel,
+			       bool isMC, int iSR, int nJet, float metrel,
 				 uint iSys)
 {
   bool _isSignal[2];
@@ -632,19 +632,37 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   
   if(leptons->size()>2) return 0;
 
-  susy::fake::Region frSR = susy::fake::CR_SRWHSS;
+  susy::fake::Region frSR = susy::fake::CR_SSInc;
   switch (iSR){
   case WH_SRSS1j:
-    frSR = susy::fake::CR_SRWHSS;
+    frSR = susy::fake::CR_SRWH1j;
     break;
   case WH_SRSS23j:
-    frSR = susy::fake::CR_SRWHSS;
+    frSR = susy::fake::CR_SRWH2j;
     break;
   case WH_CRSSZVFAKE:
-    frSR = susy::fake::CR_SSInc;
+    if(m_ET == ET_ee){
+      if(nJet==1) frSR = susy::fake::CR_WHZVfake1jee;
+      else        frSR = susy::fake::CR_WHZVfake2jee;
+    }
+    else if(m_ET == ET_em){
+      if(nJet==1) frSR = susy::fake::CR_WHZVfake1jem;
+      else        frSR = susy::fake::CR_WHZVfake2jem;
+    }
+    else if(m_ET == ET_mm){
+      if(nJet==1) frSR = susy::fake::CR_WHZV1jmm;
+      else        frSR = susy::fake::CR_WHZV2jmm;
+    }
     break;
   case WH_CRSSFAKE:
-    frSR = susy::fake::CR_SSInc;
+    if(m_ET == ET_em){
+      if(nJet==1) frSR = susy::fake::CR_WHfake1jem;
+      else        frSR = susy::fake::CR_WHfake2jem;
+    }
+    else if(m_ET == ET_mm){
+      if(nJet==1) frSR = susy::fake::CR_WHfake1jmm;
+      else        frSR = susy::fake::CR_WHfake2jmm;
+    }
     break;
   case WH_optimSRSS:
     frSR = susy::fake::CR_SSInc;
