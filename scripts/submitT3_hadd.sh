@@ -23,11 +23,8 @@
 #!/bin/bash
 
 #Update for a given pass
-date="012914_21fb_n0145_DD_WH_v3"
-#date="081513_21fb_n0145_DD_v6"
-#date="072113_21fb_n0145_DD_v2"
-#date="071613_21fb_n0145_DD_v1"
-#date="070913_21fb_n0144_DD_v1"
+#date="012914_21fb_n0145_DD_WH_v3"
+date="021414_21fb_n0150_DD_WH_v2"
 
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -83,6 +80,9 @@ elif [[ $# = 1 ]]; then
 
 	cat ${inlist}/Zjets_SherpaAlpgenPythia.txt ${inlist}/WZ_ZZ_PowHeg.txt  ${inlist}/WW_PowHeg.txt \
 	    ${inlist}/top_MCNLO.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO.txt
+
+	cat ${inlist}/Zjets_AlpgenPythia.txt ${inlist}/WZ_ZZ_PowHeg.txt  ${inlist}/WW_PowHeg.txt \
+	    ${inlist}/top_MCNLO.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_Zjets_Alpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO.txt
 
 	#cat ${inlist}/ZX_AlpgenPythia_WZ_ZZ_Sherpa.txt ${inlist}/top_MCNLO.txt ${inlist}/WW_Sherpa.txt \
 	#  ${inlist}/ZTauTaujets_AlpgenPythia.txt ${inlist}/Higgs.txt > ${inlist}/Bkg_ZXAlpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO.txt
@@ -184,7 +184,7 @@ DIL=(EE MM EM)
 #    EEEE EEEM EEMM EMMM MMMM LLLL)
 #<<SKIP
 SR=(\
-    WH_SRSS1 WH_SRSS2 WH_SRSS3 WH_SRSS4 WH_SROSOF2jets WH_SRZbb WH_SRZb WH_optimSRjets WH_optimSRSS
+    WH_SRSS1j WH_SRSS23j WH_optimSRSS WH_CRSSZVFAKE WH_CRSSFAKE
     #ML_CF3L ML_VRWZ ML_VRZZ ML_VRemulWW \
     #SRmT2a SRmT2b SRmT2c \
     #SRWWa SRWWb SRWWc \

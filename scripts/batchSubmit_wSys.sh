@@ -6,6 +6,7 @@
 #!/bin/bash
 
 #PBS -q atlas
+####PBS -q atlas_slow
 #PBS -l nodes=1:ppn=2
 
 echo

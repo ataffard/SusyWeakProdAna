@@ -26,7 +26,7 @@ Produce the tex tables as well
 using namespace std;
 typedef unsigned uint;
 
-static const bool blindData=false;//true;
+static const bool blindData=true;
 bool verbose =  false;
 
 //
@@ -138,17 +138,20 @@ void  bkgYield(string sReg){
   //loadBkg("top_PowHegJimmy_rlep",sReg,_mcTopDil);
   //loadBkg("top_PowHegPythia_rlep",sReg,_mcTopDil);
 
-  //loadBkg("WW_Sherpa_rlep",sReg,_mcWW);
-  loadBkg("WW_PowHeg_rlep",sReg,_mcWW);
+  loadBkg("WW_Sherpa_rlep",sReg,_mcWW);
+  //loadBkg("WW_PowHeg_rlep",sReg,_mcWW);
 
-  loadBkg("Zjets_SherpaAlpgenPythia_rlep",sReg,_mcZjets);
+  //loadBkg("Zjets_SherpaAlpgenPythia_rlep",sReg,_mcZjets);
+  loadBkg("Zjets_AlpgenPythia_rlep",sReg,_mcZjets);
 
-  //loadBkg("WZ_ZZ_Sherpa_rlep",sReg,_mcZV);  
-  loadBkg("WZ_ZZ_PowHeg_rlep",sReg,_mcZV);  
+  loadBkg("WZ_ZZ_Sherpa_rlep",sReg,_mcZV);  
+  //loadBkg("WZ_ZZ_PowHeg_rlep",sReg,_mcZV);  
 
   loadBkg("Higgs_rlep",sReg,_mcHiggs);
 
-  loadBkg("Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_rlep",sReg,_mcAll);
+  //loadBkg("Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_rlep",sReg,_mcAll);
+  //  loadBkg("Bkg_Zjets_Alpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_rlep",sReg,_mcAll);
+  loadBkg("Bkg_Zjets_Alpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO_rlep",sReg,_mcAll);
 
 
   string fileName= _ana->_pathTables + "/BkgYield_" + sReg + ".txt";
@@ -367,7 +370,10 @@ bool isSR(string sReg){
      sReg=="SRSS2" ||
      sReg=="SRSS3" ||
      sReg=="SRSS4" ||
-     sReg=="SROSOF2jets" 
+     sReg=="SROSOF2jets" ||
+
+     sReg=="SRSS1j" ||
+     sReg=="SRSS23j" 
    ) return true;
 
  return false;

@@ -2,6 +2,7 @@
 \documentclass[10pt]{beamer}
 \let\Tiny=\tiny %Gets rid of font size warning
 
+\usepackage{hyperref} 
 %\usetheme{default}
 %\usetheme{Singapore}
 %\usepackage{underscore}
@@ -52,10 +53,26 @@
 \newcommand{\mywidth}{.45\textwidth}
 \begin{document}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\METrel}{\ensuremath{E_\mathrm{T}^\mathrm{miss,rel}}}
+\newcommand{\meff}{\ensuremath{m_{\mathrm{eff}}}}
+\newcommand{\mt}{\ensuremath{m_\mathrm{T}}}
+\newcommand{\pTmiss}{\ensuremath{\mathbf{p}_\mathrm{T}^\mathrm{miss}}}
+\newcommand{\mll}{\ensuremath{m_{\ell\ell}}}
+%\newcommand{\pT}{\ensuremath{p_\mathrm{T}}}
+\newcommand{\pTll}{\ensuremath{p_\mathrm{T,\ell\ell}}}
+\newcommand{\dphill}{\ensuremath{\Delta\phi_{\ell\ell}}}
+\newcommand{\dRll}{\ensuremath{\Delta R_{\ell\ell}}}
+\newcommand{\mjj}{\ensuremath{m_{jj}}}
+\newcommand{\mljj}{\ensuremath{m_{ljj}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \author{Anyes Taffard}
 \date{\today}
 
-\title[SUSY 2L DG WZ/ZZ CR]{SUSY 2L DG Plot Dump}
+\title[SUSY 2L WH SS ]{SUSY 2L DG WH-SS}
 
 \begin{frame}[plain]
   \titlepage
@@ -63,82 +80,65 @@
 
 \section{Introduction}
 \begin{frame}{Introduction}
-  \begin{block}{SUSY 2L DG - WZ/ZZ nJets }
-    Here's are the plots for the $WZ\ra lllv$ and $ZZ \ra llll$ based on SusyNt n0145, p1512 (SusyTools 00-03-04)
-
-%    Naming convention:
-%    \begin{itemize}
-%      \item pred\_DG2L\_SRmT2a\_EE\_DG2L\_metrel.eps: mT2a signal region, EE channel, metrel variable. 
-%    \end{itemize}
-
-%    MC samples
-%    \begin{itemize}
-%      \item Top MCATNLO
-%      \item Z+jets Sherpa+Alpgen (LF+HF)
-%      \item WW, WZ/ZZ PowHeg
-%	\item No SF applied 
-%    \end{itemize}
-
-    WZ selection
-    \begin{itemize}
-      \item Exactly 3 leptons 
-      \item One SF pair inside Z   
-      \item Etmiss$>$30 GeV
-      \item MT$>$40 GeV
-      \item b-jet veto  
-    \end{itemize}
-    ZZ selection
-    \begin{itemize}    
-      \item Exactly 4 leptons
-      \item Etmiss$<$50 GeV
-      \item Select 2 Z's within mass window  
-      \item b-jet veto
-    \end{itemize}
-
-    Note: Fake are taken from MC since this contribution is totally neglible for these CR's.
+  \begin{block}{SUSY 2L DG - WH0SS CR plots }
+    Control region plots using MM from feb\_12 2D MM and n0150 with all systematics on.
+    ZJets: Alpgen full spectrum
+    QFlip updated to tag 19 (need to check what map was really used)
+    Diboson: Sherpa
+    See additional files in dropbox: {\url {https://www.dropbox.com/sh/zu350fy0sjsfgew/U4mSlA3u-j}}
   \end{block}
 \end{frame}
 
-\begin{frame}{WZ/ZZ ISR/FSR systematic uncertainty}
-\begin{block}{WZ enriched}
-  
-\begin{table}
-\begin{center} 
-\begin{tabular}{l|c|c}
-\hline \hline
-     & $\ge 0$ jets & $\ge 2$ jets  \\ 
-\hline
-Observed & 1436 &  343 \\
-\hline
-Predicted  & $1435^{+34}_{-59} $ & $323^{+29}_{-13} $  \\
-\hline
-data/SM & $1.001\pm0.049$ & $1.062\pm0.110$ \\
-\hline \hline
-\end{tabular}
-\end{center}
-\end{table}
-\end{block}
+\section{Control regions}
+\begin{frame}{Control regions}
 
-\begin{block}{ZZ enriched}
+  \begin{block}{optimSRSS (MM:CR\_SSInc)}
+    \begin{itemize}
+    \item SS
+    \item veto loose 3rd leptons
+    \item veto b-jets
+    \item veto fwd-jets
+    \item $\ge$ 1 central LF jet      
+    \end{itemize}
+  \end{block}
 
-\begin{table}
-\begin{center} 
-\begin{tabular}{l|c|c}
-\hline \hline
-     & $\ge 0$ jets & $\ge 2$ jets  \\ 
-\hline
-Observed & 123 &  18 \\
-\hline
-Predicted  & $132.0^{+1.5}_{-3.9} $ & $20.7^{+3.1}_{-0.4} $  \\
-\hline
-data/SM & $0.932\pm0.088$ & $0.869\pm0.243$ \\
-\hline \hline
-\end{tabular}
-\end{center}
-\end{table}
-\end{block}
+  \begin{block}{CRSS\_ZVFAKE}
+    \begin{itemize}    
+    \item $ee$
+      \begin{itemize}
+      \item Z-veto
+      \item \METrel$>40 \GeV$
+      \item \mljj$>90(120)\GeV$
+      \end{itemize}
+    \item $\mumu$, $e\mu$
+      \begin{itemize}
+      \item $\pT^{l0}>30\GeV$
+      \item $\pT^{l1}>30\GeV$
+      \item \mljj$>90(120)\GeV$
+      \end{itemize}
+    \end{itemize}
+  \end{block}
 
-Recommend 20\% systematics (algtough 15\% covers WZ and ZZ SF) that can be applied to both WZ and ZZ
+\end{frame}
+
+\section{Control regions}
+\begin{frame}{Control regions}
+
+  \begin{block}{CRSS\_FAKE}
+    \begin{itemize}    
+    \item $\mumu$
+      \begin{itemize}
+      \item $\pT^{l1}<30\GeV$
+      \item \mljj$>90(120)\GeV$
+      \end{itemize}
+    \item $e\mu$
+      \begin{itemize}
+      \item $\pT^{l0}>30\GeV$
+      \item $\pT^{l1}<30\GeV$
+      \item \mljj$>90(120)\GeV$
+      \end{itemize}
+    \end{itemize}
+  \end{block}
 
 \end{frame}
 

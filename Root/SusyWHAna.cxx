@@ -363,7 +363,6 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DGSystNames[SYST]
-	 << " evtWeight " << eventWeight(LUMIMODE)
 	 << " lepSF " << _lepSFW
 	 << " trigW " << _trigW
 	 << " bTag " << bTagWeight
@@ -461,14 +460,14 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 	     << " " << nt->evt()->event 
 	     << " nJets " << numberOfCLJets(*signalJets) << " pass 3rd loose lep veto" << endl;
     }
-	
+    if(dbg()>1 ) cout << "\t Pass 3rd lepton veto " << sSR << endl;
 
     if(!passZVeto(leptons)) {
       if(dbg()>5 && iSR==PRINT_SR) cout << "Fail Zveto " << nt->evt()->run << " " << nt->evt()->event <<endl;
       continue;
     }
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    if(dbg() >10 ) cout << "\t Pass Zveto " << sSR << endl;
+    if(dbg() >1 ) cout << "\t Pass Zveto " << sSR << endl;
     
     //
     // Apply bweight only to SR where we use jet count/veto
@@ -481,25 +480,30 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     }
 
     if(!passFullJetVeto(signalJets)){
-      if(dbg()>5 && iSR==PRINT_SR) cout << "Fail Jveto " << nt->evt()->run << " " << nt->evt()->event << endl;
+      if(dbg()>1 && iSR==PRINT_SR) cout << "Fail Jveto " << nt->evt()->run << " " << nt->evt()->event << endl;
       continue;
     }
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    
-    if(!passFJet(signalJets)) continue;
+    if(dbg() >1 ) cout << "\t Pass Full-Jet veto " << sSR << endl;
+
+    if(!passFJet(signalJets)) {
+      if(dbg() >1 ) cout << "\t Fail F-Jet req " << sSR << endl;
+      continue;
+    }
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    if(dbg() >10 ) cout << "\t Pass F-Jet req " << sSR << endl;
+    if(dbg() >1 ) cout << "\t Pass F-Jet req " << sSR << endl;
     
     if(!passBJet(signalJets)) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    if(dbg() >10 ) cout << "\t Pass b-Jet req " << sSR << endl;
+    if(dbg() >1 ) cout << "\t Pass b-Jet req " << sSR << endl;
     
     if(!passLJet(signalJets)) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
     if(!passCentralJet(signalJets)) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    
+    if(dbg()>1 ) cout << "\t Pass central jet " << sSR << endl;
+
     if(!passNBJet(signalJets)) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
@@ -513,11 +517,11 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     
     if(!passLead2LepPt(leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    if(dbg() >10 ) cout << "\t Pass l0 pT " << sSR << endl;
+    if(dbg() >1 ) cout << "\t Pass l0 pT " << sSR << endl;
     
     if(!passMll(leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    if(dbg() >10 ) cout << "\t Pass Mll " << sSR << endl;
+    if(dbg() >1 ) cout << "\t Pass Mll " << sSR << endl;
     
     if(!passPtll(leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -543,6 +547,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 
     if(!passMljj(leptons,signalJets)) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg()>1 ) cout << "\t Pass mljj cut value " << m_lowMljj << sSR << endl;
 
     if(!passDPhillJ0(leptons,signalJets) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -555,7 +560,8 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     
     if(!passHT(leptons,signalJets, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    
+    if(dbg()>1 ) cout << "\t Pass HT " << sSR << endl;
+
     if(!passMetMeff(leptons,signalJets, &new_met,true) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
@@ -565,11 +571,11 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     
     if(!passMETRel(&new_met,leptons,signalJets) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    if(dbg() >10 ) cout << "\t Pass MetRel " << sSR << endl;
+    if(dbg() >1 ) cout << "\t Pass MetRel " << sSR << endl;
     
     if(!passMET(&new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    if(dbg() >10 ) cout << "\t Pass Met " << sSR << endl;
+    if(dbg() >1 ) cout << "\t Pass Met " << sSR << endl;
     
     if(!passMT2(leptons, &new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -577,25 +583,22 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 
     if(!passMWWT(leptons,&new_met) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
-    
-
+    if(dbg()>1 ) cout << "\t Pass MWWT" << sSR << endl;
 
 
     
     //
     // Debugging - Dump run event
     //
-    /*
     if(DUMP_RUNEVT && iSR==PRINT_SR){
       
-      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event << endl;
-      cout << ">>> run " << nt->evt()->run  
-	   << " event " << nt->evt()->event <<endl;
-      dumpEvent();
+      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event 
+	      << " nJets " << numberOfCLJets(*signalJets) << endl;
+      //cout << ">>> run " << nt->evt()->run  
+      //<< " event " << nt->evt()->event <<endl;
+      //dumpEvent();
       
     }
-    */
-    //3rd lepton veto - cutflow check
     
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
@@ -641,31 +644,15 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     frSR = susy::fake::CR_SRWH2j;
     break;
   case WH_CRSSZVFAKE:
-    if(m_ET == ET_ee){
-      if(nJet==1) frSR = susy::fake::CR_WHZVfake1jee;
-      else        frSR = susy::fake::CR_WHZVfake2jee;
-    }
-    else if(m_ET == ET_em){
-      if(nJet==1) frSR = susy::fake::CR_WHZVfake1jem;
-      else        frSR = susy::fake::CR_WHZVfake2jem;
-    }
-    else if(m_ET == ET_mm){
-      if(nJet==1) frSR = susy::fake::CR_WHZV1jmm;
-      else        frSR = susy::fake::CR_WHZV2jmm;
-    }
+    if(nJet==1) frSR = susy::fake::CR_WHZVfake1j;
+    else        frSR = susy::fake::CR_WHZVfake2j;
     break;
   case WH_CRSSFAKE:
-    if(m_ET == ET_em){
-      if(nJet==1) frSR = susy::fake::CR_WHfake1jem;
-      else        frSR = susy::fake::CR_WHfake2jem;
-    }
-    else if(m_ET == ET_mm){
-      if(nJet==1) frSR = susy::fake::CR_WHfake1jmm;
-      else        frSR = susy::fake::CR_WHfake2jmm;
-    }
+    if(nJet==1) frSR = susy::fake::CR_WHfake1j;
+    else        frSR = susy::fake::CR_WHfake2j;
     break;
   case WH_optimSRSS:
-    frSR = susy::fake::CR_SSInc;
+    frSR = susy::fake::CR_SSInc1j;
     break;
   }
 
@@ -680,23 +667,36 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   //Map naming convention  
   float _fw = 0;
   uint iiSys = DGSys_NOM;
-  if(iSys==DGSys_FAKE_EL_RE_UP) iiSys=SusyMatrixMethod::SYS_EL_RE_UP;
-  if(iSys==DGSys_FAKE_EL_RE_DN) iiSys=SusyMatrixMethod::SYS_EL_RE_DOWN;
-  if(iSys==DGSys_FAKE_EL_FR_UP) iiSys=SusyMatrixMethod::SYS_EL_FR_UP;
-  if(iSys==DGSys_FAKE_EL_FR_DN) iiSys=SusyMatrixMethod::SYS_EL_FR_DOWN;
-  if(iSys==DGSys_FAKE_MU_RE_UP) iiSys=SusyMatrixMethod::SYS_MU_RE_UP;
-  if(iSys==DGSys_FAKE_MU_RE_DN) iiSys=SusyMatrixMethod::SYS_MU_RE_DOWN;
-  if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=SusyMatrixMethod::SYS_MU_FR_UP;
-  if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=SusyMatrixMethod::SYS_MU_FR_DOWN;
+  if(iSys==DGSys_FAKE_EL_RE_UP) iiSys=SameSignMatrixMethod::SYS_EL_RE_UP;
+  if(iSys==DGSys_FAKE_EL_RE_DN) iiSys=SameSignMatrixMethod::SYS_EL_RE_DOWN;
+  if(iSys==DGSys_FAKE_EL_FR_UP) iiSys=SameSignMatrixMethod::SYS_EL_FR_UP;
+  if(iSys==DGSys_FAKE_EL_FR_DN) iiSys=SameSignMatrixMethod::SYS_EL_FR_DOWN;
+  if(iSys==DGSys_FAKE_MU_RE_UP) iiSys=SameSignMatrixMethod::SYS_MU_RE_UP;
+  if(iSys==DGSys_FAKE_MU_RE_DN) iiSys=SameSignMatrixMethod::SYS_MU_RE_DOWN;
+  if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=SameSignMatrixMethod::SYS_MU_FR_UP;
+  if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=SameSignMatrixMethod::SYS_MU_FR_DOWN;
 
-  _fw = m_matrix_method.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
-				     _isSignal[1], _isEle[1], _pt[1],_eta[1],
-				     frSR, metrel, 
-				     (SusyMatrixMethod::SYSTEMATIC) iiSys);  
+
+  //WH 1D fake MM
+  float _fw_1D = m_matrix_method.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
+					_isSignal[1], _isEle[1], _pt[1],_eta[1],
+					frSR, metrel, 
+					(SusyMatrixMethod::SYSTEMATIC) iiSys);  
+
+  //WH 2D MM
+  _fw = m_matrix_methodWH.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
+				       _isSignal[1], _isEle[1], _pt[1],_eta[1],
+				       frSR, metrel, 
+				       (SameSignMatrixMethod::SYSTEMATIC) iiSys); 
 
   if(dbg()>10) cout << "SR " << WH_SRNAME[iSR] 
-		    << " applying Ssys " << SYST 
-		    << " " << DGSystNames[SYST] << " fw " << _fw << endl;
+		     << " applying Ssys " << SYST 
+		     << " " << DGSystNames[SYST] 
+		     << " l0 pT " << leptons->at(0)->pt << " eta " << leptons->at(0)->eta << " isEle " << leptons->at(0)->isEle()
+		     << " l1 pT " << leptons->at(1)->pt << " eta " << leptons->at(1)->eta << " isEle " << leptons->at(1)->isEle()
+		     << " 1D fw: " << _fw_1D 
+		     << " 2D fw: " << _fw 
+		     << endl;
   
   return _fw;
 }
@@ -843,11 +843,12 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
   int q2=0;
   int qqType=0;
   TLorentzVector _ll;
-  float dPhill=999;
-  dPhill=leptons->at(0)->DeltaPhi(*leptons->at(1));
+  float dPhill= leptons->at(0)->DeltaPhi(*leptons->at(1));;
   dPhill=TVector2::Phi_mpi_pi(dPhill)*TMath::RadToDeg(); 
   float dRll=999;
   dRll  = leptons->at(0)->DeltaR(*leptons->at(1));
+  float dEtall=999;
+  dEtall= leptons->at(0)->Eta()-leptons->at(1)->Eta();
   float dPhilMet=999; //min dPhi (l,MET)
   float mTl1=-999;
   float mTl2=-999;
@@ -927,7 +928,9 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
   _hh->H1FILL(_hh->DGWH_mWWT[iSR][m_ET][iSYS],mWT,_ww); 
   _hh->H1FILL(_hh->DGWH_mTl1[iSR][m_ET][iSYS],mTl1,_ww);
   _hh->H1FILL(_hh->DGWH_mTl2[iSR][m_ET][iSYS],mTl2,_ww); 
+  _hh->H1FILL(_hh->DGWH_max_mT[iSR][m_ET][iSYS],TMath::Max(mTl1,mTl2),_ww); 
   _hh->H1FILL(_hh->DGWH_dPhill[iSR][m_ET][iSYS],fabs(dPhill),_ww); 
+  _hh->H1FILL(_hh->DGWH_dEtall[iSR][m_ET][iSYS],fabs(dEtall),_ww); 
   _hh->H1FILL(_hh->DGWH_dRll[iSR][m_ET][iSYS],fabs(dRll),_ww); 
   _hh->H1FILL(_hh->DGWH_dPhilMet[iSR][m_ET][iSYS],fabs(dPhilMet),_ww); 
   _hh->H1FILL(_hh->DGWH_JZBJet[iSR][m_ET][iSYS],JZBJet(v_sigJet,leptons),_ww); 
@@ -1029,14 +1032,6 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
   _hh->H1FILL(_hh->DGWH_nBJets[iSR][m_ET][iSYS],nBJets,_ww); 
 
 
-  //Reco mW from jj in Z events w/o btag
-  /*
-  if(hasZWindow(*leptons,MZ-10, MZ+10) && nSigJet==2 
-     &&nBJets==0){
-    TLorentzVector _jj = (*jets->at(0)) + (*jets->at(1));
-    _hh->H1FILL(_hh->DGWH_mjj[iSR][m_ET][iSYS],_jj.M(),_ww); 
-  }
-  */
   if(nSigJet>=2){
     TLorentzVector _jj = (*jets->at(0)) + (*jets->at(1));
     _hh->H1FILL(_hh->DGWH_mjj[iSR][m_ET][iSYS],_jj.M(),_ww); 

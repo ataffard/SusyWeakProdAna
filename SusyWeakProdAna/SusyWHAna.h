@@ -19,7 +19,6 @@
 
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusyBaseAna.h"
-#include "SusyWeakProdAna/SUSYCrossSection.h"
 #include "SusyWeakProdAna/SusyHistos.h"
 
 #include "SusyWeakProdAna/ToyNt.h"

@@ -104,8 +104,10 @@ while read line; do
 "$sName" == "Zmumu.147771" -o \
 "$sName" == "TtbarLeptLept.117800" -o \
 "$sName" == "llnunu_WW.126892" -o \
+"$sName" == "ttbar.110001" -o \
 "$sName" == "ttbar.117209" -o \
 "$sName" == "ttbar.117210" -o \
+"$sName" == "ZeeNp0Excl.178369" -o \
 "$sName" == "ZeeNp0.147105" -o \
 "$sName" == "ZeeNp1.147106" -o \
 "$sName" == "ZmumuNp0.147113" -o \
@@ -128,7 +130,8 @@ while read line; do
 "$sName" == "DYmumuM08to15.173043" -o \
 "$sName" == "DYmumuM15to40.173044" -o \
 "$sName" == "ZeeLightJets.146820" -o \
-"$sName" == "ZmumuLightJets.146821"  \
+"$sName" == "ZmumuLightJets.146821"  -o \
+"$sName" == "llnunu_WW_MassiveCB.177997" \
 		    ]; then
 		    SYS1=("NOM"      "EES_Z_DN"    "EES_MAT_DN" "EES_PS_DN"  "EES_LOW_DN"  "EER_DN" "MS_DN" "ID_DN" "JES_DN" "SCALEST_UP" \
 "TRIGSF_EL_UP" "TRIGSF_MU_UP" "TES_UP" "BTag_BJet_DN"  "BTag_LJet_DN" "BTag_CJet_UP" "BKGMETHOD_UP" "XS_UP")
@@ -181,7 +184,7 @@ while read line; do
 	fi
 
 	if [ "$type" == "data12" ]; then
-	    echo "Submitting data STD "
+	    echo "Submitting data STD "ß
 	    methodData=std
 	    cd ${pathRun}
 	    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh

@@ -14,6 +14,7 @@
 // Susy Common
 #include "SusyNtuple/SleptonXsecReader.h"
 #include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
+#include "SameSignMatrixMethod/DiLeptonMatrixMethod.h"
 #include "SusyMatrixMethod/FakeRegions.h"
 
 #include "HistFitterTree/HistFitterTree.h"
@@ -21,7 +22,6 @@
 
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusySelection.h"
-#include "SusyWeakProdAna/SUSYCrossSection.h"
 #include "SusyWeakProdAna/SusyHistos.h"
 
 #include "SusyWeakProdAna/ToyNt.h"
@@ -125,6 +125,7 @@ class SusyBaseAna: public SusySelection
     TrilTrigLogic*      m_trig3LObj;    // 3L trigger logic class
 
     SusyMatrixMethod::DiLeptonMatrixMethod m_matrix_method;
+    SameSignMatrixMethod::DiLeptonMatrixMethod m_matrix_methodWH;
 
     //Analysis flags
     bool    m_useLooseLep;
@@ -136,9 +137,6 @@ class SusyBaseAna: public SusySelection
     SleptonXsecReader*   m_SleptonXSecReader;
     map<int,float>       m_sleptonSumWs;
     XSReader* susyXS;
-
-    SUSY::CrossSectionDB*                       m_susyXsec;     // SUSY cross section database
-    std::map<int,SUSY::CrossSectionDB::Process> m_xsecMap;      // our own xsec map for faster lookup times
 
     const SumwMap*       m_MCSumWs;    
 

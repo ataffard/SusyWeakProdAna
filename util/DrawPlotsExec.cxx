@@ -47,14 +47,15 @@ int main(int argc, char *argv[]){
   string sTop = "histo_top_MCNLO";
   //string sTop = "histo_topDil_Sherpa";ll 
   
-  //string sWW = "histo_WW_Sherpa";
-  string sWW = "histo_WW_PowHeg";
+  string sWW = "histo_WW_Sherpa";
+  //string sWW = "histo_WW_PowHeg";
   /*
     string sZjets = "histo_Zjets_SherpaLFHF";
     string sZV = "histo_ZTauTaujets_SherpaLFHF";  
   */
   
-  string sZjets = "histo_Zjets_SherpaAlpgenPythia";
+  string sZjets = "histo_Zjets_AlpgenPythia";
+  //  string sZjets = "histo_Zjets_SherpaAlpgenPythia";
   //string sZjets = "histo_Zjets_AlpgenPythia_WZ_ZZ_PowHeg";
   //string sZjets = "histo_Zjets_Sherpa_WZ_ZZ_PowHeg";
   
@@ -63,7 +64,8 @@ int main(int argc, char *argv[]){
   //string sZjets = "histo_Zjets_AlpgenPythia";
   //string sZjets  = "histo_Zjets_AlpgenPythia_diBPowHeg";
 
-  string sZV = "histo_WZ_ZZ_PowHeg";  
+  //string sZV = "histo_WZ_ZZ_PowHeg";  
+  string sZV = "histo_WZ_ZZ_Sherpa";  
   
   string sHiggs = "histo_Higgs";
   //string sHiggs = "histo_dummy";

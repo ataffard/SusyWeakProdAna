@@ -39,8 +39,11 @@ DrawPlots::DrawPlots(){
 
 
   SIGFILE.clear();
-  SIGFILE.push_back("(m#tilde{l},m#tilde{#chi}_{1}^{0}) = (251,10) GeV");
-  SIGFILE.push_back("(m#tilde{#chi}^{#pm}_{1},m#tilde{#chi}^{0}_{1}) = (350,0) GeV");
+  //WH
+  SIGFILE.push_back("(m#tilde{#chi}^{#pm}_{1},m#tilde{#chi}^{0}_{2}) = (130,0) GeV");
+  //C1C1-slepton
+  //  SIGFILE.push_back("(m#tilde{l},m#tilde{#chi}_{1}^{0}) = (251,10) GeV");
+  //  SIGFILE.push_back("(m#tilde{#chi}^{#pm}_{1},m#tilde{#chi}^{0}_{1}) = (350,0) GeV");
 }
 
 //-------------------------------------------//
@@ -135,11 +138,10 @@ void DrawPlots::openHistoFiles(string mode,
 
   _sigFileName.clear();
   _sigFile.clear();
-  //_sigFileName.push_back("histo_Herwigpp_pMSSM_DLiSlep_MSL_255_M1_080.175517_rlep_NOM_XS_DN.root");
-  //_sigFileName.push_back("histo_Herwigpp_simplifiedModel_wC_slep_noWcascade_24.144921_rlep_NOM_XS_DN.root");
-  _sigFileName.push_back("histo_Herwigpp_pMSSM_DLiSlep_MSL_251_M1_010.175510_rlep_NOM_XS_DN.root");
-  _sigFileName.push_back("histo_Herwigpp_simplifiedModel_wC_slep_noWcascade_20.144917_rlep_NOM_XS_DN.root");
-
+  //C1C1 - slepton
+  //  _sigFileName.push_back("histo_Herwigpp_pMSSM_DLiSlep_MSL_251_M1_010.175510_rlep_NOM_XS_DN.root");
+  //  _sigFileName.push_back("histo_Herwigpp_simplifiedModel_wC_slep_noWcascade_20.144917_rlep_NOM_XS_DN.root");
+  _sigFileName.push_back("histo_Herwigpp_sM_wA_noslep_notauhad_WH_2Lep_1.177501_rlep.root");
   
   for(uint i=0; i<_sigFileName.size(); i++){
     std::cout << "Loading " << SIGFILE[i].c_str() << " " << _sigFileName[i] << std::endl;
@@ -254,6 +256,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
       _h = (TH1F*) _tmp->Clone();
     }
     if(_moveUO) _utils->moveUnderOverFlow(_h);
+    /*
     switch (i){
     case Slepton_255_80:
       _sigColor.push_back(C_SIG1);
@@ -266,6 +269,11 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
       title = "SIG_"+name;
       break;
     }
+    */
+    _sigColor.push_back(C_SIG1);
+    _sigName.push_back(SIGFILE[0]);
+    title = "SIG_"+name;
+
     _h->SetTitle(title.c_str());
     _h->SetName(title.c_str());
     _h->SetFillStyle(0);
@@ -754,7 +762,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   if(wSig){
     TString hName(name);
     for(uint i=0; i<_sigFile.size(); i++){
-      if(hName.Contains("EM") && i==0) continue; //Skip slepton for EM
+      //if(hName.Contains("EM") && i==0) continue; //Skip slepton for EM
       _utils->myDraw1d(_sigH1[i],_c0,1,"histsame",logy,_sigColor[i],false,20);
       _leg->AddEntry(_sigH1[i],SIGFILE[i].c_str(),"l");
       _c0->Update();
@@ -1170,7 +1178,6 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
   sysUp    = 0;
   sysDn    = 0;
  
-
   if(histV[DGSys_NOM]==NULL){
     cerr << "Empty hist " << endl;
     return;
@@ -1216,15 +1223,15 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
 
 //_____________________________________________________________________________//
 void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV, 
-			       std::vector<TH1F*> histZVV, 
-			       std::vector<TH1F*> histWWV, 
-			       std::vector<TH1F*> histTopV, 
-			       std::vector<TH1F*> histZjetsV,
-			       std::vector<TH1F*> histHiggs,
-			       Double_t &nom,
-			       Double_t &stat_err,
-			       Double_t &sysUp, Double_t &sysDn,
-			       bool verbose){
+			      std::vector<TH1F*> histZVV, 
+			      std::vector<TH1F*> histWWV, 
+			      std::vector<TH1F*> histTopV, 
+			      std::vector<TH1F*> histZjetsV,
+			      std::vector<TH1F*> histHiggs,
+			      Double_t &nom,
+			      Double_t &stat_err,
+			      Double_t &sysUp, Double_t &sysDn,
+			      bool verbose){
   
   sysUp=0;
   sysDn=0;

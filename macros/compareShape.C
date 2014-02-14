@@ -23,13 +23,13 @@
 #include "SusyNtuple/TGuiUtils.h"
 
 //_____________________________________________________________________________//
-static const string ver       = "histos_011814_21fb_n0145_DD_WH_v2/";  //ToyNt filtered SS, 3rd lep veto, B/F-veto >=1 C20 jet
+static const string ver       = "histos_021414_21fb_n0150_DD_WH_v2/";  //ToyNt filtered SS, 3rd lep veto, B/F-veto >=1 C20 jet
 static const string SR        = "_WH_optimSRSS";
 
 static const int dbg = 1;
 
 //Options for optimisation
-static const int    selDil    = 2;  //EE, MM, EM for SS and C1C1 grids
+static const int    selDil    = 0;  //EE, MM, EM for SS and C1C1 grids
 static const int    selCuts   = 1;  //WH 1 or 2+3jets
 
 //wA WH grids
@@ -41,7 +41,7 @@ static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use fo
 
 //Settings for optimisation/plots
 static const bool   weightEvt          = true;   //Weight bkg/signal events
-static const bool   showData           = false;   //false: shows Zn below plot
+static const bool   showData           = true;//false;   //false: shows Zn below plot
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group;
 static const bool   showCutflow        = true;   //dump cutflow yield
@@ -204,16 +204,22 @@ void runOptimisation(bool useOneSignal)
     cout << "---------------------------------------------" << endl;
     cout << "---------------------------------------------" << endl;
     if(!skipDetailBkg && showCutflowDetail){
+      cutFlow(ntBkg[FAKE],yield,statErr);
       cutFlow(ntBkg[ZV],yield,statErr);
-      cutFlow(ntBkg[Zjets],yield,statErr);
       cutFlow(ntBkg[WW],yield,statErr);
       cutFlow(ntBkg[TOP],yield,statErr);
+      cutFlow(ntBkg[Zjets],yield,statErr);
       cutFlow(ntBkg[HIGGS],yield,statErr);
-      cutFlow(ntBkg[FAKE],yield,statErr);
       cout << "---------------------------------------------" << endl;
       cutFlow(ntBkg[ALLBKG],yield,statErr);
       cout << "---------------------------------------------" << endl;
       cout << "---------------------------------------------" << endl;
+      if(showData){
+	cutFlow(ntData,yield,statErr);
+	cout << "---------------------------------------------" << endl;
+	cout << "---------------------------------------------" << endl;
+      }
+
     }
   }
   selectEvent(SEL,useOneSignal);
@@ -325,11 +331,13 @@ void loadSamples()
   _bkgFileNames.push_back(string("toyNt_Higgs" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_dataFake" + SR + "_flep.root").c_str()); //FAKE
   _bkgFileNames.push_back(string("toyNt_WZ_ZZ_PowHeg" + SR + "_rlep.root").c_str());
-  _bkgFileNames.push_back(string("toyNt_Zjets_SherpaAlpgenPythia" + SR + "_rlep.root").c_str());
+  //_bkgFileNames.push_back(string("toyNt_Zjets_SherpaAlpgenPythia" + SR + "_rlep.root").c_str());
+  _bkgFileNames.push_back(string("toyNt_Zjets_AlpgenPythia" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_top_MCNLO" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_WW_PowHeg" + SR + "_rlep.root").c_str());
   if(SR=="_WH_optimSRSS")
-    _bkgFileNames.push_back(string("toyNt_Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_FAKE" + SR + ".root").c_str());
+    _bkgFileNames.push_back(string("toyNt_Bkg_Zjets_Alpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_FAKE" + SR + ".root").c_str());
+    //_bkgFileNames.push_back(string("toyNt_Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_FAKE" + SR + ".root").c_str());
   else 
     _bkgFileNames.push_back(string("toyNt_Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO" + SR + "_rlep.root").c_str());
   
@@ -471,6 +479,8 @@ void bookHist()
   _var.push_back("dEtajj");
   _var.push_back("deta_ll");
   _var.push_back("max_mTl");
+  _var.push_back("e_eta");
+  _var.push_back("m_eta");
 
   cout << "Booking histo for " << _var.size() << " variables " << endl;
 
@@ -548,6 +558,8 @@ TH1F* histList(int ivar, string name)
   if(ivar==43) h = myBook(name.c_str(),40,0,4,"#delta#eta_{jj} ",sY.c_str());
   if(ivar==44) h = myBook(name.c_str(),30,0,3,"#delta#eta_{ll} ",sY.c_str());
   if(ivar==45) h = myBook(name.c_str(),40,0,400,"max(m_{T}^{l0},(m_{T}^{l1}) [GeV]",sY.c_str());
+  if(ivar==46) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{e}",sY.c_str());
+  if(ivar==47) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{#mu}",sY.c_str());
 
   return h;
 }
@@ -561,10 +573,11 @@ void fillHist()
   string cmdSig;
   string cmdData;
 
-  TCut _sel("metrel>=0"); //dummy cut to weight the events
   TCut weight("w");
 
   for(uint ivar=0; ivar<_var.size(); ivar++){
+    TCut _sel("metrel>=0"); //dummy cut to weight the events
+    TCut _selData("");
     if     (ivar==9)  cmd = "abs(mll_collApprox-91.2)";
     else if(ivar==27) cmd = "met/mEff";
     else if(ivar==31) cmd = "abs(llAcoplanarity+3.1415)";
@@ -578,8 +591,17 @@ void fillHist()
     else if(ivar==43) cmd = "abs(dEtajj)";
     else if(ivar==44) cmd = "abs(deta_ll)";
     else if(ivar==45) cmd = "TMath::Max(mTl[0],mTl[1])";
+    else if(ivar==46){
+      cmd = "l_eta";
+      _sel += TCut("l_isEle");
+      _selData += TCut("l_isEle");
+    }
+    else if(ivar==47){
+      cmd = "l_eta";
+      _sel += TCut("!l_isEle");
+      _selData += TCut("!l_isEle");
+    }
     else              cmd = _var[ivar];
-    
     
     cmdSig = cmd + ">>sig_" + _var[ivar];
     if(weightEvt) _vNtSig[sigSampleIdx]->Draw(cmdSig.c_str(),_sel*weight,"goff");
@@ -593,8 +615,8 @@ void fillHist()
     }
     
     cmdData = cmd + ">>data_" + _var[ivar];
-    if(weightEvt) ntData->Draw(cmdData.c_str(),"","goff");
-    else          ntData->Draw(cmdData.c_str(),"","goff");
+    if(weightEvt) ntData->Draw(cmdData.c_str(),_selData,"goff");
+    else          ntData->Draw(cmdData.c_str(),_selData,"goff");
     
   }
 }
@@ -1003,13 +1025,22 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       if(verbose) cout << " \t SRWH SS-EE 1j" << endl;
       _vCut.push_back(TCut("llType==0"));
 
+      //Lea CR
+      /*
+      _vCut.push_back(TCut("nCJets>=1"));
+      _vCut.push_back(TCut("metrel<40"));
+      _vCut.push_back(TCut("abs(mll-91.2)>10"));
+      */
+
+      //      _vCut.push_back(TCut("nCJets>=1"));
+      //_vCut.push_back(TCut("abs(mll-91.2)>10"));
+      //_vCut.push_back(TCut("l_pt[0]>30"));
+
       //SR
       /*
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
-      //_vCut.push_back(TCut("mll<70 || mll>100"));
-      //_vCut.push_back(TCut("mll<80 || mll>100"));
       _vCut.push_back(TCut("abs(mll-91.2)>10"));
       _vCut.push_back(TCut("mlj<90")); 
       _vCut.push_back(TCut("mEff>200"));
@@ -1017,10 +1048,9 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       */
 
       //VR-fake
-      _vCut.push_back(TCut("abs(mll-91.2)>10"));
-      //_vCut.push_back(TCut("mll<70 || mll>100"));
-      _vCut.push_back(TCut("metrel>40"));
-      _vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
+      //_vCut.push_back(TCut("abs(mll-91.2)>10"));
+      //_vCut.push_back(TCut("metrel>40"));
+      //_vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
 
       //test
       //_vCut.push_back(TCut("metrel>80"));
@@ -1034,9 +1064,15 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
     else if(dilType==1){ //MM
       if(verbose) cout << " \t SRWH SS-MM 1j" << endl;
       _vCut.push_back(TCut("llType==1 && !isOS"));
-      
+
+      //Lea CRs
+      _vCut.push_back(TCut("nCJets>=1"));
+      _vCut.push_back(TCut("metrel<40"));
+
+
 
       //SR
+      /*
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
@@ -1044,7 +1080,7 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
       _vCut.push_back(TCut("mlj<90")); 
       _vCut.push_back(TCut("mEff>200"));
-      //_vCut.push_back(TCut("mEff>230"));
+      */
 
       //CR-ZV
       /*
@@ -1067,13 +1103,28 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
     else if(dilType==2){ //EM
       if(verbose) cout << " \t SRWH SS-EM 1j" << endl;
       _vCut.push_back(TCut("llType==2"));
-
+      //Check EM excess
+      _vCut.push_back(TCut("nCJets>=1"));
+      _vCut.push_back(TCut("l_pt[0]>30"));
+      _vCut.push_back(TCut("l_pt[1]<30"));
+      _vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
+      //      _vCut.push_back(TCut("(abs(l_eta[0])<1.5 && !l_isEle[0] && abs(l_eta[1])<1.5 && l_isEle[1])  || (abs(l_eta[1])<1.5 && !l_isEle[1] && abs(l_eta[0])<1.5 && l_isEle[0]) " ));
+      //_vCut.push_back(TCut("(abs(l_eta[0])>1.5 && !l_isEle[0] && abs(l_eta[1])>1.5 && l_isEle[1])  || (abs(l_eta[1])>1.5 && !l_isEle[1] && abs(l_eta[0])>1.5 && l_isEle[0]) " ));
+      //Central E, mu fwd
+      _vCut.push_back(TCut("(abs(l_eta[0])>1.5 && !l_isEle[0] && abs(l_eta[1])<1.5 && l_isEle[1])  || (abs(l_eta[1])>1.5 && !l_isEle[1] && abs(l_eta[0])<1.5 && l_isEle[0]) " ));
       
+      //Lea CRs
+      //_vCut.push_back(TCut("nCJets>=1"));
+      //_vCut.push_back(TCut("metrel<40"));
+
+
       //SR
       /*
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>30"));
+      */
+      /*
       _vCut.push_back(TCut("abs(deta_ll)<1.5"));
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
       _vCut.push_back(TCut("mlj<90")); 
@@ -1086,10 +1137,9 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       //_vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
 
       //CR FAKE
-      
-      _vCut.push_back(TCut("l_pt[0]>30"));
-      _vCut.push_back(TCut("l_pt[1]<30"));
-      _vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
+      //_vCut.push_back(TCut("l_pt[0]>30"));
+      //_vCut.push_back(TCut("l_pt[1]<30"));
+      //_vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
       
       
     }
@@ -1104,12 +1154,9 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("nCJets>1 && nCJets<4"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
-      //_vCut.push_back(TCut("mll<70 || mll>100"));
-      //_vCut.push_back(TCut("mll<80 || mll>100"));
       _vCut.push_back(TCut("abs(mll-91.2)>10"));
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
       _vCut.push_back(TCut("mljj<120"));
-      //_vCut.push_back(TCut("metrel>55"));
       _vCut.push_back(TCut("metrel>30"));
 
     }
@@ -1121,9 +1168,8 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("l_pt[1]>30"));
       _vCut.push_back(TCut("abs(deta_ll)<1.5"));
       _vCut.push_back(TCut("mljj<120"));
-      //_vCut.push_back(TCut("mEff>220"));
-      _vCut.push_back(TCut("mEff>260"));
-
+      _vCut.push_back(TCut("mEff>220"));
+      
       //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>80"));
       //_vCut.push_back(TCut("metrel>40")); //remove as much S than B
     }
@@ -1133,11 +1179,11 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("nCJets>1 && nCJets<4"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>30"));
-      _vCut.push_back(TCut("abs(deta_ll)<1.5"));
-      //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>120"));
+      //_vCut.push_back(TCut("abs(deta_ll)<1.5"));
       _vCut.push_back(TCut("mljj<120"));
-
       _vCut.push_back(TCut("mWWT>110"));
+
+
       //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>120"));
 
     }

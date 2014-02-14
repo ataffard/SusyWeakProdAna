@@ -1,5 +1,5 @@
 #!/bin/bash
-sub=_n0145
+sub=_n0150
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutPath=$WORKAREA/SusyWeakProdAna/scripts
@@ -49,6 +49,24 @@ if [[ $type == "mc12" ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-4`)
 	elif [[ ${DIS} -ge 147900 && ${DIS} -le 147907 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-5`)
+	elif [[ ${DIS} -eq 158344 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-5`)
+	elif [[ ${DIS} -eq 164439 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f2-2`)
+	elif [[ ${DIS} -ge 169704 && ${DIS} -le 169706 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-5`)
+	elif [[ ${DIS} -ge 129477 && ${DIS} -le 129494 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f2-3`)
+	elif [[ ${DIS} -eq 177997 || ${DIS} -eq 177999 || ${DIS} -eq 179974 || ${DIS} -eq 179975 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-5`)
+	elif [[ ${DIS} -ge 183585 && ${DIS} -le 183592 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-5`)
+	elif [[ ${DIS} -ge 183734 && ${DIS} -le 183739 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-5`)
+
+	elif [[ ${DIS} -ge 179993 && ${DIS} -le 179998 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-4`)
+
 	else
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-3`)
 	fi

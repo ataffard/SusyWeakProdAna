@@ -13,8 +13,10 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_5FB  //A->B14
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "012914";
-const std::string SUFF = "_n0145_DD_WH_v3";
+const std::string TAG  = "021414";
+const std::string SUFF = "_n0150_DD_WH_v2";
+
+const bool n0150BugFix=true;
 
 //
 //Normal mode - all these are true
@@ -48,7 +50,7 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 const bool BLIND_MC       = false;
 
 const bool DUMP_RUNEVT    = false;   //Dump run:event info
-const unsigned int  PRINT_SR = WH_SRSS1j;
+const unsigned int  PRINT_SR = WH_CRSSZVFAKE;//WH_SRSS1j;
 
 const float MLLCUT = 60;
 

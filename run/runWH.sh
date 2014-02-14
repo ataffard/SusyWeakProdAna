@@ -24,7 +24,7 @@ dbgEvt=""
 debug=0
 #debug=2
 nEvt="-n -1"
-#nEvt="-n 100000"
+#nEvt="-n 500"
 
 
 if [[ $# -eq 3 ]]; then
@@ -52,11 +52,14 @@ fi
 
 if [ "$type" == "mc12" ]; then
     if [ "${DS}" == "dummy" ] ; then
-	sample=(`more ../scripts/mc12_sampleList.txt |grep 105861 |cut -d" " -f 3-4`)
+	sample=(`more ../scripts/mc12_sampleList.txt |grep 167007 |cut -d" " -f 3-4`)
 	./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  dummy -n 1 -D ${sample} |tee jobLogs/dummy_${methodMC}.log
     else
 	name=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
-	sample=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
+	#sample=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
+	sample=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 2-4`)
+	echo "Submitting " ${name} 
+	echo " " ${sample}
         ./SusyAnaLooperExec  ${dbgEvt} ${nEvt} -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
     fi
 elif [ "$type" == "data12" ]; then

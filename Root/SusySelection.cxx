@@ -101,7 +101,8 @@ SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
   string chargeFlipInput =  string(getenv("WORKAREA")) + 
     "/ChargeFlip/data/chargeflip_map.root";
   if(qFlipd0) chargeFlipInput =  string(getenv("WORKAREA")) + 
-    "/ChargeFlip/data/d0_chargeflip_map.root";
+    //  "/ChargeFlip/data/d0_chargeflip_map.root";
+    "/ChargeFlip/data/d0_new2d_chargeflip_map.root";
   cout << "Using flip map: " << chargeFlipInput <<endl;
   m_chargeFlip = new chargeFlip(chargeFlipInput);
 
@@ -565,9 +566,18 @@ float SusySelection::getQFlipProb(LeptonVector* leptons, Met* met, uint iSys)
   if(iSys==DGSys_BKGMETHOD_DN) _sys=-1;
 
   m_chargeFlip->setSeed(nt->evt()->event); //Do the seed here using evt #
+  //Version tag-14
+  /*
   float cfP = m_chargeFlip->OS2SS(_pdg1, &_l1_tlv, 
 				  _pdg2, &_l2_tlv, 
 				  &_new_met, _sys);
+  */
+  bool isData=false;
+  chargeFlip::eStatus map2use = chargeFlip::combined;
+  float cfP = m_chargeFlip->OS2SS(_pdg1, &_l1_tlv, 
+				  _pdg2, &_l2_tlv, 
+				  _sys, isData, map2use);
+
 
   cfP*=  m_chargeFlip->overlapFrac().first; // QFLIP_RESCLALE;
   //cfP*= QFLIP_RESCLALE;
@@ -1332,10 +1342,7 @@ LeptonVector SusySelection::getLooseLeptons(LeptonVector* preLeptons,
     
     float mindR=999;//Not within 0.05 of signal/baseline leptons
     for(uint slep=0; slep<leptons->size(); ++slep){
-      /*
-      if( (preLeptons->at(ilep)->isEle()==leptons->at(slep)->isEle()) ||
-      (preLeptons->at(ilep)->isMu()==leptons->at(slep)->isMu()) )*/
-	mindR = preLeptons->at(ilep)->DeltaR(*leptons->at(slep));
+      mindR = preLeptons->at(ilep)->DeltaR(*leptons->at(slep));
 	if(dbg() >10) cout << "dR with signal lepton " 
 			  << (*leptons->at(slep)).Pt() << " " << mindR << endl;
     }

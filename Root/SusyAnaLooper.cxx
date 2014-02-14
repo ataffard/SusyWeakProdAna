@@ -25,10 +25,10 @@ SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH):
   nHFOR(0),
   nMllCut(0)
 {
-  if(_do2LAna)      setAnaType(Ana_2Lep);
-  else if(_doWHAna) setAnaType(Ana_2LepWH);
-  else if(_do3LAna) setAnaType(Ana_3Lep);
-  else setAnaType(Ana_2Lep);
+  if(_do2LAna)      setAnaType(Ana_2Lep,true);
+  else if(_doWHAna) setAnaType(Ana_2LepWH,true);
+  else if(_do3LAna) setAnaType(Ana_3Lep,true);
+  else setAnaType(Ana_2Lep,true);
 
   setSelectTaus(true);
 
@@ -66,6 +66,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 
   if(_doFakeAna){
     _susyFakeAna = new SusyFakeAna(_susyHistos);
+    _susyFakeAna->setAnaType(Ana_2Lep,true);
     _susyFakeAna->setDebug(dbg());
     _susyFakeAna->hookContainers(&nt,
 				 &m_baseElectrons, &m_signalElectrons,
@@ -77,6 +78,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 
   if(_do2LAna){
     _susy2LAna = new Susy2LepAna(_susyHistos);
+    _susy2LAna->setAnaType(Ana_2Lep,true);
     _susy2LAna->setDebug(dbg());
     _susy2LAna->setUseLooseLep(_useLooseLep);
     _susy2LAna->setMethod(_method);
@@ -114,6 +116,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
   }
   if(_doWHAna){
     _susyWHAna = new SusyWHAna(_susyHistos);
+    _susyWHAna ->setAnaType(Ana_2LepWH,true);
     _susyWHAna->setDebug(dbg());
     _susyWHAna->setUseLooseLep(_useLooseLep);
     _susyWHAna->setMethod(_method);
@@ -150,6 +153,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
   }
   if(_do3LAna){
     _susy3LAna = new Susy3LepAna(_susyHistos);
+    _susy3LAna->setAnaType(Ana_3Lep,true);
     _susy3LAna->setDebug(dbg());
     _susy3LAna->setUseLooseLep(_useLooseLep);
     _susy3LAna->hookContainers(&nt,
@@ -286,14 +290,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       if(nt.evt()->mllMcTruth < MLLCUT){ nMllCut++; return kFALSE;}
     }
   }
-  /*
-  if((nt.evt()->mcChannel>=146830 && nt.evt()->mcChannel<=146855)){
-    _isAlpgenLowMass=true;
-    if(_doMll){ //Reject Alpgen low mass with Mll>40 - To patch w/ Sherpa
-      if(!nt.evt()->passMllForAlpgen) return kFALSE;
-    }
-  }
-  */
+ 
 
   //Check Duplicate run:event in data
   if(!nt.evt()->isMC && checkDuplicate()){
@@ -354,10 +351,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       if(dbg()>1) cout << "  Processing Sys " << iiSyst << " " << DGSystNames[iiSyst] <<endl;
       
       clearObjects();
-      if(iiSyst<=DGSys_RESOST) //Only for sys up to trigger SF need reload the SusyNt obj
-	selectObjects( (SusyNtSys) iiSyst, false, TauID_medium);
+      if(iiSyst<=DGSys_RESOST || iiSyst==DGSys_TES_UP || iiSyst==DGSys_TES_DN) //Only syst that change the event selection
+	selectObjects((SusyNtSys) iiSyst, false, TauID_medium,n0150BugFix);
       else
-	selectObjects((SusyNtSys) DGSys_NOM, false, TauID_medium);
+	selectObjects((SusyNtSys) DGSys_NOM, false, TauID_medium,n0150BugFix);
       
       if(dbg()>5) dumpEvent();
       
@@ -376,7 +373,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     }   
    }
   else{
-    selectObjects((SusyNtSys) iSys);
+    selectObjects((SusyNtSys) iSys,false,TauID_medium,n0150BugFix);
     if(dbgEvt()) dumpEvent();
 
     //perform event analysis

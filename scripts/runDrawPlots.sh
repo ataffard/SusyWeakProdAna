@@ -140,6 +140,37 @@ PLOTS=(mllcoarser \
 fi
 
 
+if [ "$mode" == "DGWH" ] || [ "$mode" == "ALL" ] ; then
+DIL=(EE MM EM)
+
+#<<SKIP
+SR=( \
+    #WH_SRSS1j WH_SRSS23j \
+    WH_CRSSZVFAKE WH_CRSSFAKE WH_optimSRSS \
+)
+#SKIP
+
+PLOTS=( pred qq nCJets \
+     mllcoarse mjj mWWT  mTl1 mTl2 max_mT etmiss metrel mt2 mt2j mljj mEff ST \
+     ptl1 ptl2 etal1 etal2 eEta mEta dPhill dRll pTll dEtall \    
+     ptj1 ptj2 ptj3 etaj1 etaj2 etaj3 \
+	 )
+
+    
+    for sr in ${SR[@]}; do
+	for dil in ${DIL[@]}; do
+	    if [ "$sr" == "CRSSFAKE" -a "$dil" == "EE" ]; then continue; fi
+
+	    for plots in ${PLOTS[@]}; do
+		name=DGWH_${sr}_${dil}_DGWH_${plots}
+		${pathRun}/DrawPlotsExec -pred -p ${name} ${OPT}
+	    done
+	done
+    done
+
+fi
+
+
 if [ "$mode" == "ML" ] || [ "$mode" == "ALL" ] ; then
 
     SR=(SR3Lep SRB SR1a SR1b SR2 VR0 VR1 VR2 VR3 VRWZ NRWZ SR4lep SR4lepNoZ)

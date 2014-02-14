@@ -17,8 +17,7 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
   SusySelection(is2LAna,qFlipd0),
   _hh(_histos),
   m_useLooseLep(false),
-  m_writeToyNt(false),
-  m_susyXsec(0)
+  m_writeToyNt(false)
 {
   reset();
   resetCounter();
@@ -41,14 +40,26 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
   //"/SusyMatrixMethod/data/pass3_Summer2013.root"; //Summer 2013 2L paper!
   string _fakeInput  =  string(getenv("WORKAREA")) + 
     //"/SusyMatrixMethod/data/forDavide_Sep11_2013.root"; //WH ana!
-    //"/SusyMatrixMethod/data/FinalFakeHist_Jan_02.root"; //WH new Iso
-    "/SusyMatrixMethod/data/FinalFakeHist_Jan_29.root"; //WH new Iso update CR/SR
+    //"/SusyMatrixMethod/data/FinalFakeHist_Jan_29.root"; //WH new Iso
+    //"/SusyMatrixMethod/data/FinalFakeHist_Jan_31.root"; //WH new Iso new extraction reg no metrel
+    //    "/SusyMatrixMethod/data/FinalFakeHist_Feb_02.root"; //WH new Iso update CR/SR
+    "/SusyMatrixMethod/data/FinalFakeHist_Feb_11.root"; //WH new Iso update CR/SR to match Anyes selection cuts
   cout << "Loading fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT);
 
+
+  string _fakeInputSS  =  string(getenv("WORKAREA")) + 
+    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_12.root"; //WH 2D MM
+  cout << "Loading fake SS-WH MM " << _fakeInputSS << endl;
+
+  bool m_use2dparametrization=true;
+  SameSignMatrixMethod::RATE_PARAM pm = (m_use2dparametrization ? SameSignMatrixMethod::PT_ETA : 
+					 SameSignMatrixMethod::PT);
+  m_matrix_methodWH.configure(_fakeInputSS, pm, pm, pm, pm);
+  
 
   //-------------------------
   //3L Trigger
@@ -69,10 +80,6 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
     "/data/SusyNtuple/samplesList_pMSSM_DLiSlep.txt";
 
   m_SleptonXSecReader    = new SleptonXsecReader();
-  //  sleptonDSIDFile.c_str(),sleptonXSecFile.c_str(),"SignalUncertainties"); 
-  
-  string xsecFileName  = gSystem->ExpandPathName("$ROOTCOREDIR/data/SusyWeakProdAna/susy_crosssections_8TeV.txt");
-  m_susyXsec = new SUSY::CrossSectionDB(xsecFileName);
 
   susyXS = new XSReader();
   susyXS->LoadXSInfo();
@@ -150,7 +157,10 @@ void SusyBaseAna::finish()
 /*--------------------------------------------------------------------------------*/
 float SusyBaseAna::eventWeight(int mode)
 {
-  bool useSumWMap = true; 
+  bool useSumWMap  = true; 
+  bool useProcSumW = true;
+  bool useSusyXsec = true;
+
   if( !nt->evt()->isMC) return 1; //Data weight =1
 
   float _evtW=nt->evt()->w;
@@ -160,27 +170,20 @@ float SusyBaseAna::eventWeight(int mode)
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
     else{
       unsigned int mcid = nt->evt()->mcChannel;   
-
-      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs);
-            
-      //Overwrite Xs value
-      if(isSimplifiedModelGrid(mcid)){
-	// TO DO: update to get Cross section from SusyNt  MCWeighter
-	_evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,true,false); 
-	//_evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,true,true); 
-	_evtW = _evtW/nt->evt()->xsec * susyXS->GetXS(mcid);		
-      }
+      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,useProcSumW, useSusyXsec);
       
       if(dbg()>10)
 	cout << "Ana W: " << nt->evt()->w 
 	     << " pileup " << nt->evt()->wPileup 
 	     << " xsec " <<  nt->evt()->xsec 
 	     << " lumi " << LUMI_A_L 
-	     << " sumw " << nt->evt()->sumw << endl;
+	     << " sumw " << nt->evt()->sumw 
+	     << " evtW " << _evtW << endl;
     }
   }
   
   // Correct the cross section for DLiSlep
+  //02-10-2013 TO be added by Serhan in SUSYTools
   if(
      (nt->evt()->mcChannel >= 166501 && nt->evt()->mcChannel <= 166658) ||
      (nt->evt()->mcChannel >= 175420 && nt->evt()->mcChannel <= 175583) ||
@@ -286,17 +289,8 @@ float SusyBaseAna::getBTagSF(const Susy::Event*, const JetVector* jets, uint iSy
   if(!nt->evt()->isMC) return 1;
   if(!USE_BWEIGHT)     return 1;
 
-  JetVector  valJets;
-  valJets.clear();
-  if(dbg()>0) cout << "Jets used for b-Tag weight " << endl;
-  for(uint i=0; i<jets->size(); ++i){
-    Jet* jet = jets->at(i);
-    if( jet->Pt() < JET_PT_L20_CUT        ) continue;
-    if( fabs(jet->detEta) > JET_ETA_CUT_2L ) continue;
-    if(dbg()>0) cout << " jet " << jet->Pt() << endl;
-    valJets.push_back(jet);
-  }
-  
+  JetVector valJets=getBTagSFJets2Lep(*jets);
+
   if(valJets.size()==0) return 1;//safety.
 
   //Get sys naming convention

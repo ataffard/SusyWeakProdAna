@@ -64,10 +64,12 @@ class Histos_WH
   HDGWH DGWH_mWWT;
   HDGWH DGWH_dPhill;
   HDGWH DGWH_dRll;
+  HDGWH DGWH_dEtall;
   HDGWH DGWH_dPhilMet; //New
   HDGWH DGWH_dPhiJetMet; //New
   HDGWH DGWH_mTl1; //Mt using leading lepton 
   HDGWH DGWH_mTl2; //Mt using subleading lepton 
+  HDGWH DGWH_max_mT; //max Mt 
   HDGWH DGWH_JZBJet;
   HDGWH DGWH_JZBEtmiss;
   HDGWH DGWH_etmiss;
