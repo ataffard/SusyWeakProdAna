@@ -52,7 +52,9 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
 
 
   string _fakeInputSS  =  string(getenv("WORKAREA")) + 
-    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_12.root"; //WH 2D MM
+    //    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_12.root"; //WH 2D MM
+    "/SusyMatrixMethod/data/FinalFakeHist_Feb_16.root"; //WH 2D flat SF, increase eta sys. 
+  //    "/SusyMatrixMethod/data/FinalFakeHist_Feb_18.root"; //WH 2D w/ pT bin SF 
   cout << "Loading fake SS-WH MM " << _fakeInputSS << endl;
 
   bool m_use2dparametrization=true;

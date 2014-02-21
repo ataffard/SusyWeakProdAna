@@ -48,7 +48,7 @@ int main(int argc, char *argv[]){
   //string sTop = "histo_topDil_Sherpa";ll 
   
   string sWW = "histo_WW_Sherpa";
-  //string sWW = "histo_WW_PowHeg";
+  //  string sWW = "histo_WW_PowHeg";
   /*
     string sZjets = "histo_Zjets_SherpaLFHF";
     string sZV = "histo_ZTauTaujets_SherpaLFHF";  

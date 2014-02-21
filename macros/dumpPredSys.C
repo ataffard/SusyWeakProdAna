@@ -5,7 +5,7 @@ typedef unsigned uint;
 
 //string dir ="histOutputs/";
 //string dir ="histos_080813_21fb_n0145_DD_v4/histOutputs/";
-string dir ="histos_020714_21fb_n0150_DD_WH_v1/";
+string dir ="histos_021414_21fb_n0150_DD_WH_v3/";
 //string dir ="";
 
 TGuiUtils* _utils;
@@ -102,6 +102,7 @@ int main(int argc, char *argv[]){
 	  //string sHName = SR[is] + LEP[il] + "_ML_pred_"+ DGSystNames[isys];
 	  
 	  string sHName = SR[is] + LEP[il] + "_DGWH_pred_"+ DGSystNames[isys];
+	  //string sHName = SR[is] + LEP[il] + "_DGWH_nCJets_"+ DGSystNames[isys];
 	  //cout << "Name " << sHName << endl;
 	  TH1F* _h = (TH1F*)  _f->Get(sHName.c_str())->Clone();
 	  float fracErr = 0;

@@ -29,7 +29,7 @@ static const string SR        = "_WH_optimSRSS";
 static const int dbg = 1;
 
 //Options for optimisation
-static const int    selDil    = 0;  //EE, MM, EM for SS and C1C1 grids
+static const int    selDil    = 1;  //EE, MM, EM for SS and C1C1 grids
 static const int    selCuts   = 1;  //WH 1 or 2+3jets
 
 //wA WH grids
@@ -41,13 +41,13 @@ static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use fo
 
 //Settings for optimisation/plots
 static const bool   weightEvt          = true;   //Weight bkg/signal events
-static const bool   showData           = true;//false;   //false: shows Zn below plot
+static const bool   showData           = false;   //false: shows Zn below plot
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group;
 static const bool   showCutflow        = true;   //dump cutflow yield
 static const bool   showCutflowDetail  = true;   //dump yield last cut
 static const bool   showCutflowDetail2 = false;  //dump cutflow each cut
-static const bool   logPlot            = true;   
+static const bool   logPlot            = false;//true;   
 
 static const float SYS_ERR = 0.3; //30% systematic on Bkg  - Note: Zn add stat err on tot bkg
 
@@ -63,8 +63,8 @@ enum MC
   Zjets=3,  
   TOP=4, 
   WW=5, 
-  ALLBKG=6,
-  N_MC=7
+  //  ALLBKG=6,
+  N_MC=6//7
 };
 
 const std::string MCLabel[] ={
@@ -74,7 +74,7 @@ const std::string MCLabel[] ={
   "Zjets",
   "TOP",
   "WW",
-  "ALL"
+  //  "ALL"
 };
 
 const std::string MCNames[] ={
@@ -84,7 +84,7 @@ const std::string MCNames[] ={
   "Z+jets",
   "Top",
   "WW",
-  "SM Bkg"
+  //  "SM Bkg"
 };
 
 enum LEP {
@@ -114,7 +114,7 @@ enum MCCOL { C_HIGGS=kYellow-9,
 	     C_Zjets=kOrange-2,
 	     C_TOP=kRed+1, 
 	     C_WW=kAzure+4, 
-	     C_ALL=kBlue,
+	     C_ALL=kBlack,
 	     C_SIG1=kMagenta-7, C_SIG2=kRed-2
 };
 
@@ -141,6 +141,7 @@ vector<TH1F*>              _hSignificanceDn;
 vector<THStack*>           _hBkgStack;
 vector<TGraphAsymmErrors*> _ratioTG;
 vector<TH1F*>              _ratioH;
+TH1F*                      _hBkgTotal;
 
 vector<TEventList*> _bkgEvtList;
 vector<TEventList*> _sigEvtList;
@@ -170,7 +171,7 @@ TH1F*    myBook(string name, int nbin, float  xlow, float  xhigh, string xaxis, 
 TH1F*    histList(int ivar, string name);
 void     fillHist();                           //fill all histos using event List & save plots to file
 void     plotHist(bool logy=false);            //compare signal and bkg
-TH1F*    ZnHistos(TH1F* _hBkg, TH1F* _hSig, bool upper=true);
+TH1F*    ZnHistos(TH1* _hBkg, TH1* _hSig, bool upper=true);
 THStack* buildStack(TLegend* _l, int ivar);
 
 /* Selections for various ana */
@@ -197,6 +198,8 @@ void runOptimisation(bool useOneSignal)
 
   Double_t yield=0;
   Double_t statErr=0;
+  Double_t totYield=0;
+  Double_t totYieldStatErr=0;
 
   TCut SEL = setSelection(SR, selCuts,selDil);
   if(showCutflow){
@@ -204,14 +207,15 @@ void runOptimisation(bool useOneSignal)
     cout << "---------------------------------------------" << endl;
     cout << "---------------------------------------------" << endl;
     if(!skipDetailBkg && showCutflowDetail){
-      cutFlow(ntBkg[FAKE],yield,statErr);
-      cutFlow(ntBkg[ZV],yield,statErr);
-      cutFlow(ntBkg[WW],yield,statErr);
-      cutFlow(ntBkg[TOP],yield,statErr);
-      cutFlow(ntBkg[Zjets],yield,statErr);
-      cutFlow(ntBkg[HIGGS],yield,statErr);
+      cutFlow(ntBkg[FAKE],yield,statErr);  totYield+=yield; totYieldStatErr+= pow(statErr,2);
+      cutFlow(ntBkg[ZV],yield,statErr);    totYield+=yield; totYieldStatErr+= pow(statErr,2);
+      cutFlow(ntBkg[WW],yield,statErr);    totYield+=yield; totYieldStatErr+= pow(statErr,2);
+      cutFlow(ntBkg[TOP],yield,statErr);   totYield+=yield; totYieldStatErr+= pow(statErr,2);
+      cutFlow(ntBkg[Zjets],yield,statErr); totYield+=yield; totYieldStatErr+= pow(statErr,2);
+      cutFlow(ntBkg[HIGGS],yield,statErr); totYield+=yield; totYieldStatErr+= pow(statErr,2);
       cout << "---------------------------------------------" << endl;
-      cutFlow(ntBkg[ALLBKG],yield,statErr);
+      totYieldStatErr=sqrt(totYieldStatErr);
+      cout << "Total Bkg \t\t\t"<<  totYield << " +/- " << totYieldStatErr << endl;
       cout << "---------------------------------------------" << endl;
       cout << "---------------------------------------------" << endl;
       if(showData){
@@ -264,7 +268,15 @@ void getZnForGrid(int idil, int iSR)
   SEL.Print();
   
   Double_t nBkg, bkgStatErr;
-  cutFlow(ntBkg[ALLBKG],nBkg,bkgStatErr);
+  Double_t yield=0;
+  Double_t statErr=0;
+  cutFlow(ntBkg[FAKE],yield,statErr);  nBkg+=yield; bkgStatErr+= pow(statErr,2);
+  cutFlow(ntBkg[ZV],yield,statErr);    nBkg+=yield; bkgStatErr+= pow(statErr,2);
+  cutFlow(ntBkg[WW],yield,statErr);    nBkg+=yield; bkgStatErr+= pow(statErr,2);
+  cutFlow(ntBkg[TOP],yield,statErr);   nBkg+=yield; bkgStatErr+= pow(statErr,2);
+  cutFlow(ntBkg[Zjets],yield,statErr); nBkg+=yield; bkgStatErr+= pow(statErr,2);
+  cutFlow(ntBkg[HIGGS],yield,statErr); nBkg+=yield; bkgStatErr+= pow(statErr,2);
+  bkhStatErr=sqrt(bkgStatErr);
   
   vector<Double_t> nSig;
   vector<Double_t> sigStatErr;
@@ -335,12 +347,14 @@ void loadSamples()
   _bkgFileNames.push_back(string("toyNt_Zjets_AlpgenPythia" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_top_MCNLO" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_WW_PowHeg" + SR + "_rlep.root").c_str());
+  /*
   if(SR=="_WH_optimSRSS")
     _bkgFileNames.push_back(string("toyNt_Bkg_Zjets_Alpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_FAKE" + SR + ".root").c_str());
     //_bkgFileNames.push_back(string("toyNt_Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_FAKE" + SR + ".root").c_str());
   else 
     _bkgFileNames.push_back(string("toyNt_Bkg_Zjets_SherpaAlpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO" + SR + "_rlep.root").c_str());
-  
+  */
+
   //Create the TChain for BKG
   for(uint ibkg=0; ibkg<N_MC; ibkg++){
     ntBkg[ibkg] = new TChain("ToyNt",string("Bkg_"+MCLabel[ibkg]).c_str());
@@ -398,7 +412,7 @@ void selectEvent(TCut _cut, bool useOneSignal)
   }
 
   for(uint ibkg=0; ibkg<N_MC; ibkg++){
-    if(skipDetailBkg && ibkg<ALLBKG) continue; 
+    //if(skipDetailBkg && ibkg<ALLBKG) continue; 
     string evtName = "elist_Bkg_" + MCLabel[ibkg];
     ntBkg[ibkg]->Draw(string(">>" + evtName).c_str(),_cut,"goff");
     TEventList *evtListBkg = (TEventList*)gDirectory->Get(evtName.c_str());
@@ -608,7 +622,7 @@ void fillHist()
     else          _vNtSig[sigSampleIdx]->Draw(cmdSig.c_str(),"","goff");
 
     for(uint ibkg=0; ibkg<N_MC; ibkg++){
-      if(skipDetailBkg && ibkg <= ALLBKG) continue;
+      //if(skipDetailBkg && ibkg <= ALLBKG) continue;
       cmdBkg = cmd + ">>bkg_" + MCLabel[ibkg] + "_" + _var[ivar];
       if(weightEvt) ntBkg[ibkg]->Draw(cmdBkg.c_str(),_sel*weight,"goff");
       else          ntBkg[ibkg]->Draw(cmdBkg.c_str(),"","goff");
@@ -626,7 +640,7 @@ void plotHist(bool logy)
 {
   cout << "Plot histograms " << endl;
 
-  const float maxScaleLin=1.4;
+  const float maxScaleLin=1.3;
   const float maxScaleLog=500;
   float scale=maxScaleLin;
   if(logy)  scale=maxScaleLog;
@@ -641,19 +655,29 @@ void plotHist(bool logy)
   _hBkgStack.clear();
   for(uint ivar=0; ivar<_var.size(); ivar++){  
     string label = _var[ivar] + "_Sig_AllBkg";
-
-    if(dbg>2) cout << "Plotting " << _var[ivar] 
-		   << " " << _hSig[ivar]->Integral(0,-1)
-		   << " " << _hBkg[ALLBKG][ivar]->Integral(0,-1)
-		   << endl;
+    
     
     if(_hSig[ivar]->Integral()<=0.){
       cout << _hSig[ivar]->GetTitle() << " is empty in range. Skipping. " << endl;
       continue; 
     }
     
-    if(ivar==33){//Grab bkg/signal yields
-      nBkg = _hBkg[ALLBKG][ivar]->IntegralAndError(0,-1,statErrBkg);
+    TLegend*  _leg = new TLegend(0.6,0.45,0.8,0.85);
+    _utils->legendSetting(_leg,0.05); 
+    
+    THStack* _hStack = NULL;
+    if(!skipDetailBkg){
+      _hStack = buildStack(_leg,ivar);
+      _hBkgStack.push_back(_hStack);
+    }
+    
+    if(dbg>2) cout << "Plotting " << _var[ivar] 
+		   << " " << _hSig[ivar]->Integral(0,-1)
+		   << " " << _hBkgTotal->Integral(0,-1)
+		   << endl;
+
+    if(ivar==33){//Grab bkg/signal yields`
+      nBkg = _hBkgTotal->IntegralAndError(0,-1,statErrBkg);
       nSig = _hSig[ivar]->Integral(0,-1);
     }
 
@@ -662,8 +686,8 @@ void plotHist(bool logy)
     TH1F* _hSTempUP = NULL;
     TH1F* _hSTempDN = NULL;
     if(!weightEvt){ //normalize to 1
-      float totBkg = _hBkg[ALLBKG][ivar]->Integral(0,-1);
-      _utils->normalize(_hBkg[ALLBKG][ivar],1);
+      float totBkg = _hBkgTotal->Integral(0,-1);
+      _utils->normalize(_hBkgTotal,1);
       _utils->normalize(_hSig[ivar],1);
       if(!skipDetailBkg){
 	for(uint ibkg=0; ibkg<N_MC-1; ibkg++){//normalize each bkg to their fraction of total bkg
@@ -674,8 +698,8 @@ void plotHist(bool logy)
       }
     }
     else{//Zn vs cut values 
-      _hSTempUP = ZnHistos(_hBkg[ALLBKG][ivar],_hSig[ivar],true);
-      _hSTempDN = ZnHistos(_hBkg[ALLBKG][ivar],_hSig[ivar],false);
+      _hSTempUP = ZnHistos(_hBkgTotal,_hSig[ivar],true);
+      _hSTempDN = ZnHistos(_hBkgTotal,_hSig[ivar],false);
     }
     _hSignificanceUp.push_back(_hSTempUP);
     _hSignificanceDn.push_back(_hSTempDN);
@@ -684,7 +708,7 @@ void plotHist(bool logy)
     TGraphAsymmErrors* _TGRatio = NULL;
     if(showData){
       TGraphAsymmErrors* _dataTG = _utils->updateDataError(_hData[ivar],true);
-      TGraphAsymmErrors* _bkgTG = _utils->TH1TOTGraphAsymErrors(_hBkg[ALLBKG][ivar]);
+      TGraphAsymmErrors* _bkgTG = _utils->TH1TOTGraphAsymErrors(_hBkgTotal);
       _TGRatio = _utils->myTGraphErrorsDivide(_dataTG, _bkgTG);
       _TGRatio->SetLineWidth(2);
       _TGRatio->SetMarkerSize(1.0);
@@ -710,20 +734,11 @@ void plotHist(bool logy)
     //Plot the canvases
     float min =  0;
     if(logy) min = 0.1;
-    float max =  _utils->getMax(_hBkg[ALLBKG][ivar],_hSig[ivar])*scale;
-    _hBkg[ALLBKG][ivar]->SetMaximum(max);
-    _hBkg[ALLBKG][ivar]->SetMinimum(min);
-    _hBkg[ALLBKG][ivar]->GetYaxis()->SetRangeUser(min,max);
+    float max =  _utils->getMax(_hBkgTotal,_hSig[ivar])*scale;
+    _hBkgTotal->SetMaximum(max);
+    _hBkgTotal->SetMinimum(min);
+    _hBkgTotal->GetYaxis()->SetRangeUser(min,max);
       
-    TLegend*  _leg = new TLegend(0.6,0.45,0.8,0.85);
-    _utils->legendSetting(_leg,0.05); 
-
-    THStack* _hStack = NULL;
-    if(!skipDetailBkg){
-      _hStack = buildStack(_leg,ivar);
-      _hBkgStack.push_back(_hStack);
-    }
-
     TCanvas* _c1  = _utils->myCanvas(label.c_str());
     TPad* _pTop = NULL;
     TPad* _pBot = NULL;
@@ -755,7 +770,7 @@ void plotHist(bool logy)
     //Top plot
     _pTop->cd();
     if(!skipDetailBkg){//Bkg
-      _utils->myDraw1d(_hBkg[ALLBKG][ivar],_pTop,1,"hist",logy,C_ALL,false,20);
+      _utils->myDraw1d(_hBkgTotal,_pTop,1,"hist",logy,C_ALL,false,20);
       _hBkgStack.back()->Draw("histsame");
       _hBkgStack.back()->GetXaxis()->SetTitle(_hBkg[0][ivar]->GetXaxis()->GetTitle());
       _hBkgStack.back()->GetYaxis()->SetTitle(_hBkg[0][ivar]->GetYaxis()->GetTitle());
@@ -763,10 +778,10 @@ void plotHist(bool logy)
       _hBkgStack.back()->GetYaxis()->SetTitleOffset(1.2);
       _hBkgStack.back()->GetYaxis()->SetLabelSize(0.05);
       
-      _utils->myDraw1d(_hBkg[ALLBKG][ivar],_pTop,1,"histsame",logy,C_ALL,false,20);
+      _utils->myDraw1d(_hBkgTotal,_pTop,1,"histsame",logy,C_ALL,false,20);
     }
     else {
-      _utils->myDraw1d(_hBkg[ALLBKG][ivar],_pTop,1,"hist",logy,C_ALL,false,20);
+      _utils->myDraw1d(_hBkgTotal,_pTop,1,"hist",logy,C_ALL,false,20);
     }
 
     //Signal
@@ -777,7 +792,7 @@ void plotHist(bool logy)
       _leg->AddEntry(_hData[ivar],"Data", "p");
     }
 
-    _leg->AddEntry(_hBkg[ALLBKG][ivar],MCNames[ALLBKG].c_str(), "l");
+    //_leg->AddEntry(_hBkgTotal,MCNames[ALLBKG].c_str(), "l");
     _leg->AddEntry(_hSig[ivar],itos(sigSampleStart+sigSampleIdx).c_str(), "l");
     _leg->Draw();
     if(!weightEvt) _utils->myText(0.7,0.90,kBlack,"Normalized",0.03);
@@ -844,13 +859,18 @@ void plotHist(bool logy)
 
 }
 //_____________________________________________________________________________//
-THStack* buildStack(TLegend* _l, int ivar)
+THStack* buildStack(TLegend* _l,int ivar)
 {
   _histoDir->cd();
   THStack* hStack = new THStack(string("stackBkg_"+_var[ivar]).c_str(),
 				string("stackBkg_"+_var[ivar]).c_str());
   
-  for(uint ibkg=0; ibkg<N_MC-1; ibkg++){
+  _hBkgTotal = (TH1F*) _hBkg[0][ivar]->Clone();
+  _hBkgTotal->Reset();
+  _hBkgTotal->SetTitle(string("Stack_"+_var[ivar]).c_str());
+  _hBkgTotal->SetName(string("Stack_"+_var[ivar]).c_str());
+
+  for(uint ibkg=0; ibkg<N_MC; ibkg++){
     int icol=0;
     if(ibkg==0) icol = C_HIGGS;
     if(ibkg==1) icol = C_FAKE;
@@ -860,11 +880,12 @@ THStack* buildStack(TLegend* _l, int ivar)
     if(ibkg==5) icol = C_WW;
     _utils->addToTHStack(hStack,_hBkg[ibkg][ivar],icol, 
 			 "HIST", _l, MCNames[ibkg].c_str());
+    _hBkgTotal->Add(_hBkg[ibkg][ivar],1);
   }
   return hStack;
 }
 //_____________________________________________________________________________//
-TH1F* ZnHistos(TH1F* _histBkg, TH1F* _histSig, bool upper)
+TH1F* ZnHistos(TH1* _histBkg, TH1* _histSig, bool upper)
 {
   _histoDir->cd();
 
@@ -1025,19 +1046,21 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       if(verbose) cout << " \t SRWH SS-EE 1j" << endl;
       _vCut.push_back(TCut("llType==0"));
 
-      //Lea CR
+      //Lea CR- lowMet
       /*
+      _vCut.push_back(TCut("abs(mll-91.2)>10"));
       _vCut.push_back(TCut("nCJets>=1"));
       _vCut.push_back(TCut("metrel<40"));
-      _vCut.push_back(TCut("abs(mll-91.2)>10"));
+      _vCut.push_back(TCut("abs(dphi_ll)>1.3"));
+      _vCut.push_back(TCut("pTll<20"));
+      _vCut.push_back(TCut("mll<60"));
       */
 
-      //      _vCut.push_back(TCut("nCJets>=1"));
+      //_vCut.push_back(TCut("nCJets>=1"));
       //_vCut.push_back(TCut("abs(mll-91.2)>10"));
       //_vCut.push_back(TCut("l_pt[0]>30"));
 
       //SR
-      /*
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
@@ -1045,7 +1068,6 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("mlj<90")); 
       _vCut.push_back(TCut("mEff>200"));
       _vCut.push_back(TCut("metrel>55"));
-      */
 
       //VR-fake
       //_vCut.push_back(TCut("abs(mll-91.2)>10"));
@@ -1066,21 +1088,20 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("llType==1 && !isOS"));
 
       //Lea CRs
+      /*
       _vCut.push_back(TCut("nCJets>=1"));
       _vCut.push_back(TCut("metrel<40"));
-
-
+      */
 
       //SR
-      /*
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
-      _vCut.push_back(TCut("abs(deta_ll)<1.5"));
+      //_vCut.push_back(TCut("abs(deta_ll)<1.5"));
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
-      _vCut.push_back(TCut("mlj<90")); 
+      //_vCut.push_back(TCut("mlj<90")); 
       _vCut.push_back(TCut("mEff>200"));
-      */
+
 
       //CR-ZV
       /*
@@ -1104,14 +1125,16 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       if(verbose) cout << " \t SRWH SS-EM 1j" << endl;
       _vCut.push_back(TCut("llType==2"));
       //Check EM excess
+      /*
       _vCut.push_back(TCut("nCJets>=1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]<30"));
       _vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
-      //      _vCut.push_back(TCut("(abs(l_eta[0])<1.5 && !l_isEle[0] && abs(l_eta[1])<1.5 && l_isEle[1])  || (abs(l_eta[1])<1.5 && !l_isEle[1] && abs(l_eta[0])<1.5 && l_isEle[0]) " ));
+      */
+      //_vCut.push_back(TCut("(abs(l_eta[0])<1.5 && !l_isEle[0] && abs(l_eta[1])<1.5 && l_isEle[1])  || (abs(l_eta[1])<1.5 && !l_isEle[1] && abs(l_eta[0])<1.5 && l_isEle[0]) " ));
       //_vCut.push_back(TCut("(abs(l_eta[0])>1.5 && !l_isEle[0] && abs(l_eta[1])>1.5 && l_isEle[1])  || (abs(l_eta[1])>1.5 && !l_isEle[1] && abs(l_eta[0])>1.5 && l_isEle[0]) " ));
       //Central E, mu fwd
-      _vCut.push_back(TCut("(abs(l_eta[0])>1.5 && !l_isEle[0] && abs(l_eta[1])<1.5 && l_isEle[1])  || (abs(l_eta[1])>1.5 && !l_isEle[1] && abs(l_eta[0])<1.5 && l_isEle[0]) " ));
+      //_vCut.push_back(TCut("(abs(l_eta[0])>1.5 && !l_isEle[0] && abs(l_eta[1])<1.5 && l_isEle[1])  || (abs(l_eta[1])>1.5 && !l_isEle[1] && abs(l_eta[0])<1.5 && l_isEle[0]) " ));
       
       //Lea CRs
       //_vCut.push_back(TCut("nCJets>=1"));
@@ -1119,17 +1142,13 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
 
 
       //SR
-      /*
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>30"));
-      */
-      /*
       _vCut.push_back(TCut("abs(deta_ll)<1.5"));
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
       _vCut.push_back(TCut("mlj<90")); 
       _vCut.push_back(TCut("mWWT>120"));
-      */
 
       //CR FAKE+ZV
       //_vCut.push_back(TCut("l_pt[0]>30"));
@@ -1179,7 +1198,7 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("nCJets>1 && nCJets<4"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>30"));
-      //_vCut.push_back(TCut("abs(deta_ll)<1.5"));
+      _vCut.push_back(TCut("abs(deta_ll)<1.5"));
       _vCut.push_back(TCut("mljj<120"));
       _vCut.push_back(TCut("mWWT>110"));
 

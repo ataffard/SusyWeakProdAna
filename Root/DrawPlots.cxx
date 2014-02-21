@@ -724,7 +724,8 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   std::cout << "Average ratio data/MC " << avgRatio << std::endl;
   
   //Overwrite log scale if less than 100 entries 
-  if(_mcStackH->Integral(0,-1)<100 || _dataH1->Integral(0,-1)<100) logy=false;
+  float maxEntries =500;
+  if(_mcStackH->Integral(0,-1)<maxEntries || _dataH1->Integral(0,-1)<maxEntries) logy=false;
   setLogy(logy);
   if(logy){
     _sLogy = "_logy";
@@ -856,6 +857,8 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
     }
     totalSysHisto->Reset();
   }
+  //cout << "Sys band before fake " << endl;
+  //_asymErrors->Print();
 
   //Add the fake systematics
   if(!disableFake){
@@ -866,15 +869,22 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
     sys1->Reset();
     fakeSys.push_back(sys0);
     fakeSys.push_back(sys1);
-    getFakeSys(fakeSys);
+    getFakeSys(fakeSys); //Get fake sys UP/DN
     
-    
-    for(uint i=0; i<fakeSys.size(); i++){
-      if(totalSysHisto->Integral(0,-1)>0){
-	totalSysHisto->Add(fakeSys[i]);
-	transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
-	_utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
+    totalSysHisto->Reset();
+    for(uint i=0; i<fakeSys.size(); i++){//loop fake UP/DN
+      // Add to the Fake UP/DN the other backgrounds nominal value
+      for(uint imc=0; imc<_mcH1.size(); imc++){
+	if(imc==FAKE) continue;
+	TH1F* _hsys = _mcH1[imc][DGSys_NOM];
+	totalSysHisto->Add(_hsys);
       }
+
+      totalSysHisto->Add(fakeSys[i]); //Add the fake sys
+      //cout << "Check Int sys i " << fakeSys[i]->Integral(0,-1)<<endl;;
+      
+      transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+      _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad to the other MC bkg sys
       totalSysHisto->Reset();
     }
     
@@ -884,6 +894,11 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
     fakeSys.clear();
   }
   
+  //  cout << "Sys band final " << endl;
+  //_asymErrors->Print();
+
+
+
   return _asymErrors;
 
 }

@@ -1,6 +1,6 @@
 # ./makeLatexTable.sh  
 
-date="021414_21fb_n0150_DD_WH_v2"
+date="021414_21fb_n0150_DD_WH_v3"
 #date="020714_21fb_n0150_DD_WH_v1"
 #date="012914_21fb_n0145_DD_WH_v3"
 
