@@ -23,13 +23,14 @@
 #include "SusyNtuple/TGuiUtils.h"
 
 //_____________________________________________________________________________//
-static const string ver       = "histos_021414_21fb_n0150_DD_WH_v2/";  //ToyNt filtered SS, 3rd lep veto, B/F-veto >=1 C20 jet
+//static const string ver       = "histos_021414_21fb_n0150_DD_WH_v3/";  //ToyNt filtered SS, 3rd lep veto, B/F-veto >=1 C20 jet
+static const string ver       = "histos_022814_21fb_n0150_DD_WH_v5/";  //ToyNt filtered SS, 3rd lep veto, B/F-veto >=1 C20 jet
 static const string SR        = "_WH_optimSRSS";
 
 static const int dbg = 1;
 
 //Options for optimisation
-static const int    selDil    = 1;  //EE, MM, EM for SS and C1C1 grids
+static const int    selDil    = 2;  //EE, MM, EM for SS and C1C1 grids
 static const int    selCuts   = 1;  //WH 1 or 2+3jets
 
 //wA WH grids
@@ -41,7 +42,7 @@ static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use fo
 
 //Settings for optimisation/plots
 static const bool   weightEvt          = true;   //Weight bkg/signal events
-static const bool   showData           = false;   //false: shows Zn below plot
+static const bool   showData           = true;   //false: shows Zn below plot
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group;
 static const bool   showCutflow        = true;   //dump cutflow yield
@@ -276,7 +277,7 @@ void getZnForGrid(int idil, int iSR)
   cutFlow(ntBkg[TOP],yield,statErr);   nBkg+=yield; bkgStatErr+= pow(statErr,2);
   cutFlow(ntBkg[Zjets],yield,statErr); nBkg+=yield; bkgStatErr+= pow(statErr,2);
   cutFlow(ntBkg[HIGGS],yield,statErr); nBkg+=yield; bkgStatErr+= pow(statErr,2);
-  bkhStatErr=sqrt(bkgStatErr);
+  bkgStatErr=sqrt(bkgStatErr);
   
   vector<Double_t> nSig;
   vector<Double_t> sigStatErr;
@@ -342,11 +343,13 @@ void loadSamples()
   _bkgFileNames.clear();
   _bkgFileNames.push_back(string("toyNt_Higgs" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_dataFake" + SR + "_flep.root").c_str()); //FAKE
-  _bkgFileNames.push_back(string("toyNt_WZ_ZZ_PowHeg" + SR + "_rlep.root").c_str());
+  //  _bkgFileNames.push_back(string("toyNt_WZ_ZZ_PowHeg" + SR + "_rlep.root").c_str());
+  _bkgFileNames.push_back(string("toyNt_WZ_ZZ_Sherpa" + SR + "_rlep.root").c_str());
   //_bkgFileNames.push_back(string("toyNt_Zjets_SherpaAlpgenPythia" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_Zjets_AlpgenPythia" + SR + "_rlep.root").c_str());
   _bkgFileNames.push_back(string("toyNt_top_MCNLO" + SR + "_rlep.root").c_str());
-  _bkgFileNames.push_back(string("toyNt_WW_PowHeg" + SR + "_rlep.root").c_str());
+  //  _bkgFileNames.push_back(string("toyNt_WW_PowHeg" + SR + "_rlep.root").c_str());
+  _bkgFileNames.push_back(string("toyNt_WW_Sherpa" + SR + "_rlep.root").c_str());
   /*
   if(SR=="_WH_optimSRSS")
     _bkgFileNames.push_back(string("toyNt_Bkg_Zjets_Alpgen_WZ_ZZ_PowHeg_WW_PowHeg_TopMCNLO_FAKE" + SR + ".root").c_str());
@@ -1065,9 +1068,10 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
       _vCut.push_back(TCut("abs(mll-91.2)>10"));
-      _vCut.push_back(TCut("mlj<90")); 
-      _vCut.push_back(TCut("mEff>200"));
       _vCut.push_back(TCut("metrel>55"));
+      _vCut.push_back(TCut("mEff>200"));
+      _vCut.push_back(TCut("mlj<90")); 
+
 
       //VR-fake
       //_vCut.push_back(TCut("abs(mll-91.2)>10"));
@@ -1097,10 +1101,10 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
-      //_vCut.push_back(TCut("abs(deta_ll)<1.5"));
+      _vCut.push_back(TCut("abs(deta_ll)<1.5"));
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
-      //_vCut.push_back(TCut("mlj<90")); 
       _vCut.push_back(TCut("mEff>200"));
+      _vCut.push_back(TCut("mlj<90")); 
 
 
       //CR-ZV
@@ -1142,13 +1146,15 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
 
 
       //SR
+      /*
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>30"));
       _vCut.push_back(TCut("abs(deta_ll)<1.5"));
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
-      _vCut.push_back(TCut("mlj<90")); 
       _vCut.push_back(TCut("mWWT>120"));
+      _vCut.push_back(TCut("mlj<90")); 
+      */
 
       //CR FAKE+ZV
       //_vCut.push_back(TCut("l_pt[0]>30"));
@@ -1160,6 +1166,10 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       //_vCut.push_back(TCut("l_pt[1]<30"));
       //_vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
       
+      _vCut.push_back(TCut("metrel<40"));
+      _vCut.push_back(TCut("dphi_ll>1.3"));
+      _vCut.push_back(TCut("pTll<20"));
+      _vCut.push_back(TCut("mll<60"));
       
     }
   }
@@ -1174,9 +1184,9 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
       _vCut.push_back(TCut("abs(mll-91.2)>10"));
+      _vCut.push_back(TCut("metrel>30"));
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
       _vCut.push_back(TCut("mljj<120"));
-      _vCut.push_back(TCut("metrel>30"));
 
     }
     else if(dilType==1){ //MM
@@ -1186,8 +1196,9 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>30"));
       _vCut.push_back(TCut("abs(deta_ll)<1.5"));
-      _vCut.push_back(TCut("mljj<120"));
       _vCut.push_back(TCut("mEff>220"));
+      _vCut.push_back(TCut("mljj<120"));
+
       
       //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>80"));
       //_vCut.push_back(TCut("metrel>40")); //remove as much S than B
@@ -1199,8 +1210,9 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>30"));
       _vCut.push_back(TCut("abs(deta_ll)<1.5"));
-      _vCut.push_back(TCut("mljj<120"));
       _vCut.push_back(TCut("mWWT>110"));
+      _vCut.push_back(TCut("mljj<120"));
+
 
 
       //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>120"));

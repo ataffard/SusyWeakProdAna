@@ -86,18 +86,18 @@
 %    \item Control region plots using MM from feb\_18 2D MM with pT bin SF and n0150 with all systematics on.
     \item Control region plots using MM from feb\_16 2D MM flat SF and n0150 with all systematics on.
     \item ZJets: Alpgen full spectrum
-    \item QFlip updated to tag 19: d0\_new2d\_chargeflip\_map
+    \item QFlip updated to tag 19: d0\_new2d\_chargeflip\_map, data map. updated overlap qFlip-Fake to 0.7075.
     \item Diboson: MassiveBC Sherpa
     %Diboson: Powheg
     \item Remove log scale to the plots
     \item Fix error band to include fake sys. 
-    \item See additional files in dropbox: {\url {https://www.dropbox.com/sh/kwcerks43il71rn/AojwxYcuGX}}
+%    \item See additional files in dropbox: {\url {https://www.dropbox.com/sh/kwcerks43il71rn/AojwxYcuGX}}
     \end{itemize}
   \end{block}
 \end{frame}
 
-\section{Control regions}
-\begin{frame}{Control regions}
+\section{WH Control regions}
+\begin{frame}{WH Control regions}
 
   \begin{block}{optimSRSS (MM:CR\_SSInc)}
     \begin{itemize}
@@ -128,8 +128,8 @@
 
 \end{frame}
 
-\section{Control regions}
-\begin{frame}{Control regions}
+\section{WH Control regions}
+\begin{frame}{EH Control regions}
 
   \begin{block}{CRSS\_FAKE}
     \begin{itemize}    
@@ -150,6 +150,56 @@
 \end{frame}
 
 
+\section{Lea's Control regions}
+\begin{frame}{Lea Control regions}
+%  For $ee$, veto $|m_{ll}-m_Z|<10~\GeV$
+
+  \begin{block}{BTag}
+    \begin{itemize}    
+    \item $nBjet>0$
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{lowMET}
+    \begin{itemize}    
+    \item $nBjet=0$
+    \item $nCjet\ge 1$
+    \item $\METrel<40~\GeV$
+    \item $\Delta\phi_{ll}>1.3$
+    \item $m_{ll}<60~\GeV$
+    \end{itemize}
+  \end{block}
+ 
+\end{frame}
+
+
+\section{Lea's Control regions}
+\begin{frame}{Lea's Control regions}
+  
+  \begin{block}{highpTll}
+    \begin{itemize}    
+    \item $nBjet=0$
+    \item $nCjet\ge 1$
+    \item $\METrel>40 ~\GeV$
+    \item $\Delta\phi_{ll}>1.3$
+    \item $p_T^{ll}>20~\GeV$
+    \item $m_{ll}<60~\GeV$
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{highMll}
+    \begin{itemize}    
+    \item $nBjet=0$
+    \item $nCjet\ge 1$
+    \item $\METrel>40 ~\GeV$
+    \item $\Delta\phi_{ll}>1.3$
+    \item $p_T^{ll}<20~\GeV$
+    \item $m_{ll}>60~\GeV$
+    \end{itemize}
+  \end{block}
+  
+  
+\end{frame}
 
 
 \include{plots}

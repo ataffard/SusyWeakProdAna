@@ -151,13 +151,15 @@ SR=( \
     WH_CRSSZVFAKE \
     WH_CRSSFAKE \
     WH_optimSRSS \
+    WH_HighMll WH_HighPtll WH_lowMET WH_BTag \
 )
 #SKIP
 
-PLOTS=( pred  qq  nCJets \
-     mllcoarse mjj mWWT  mTl1 mTl2 max_mT etmiss metrel mt2 mt2j mljj mEff ST \
-     ptl1 ptl2 etal1 etal2 eEta mEta dPhill dRll pTll dEtall \    
-     ptj1 ptj2 ptj3 etaj1 etaj2 etaj3 \
+PLOTS=( nBJets \
+#    pred  qq  nCJets \
+#     mllcoarse mllShift mjj mWWT  mTl1 mTl2 max_mT etmiss metrel mt2 mt2j mljj mEff ST \
+#     ptl1 ptl2 etal1 etal2 eEta mEta dPhill dRll pTll dEtall \    
+#     ptj1 ptj2 ptj3 etaj1 etaj2 etaj3 \
 	 )
 
     

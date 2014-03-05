@@ -18,12 +18,14 @@ enum WH_SR{WH_SRSS1j=0, WH_SRSS23j,
 	   WH_optimSRSS,
 	   WH_CRSSZVFAKE, WH_CRSSFAKE,
 	   //	   WH_SRZb, WH_SRZbb,
+	   WH_HighMll, WH_HighPtll, WH_lowMET, WH_BTag,
 	   WH_NSR
 };
 
 const string WH_SRNAME[] = { "WH_SRSS1j", "WH_SRSS23j", 
 			     "WH_optimSRSS",
 			     "WH_CRSSZVFAKE", "WH_CRSSFAKE",
+			     "WH_HighMll", "WH_HighPtll", "WH_lowMET", "WH_BTag",
 			     //"WH_SRZb", "WH_SRZbb",
 };
 
@@ -59,6 +61,7 @@ class Histos_WH
   HDGWH DGWH_mll;
   HDGWH DGWH_mllcoarse;
   HDGWH DGWH_mllcoarser;
+  HDGWH DGWH_mllShift; //mll after smearing.
   HDGWH DGWH_mjj;
   HDGWH DGWH_pTll;
   HDGWH DGWH_mWWT;
@@ -87,6 +90,7 @@ class Histos_WH
   HDGWH DGWH_mt2;
   HDGWH DGWH_mt2b;
   HDGWH DGWH_mt2j;
+  HDGWH DGWH_mlj;
   HDGWH DGWH_mljj;
   HDGWH DGWH_mEff; //New Jets, leptons
   HDGWH DGWH_ST;   //New

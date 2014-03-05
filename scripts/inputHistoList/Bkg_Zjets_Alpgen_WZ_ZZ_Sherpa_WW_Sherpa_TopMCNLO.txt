@@ -108,6 +108,8 @@ llnunu_ZZ_MassiveCB.177999
 ZZtoeeqq_MassiveCB.183586 
 ZZtomumuqq_MassiveCB.183588 
 ZZtotautauqq_MassiveCB.183590 
+llll_ZZ.126894 
+ZZ4lep.179396 
 ZZZStar.167008
 llnunu_WW_MassiveCB.177997
 WWtoenuqq_MassiveCB.183734 
@@ -133,8 +135,12 @@ ttbarWjjIncl.174831
 ttbarZ.119355
 ttbarZjExcl.174832
 ttbarZjjIncl.174833
+tZ_Wtchan_Zll.179991
+tZ_stchan_Zll.179992
 ttbarWW.119583
-ttbargammaPt80.164439
+ttgam_jjbjjb.169704
+ttgam_lvblvb.169705
+ttgam_lvbjjb.169706
 4top_SM.158344
 ggH125.160155    
 VBFH125.160205   

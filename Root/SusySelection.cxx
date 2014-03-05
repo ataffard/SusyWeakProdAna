@@ -66,6 +66,7 @@ SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
   m_highMll     ( -1  ),
   m_mllIn       (false),
   m_dPhillMax   ( -1  ),
+  m_dPhillMin   ( -1  ),
   m_dEtallMax   ( -1  ),
   m_dRllMin     ( -1  ),
   m_dRllMax     ( -1  ),
@@ -263,6 +264,7 @@ void SusySelection::resetCuts()
   m_highMll   =  -1;
   m_mllIn     = false; 
   m_dPhillMax =  -1;
+  m_dPhillMin =  -1;
   m_dEtallMax =  -1;
   m_lowMjj    =  -1;
   m_highMjj   =  -1;
@@ -573,13 +575,16 @@ float SusySelection::getQFlipProb(LeptonVector* leptons, Met* met, uint iSys)
 				  &_new_met, _sys);
   */
   bool isData=false;
-  chargeFlip::eStatus map2use = chargeFlip::combined;
+  chargeFlip::eStatus map2use = chargeFlip::dataonly;//combined;
   float cfP = m_chargeFlip->OS2SS(_pdg1, &_l1_tlv, 
 				  _pdg2, &_l2_tlv, 
 				  _sys, isData, map2use);
 
+  if(_sys==1)       cfP *=  (m_chargeFlip->overlapFrac().first + m_chargeFlip->overlapFrac().second);
+  else if(_sys==-1) cfP *=  (m_chargeFlip->overlapFrac().first - m_chargeFlip->overlapFrac().second);
+  else if(_sys==0)  cfP *=   m_chargeFlip->overlapFrac().first; // QFLIP_RESCLALE;
 
-  cfP*=  m_chargeFlip->overlapFrac().first; // QFLIP_RESCLALE;
+
   //cfP*= QFLIP_RESCLALE;
   
   if(dbg()>5){
@@ -729,7 +734,8 @@ bool SusySelection::passMljj(const LeptonVector* leptons, const JetVector* jets)
 }
 
 /*--------------------------------------------------------------------------------*/
-bool SusySelection::passZVeto(const LeptonVector* leptons, float Zlow, float Zhigh)
+bool SusySelection::passZVeto(const LeptonVector* leptons, bool useOS,
+			      float Zlow, float Zhigh)
 {
   if( leptons->size() < 2 ) return false;
   
@@ -737,7 +743,8 @@ bool SusySelection::passZVeto(const LeptonVector* leptons, float Zlow, float Zhi
   bool hasz=false;
   bool OS = (leptons->at(0)->q*leptons->at(1)->q < 0) ? 1 : 0;
   float mll=Mll(leptons->at(0),leptons->at(1));
-  if(mll>Zlow && mll<Zhigh && OS) hasz=true;
+  if(mll>Zlow && mll<Zhigh) hasz=true;
+  if(useOS && !OS) hasz=false;
     
   if(m_vetoZ && hasz) return false;
   if(m_selZ){
@@ -850,6 +857,7 @@ bool SusySelection::passdPhill(const LeptonVector* leptons){
   if( leptons->size() < 2 ) return false;
   float dPhi = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
   if(m_dPhillMax>-1 && dPhi>m_dPhillMax) return false;
+  if(m_dPhillMin>-1 && dPhi<m_dPhillMin) return false;
   if(SYST==DGSys_NOM) n_pass_dPhill[m_ET][SR]+=_inc;
   return true;
 }

@@ -62,7 +62,7 @@ class SusySelection: public SusyNtTools
   bool passFlavor(const LeptonVector* leptons);
   bool passQQ(const LeptonVector* leptons);
   bool passFullJetVeto(const JetVector* jets);
-  bool passZVeto(const LeptonVector* leptons, float Zlow = MZ-10, float Zhigh = MZ+10);
+  bool passZVeto(const LeptonVector* leptons, bool useOS=true, float Zlow = MZ-10, float Zhigh = MZ+10);
   bool passMETRel(const Met *met, const LeptonVector* leptons, const JetVector* jets);
   bool passMET(const Met *met);
   bool passFJet(const JetVector* jets);
@@ -228,6 +228,7 @@ class SusySelection: public SusyNtTools
   float               m_highMll;      // high Mll bound
   bool                m_mllIn;        // Apply mll cut rejecting event inside
   float               m_dPhillMax;    // max dPhi(ll) 
+  float               m_dPhillMin;    // min dPhi(ll) 
   float               m_dEtallMax;    // max dPhi(ll) 
   float               m_dRllMin;      // min dR(ll) 
   float               m_dRllMax;      // max dR(ll) 

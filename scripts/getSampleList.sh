@@ -63,9 +63,10 @@ if [[ $type == "mc12" ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-5`)
 	elif [[ ${DIS} -ge 183734 && ${DIS} -le 183739 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-5`)
-
 	elif [[ ${DIS} -ge 179993 && ${DIS} -le 179998 ]]; then
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-4`)
+	elif [[ ${DIS} -ge 179991 && ${DIS} -le 179992 ]]; then
+	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f4-6`)
 
 	else
 	    name=( `echo $dir |cut -d'.' -f5-5 |cut -d'_' -f3-3`)

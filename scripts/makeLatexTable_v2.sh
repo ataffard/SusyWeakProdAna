@@ -1,8 +1,7 @@
 # ./makeLatexTable.sh  
 
-date="021414_21fb_n0150_DD_WH_v3"
-#date="020714_21fb_n0150_DD_WH_v1"
-#date="012914_21fb_n0145_DD_WH_v3"
+#date="022514_21fb_n0150_DD_WH_v4"
+date="022814_21fb_n0150_DD_WH_v5"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts
@@ -15,7 +14,8 @@ SR=( \
     SRSS23j \
     optimSRSS \
     CRSSZVFAKE \
-    CRSSFAKE
+    CRSSFAKE \
+    HighMll HighPtll lowMET BTag \
 #    SROSOF2jets
 #    VRWZ
 #    VRZZ

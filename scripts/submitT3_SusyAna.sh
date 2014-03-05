@@ -184,15 +184,15 @@ while read line; do
 	fi
 
 	if [ "$type" == "data12" ]; then
-	    #echo "Submitting data STD "ß
-	    #methodData=std
-	    #cd ${pathRun}
-	    #qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
-	    #echo ""
-	    #echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
-	    #cd ${pathScript}
-	    #echo ""
-	    #sleep 1
+	    echo "Submitting data STD "ß
+	    methodData=std
+	    cd ${pathRun}
+	    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
+	    echo ""
+	    echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
+	    cd ${pathScript}
+	    echo ""
+	    sleep 1
 
 	    if [ "$mode" == "DD" ]; then
 		if [ $doSys ]; then

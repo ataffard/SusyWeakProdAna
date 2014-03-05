@@ -6,17 +6,17 @@
 typedef unsigned uint;
 
 string mth = "std";
-//string dir = "histos_041413_21fb_n0139_Moriond_DD_v2/histOutputs/";
-//string dir = "histos_012914_21fb_n0145_DD_WH_v3";
-string dir = "histos_020714_21fb_n0150_DD_WH_v1";
+//string dir = "histos_021414_21fb_n0150_DD_WH_v3";
+string dir = "histos_022814_21fb_n0150_DD_WH_v5";
 
 //string sampleSet = "data12.txt";
 //string sampleSet = "Zjets_SherpaAlpgenPythia.txt";
-string sampleSet = "Zjets_AlpgenPythia.txt";
-//string sampleSet = "WZ_ZZ_PowHeg.txt";
+//string sampleSet = "Zjets_AlpgenPythia.txt";
+//string sampleSet = "WZ_ZZ_Sherpa.txt";
 //string sampleSet = "WW_PowHeg_oldgg2WW.txt";
+//string sampleSet = "WW_Sherpa.txt";
 //string sampleSet = "Higgs.txt";
-//string sampleSet = "top_MCNLO.txt";
+string sampleSet = "top_MCNLO.txt";
 //string sampleSet = "wA_noslep_WH_2LepNew.txt";
 
 bool DOSYS = true;
@@ -47,11 +47,12 @@ int main(int argc, char *argv[]){
  //SR.push_back("SRmT2a");
  //SR.push_back("SRmT2b");
  // SR.push_back("SRZjets");
- //SR.push_back("SRSS1j");
- // SR.push_back("SRSS2");
+ // SR.push_back("SRSS1j");
+ // SR.push_back("SRSS23j");
+ SR.push_back("CRSSFAKE");
  // SR.push_back("SRSS3");
  // SR.push_back("SRSS4");
- SR.push_back("optimSRSS");
+ //SR.push_back("optimSRSS");
 
 
  vector<string> SAMPLES;
@@ -87,7 +88,8 @@ int main(int argc, char *argv[]){
        
        TString _sSample(SAMPLES[iS]);
        if(_sSample.Contains("Egamma") || _sSample.Contains("Muons")){
-	 _fHist = "histo_" + SAMPLES[iS] + "_" + SR[iSR] + "_" + LEP[iLEP] + "_std.root";
+	 //_fHist = "histo_" + SAMPLES[iS] + "_" + SR[iSR] + "_" + LEP[iLEP] + "_std.root";
+	 _fHist = "histo_" + SAMPLES[iS] + "_WH_" + SR[iSR] + "_" + LEP[iLEP] + "_flep_NOM_NOM.root";
        }
        else if(_sSample.Contains("wA_noslep_notauhad")){
 	 _fHist = "histo_" + SAMPLES[iS] + "_rlep.root";
@@ -129,7 +131,7 @@ int main(int argc, char *argv[]){
        }
 
        TH1F* _h = (TH1F*)  _f->Get(_hName.c_str())->Clone();
-       printf("%s \t %3.2f \n",SAMPLES[iS].c_str(),_h->Integral(0,-1)); 
+       printf("%s \t %3.4f \n",SAMPLES[iS].c_str(),_h->Integral(0,-1)); 
        sum+= _h->Integral(0,-1);
      }
      cout << " ===>> Total " << sum  << endl;

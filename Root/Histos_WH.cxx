@@ -56,11 +56,12 @@ void Histos_WH::BookWHHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRDGWH(DGWH_nSoftJets,"NSoftJets","",syaxis,10,-0.5,9.5);
   BOOK_SRDGWH(DGWH_qq,"","",syaxis,10,-0.5,1.5);
   BOOK_SRDGWH(DGWH_mll,"m_{ll}","GeV",syaxis,130,20,280); 
+  BOOK_SRDGWH(DGWH_mllShift,"m_{ll}","GeV",syaxis,130,20,280); 
   BOOK_SRDGWH(DGWH_mllcoarse,"m_{ll}","GeV",syaxis,52,20,280); 
   BOOK_SRDGWH(DGWH_mllcoarser,"m_{ll}","GeV",syaxis,26,20,280); 
   BOOK_SRDGWH(DGWH_mjj,"m_{jj}","GeV",syaxis,50,0,500);
-  BOOK_SRDGWH(DGWH_pTll,"p_{T}^{ll}","GeV",syaxis,42,10,220);
-  BOOK_SRDGWH(DGWH_mWWT,"m_{T}^{WW}","GeV",syaxis,50,0,500);
+  BOOK_SRDGWH(DGWH_pTll,"p_{T}^{ll}","GeV",syaxis,25,0,250);
+  BOOK_SRDGWH(DGWH_mWWT,"m_{T}^{WW}","GeV",syaxis,30,0,300);
   BOOK_SRDGWH(DGWH_dPhill,"dPhi(l,l)","degree",syaxis,9,0,180);
   BOOK_SRDGWH(DGWH_dRll,"dR(l,l)","degree",syaxis,40,0,4);
   BOOK_SRDGWH(DGWH_dEtall,"d#eta(l,l)","degree",syaxis,30,0,3);
@@ -83,6 +84,7 @@ void Histos_WH::BookWHHistograms(TDirectory* _hDir, bool useSys)
   BOOK_SRDGWH(DGWH_mt2,"m_{T2}","GeV",syaxis,20,0,200);
   BOOK_SRDGWH(DGWH_mt2b,"m_{T2}","GeV",syaxis,40,0,400);
   BOOK_SRDGWH(DGWH_mt2j,"m_{T2}^{J}","GeV",syaxis,40,0,400);
+  BOOK_SRDGWH(DGWH_mlj,"m_{lj}","GeV",syaxis,40,0,400);
   BOOK_SRDGWH(DGWH_mljj,"m_{ljj}","GeV",syaxis,40,0,400);
   BOOK_SRDGWH(DGWH_mEff,"m_{eff}","GeV",syaxis,50,0,1000);
   BOOK_SRDGWH(DGWH_ST,"S_{T}","GeV",syaxis,50,0,1000);

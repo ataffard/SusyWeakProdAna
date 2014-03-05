@@ -6,6 +6,10 @@ ttbarWjjIncl.174831
 ttbarZ.119355
 ttbarZjExcl.174832
 ttbarZjjIncl.174833
+tZ_Wtchan_Zll.179991
+tZ_stchan_Zll.179992
 ttbarWW.119583
-ttbargammaPt80.164439
+ttgam_jjbjjb.169704
+ttgam_lvblvb.169705
+ttgam_lvbjjb.169706
 4top_SM.158344

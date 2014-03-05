@@ -24,7 +24,7 @@
 
 #Update for a given pass
 #date="012914_21fb_n0145_DD_WH_v3"
-date="021414_21fb_n0150_DD_WH_v3"
+date="022814_21fb_n0150_DD_WH_v5"
 
 
 pathScript=${WORKAREA}/SusyWeakProdAna/scripts
@@ -184,7 +184,8 @@ DIL=(EE MM EM)
 #    EEEE EEEM EEMM EMMM MMMM LLLL)
 #<<SKIP
 SR=(\
-    WH_SRSS1j WH_SRSS23j WH_optimSRSS WH_CRSSZVFAKE WH_CRSSFAKE
+    WH_SRSS1j WH_SRSS23j WH_optimSRSS WH_CRSSZVFAKE WH_CRSSFAKE \
+    WH_HighMll WH_HighPtll WH_lowMET WH_BTag \
     #ML_CF3L ML_VRWZ ML_VRZZ ML_VRemulWW \
     #SRmT2a SRmT2b SRmT2c \
     #SRWWa SRWWb SRWWc \
