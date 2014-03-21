@@ -8,170 +8,6 @@
 #include "TMatrixD.h"
 #include "TVectorD.h"
 
-//-----------------------------------------------------------------------------
-LEP_TYPE getType(int org, int type, 
-		 std::string dataset,
-		 int DSId,
-		 int truthMatchType,
-		 bool isEle,
-		 bool isChargeFlip)
-{
-  TString ss = dataset;
-  /*
-  if(ss.Contains("simplifiedModel")){
-    std::cout << " org " << org << " type " <<  type <<std::endl; 
-    return PR;
-  }
-  */
-  if(org==22) return PR;
-
-  if(isPT(org, type,DSId,truthMatchType,isEle,dataset)) return PR;
-  else if(isHF(org, type,truthMatchType)) return HF;
-  else if(isLF(org, type,DSId,truthMatchType, isEle,isChargeFlip)) return LF;
-  else if(isConv(org, type,truthMatchType, isEle,isChargeFlip)) return CONV;
-  return TYPE_Undef;
-}
-//-----------------------------------------------------------------------------
-bool isPT(int org, int type,
-	  int mcId,
-	  int truthMatchType,
-	  bool isEle,
-	  std::string dataset)
-{
-  TString ss = dataset;
-  if(org==22) return true;
-  /*
-  if(ss.Contains("simplifiedModel")){
-   
-    return PR;
-  }
-  */
-  // Updated way of handling real and fake leptons using LeptonTruthTools
-  return (truthMatchType == PR);
-  
-  // Code taken from Steve.  There seems to be an issue with Sherpa samples, so 
-  // need to handle those separately. Also just for clarification:
-  // * mcOrigin = 9 -- Tau Lepton
-  // * mcType   = 1 -- Unknown Electron
-  // * mcType   = 2 -- Iso Electron
-  // * mcType   = 5 -- Unknown Muon
-  // * mcType   = 6 -- Iso Muon
-
-  // Cut is sample dependent due to Sherpa classifications broken
-
-
-//   // All tau leptons are classified as non-iso
-//   // I'm not sure why, yet, but for now I will treat them as real leptons.
-//   if(org == 9) return true;
-  
-//   // Sherpa diboson, assume all unknowns are real leptons
-//   // This is an approximation, but probably ok.
-//   // *** I will prob need to add run numbers here ***
-//   if( (mcId>=126892 && mcId<=126895) || (mcId>=147770 && mcId<=147772) ||
-//       (mcId>=147774 && mcId<=147776)){
-//     if(isEle) return type == 1 || type == 2;
-//     else      return type == 5 || type == 6;
-//   }
-//   else{
-//     // 2-lep classifies everything as real if it 
-//     // is from W, Z, tau, or top..
-//     //uint origin = lep->mcOrigin;
-//     //return origin == 9 || origin == 12 || origin == 13 || origin == 10;
-    
-//     if(isEle) return type == 2;
-//     else      return type == 6;
-//   }
-
-
-  /*
-  if( org==1 ||
-      org==2 ||
-      org==9 ||
-      org==10 ||
-      (org>=12 && org<=22)) return true;  
-  if( org==0 && (type==1 || type==5))  return true;  //for Sherpa
-  */
-  return false;
-}
-/*--------------------------------------------------------------------------------*/
-bool isFake(int org, int type,int mcId,
-	    int truthMatchType,
-	    bool isEle,std::string dataset)
-{
-  return !isPT(org,type, mcId,truthMatchType,isEle,dataset);
-}
-//-----------------------------------------------------------------------------
-bool isHF(int org, int type,int truthMatchType)
-{
-  return (truthMatchType == HF);
-
-//   return org == 25 || org == 26 || org == 27 || org == 28 ||
-//     org == 29 || org == 32 || org == 33;
-
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool isLF(int org, int type, 
-	  int mcId,
-	  int truthMatchType,
-	  bool isEle,
-	  bool isChargeFlip)
-{
-  return (truthMatchType == LF);
-
-  // Steve's way:
- //  bool isqFlip = isEle ? isChargeFlip : false;
-//   return isFake(org,type,mcId,truthMatchType,isEle) && 
-//     !isConv(org,type,mcId,truthMatchType,isEle) &&
-//     !isHF(org,type,truthMatchType) && 
-//     !isqFlip;
-
-
-  /*
-  if( //org==0 ||
-      org==4 ||
-      org==8 ||
-      org==11 ||
-      (org>=23 && org<=24) ||
-      (org>=30 && org<=31) ||
-      org==34 ||
-      org==35 ||
-      org==41 || org==42 ) return true;
-  if(org==0 && type==17) return true; //for Sherpa
-  */
-  return false;
-}
-
-//-----------------------------------------------------------------------------
-bool isConv(int org, int type,
-	    int truthMatchType,
-	    bool isEle,
-	    bool isChargeFlip)
-{
-  //return lep->mcOrigin == 5;
-  //CONV flag not working on SUSY samples !!
-  bool isConv       = truthMatchType == CONV;
- 
-  //  bool isConv       = org == 5;
-  bool isqFlip =  isEle ? isChargeFlip : false; 
-
-  /*
-  std:: cout << "truth " << truthMatchType 
-	     << " isEle " << isEle 
-	     << " qFlip " << isChargeFlip << std:: endl;
-  */
-  return isConv && !isqFlip;
-
-  /*
-  if( org==3 ||
-      (org>=5 && org<=7) ||
-      ( org>=36 && org<=40)) 
-    return true;
-  */
-  return false;
-}
-
 
 
 //-----------------------------------------------------------------------------
@@ -188,11 +24,7 @@ void binomialError(float Num, float Den, float& Eff, float& EffErr){
 // Transverse mass 
 float mT(TLorentzVector _l, TLorentzVector _nu)
 {
-  //  float dphi = acos(cos(_l.Phi()-_nu.Phi()));
-  //  return sqrt(2*_l.Pt()*_nu.Pt() * (1- cos(dphi)) ); 
-
   return sqrt(2*_l.Pt()*_nu.Pt() * (1- cos(_l.DeltaPhi(_nu))) ); 
-
 }
 
 //-----------------------------------------------------------------------------
@@ -221,24 +53,6 @@ float mCT(TLorentzVector v1, TLorentzVector v2){
 
 //-----------------------------------------------------------------------------
 float mCTperp(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met){
-  /*
-  // Get 3 vectors for objects
-  TVector3 U_t  = (-met-lep0-lep1).Vect();
-  U_t.SetZ(0);
-  U_t = U_t.Unit();
-  TVector3 l0_t = lep0.Vect(); l0_t.SetZ(0);
-  TVector3 l1_t = lep1.Vect(); l1_t.SetZ(0);
-  
-  // Calculate
-  TVector3 p0_t = U_t.Cross( l0_t.Cross(U_t) );
-  TVector3 p1_t = U_t.Cross( l1_t.Cross(U_t) );
-  
-  float value = 2*(p0_t.Mag()*p1_t.Mag() + p0_t*p1_t);
-  if( value < 0 ) return 0;
-  return sqrt(value);
-  */
- // Access the 3-D vectors
-  
   TVector3 v13D = lep0.Vect();
   TVector3 v23D = lep1.Vect();
   TVector3 u3D  = met.Vect();
@@ -261,12 +75,6 @@ float mCTperp(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met){
 
 //-----------------------------------------------------------------------------
 float mCTpara(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met){
-  /*
-  TVector3 U_t  = (-met-lep0-lep1).Vect().Unit();
-  TVector3 p0_t = (lep0.Vect() * U_t) * U_t;
-  TVector3 p1_t = (lep1.Vect() * U_t) * U_t;
-  return sqrt( 2*(p0_t.Perp()*p1_t.Perp() + p0_t.X()*p1_t.X() + p0_t.Y()*p1_t.Y()) );
-  */
   TVector3 v13D = lep0.Vect();
   TVector3 v23D = lep1.Vect();
   TVector3 u3D  = met.Vect();
@@ -291,9 +99,6 @@ float mCTpara(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met){
 float signedD0(float d0, float sigmaD0,
 	       TLorentzVector _p, TLorentzVector _j){
   float sD0=-999;
-
-  //  float d0 = _m->getF("D0");
-  //  float sigmaD0 = _m->getF("sD0");
   float qd0=d0/fabs(d0);
   float m_sPhi= _p.Phi() + qd0 * TMath::Pi()/2.;
   float dPhi = m_sPhi- _j.Phi();
@@ -554,81 +359,3 @@ float GetNVertexBsCorrected(float nRecoVtx){
  }
 
 
-//-----------------------------------------------------------------------------
-double getCrossSection(std::ifstream &infile, int mcID, double crossSection, int syst)
-{
-  int _dbg = 0;
-  
-  // Clear the seekg so that we can read the file multiple times
-  infile.clear();
-  infile.seekg(0,std::ios::beg); 
-  
-  // Check if can read the file
-  if(infile.fail())
-    {
-      std::cout << "getCrossSection::WARNING Cannot read cross section file, return input value..." << std::endl;
-      return crossSection;
-    }
-  
-  // Read the text file information
-  bool        matched     = false;
-  int         _dsId       = 0;
-  std::string currentLine = "", 
-    _suffix     = "";  
-  float       _mC1        = 0., 
-    _mN1        = 0., 
-    _mSlep      = 0., 
-    _xsec       = 0., 
-    _relError   = 0.; 
-  
-  // Read through file
-  while(!infile.eof())
-    {
-      // Get the line
-      std::getline(infile,currentLine);
-      
-      if(_dbg > 0)
-	{
-	  std::cout << " MCID : "        << std::setw(6) << _dsId 
-		    << " !! mC1/mN2 : "  << std::setw(5) << _mC1
-		    << " !! mSlep : "    << std::setw(5) << _mSlep
-		    << " !! mN1 : "      << std::setw(5) << _mN1
-		    << " !! xsec : "     << std::setw(6) << _xsec
-		    << " !! relError : " << std::setw(6) << _relError << std::endl;
-	}
-      
-      // Scan the line
-      sscanf(currentLine.c_str(),"%i\t%f\t%f\t%f\t%f\t%f",&_dsId,&_mC1,&_mSlep,&_mN1,&_xsec,&_relError);
-      
-      // Look for match
-      if(_dsId == mcID) { 
-	matched = true;
-	break;
-      }
-    }  
-  
-  // Check if match is found
-  if(!matched) {
-    //std::cout << "getCrossSection::WARNING No match is found for MCID :: " << _dsId << std::endl;
-    //std::cout << "                         Returning input value..."     << std::endl;
-    return crossSection;
-  }
-  
-  // Consistency check between SusyNt and text file cross sections
-  if (fabs(crossSection - _xsec) > 1.e-3) 
-    {
-      std::cout << "getCrossSection::WARNING Possible inconsistency in cross sections for MCID :: " << _dsId << std::endl;
-    }
-  
-  // Return the result
-  if ( syst == 0 ){
-    return crossSection;
-  } else if (syst ==  1){
-    return crossSection*(1 + 0.01*_relError);
-  } else if (syst == -1){
-    return crossSection*(1 - 0.01*_relError);
-  } else {
-    std::cout << "getCrossSection::WARNING Unkown Systematic variation, returning nominal..." << std::endl;
-    return crossSection;
-  }
-}

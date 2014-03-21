@@ -6,36 +6,6 @@
 // Root Packages
 #include "TLorentzVector.h"
 
-// Classify using MCTruthClassifier
-enum LEP_TYPE{PR=0, CONV, HF, LF, TYPE_Undef};
-
-bool isHF(int org, int type,int truthMatchType);
-bool isPT(int org, int type,
-	  int mcId,
-	  int truthMatchType,
-	  bool isEle,
-	  std::string dataset="");
-bool isConv(int org, int type,
-	    int truthMatchType,
-	    bool isEle,
-	    bool isChargeFlip);
-bool isLF(int org, int type,
-	  int mcId,
-	  int truthMatchType,
-	  bool isEle,
-	  bool isChargeFlip);
-
-bool isFake(int org, int type,int mcId,
-	    int truthMatchType,
-	    bool isEle,
-	    std::string dataset="");
-  
-LEP_TYPE  getType(int org, int type, 
-		  std::string dataset="",
-		  int DSId=0,
-		  int truthMatchType=PR,
-		  bool isEle=false,
-		  bool isChargeFlip=false);
 
 //Efficiency using binomial error
 void binomialError(float Num, float Den, float& Eff, float& EffErr);
@@ -59,12 +29,6 @@ float signedD0(float d0, float sigmaD0, TLorentzVector _p, TLorentzVector _j);
 
 // pT relative to jet axis 
 float ptRel(TLorentzVector j, TLorentzVector p);
-
-
-//Simplified Model cross section
-double getCrossSection(std::ifstream &infile, int mcID, double crossSection, int syst = 0);
-
-
 
 
 /*

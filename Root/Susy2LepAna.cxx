@@ -30,7 +30,18 @@ void Susy2LepAna::doAnalysis(unsigned int isys)
   SYST = isys;
 
   if(FILL_HFT && !m_writeHFT) initializeHistFitterTree();
-  if(FILL_TOYNT && !m_writeToyNt && isys==DGSys_NOM) initializeToyNt();
+  if(FILL_TOYNT && !m_writeToyNt && isys==DGSys_NOM){
+    bool metDetails      = false;
+    bool dijetBlock      = true;
+    bool OS2LBlock       = true;
+    bool SS2LBlock       = true;
+    bool ZBalanceBlock   = false;
+    bool diversVarsBlock = false;
+
+    initializeToyNt(metDetails, dijetBlock, 
+		    OS2LBlock, SS2LBlock, ZBalanceBlock, diversVarsBlock);
+
+  }
 
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
@@ -787,13 +798,14 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
     
     //Deal with Charge flip estimate - obtain approprate weighting
     if(!USE_QFLIP && !passQQ(leptons)) continue;
+    float _ww_qFlip=1;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
 	  (iSR==DIL_SRSSjets || iSR==DIL_CR2LepSS || iSR==DIL_CR2LepSS40 || 
 	   iSR==DIL_preSRSS  || iSR==DIL_VRSS || iSR==DIL_optimSRSS) ){
-	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
+	if(isGenuineSS(leptons,nt->evt()->isMC) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
 	else{ //OS ee/em event - get the qFlip prob
-	  float _ww_qFlip = getQFlipProb(leptons,&new_met,DGSys_NOM);
+	  _ww_qFlip = getQFlipProb(leptons,&new_met,DGSys_NOM);
 	  _ww *= _ww_qFlip;
 	  if(WEIGHT_COUNT) _inc = _ww;
 	  if(SYST==DGSys_NOM) n_pass_ss[m_ET][SR]+=_inc;
@@ -914,7 +926,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
       if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
     }
     if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) 
-      fillToyNt(SR,SYST,leptons, signalJets,&new_met,_ww);
+      fillToyNt(SYST,leptons, signalJets,&new_met,_ww, bTagWeight,_ww_qFlip);
 
     if(m_writeHFT && validSystForHFT(SYST) ){
       float wHFT= writeIntoHistFitterTree(iSR,leptons,baseLeps,signalJets,v_baseJet,met);
@@ -1420,14 +1432,15 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
     const Susy::Lepton* _l = leptons->at(ilep);
     _ll = _ll + (*_l);
     bool isChargeFlip =  _l->isEle() ? ((Electron*) _l)->isChargeFlip : false; 
-    LEP_TYPE lType = getType(_l->mcOrigin,
+    LEP_TYPE lType = getType(_l);
+    /*->mcOrigin,
 			     _l->mcType,
 			     _hh->sampleName(),
 			     nt->evt()->mcChannel,
 			     _l->truthType,
 			     _l->isEle(),
 			     isChargeFlip);
-        
+    */  
     float _dPhi=fabs(met->lv().DeltaPhi(*_l));
     if(_dPhi<dPhilMet) dPhilMet=_dPhi;
 
@@ -1794,7 +1807,7 @@ float Susy2LepAna::writeIntoHistFitterTree(uint iSR,
     
     //Get the QFlip weight. Not the event kinematics won't be smeared.
     if(m_method == RLEP &&  m_ET!=ET_mm){
-      if(!isGenuineSS(leptons) && (_isEE || _isEM) ){ //Not true SS - use OS * qFlip
+      if(!isGenuineSS(leptons,nt->evt()->isMC) && (_isEE || _isEM) ){ //Not true SS - use OS * qFlip
 	_qFlipWeight = getQFlipProb(leptons,&new_met,DGSys_NOM); //lept pt/Met changed !!!!
 	restoreOriginal(*leptons,met);                           //Because qFlip was have been called
 	_bkg_up = getQFlipProb(leptons,&new_met,DGSys_BKGMETHOD_UP) / _qFlipWeight; //lept pt/Met changed !!!!

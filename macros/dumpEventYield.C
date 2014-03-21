@@ -9,14 +9,14 @@ string mth = "std";
 //string dir = "histos_021414_21fb_n0150_DD_WH_v3";
 string dir = "histos_022814_21fb_n0150_DD_WH_v5";
 
-//string sampleSet = "data12.txt";
+string sampleSet = "data12.txt";
 //string sampleSet = "Zjets_SherpaAlpgenPythia.txt";
 //string sampleSet = "Zjets_AlpgenPythia.txt";
 //string sampleSet = "WZ_ZZ_Sherpa.txt";
 //string sampleSet = "WW_PowHeg_oldgg2WW.txt";
 //string sampleSet = "WW_Sherpa.txt";
 //string sampleSet = "Higgs.txt";
-string sampleSet = "top_MCNLO.txt";
+//string sampleSet = "top_MCNLO.txt";
 //string sampleSet = "wA_noslep_WH_2LepNew.txt";
 
 bool DOSYS = true;
@@ -47,9 +47,9 @@ int main(int argc, char *argv[]){
  //SR.push_back("SRmT2a");
  //SR.push_back("SRmT2b");
  // SR.push_back("SRZjets");
- // SR.push_back("SRSS1j");
- // SR.push_back("SRSS23j");
- SR.push_back("CRSSFAKE");
+ SR.push_back("SRSS1j");
+ SR.push_back("SRSS23j");
+ //SR.push_back("CRSSFAKE");
  // SR.push_back("SRSS3");
  // SR.push_back("SRSS4");
  //SR.push_back("optimSRSS");

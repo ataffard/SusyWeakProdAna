@@ -5,7 +5,7 @@
 #include "SusyWeakProdAna/PhysicsTools.h"
 
 #include "SusyWeakProdAna/SusyAnaCommon.h"
-
+//#include "SusyWeakProdAna/DsidGroups.h"
 
 
 using namespace std;
@@ -30,7 +30,17 @@ void SusyWHAna::doAnalysis(unsigned int isys)
   reset();
   SYST = isys;
 
-  if(FILL_TOYNT && isys==DGSys_NOM) initializeToyNt();
+  if(FILL_TOYNT && isys==DGSys_NOM){
+    bool metDetails      = false;
+    bool dijetBlock      = true;
+    bool OS2LBlock       = true;
+    bool SS2LBlock       = true;
+    bool ZBalanceBlock   = false;
+    bool diversVarsBlock = false;
+
+    initializeToyNt(metDetails, dijetBlock, 
+		    OS2LBlock, SS2LBlock, ZBalanceBlock, diversVarsBlock);
+  }
 
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
@@ -366,7 +376,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   // Get Event Type to continue cutflow
   //
   m_ET = getDiLepEvtType(*baseLeps);
-  if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME togetherxs
+  if(m_ET==ET_me) m_ET=ET_em; //Keep EM & ME together
   
   if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;
 
@@ -393,9 +403,20 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   //
   //set _ww to the appropriate weighting
   //
-  float _ww      = eventWeight(LUMIMODE); 
+  float _ww      = eventWeight(LUMIMODE,SYST); 
+  // Get uncertainty on WZ 
+  if(nt->evt()->isMC && (SYST == DGSys_GEN_UP || SYST == DGSys_GEN_DN) ){
+    int nCJets = numberOfCLJets(*signalJets);   
+    float uncert = getWZUncertainty(nt->evt()->mcChannel,nCJets);
+    if(SYST == DGSys_GEN_UP) _ww *= 1 + uncert;
+    if(SYST == DGSys_GEN_DN) _ww *= 1 - uncert;
+  }
+
+
+
+
   if(!WEIGHT_COUNT) _ww=1;
-  float _lepSFW  = getLepSFWeight(leptons);
+  float _lepSFW  = getLepSFWeight(leptons,SYST);
   float _trigW   = getTriggerWeight(leptons, 
 				    met->lv().Pt(),
 				    signalJets->size(),
@@ -407,15 +428,17 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   float _wwSave = _ww;
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
     
-  if(dbg()>1){ 
+  if(dbg()>-1){ 
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DGSystNames[SYST]
 	 << " lepSF " << _lepSFW
 	 << " trigW " << _trigW
 	 << " bTag " << bTagWeight
-	 << " ww " << _ww 
-	 << " weight(w/btag) " << _ww*bTagWeight << " wwSave " << _wwSave << endl;
+	 << " weight(w/btag) " << _ww*bTagWeight 
+	 << " wwSave " << _wwSave 
+	 << " event weight ww " << _ww 
+	 << endl;
   }
  
 
@@ -454,15 +477,16 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     
     //Deal with Charge flip estimate - obtain approprate weighting
     if(!USE_QFLIP && !passQQ(leptons)) continue;
+    float _ww_qFlip=1;
     if(USE_QFLIP){
       if( nt->evt()->isMC && m_method == RLEP &&  m_ET!=ET_mm &&
 	  (iSR==WH_SRSS1j || iSR==WH_SRSS23j || 
 	   iSR==WH_CRSSZVFAKE || iSR==WH_CRSSFAKE ||
 	   iSR==WH_optimSRSS ||
 	   iSR==WH_HighMll || iSR==WH_HighPtll || iSR==WH_lowMET || iSR==WH_BTag  ) ){
-	if(isGenuineSS(leptons) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
-	if(!isGenuineSS(leptons)){ //OS ee/em event - get the qFlip prob
-	  float _ww_qFlip = getQFlipProb(leptons,&new_met,SYST);
+	if(isGenuineSS(leptons,nt->evt()->isMC) && SYST==DGSys_NOM )  n_pass_ss[m_ET][SR]+=_inc; //genuine SS - no qFlip
+	if(!isGenuineSS(leptons,nt->evt()->isMC)){ //OS ee/em event - get the qFlip prob
+	  _ww_qFlip = getQFlipProb(leptons,&new_met,SYST);
 	  _ww *= _ww_qFlip;
 	  if(WEIGHT_COUNT) _inc = _ww;
 	  if(SYST==DGSys_NOM) n_pass_ss[m_ET][SR]+=_inc;
@@ -683,7 +707,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
       if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
     }
     if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) 
-      fillToyNt(SR,SYST,leptons, signalJets,&new_met,_ww);
+      fillToyNt(SYST,leptons, signalJets,&new_met,_ww, bTagWeight,_ww_qFlip);
        
   }
   
@@ -706,7 +730,8 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   
   if(leptons->size()>2) return 0;
 
-  susy::fake::Region frSR = susy::fake::CR_SSInc;
+  susy::fake::Region frSR = susy::fake::CR_SSInc1j;
+  /*
   switch (iSR){
   case WH_SRSS1j:
     frSR = susy::fake::CR_SRWH1j;
@@ -737,8 +762,8 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   case WH_BTag:
     frSR = susy::fake::CR_SSInc1j;
     break;
-
   }
+  */
 
   for(uint i=0; i<leptons->size(); i++){
     _isEle[i]=leptons->at(i)->isEle();
@@ -942,6 +967,8 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
     const Susy::Lepton* _l = leptons->at(ilep);
     _ll = _ll + (*_l);
     bool isChargeFlip =  _l->isEle() ? ((Electron*) _l)->isChargeFlip : false; 
+    LEP_TYPE lType = getType(_l);
+    /*
     LEP_TYPE lType = getType(_l->mcOrigin,
 			     _l->mcType,
 			     _hh->sampleName(),
@@ -949,6 +976,7 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
 			     _l->truthType,
 			     _l->isEle(),
 			     isChargeFlip);
+    */
         
     float _dPhi=fabs(met->lv().DeltaPhi(*_l));
     if(_dPhi<dPhilMet) dPhilMet=_dPhi;
@@ -1144,5 +1172,29 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
   }
   _hh->H1FILL(_hh->DGWH_nSoftJets[iSR][m_ET][iSYS],nSoftJets,_ww); 
 
+
+}
+
+
+/*--------------------------------------------------------------------------------*/
+// Uncertainty on WZ
+/*--------------------------------------------------------------------------------*/
+float SusyWHAna::getWZUncertainty(uint dsid, int nJet)
+{
+  static const float uncert_1j  = 0.174;
+  static const float uncert_23j = 0.43;
+
+  XsecUncertainty::McGroup group = XsecUncertainty::kUnknown;
+  if(dsidInArray(dsid, kDsidForkWz, kNdsidForkWz)) group = XsecUncertainty::kWz;
+  if(group == XsecUncertainty::kUnknown) return 0.0; //Not WZ - 0 uncert
+
+
+  if(nJet==1) return uncert_1j;
+  else if(nJet>1 && nJet<4) return  uncert_23j;
+  else{
+    if(dbg()>15) cout << "SusyWHAna::getWZUncertainty. Sample is WZ, but number of jet incompatible " << nJet << endl;
+    return 0;
+  }
+  
 
 }

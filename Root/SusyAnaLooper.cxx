@@ -8,13 +8,13 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 // SusyAnaLooper Constructor
 /*--------------------------------------------------------------------------------*/
-SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH): 
+SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake): 
   SusyNtAna(),
   _do2LAna(do2L), 
   _doWHAna(doWH),
   _doMll(false),
   _do3LAna(do3L),
-  _doFakeAna(false),
+  _doFakeAna(doFake),
   _useLooseLep(false),
   _method(STD),
   _systematic1(""),
@@ -25,9 +25,10 @@ SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH):
   nHFOR(0),
   nMllCut(0)
 {
-  if(_do2LAna)      setAnaType(Ana_2Lep,true);
-  else if(_doWHAna) setAnaType(Ana_2LepWH,true);
-  else if(_do3LAna) setAnaType(Ana_3Lep,true);
+  if(_do2LAna)        setAnaType(Ana_2Lep,true);
+  else if(_doWHAna)   setAnaType(Ana_2LepWH,true);
+  else if(_doFakeAna) setAnaType(Ana_2LepWH,true);
+  else if(_do3LAna)   setAnaType(Ana_3Lep,true);
   else setAnaType(Ana_2Lep,true);
 
   setSelectTaus(true);
@@ -51,6 +52,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
   cout << "     2LAna " << _do2LAna << endl;
   cout << "     WHAna " << _doWHAna << endl;
   cout << "     3LAna " << _do3LAna << endl;
+  cout << "     FakeAna " << _doFakeAna << endl;
   cout << "  Select Taus: true " << endl;
   cout << "--------------------------" << endl;
 
@@ -66,14 +68,17 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 
   if(_doFakeAna){
     _susyFakeAna = new SusyFakeAna(_susyHistos);
-    _susyFakeAna->setAnaType(Ana_2Lep,true);
+    _susyFakeAna->setAnaType(Ana_2LepWH,true);
     _susyFakeAna->setDebug(dbg());
+    _susyFakeAna->setUseLooseLep(_useLooseLep);
     _susyFakeAna->hookContainers(&nt,
-				 &m_baseElectrons, &m_signalElectrons,
-				 &m_baseMuons, &m_signalMuons,
+				 &m_preElectrons, &m_baseElectrons, &m_signalElectrons,
+				 &m_preMuons, &m_baseMuons, &m_signalMuons,
 				 &m_baseLeptons, &m_signalLeptons,
-				 &m_baseJets, &m_signalJets2Lep);
-    _susyHistos->BookFakeHistograms(_histoDir);
+				 &m_preJets, &m_baseJets, &m_signalJets2Lep,
+				 &m_baseTaus, &m_signalTaus);
+    //    _susyHistos->BookFakeHistograms(_histoDir);
+    _susyFakeAna->setMCSumWs(getSumwMap());
   }
 
   if(_do2LAna){
@@ -304,7 +309,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 
   // grab base object and select signal objects
   uint iSys=DGSys_NOM;
-  if(_do2LAna || _doWHAna ||_do3LAna){
+  if(_do2LAna || _doWHAna ||_do3LAna || _doFakeAna){
     uint minSys=DGSys_NOM;
     uint maxSys=DGSys_NOM+1;
     if(DO_SYS){
@@ -326,10 +331,11 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     //Speed processing when not dumping cutflow....
     if(!CUTFLOW){
       int nNtLep = nt.ele()->size() + nt.muo()->size();
-      int nNtTau = nt.tau()->size();
+      //int nNtTau = nt.tau()->size();
       if(nNtLep < 2) return false;
       //if(m_nTauMin >= 0 && nNtTau < m_nTauMin) return false;
     }
+
 
     for(uint iiSyst=minSys; iiSyst<maxSys; iiSyst++){     //Syst Looper
       if(dbg()>10) cout << "Do sys? " << DGSystNames[iiSyst] <<endl;
@@ -346,7 +352,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       if(nt.evt()->isMC && iiSyst >= DGSys_FAKE_EL_RE_UP && iiSyst<=DGSys_FAKE_MU_FR_DN) continue; //DD Fake sys
 
       //Skip spare sys.
-      if(iiSyst>= DGSys_GEN) break; // done here
+      if(iiSyst == DGSys_GEN || iiSyst == DGSys_PDF_UP || iiSyst == DGSys_PDF_DN) continue; // Skip these - not used
      
       if(dbg()>1) cout << "  Processing Sys " << iiSyst << " " << DGSystNames[iiSyst] <<endl;
       
@@ -370,6 +376,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 	_susy3LAna->hookMet(m_met);
 	_susy3LAna->doAnalysis(iiSyst);
       }
+      if(_doFakeAna){
+	_susyFakeAna->hookMet(m_met);
+	_susyFakeAna->doAnalysis();
+      }
     }   
    }
   else{
@@ -377,11 +387,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     if(dbgEvt()) dumpEvent();
 
     //perform event analysis
-    if(_doFakeAna){
-      _susyFakeAna->hookMet(m_met);
-      _susyFakeAna->doAnalysis();
-    }
-   
+    
   }
 
   return kTRUE;
@@ -392,9 +398,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 /*--------------------------------------------------------------------------------*/
 void SusyAnaLooper::Terminate()
 {
-  if(_do2LAna) _susy2LAna->end();
-  if(_doWHAna) _susyWHAna->end();
-  if(_do3LAna) _susy3LAna->end();
+  if(_do2LAna)   _susy2LAna->end();
+  if(_doWHAna)   _susyWHAna->end();
+  if(_do3LAna)   _susy3LAna->end();
+  if(_doFakeAna) _susyFakeAna->end();
 
   TString _SS(sampleName());
 
@@ -422,6 +429,11 @@ void SusyAnaLooper::Terminate()
       _susyHistos->SaveSplit3LHistograms(_histoDir,_method,
 					 _doMll,_isZAlpgenSherpa,
 					 _systematic1, _systematic2);
+
+    //if(_doFakeAna)
+      /*_susyHistos->SaveHistograms(_histoDir,_method,
+				  _doMll,_isZAlpgenSherpa,
+				  _systematic1, _systematic2);*/
 
   }
 

@@ -31,7 +31,7 @@ static const int dbg = 1;
 
 //Options for optimisation
 static const int    selDil    = 2;  //EE, MM, EM for SS and C1C1 grids
-static const int    selCuts   = 1;  //WH 1 or 2+3jets
+static const int    selCuts   = 2;  //WH 1 or 2+3jets
 
 //wA WH grids
 static const unsigned int   sigSampleStart = 177501;
@@ -42,7 +42,7 @@ static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use fo
 
 //Settings for optimisation/plots
 static const bool   weightEvt          = true;   //Weight bkg/signal events
-static const bool   showData           = true;   //false: shows Zn below plot
+static const bool   showData           = false; // shows Zn below plot
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group;
 static const bool   showCutflow        = true;   //dump cutflow yield
@@ -362,6 +362,7 @@ void loadSamples()
   for(uint ibkg=0; ibkg<N_MC; ibkg++){
     ntBkg[ibkg] = new TChain("ToyNt",string("Bkg_"+MCLabel[ibkg]).c_str());
     ntBkg[ibkg]->Add( string(dir+_bkgFileNames[ibkg]).c_str() );
+    //cout << "Adding file " << _bkgFileNames[ibkg] << endl;
     if(dbg>0) cout << MCLabel[ibkg ] << " nEntries " << ntBkg[ibkg]->GetEntries() << endl;
   }
   
@@ -658,8 +659,7 @@ void plotHist(bool logy)
   _hBkgStack.clear();
   for(uint ivar=0; ivar<_var.size(); ivar++){  
     string label = _var[ivar] + "_Sig_AllBkg";
-    
-    
+        
     if(_hSig[ivar]->Integral()<=0.){
       cout << _hSig[ivar]->GetTitle() << " is empty in range. Skipping. " << endl;
       continue; 
@@ -1146,7 +1146,7 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
 
 
       //SR
-      /*
+
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>30"));
@@ -1154,7 +1154,7 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
       _vCut.push_back(TCut("mWWT>120"));
       _vCut.push_back(TCut("mlj<90")); 
-      */
+
 
       //CR FAKE+ZV
       //_vCut.push_back(TCut("l_pt[0]>30"));
@@ -1166,10 +1166,10 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       //_vCut.push_back(TCut("l_pt[1]<30"));
       //_vCut.push_back(TCut("(mlj>90 && nCJets==1) || (mljj>120 && nCJets>1)")); 
       
-      _vCut.push_back(TCut("metrel<40"));
-      _vCut.push_back(TCut("dphi_ll>1.3"));
-      _vCut.push_back(TCut("pTll<20"));
-      _vCut.push_back(TCut("mll<60"));
+//       _vCut.push_back(TCut("metrel<40"));
+//       _vCut.push_back(TCut("dphi_ll>1.3"));
+//       _vCut.push_back(TCut("pTll<20"));
+//       _vCut.push_back(TCut("mll<60"));
       
     }
   }

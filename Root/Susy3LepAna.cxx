@@ -411,13 +411,15 @@ void Susy3LepAna::fillHistograms(uint iSR, uint iSYS,
     if(ilep<3) _3l += (*_l);
     if(ilep<4) _4l += (*_l);
     bool isChargeFlip =  _l->isEle() ? ((Electron*) _l)->isChargeFlip : false; 
+    LEP_TYPE lType = getType(_l);
+    /*
     LEP_TYPE lType = getType(_l->mcOrigin,
 			     _l->mcType,
 			     _hh->sampleName(),
 			     nt->evt()->mcChannel,
 			     _l->truthType,
 			     _l->isEle(),
-			     isChargeFlip);
+			     isChargeFlip);*/
     if(ilep==0){
       _hh->H1FILL(_hh->ML_ptl1[iSR][m_ET][iSYS],_l->Pt(),_ww); 
       _hh->H1FILL(_hh->ML_etal1[iSR][m_ET][iSYS],_l->Eta(),_ww); 

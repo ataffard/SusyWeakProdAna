@@ -25,6 +25,8 @@
 #include "SusyWeakProdAna/SusyHistos.h"
 
 #include "SusyWeakProdAna/ToyNt.h"
+#include "SusyWeakProdAna/XsecUncertainty.h"
+
 #include "SusyNtuple/SusyNtAna.h"
 
 
@@ -59,15 +61,16 @@ class SusyBaseAna: public SusySelection
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
     //MC weight
-    float eventWeight(int mode=1);
+    float eventWeight(int mode=1, uint iSys=DGSys_NOM);
     bool  isSimplifiedModelGrid(int dsId);
+    float getXsUncert(uint dsid);
+
 
     float getLepSFWeight(const LeptonVector* leptons, uint iSys=DGSys_NOM);
     float getTriggerWeight(const LeptonVector* leptons, 
 			   float met, int nSignalJets, int npv,
 			   uint iSys=DGSys_NOM);
     float getBTagSF(const Susy::Event*, const JetVector* jets, uint iSys=DGSys_NOM);
-
 
     //Correct SumWs for Slepton and MC dataset
     map<int,float> getSleptonSumWs(                      ) { return m_sleptonSumWs;  };
@@ -92,7 +95,7 @@ class SusyBaseAna: public SusySelection
     void restoreOriginal(LeptonVector& leptons, const Met *met);
     void clearVectors();
   
-    void setMcSysMinMax(uint sys1=DGSys_NOM, uint sys2=DGSys_XS_DN){
+    void setMcSysMinMax(uint sys1=DGSys_NOM, uint sys2=DGSys_Pileup_DN){
       _sys1 = sys1;
       _sys2 = sys2;
       cout << "Setting Sys range of HFT from " <<  DGSystNames[sys1]
@@ -100,13 +103,15 @@ class SusyBaseAna: public SusySelection
     }; 
 
     //ToyNt
-    void initializeToyNt();
-    void fillToyNt(uint iSR,
-		   uint iSYS,
+    void initializeToyNt(bool metD=false, bool dijetB=false, 
+			 bool OS2LB=false, bool SS2LB=false, 
+			 bool ZBalB=false, bool diverVarsB=false,
+			 bool fakeB=false);
+    void fillToyNt(uint iSYS,
 		   const LeptonVector* leptons, 
 		   const JetVector* jets,
 		   const Met* met,
-		   float _ww);
+		   float _ww, float _wwBTag, float _wwQFlip);
 
     //For debugging
     void dumpEvent();

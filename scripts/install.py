@@ -17,7 +17,7 @@ lpkgs = [
 #'svn co svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/UCIrvine/SUSYAnalysis/SusyNtuple/branches/SusyNtuple-00-00-60-branch SusyNtuple',
 'svn co svn+ssh://svn.cern.ch/reps/atlasinst/Institutes/UCIrvine/mrelich/SusyXSReader/trunk SusyXSReader',
 'svn co svn+ssh://svn.cern.ch/reps/atlasgrp/Institutes/UCIrvine/btoggers/ZllR/tags/ZllR-00-00-01 ZllR',
-
+'svn co svn+ssh://svn.cern.ch/reps/atlasphys/Physics/SUSY/Analyses/WeakProduction/LeptonTruthTools/trunk LeptonTruthTools',
 
 ]
 

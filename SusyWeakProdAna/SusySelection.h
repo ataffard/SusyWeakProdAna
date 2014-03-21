@@ -27,11 +27,13 @@ static const int LEP_N = 15;    //2L, 3L, 4L channels rounded up
 static const int SR_N  = 100;   //Large enought to cover all the SR/CR/VR's for all ana
 
 
+enum LEP_TYPE{PR=0, CONV, HF, LF, TYPE_Undef};
+
 class SusySelection: public SusyNtTools
 {
  public:
   
-  SusySelection(bool is2LAna, bool qFlipd0);
+  SusySelection(bool is2LAna=false, bool qFlipd0=true);
   virtual ~SusySelection(){};
   
   // Debug level
@@ -99,10 +101,8 @@ class SusySelection: public SusyNtTools
   
 
 
-
-
   //SS & charge flip 
-  bool  isGenuineSS(const LeptonVector* leptons);
+  bool  isGenuineSS(const LeptonVector* leptons, bool isMC);
   bool  hasQFlip(const LeptonVector* leptons);
   float getQFlipProb(LeptonVector* leptons, Met* met, uint iSys=DGSys_NOM);
   
@@ -132,6 +132,17 @@ class SusySelection: public SusyNtTools
   void         getPreLeptons(Susy::SusyNtObject* susyNt);
   LeptonVector getLooseLeptons(LeptonVector* preLeptons,const LeptonVector*  leptons); 
   bool         passBasicLeptonSelection(const Lepton* l);
+
+  //Lepton origin
+  bool  isPT(const Lepton* lep);
+  bool  isConv(const Lepton* lep);
+  bool  isLF(const Lepton* lep);
+  bool  isHF(const Lepton* lep);
+  bool  isQFlip(const Lepton* lep);
+  LEP_TYPE  getType(const Lepton* lep);
+  
+
+
 
 
   ClassDef(SusySelection, 1);

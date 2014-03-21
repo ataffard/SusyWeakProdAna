@@ -6,7 +6,7 @@
 if [[ $# < 2 ]]; then
 
     echo "Usage:"
-    echo "> svnTag.sh SusyWeakProduction-00-00-25 \"My message\"  "
+    echo "> svnTag.sh SusyWeakProdAna-00-00-25 \"My message\"  "
     exit 1
 
 fi

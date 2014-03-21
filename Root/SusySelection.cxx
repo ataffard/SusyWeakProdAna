@@ -5,6 +5,8 @@
 #include "SusyWeakProdAna/PhysicsTools.h"
 
 #include "SusyWeakProdAna/SusyAnaCommon.h"
+#include "LeptonTruthTools/RecoTruthMatch.h"
+
 
 using namespace std;
 using namespace Susy;
@@ -520,7 +522,7 @@ bool SusySelection::passIsPromptLepton(const LeptonVector* leptons, int method, 
       int truthMatch = _l->truthType;
       bool isEle     = _l->isEle();
       
-      bool isReal       = isPT(org,type,mcId,truthMatch,isEle,"dummy");
+      bool isReal       = isPT(_l);
       bool isChargeFlip =  _l->isEle() ? ((Electron*) _l)->isChargeFlip : false; 
       
       //Anyes 040613 - Hack gg2WW
@@ -642,10 +644,12 @@ bool SusySelection::passQQ(const LeptonVector* leptons)
 }
 
 /*--------------------------------------------------------------------------------*/
-bool SusySelection::isGenuineSS(const LeptonVector* leptons)
+bool SusySelection::isGenuineSS(const LeptonVector* leptons, bool isMC)
 {
   if( leptons->size() < 2 ) return false;  
   float qq = leptons->at(0)->q * leptons->at(1)->q;
+  if(!isMC && qq>0) return true; //Data SS
+
   if(hasQFlip(leptons)) return false;
   if(qq <0 ) return false;
   return true;
@@ -1423,3 +1427,41 @@ LeptonVector SusySelection::findSFOSinZ(LeptonVector* preLeptons, const LeptonVe
   return candLooseLeptons;
 
 }
+
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::isPT(const Lepton* lep)
+{
+  return lep->truthType == RecoTruthMatch::PROMPT; 
+}
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::isConv(const Lepton* lep)
+{
+  return lep->truthType == RecoTruthMatch::CONV; 
+}
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::isLF(const Lepton* lep)
+{
+  return lep->truthType == RecoTruthMatch::LF; 
+}
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::isHF(const Lepton* lep)
+{
+  return lep->truthType == RecoTruthMatch::HF; 
+}
+/*--------------------------------------------------------------------------------*/
+bool SusySelection::isQFlip(const Lepton* lep)
+{
+  return lep->isEle() ? ((Electron*) lep)->isChargeFlip : false;
+}
+
+/*--------------------------------------------------------------------------------*/
+LEP_TYPE SusySelection::getType(const Lepton* lep)
+{
+  if(isPT(lep))        return PR;
+  else if(isConv(lep)) return CONV;
+  else if(isHF(lep))   return HF;
+  else if(isLF(lep))   return LF;
+  else                 return TYPE_Undef;
+
+}
+

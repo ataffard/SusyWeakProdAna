@@ -55,6 +55,9 @@ class SusyWHAna: public SusyBaseAna
 			const Met* met,
 			float _ww);
 
+    //Uncertainty on the W background
+    float getWZUncertainty(uint dsid, int nJet);
+
     //Other functions
     void print_SRSS();
     void print_CRSS();

@@ -98,6 +98,12 @@ enum DG_SYS
   DGSys_GEN_DN,              // Generator param Alpgen, ISR/FSR
   DGSys_PDF_UP,              // PDF
   DGSys_PDF_DN,              // PDF
+  DGSys_ELSF_UP,             // Electron SF 
+  DGSys_ELSF_DN,             // Electron SF 
+  DGSys_MUSF_UP,             // Muon SF             
+  DGSys_MUSF_DN,             // Muon SF 
+  DGSys_Pileup_UP,           // Pileup UP
+  DGSys_Pileup_DN,           // Pileup DN
   DGSys_N
 };
 
@@ -153,7 +159,13 @@ const std::string DGSystNames[DGSys_N] = {
   "GEN_UP",
   "GEN_DN",
   "PDF_UP",
-  "PDF_DN"
+  "PDF_DN",
+  "ELSF_UP",
+  "ELSF_DN",
+  "MUSF_UP",
+  "MUSF_DN",
+  "Pileup_UP",
+  "Pileup_DN",
 };
 
 

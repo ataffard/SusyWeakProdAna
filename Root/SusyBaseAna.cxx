@@ -53,8 +53,9 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
 
   string _fakeInputSS  =  string(getenv("WORKAREA")) + 
     //    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_12.root"; //WH 2D MM
-    "/SusyMatrixMethod/data/FinalFakeHist_Feb_16.root"; //WH 2D flat SF, increase eta sys. 
-  //    "/SusyMatrixMethod/data/FinalFakeHist_Feb_18.root"; //WH 2D w/ pT bin SF 
+    //"/SameSignMatrixMethod/data/FinalFakeHist_Feb_16.root"; //WH 2D flat SF, increase eta sys. 
+    //    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_18.root"; //WH 2D w/ pT bin SF 
+    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_27.root"; //WH 2D Fraction and FR - 1D orginial SF 
   cout << "Loading fake SS-WH MM " << _fakeInputSS << endl;
 
   bool m_use2dparametrization=true;
@@ -135,7 +136,6 @@ void SusyBaseAna::finish()
     evtDump.close ();
   }  
   
-  
   if(m_writeToyNt){
     m_toyNt->setSumOfMcWeights(nt->evt()->sumw); 
     m_toyNt->SaveTree();
@@ -147,7 +147,7 @@ void SusyBaseAna::finish()
     std::cout << "Moving ToyNt " << cmd << std::endl;
     gSystem->Exec(cmd.c_str());
 
-    delete m_toyNt;
+    //delete m_toyNt;
   }
 
   clearVectors();
@@ -157,7 +157,7 @@ void SusyBaseAna::finish()
 /*--------------------------------------------------------------------------------*/
 // Event weight
 /*--------------------------------------------------------------------------------*/
-float SusyBaseAna::eventWeight(int mode)
+float SusyBaseAna::eventWeight(int mode, uint iSys)
 {
   bool useSumWMap  = true; 
   bool useProcSumW = true;
@@ -171,16 +171,30 @@ float SusyBaseAna::eventWeight(int mode)
   if(mode==LUMI21FB){ //Moriond dataset
     if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
     else{
-      unsigned int mcid = nt->evt()->mcChannel;   
-      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,useProcSumW, useSusyXsec);
+      MCWeighter::WeightSys iiSys;
+           if(iSys == DGSys_Pileup_UP) iiSys = MCWeighter::Sys_PILEUP_UP;
+      else if(iSys == DGSys_Pileup_DN) iiSys = MCWeighter::Sys_PILEUP_DN;
+	   //else if(iSys == DGSys_XS_UP)     iiSys = MCWeighter::Sys_XSEC_UP; //Not functional. DB incomplete
+	   //else if(iSys == DGSys_XS_DN)     iiSys = MCWeighter::Sys_XSEC_DN;
+      else                             iiSys = MCWeighter::Sys_NOM; 
+
+      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,useProcSumW, useSusyXsec,iiSys);
       
+      if(iSys == DGSys_XS_UP || iSys == DGSys_XS_DN){ //Get Xs uncertainty from local implementation
+	float uncert = getXsUncert(nt->evt()->mcChannel);
+	if(iSys == DGSys_XS_UP) _evtW *= 1 + uncert;
+	if(iSys == DGSys_XS_DN) _evtW *= 1 - uncert;
+      }
+
       if(dbg()>10)
-	cout << "Ana W: " << nt->evt()->w 
+	cout << "Syst " << DGSystNames[iSys] 
+	     << " Ana W: " << nt->evt()->w 
 	     << " pileup " << nt->evt()->wPileup 
 	     << " xsec " <<  nt->evt()->xsec 
 	     << " lumi " << LUMI_A_L 
 	     << " sumw " << nt->evt()->sumw 
 	     << " evtW " << _evtW << endl;
+
     }
   }
   
@@ -231,6 +245,23 @@ bool SusyBaseAna::isSimplifiedModelGrid(int dsId)
 
   return false;
 }
+
+/*--------------------------------------------------------------------------------*/
+// Return Xsec Uncertainty - Ana dependent - Implemented for WH only
+/*--------------------------------------------------------------------------------*/
+float SusyBaseAna::getXsUncert(uint dsid)
+{
+  XsecUncertainty xsecUnc;
+  bool groupFound = xsecUnc.determineGroup(dsid);
+  if(!groupFound)
+    cout<<"SusyBaseAna:getXsUncert : cannot determine group for dsid "<<dsid<<endl
+	<<"  will use "<<xsecUnc.str()<<endl;
+  if(dbg()>5) cout<<"usyBaseAna:getXsUncert : using "<<xsecUnc.str()<<" for dsid "<<dsid<<endl;
+
+  return xsecUnc.fractionalUncertainty();
+}
+
+
 /*--------------------------------------------------------------------------------*/
 // Lepton SF weight
 /*--------------------------------------------------------------------------------*/
@@ -240,8 +271,15 @@ float SusyBaseAna::getLepSFWeight(const LeptonVector* leptons, uint iSys)
   if(USE_LEPSF && nt->evt()->isMC){
     for(uint ilep=0; ilep<leptons->size(); ilep++){
       const Susy::Lepton* _l = leptons->at(ilep);
-      //TODO dealing with those syst here 
-      _wLepSF *= _l->effSF;
+      if(_l->isEle() && iSys==DGSys_ELSF_UP)
+	_wLepSF *= (_l->effSF + _l->errEffSF);     
+      else if(_l->isEle() && iSys==DGSys_ELSF_DN)
+	_wLepSF *= (_l->effSF - _l->errEffSF);
+      else if(_l->isMu() &&  iSys==DGSys_MUSF_UP)
+	_wLepSF *= (_l->effSF + _l->errEffSF);
+      else if(_l->isMu() &&  iSys==DGSys_MUSF_DN)
+	_wLepSF *= (_l->effSF - _l->errEffSF);
+      else _wLepSF *= _l->effSF;
       if(dbg()>10) cout << "lep" << ilep << " SF " << _l->effSF << endl; 
     }
   }
@@ -307,8 +345,6 @@ float SusyBaseAna::getBTagSF(const Susy::Event*, const JetVector* jets, uint iSy
   return bTagSF(nt->evt(),valJets, nt->evt()->mcChannel, (BTagSys) _sys);
 
 }
-
-
 /*--------------------------------------------------------------------------------*/
 // Save/restore orignal lepton - to deal with lepton smearing w/ qFlip
 /*--------------------------------------------------------------------------------*/
@@ -458,7 +494,9 @@ void SusyBaseAna::dumpEvent()
 /*--------------------------------------------------------------------------------*/
 // Initialize ToyNt
 /*--------------------------------------------------------------------------------*/
-void SusyBaseAna::initializeToyNt()
+void SusyBaseAna::initializeToyNt(bool metD, bool dijetB, 
+				  bool OS2LB, bool SS2LB, bool ZBalB, bool diverVarsB,
+				  bool fakeB)
 {
   if(m_writeToyNt==true) return; //Already initialized
 
@@ -482,37 +520,51 @@ void SusyBaseAna::initializeToyNt()
       m_toyNt = new ToyNt(ds,TString(TOYNT_SR));
     }
   }
+
+  m_toyNt->setBlocks(metD, dijetB, 
+		     OS2LB, SS2LB, ZBalB, diverVarsB, fakeB);
+
+  m_toyNt->BookTree();
+  
+
 }
 
 /*--------------------------------------------------------------------------------*/
-void SusyBaseAna::fillToyNt(uint iSR,uint iSYS,
-				 const LeptonVector* leptons, 
-				 const JetVector* jets,
-				 const Met* met,
-				 float _ww)
+void SusyBaseAna::fillToyNt(uint iSYS,
+			    const LeptonVector* leptons, 
+			    const JetVector* jets,
+			    const Met* met,
+			    float _ww, float _wwBTag, float _wwQFlip)
 {
   float corrNpv = nt->evt()->nVtx;
   if(nt->evt()->isMC) corrNpv = GetNVertexBsCorrected(nt->evt()->nVtx);
   
-  m_toyNt->FillTreeEvent(nt->evt()->run,
-			 nt->evt()->event,
-			 nt->evt()->mcChannel,
-			 nt->evt()->nVtx,
-			 corrNpv,
-			 iSR,
-			 m_ET,
-			 _ww);	 
-  m_toyNt->FillTreeLeptons(leptons,*v_baseEle,*v_baseMu,met,nt->evt()->nVtx,nt->evt()->isMC);
-  bool _topTag  = passTopTag(*leptons,*v_sigJet,met);
-  float mt2 =  getMT2(*leptons, met);
+  m_toyNt->FillTreeEvent(nt->evt()->run, nt->evt()->event, nt->evt()->mcChannel,
+			 nt->evt()->nVtx, corrNpv,_ww, _wwBTag, _wwQFlip);	 
+  m_toyNt->FillTreeLeptons(leptons,*v_baseEle,*v_baseMu,met,nt->evt()->nVtx,nt->evt()->isMC, m_ET);
+  //These need to be done here because uses SusySelection feature that cannot call from ToyNt
+
+  for(uint ilep=0; ilep<leptons->size(); ilep++){
+    const Susy::Lepton* _l = leptons->at(ilep);
+    bool removeLepsFromIso=false;
+    bool isTight=false;
+    if(_l->isEle()) isTight = isSignalElectron((Electron*) _l, *v_baseEle,*v_baseMu, nt->evt()->nVtx, nt->evt()->isMC,removeLepsFromIso);
+    else            isTight = isSignalMuon((Muon*) _l,*v_baseEle,*v_baseMu, nt->evt()->nVtx, nt->evt()->isMC,removeLepsFromIso);
+    m_toyNt->_b_l_isT[ilep] = isTight;
+    
+    m_toyNt->_b_l_org[ilep]     = getType(_l);     
+    m_toyNt->_b_l_isQFlip[ilep] = isQFlip(_l);     
+  }  
+
+  m_toyNt->FillTreeFakeLeptons(leptons,*v_baseEle,*v_baseMu,met,nt->evt()->nVtx,nt->evt()->isMC);
+  
+  m_toyNt->FillTreeSignalJets(jets,leptons,met,v_preEle, v_preMu);
+  //m_toyNt->FillTreeOtherJets(v_baseJet,leptons,met);
+
+
   float metRel = getMetRel(met,*leptons,*jets);
-  /*  
-  std::cout << "event " <<  nt->evt()->event 
-	    << " Met " << met->lv().Pt() << " " << met->lv().Px() << " " << met->lv().Py()
-	    << " L0 " << (*leptons->at(0)).Px() << " " << (*leptons->at(0)).Py()
-	    << " L1 " << (*leptons->at(1)).Px() << " " << (*leptons->at(1)).Py() 
-    	    << " " << mt2 << endl;
-  */
+  m_toyNt->FillTreeMetVar(met,metRel);
+
   float mll_collApprox = mZTauTau(*leptons->at(0),*leptons->at(1),met->lv());
 
   float sphericity=-999;
@@ -520,29 +572,23 @@ void SusyBaseAna::fillToyNt(uint iSR,uint iSYS,
   vector<float> px;
   vector<float> py;
   vector<float> pz;
+
+  //Lepton px, py, pz
   px.push_back(leptons->at(0)->Px());
   px.push_back(leptons->at(1)->Px());
-
   py.push_back(leptons->at(0)->Py());
   py.push_back(leptons->at(1)->Py());
-
   pz.push_back(leptons->at(0)->Pz());
   pz.push_back(leptons->at(1)->Pz());
 
   float mt2jj=-999;
   float mt2J=-999;
-  float mljj=-999;
-  float mlj=-999;
+  float Mljj = mljj(*leptons,*jets);
+  float Mlj  = mljj(*leptons,*jets);
 
   float jjAcoplanarity=-999;
-  if(jets->size()==1){
-    float dR1 = leptons->at(0)->DeltaR(*jets->at(0));
-    float dR2 = leptons->at(1)->DeltaR(*jets->at(0));
-    TLorentzVector l0 = *leptons->at(0);
-    TLorentzVector l1 = *leptons->at(1);
-    TLorentzVector j0 = *jets->at(0);
-    mlj = (dR1<dR2) ? (j0+l0).M() : (j0+l1).M();
-  }
+   float llAcoplanarity = acoplanarity(*leptons->at(0),*leptons->at(1));
+
   if(jets->size()>=2){
     const TLorentzVector* j1TLV=NULL;
     const TLorentzVector* j2TLV=NULL;
@@ -555,23 +601,21 @@ void SusyBaseAna::fillToyNt(uint iSR,uint iSYS,
       iC20j++;
     }
     if(j1TLV && j2TLV){
+      //Jet px, py, pz of central jets
       px.push_back(j1TLV->Px());
       px.push_back(j2TLV->Px());
-
       py.push_back(j1TLV->Py());
       py.push_back(j2TLV->Py());
-
       pz.push_back(j1TLV->Pz());
       pz.push_back(j2TLV->Pz());
-    }
-    if(j1TLV && j2TLV){
+
       mt2jj = getMT2(j1TLV, j2TLV, met);
       TLorentzVector jj = *j1TLV+*j2TLV;
       TLorentzVector l0 = *leptons->at(0);
       TLorentzVector l1 = *leptons->at(1);
-      float dR1 = jj.DeltaR(l0);
-      float dR2 = jj.DeltaR(l1);
-      mljj = (dR1<dR2) ? (jj+l0).M() : (jj+l1).M();
+      //float dR1 = jj.DeltaR(l0);
+      //float dR2 = jj.DeltaR(l1);
+      //      mljj = (dR1<dR2) ? (jj+l0).M() : (jj+l1).M();
       
       float mt2_a = getMT2(&(l0+*j1TLV),&(l1+*j2TLV),met,false);
       float mt2_b = getMT2(&(l0+*j2TLV),&(l1+*j1TLV),met,false);
@@ -581,20 +625,20 @@ void SusyBaseAna::fillToyNt(uint iSR,uint iSYS,
     }
   }
 
-  float llAcoplanarity = acoplanarity(*leptons->at(0),*leptons->at(1));
-
   sphericity = Sphericity(px,py,pz,false);
   sphericityTrans = Sphericity(px,py,pz,true);
 
-  m_toyNt->FillTreeEventVar(met,metRel,
-			    mt2, mt2jj, mt2J,
-			    mlj, mljj,
+  bool _topTag  = passTopTag(*leptons,*v_sigJet,met);
+
+  m_toyNt->FillTreeEventVar(Mlj, Mljj,
 			    sphericity, sphericityTrans,
 			    llAcoplanarity,jjAcoplanarity,
 			    _topTag,mll_collApprox);
-  m_toyNt->FillTreeSignalJets(jets,leptons,met,v_preEle, v_preMu);
-  //m_toyNt->FillTreeOtherJets(v_baseJet,leptons,met);
-  
+    
+  float mt2 =  getMT2(*leptons, met);
+  m_toyNt->FillMT2(mt2, mt2jj, mt2J);
+
+   
   float mct     = mCT(*leptons->at(0),*leptons->at(1));
   float mctPerp = mCTperp(*leptons->at(0),*leptons->at(1),met->lv());
   float mctPara = mCTpara(*leptons->at(0),*leptons->at(1),met->lv());
@@ -604,6 +648,33 @@ void SusyBaseAna::fillToyNt(uint iSR,uint iSYS,
   float JZBm = JZBEtmiss(met,leptons);
   m_toyNt->FillJZB(JZBj, JZBm);
   
+
+  //Checks
+  /*
+  for(uint i=0; i<leptons->size(); ++i){
+    Susy::Lepton* _l = leptons->at(i);
+    
+    cout  << " idx " << i 
+	  << " ele " << _l->isEle() 
+	  << " pTin " << _l->Pt() 
+	  << " pT " << m_toyNt->_b_l_pt[i] 
+	  << " org " << m_toyNt->_b_l_org[i]
+	  << " tight " << m_toyNt->_b_l_isT[i]
+	  << " isQFlip " << m_toyNt->_b_l_isQFlip[i]
+	  << endl;
+  }
+  
+  cout 	 << " pass SS1j " <<  m_toyNt->_b_pass_SS1j
+	 << " pass SSEM " <<  m_toyNt->_b_pass_SSEM
+	 << " pass HFTP " <<  m_toyNt->_b_pass_HFTP
+	 << " \n HFtagIdx " << m_toyNt->_b_HFTP_tagIdx 
+	 << " HFprobeIdx " << m_toyNt->_b_HFTP_probeIdx 
+	 << " SSEMtagIdx " << m_toyNt->_b_SSEM_tagIdx 
+	 << " SSEMprobeIdx " << m_toyNt->_b_SSEM_probeIdx 
+	 << " FakeType " <<  m_toyNt->_b_ll_FType 
+	 << endl;
+  */
+
 
   //Write entry to TTree
   m_toyNt->WriteTree();

@@ -51,9 +51,13 @@ pathScript=${WORKAREA}/SusyWeakProdAna/scripts
 ana=SusyAnaLooperExec
 #anaOpt1=doAll
 #anaOpt1=do2L
-anaOpt1=doWH
+
+#anaOpt1=doWH
+
 #anaOpt1=do3L
-#anaOpt1=doFake
+
+anaOpt1=doFake
+
 anaOpt2=true #doMll 
 #anaOpt2=false #doMll 
 methodMC=std
@@ -61,7 +65,8 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-doSys=true
+#doSys=true
+
 
 ##
 ## Ana mode STD or DD
@@ -69,11 +74,21 @@ doSys=true
 if [ "$mode" == "DD" ]; then
     methodMC=rlep
 #    methodMC=std
+    if [ $anaOpt1 == doFake ]; then
+	methodMC=flep
+    fi
+
 fi
 
 
 
 dataset=${pathScript}/${type}_sampleList.txt
+
+if [[ $anaOpt1 == doFake  &&  "$type" != "data12" ]]; then
+    dataset=${pathScript}/${type}_sampleList_fake.txt
+    echo "Using dataset list from " $dataset 
+fi
+
 
 #filter samples by pattern
 cat ${dataset} | grep $pattern >tmp.txt
@@ -184,15 +199,17 @@ while read line; do
 	fi
 
 	if [ "$type" == "data12" ]; then
-	    echo "Submitting data STD "ß
-	    methodData=std
-	    cd ${pathRun}
-	    qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
-	    echo ""
-	    echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
-	    cd ${pathScript}
-	    echo ""
-	    sleep 1
+	    if [ $anaOpt1 != doFake ]; then
+		echo "Submitting data STD "
+		methodData=std
+		cd ${pathRun}
+		qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh
+		echo ""
+		echo "qsub -j oe -V -v ana=$ana,anaOpt1=$anaOpt1,anaOpt2=$anaOpt2,method=$methodData,nEvt=$nEvt,name=$sName,fileDir=$sDir -N $sName -o ${pathRun}/batchLogs ${pathScript}/batchSubmit.sh "
+		cd ${pathScript}
+		echo ""
+		sleep 1
+	    fi
 
 	    if [ "$mode" == "DD" ]; then
 		if [ $doSys ]; then
@@ -261,7 +278,7 @@ rm -f tmp.txt
 if [ "$type" == "mc12" ]; then
     cd  ${pathRun}
 #    ./run3L.sh mc12 dummy ${mode}
-    ./runWH.sh mc12 dummy ${mode}
+#    ./runWH.sh mc12 dummy ${mode}
 
 #    ./run.sh mc12 dummy ${mode}
 ##    ./run.sh susy 166614 ${mode}

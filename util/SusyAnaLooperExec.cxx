@@ -256,13 +256,13 @@ int main(int argc, char** argv)
   }
 
   // Build the TSelector
-  SusyAnaLooper* susyAna = new SusyAnaLooper(do2L, do3L, doWH);
+  SusyAnaLooper* susyAna = new SusyAnaLooper(do2L, do3L, doWH, doFake);
   susyAna->setDebug(dbg);
   susyAna->toggleCheckDuplicates(true);
   susyAna->setSampleName(sample);
   if(dbgEvt) susyAna->setEvtDebug();
   susyAna->doMll(doMll);
-  susyAna->doFake(doFake);
+  //  susyAna->doFake(doFake);
   susyAna->useLooseLep(useLoose);
   susyAna->setMethod(method);
   if(strcmp(sys2.c_str(),"")!=0)

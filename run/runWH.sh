@@ -23,8 +23,8 @@ dbgEvt=""
 #dbgEvt="-dbgEvt"
 debug=0
 #debug=2
-nEvt="-n -1"
-#nEvt="-n 500"
+#nEvt="-n -1"
+nEvt="-n 100"
 
 
 if [[ $# -eq 3 ]]; then
@@ -39,9 +39,9 @@ elif [[ $# -eq 4 ]]; then
 fi
 
 #NOM=""
-NOM="-sys1 NOM"
+#NOM="-sys1 NOM"
 #NOM="-sys1 MS_UP"
-#NOM="-sys1 NOM -sys2 XS_DN"
+NOM="-sys1 NOM -sys2 Pileup_DN"
 
 methodMC=std
 methodData=std
