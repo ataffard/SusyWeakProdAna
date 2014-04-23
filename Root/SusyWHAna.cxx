@@ -152,7 +152,8 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
 	m_dEtallMax  = 1.5;
 	m_highMljj   = 90;
 	m_mtMaxLow   = 110;
-	m_lowMTWW    = 120;//110;
+	m_HTMin      = 200;
+	//m_lowMTWW    = 120;//110;
       }
     }
     if(m_sel.Contains("WH_SRSS23j")){
@@ -177,8 +178,9 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
 	m_pTl1Min    = 30;
 	m_dEtallMax  = 1.5;
 	m_highMljj = 120;
-	m_lowMTWW    = 110;
-	//m_mtMaxLow   = 120;
+	m_mtMaxLow   = 110;
+	m_HTMin      = 200;
+	//m_lowMTWW    = 110;
       }
     }
   }
@@ -428,7 +430,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   float _wwSave = _ww;
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
     
-  if(dbg()>-1){ 
+  if(dbg()>1){ 
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DGSystNames[SYST]
@@ -1181,8 +1183,8 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
 /*--------------------------------------------------------------------------------*/
 float SusyWHAna::getWZUncertainty(uint dsid, int nJet)
 {
-  static const float uncert_1j  = 0.174;
-  static const float uncert_23j = 0.43;
+  static const float uncert_1j  = 0.166;//0.174;
+  static const float uncert_23j = 0.368;//0.43;
 
   XsecUncertainty::McGroup group = XsecUncertainty::kUnknown;
   if(dsidInArray(dsid, kDsidForkWz, kNdsidForkWz)) group = XsecUncertainty::kWz;

@@ -27,11 +27,11 @@
 static const string ver       = "histos_022814_21fb_n0150_DD_WH_v5/";  //ToyNt filtered SS, 3rd lep veto, B/F-veto >=1 C20 jet
 static const string SR        = "_WH_optimSRSS";
 
-static const int dbg = 1;
+static const int dbg = 0;
 
 //Options for optimisation
 static const int    selDil    = 2;  //EE, MM, EM for SS and C1C1 grids
-static const int    selCuts   = 2;  //WH 1 or 2+3jets
+static const int    selCuts   = 2; //2 //WH 1 or 2+3jets
 
 //wA WH grids
 static const unsigned int   sigSampleStart = 177501;
@@ -1147,12 +1147,14 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
 
       //SR
 
+	  //
       _vCut.push_back(TCut("nCJets==1"));
-      _vCut.push_back(TCut("l_pt[0]>30"));
-      _vCut.push_back(TCut("l_pt[1]>30"));
+      _vCut.push_back(TCut("l_pt[0]>30"));// 30
+      _vCut.push_back(TCut("l_pt[1]>30"));// 30
       _vCut.push_back(TCut("abs(deta_ll)<1.5"));
-      _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
-      _vCut.push_back(TCut("mWWT>120"));
+      //JUNK//      _vCut.push_back(TCut("mWWT>120"));
+	  _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
+      _vCut.push_back(TCut("mEff>200"));
       _vCut.push_back(TCut("mlj<90")); 
 
 
@@ -1203,16 +1205,18 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>80"));
       //_vCut.push_back(TCut("metrel>40")); //remove as much S than B
     }
+	// SUNEET 23j April 18 23j
     else if(dilType==2){ //EM
       if(verbose) cout << " \t SRWH SS-EM 2-3j" << endl;
       _vCut.push_back(TCut("llType==2"));
       _vCut.push_back(TCut("nCJets>1 && nCJets<4"));
-      _vCut.push_back(TCut("l_pt[0]>30"));
-      _vCut.push_back(TCut("l_pt[1]>30"));
+      _vCut.push_back(TCut("l_pt[0]>30"));// 30
+      _vCut.push_back(TCut("l_pt[1]>30"));// 30
       _vCut.push_back(TCut("abs(deta_ll)<1.5"));
-      _vCut.push_back(TCut("mWWT>110"));
+	  //JUNK//      _vCut.push_back(TCut("mWWT>110"));
+	  _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
+      _vCut.push_back(TCut("mEff>200"));
       _vCut.push_back(TCut("mljj<120"));
-
 
 
       //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>120"));

@@ -23,8 +23,8 @@ dbgEvt=""
 #dbgEvt="-dbgEvt"
 debug=0
 #debug=2
-#nEvt="-n -1"
-nEvt="-n 100"
+nEvt="-n -1"
+#nEvt="-n 100"
 
 
 if [[ $# -eq 3 ]]; then

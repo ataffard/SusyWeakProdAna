@@ -7,7 +7,8 @@ typedef unsigned uint;
 //string dir ="histos_080813_21fb_n0145_DD_v4/histOutputs/";
 //string dir ="histos_022814_21fb_n0150_DD_WH_v5/";
 //string dir ="histos_022814_21fb_n0150_DD_WH_v5/histOutputs/WH_SRSS1j_EE/";
-string dir ="";
+string dir ="histos_041614_21fb_n0150_DD_WH_v6/";
+//string dir ="";
 
 TGuiUtils* _utils;
 DrawPlots* _ana;
@@ -24,19 +25,20 @@ int main(int argc, char *argv[]){
   
   
   vector<string> sample;
-  //sample.push_back("histo_TtbarLeptLept.117800_rlep.root");
-  //sample.push_back("histo_llnunu_WW.126892_rlep.root");
-  
-  //sample.push_back("histo_lllnu_WZ.126893_rlep.root");
   //sample.push_back("histo_data12_flep.root");
   //sample.push_back("histo_Zjets_AlpgenPythia_rlep.root");
-  //sample.push_back("histo_ZX_Sherpa_rlep.root");
   //sample.push_back("histo_WZ_ZZ_Sherpa_rlep.root");
   //sample.push_back("histo_WW_Sherpa_rlep.root");
   //sample.push_back("histo_top_MCNLO_rlep.root");
+  sample.push_back("histo_Higgs_rlep.root");
+
+  //sample.push_back("histo_TtbarLeptLept.117800_rlep.root");
+  //sample.push_back("histo_llnunu_WW.126892_rlep.root");
+  //sample.push_back("histo_lllnu_WZ.126893_rlep.root");
+  //sample.push_back("histo_ZX_Sherpa_rlep.root");
   //sample.push_back("histo_ZTauTaujets_AlpgenPythia_rlep.root");
   //sample.push_back("histo_llnunu_WW.126892_rlep_preSRmT2.root"); 
-  //sample.push_back("histo_Higgs_rlep.root");
+
   //sample.push_back("histo_WW_PowHeg_rlep.root");
   //sample.push_back("histo_ZZ_PowHeg_std.root");
   //sample.push_back("histo_WZ_PowHeg_std.root");
@@ -48,7 +50,8 @@ int main(int argc, char *argv[]){
   //sample.push_back("histo_ZeeNp2Excl.178356_WH_SRSS1j_EE_rlep.root");
   //sample.push_back("histo_ZeeNp2Excl.178371_WH_SRSS1j_EE_rlep.root");
   //sample.push_back("histo_Herwigpp_sM_wA_noslep_notauhad_WH_2Lep_1.177501_rlep_NOM_Pileup_DN.root");
-  sample.push_back("histo_lllnu_WZ_MassiveCB.179974_WH_rlep_NOM_Pileup_DN.root");
+  //sample.push_back("histo_lllnu_WZ_MassiveCB.179974_WH_rlep_NOM_Pileup_DN.root");
+  //sample.push_back("histo_llnunu_WW_MassiveCB.177997.root");
   //sample.push_back("histo_llnunu.126988_WH_rlep_NOM_Pileup_DN.root");
 
   vector<string> SR;

@@ -7,17 +7,20 @@ typedef unsigned uint;
 
 string mth = "std";
 //string dir = "histos_021414_21fb_n0150_DD_WH_v3";
-string dir = "histos_022814_21fb_n0150_DD_WH_v5";
+//string dir = "histos_022814_21fb_n0150_DD_WH_v5";
+string dir = "histos_041614_21fb_n0150_DD_WH_v6";
 
 string sampleSet = "data12.txt";
-//string sampleSet = "Zjets_SherpaAlpgenPythia.txt";
 //string sampleSet = "Zjets_AlpgenPythia.txt";
 //string sampleSet = "WZ_ZZ_Sherpa.txt";
-//string sampleSet = "WW_PowHeg_oldgg2WW.txt";
 //string sampleSet = "WW_Sherpa.txt";
 //string sampleSet = "Higgs.txt";
 //string sampleSet = "top_MCNLO.txt";
 //string sampleSet = "wA_noslep_WH_2LepNew.txt";
+
+//string sampleSet = "Zjets_SherpaAlpgenPythia.txt";
+//string sampleSet = "WW_PowHeg_oldgg2WW.txt";
+
 
 bool DOSYS = true;
 
@@ -89,7 +92,8 @@ int main(int argc, char *argv[]){
        TString _sSample(SAMPLES[iS]);
        if(_sSample.Contains("Egamma") || _sSample.Contains("Muons")){
 	 //_fHist = "histo_" + SAMPLES[iS] + "_" + SR[iSR] + "_" + LEP[iLEP] + "_std.root";
-	 _fHist = "histo_" + SAMPLES[iS] + "_WH_" + SR[iSR] + "_" + LEP[iLEP] + "_flep_NOM_NOM.root";
+	 //_fHist = "histo_" + SAMPLES[iS] + "_WH_" + SR[iSR] + "_" + LEP[iLEP] + "_flep_NOM_NOM.root";
+	 _fHist = "histo_" + SAMPLES[iS] + "_WH_" + SR[iSR] + "_" + LEP[iLEP] + "_std.root";
        }
        else if(_sSample.Contains("wA_noslep_notauhad")){
 	 _fHist = "histo_" + SAMPLES[iS] + "_rlep.root";

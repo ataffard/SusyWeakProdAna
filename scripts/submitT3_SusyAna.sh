@@ -52,11 +52,11 @@ ana=SusyAnaLooperExec
 #anaOpt1=doAll
 #anaOpt1=do2L
 
-#anaOpt1=doWH
+anaOpt1=doWH
 
 #anaOpt1=do3L
 
-anaOpt1=doFake
+#anaOpt1=doFake
 
 anaOpt2=true #doMll 
 #anaOpt2=false #doMll 
@@ -65,7 +65,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-#doSys=true
+doSys=true
 
 
 ##
@@ -112,47 +112,51 @@ while read line; do
 	echo "  doMll:      $anaOpt2"
 	echo 
 	
+## OLDER LARGE SAMPLES - NOT USED
+
+
+#For large sample - split the sys
  	if [ "$type" == "mc12"  -o "$type" == "susy" ]; then
 	    if [ $doSys ]; then
-	        #For large sample - split the sys
-		if [ "$sName" == "Zee.147770" -o \
-"$sName" == "Zmumu.147771" -o \
-"$sName" == "TtbarLeptLept.117800" -o \
-"$sName" == "llnunu_WW.126892" -o \
-"$sName" == "ttbar.110001" -o \
-"$sName" == "ttbar.117209" -o \
-"$sName" == "ttbar.117210" -o \
-"$sName" == "ZeeNp0Excl.178369" -o \
-"$sName" == "ZeeNp0.147105" -o \
-"$sName" == "ZeeNp1.147106" -o \
-"$sName" == "ZmumuNp0.147113" -o \
-"$sName" == "ZmumuNp1.147114" -o \
-"$sName" == "ZeeNp0.117650" -o \
-"$sName" == "ZmumuNp0.117660" -o \
-"$sName" == "ZeeHeavyJets.128975" -o \
-"$sName" == "ZmumuHeavyJets.128976"  -o \
-"$sName" == "ZeeNp0.107650" -o \
-"$sName" == "ZmumuNp0.107660" -o \
-"$sName" == "ttbar.105200" -o \
-"$sName" == "ttbar.105861" -o \
-"$sName" == "ttbar.105860" -o \
-"$sName" == "Zee.147806" -o \
-"$sName" == "Zmumu.147807" -o \
-"$sName" == "llll_ZZ.126894" -o \
-"$sName" == "ZeeNp1.117651" -o \
-"$sName" == "ZmumuNp1.117661" -o \
-"$sName" == "DYeeM15to40.173042" -o \
-"$sName" == "DYmumuM08to15.173043" -o \
-"$sName" == "DYmumuM15to40.173044" -o \
-"$sName" == "ZeeLightJets.146820" -o \
-"$sName" == "ZmumuLightJets.146821"  -o \
-"$sName" == "llnunu_WW_MassiveCB.177997" \
+		if [ "$sName" == "Zee.147770" -o\
+ "$sName" == "Zmumu.147771" -o\
+ "$sName" == "llnunu_WW.126892" -o\
+ "$sName" == "ZeeNp0Excl.178369" -o\
+ "$sName" == "ZeeNp0.117650" -o\
+ "$sName" == "ZmumuNp0.117660" -o\
+ "$sName" == "llll_ZZ.126894" -o\
+ "$sName" == "ZeeNp1.117651" -o\
+ "$sName" == "ZmumuNp1.117661" -o\
+ "$sName" == "DYeeM15to40.173042" -o\
+ "$sName" == "DYmumuM08to15.173043" -o\
+ "$sName" == "DYmumuM15to40.173044" -o\
+ "$sName" == "llnunu_WW_MassiveCB.177997" -o\
+ "$sName" == "ttbar.105200" -o\
+ "$sName" == "TtbarLeptLept.117800" -o\
+ "$sName" == "ttbar.110001" -o\
+ "$sName" == "ttbar.117209" -o\
+ "$sName" == "ttbar.117210" -o\
+ "$sName" == "ZeeNp0.147105" -o\
+ "$sName" == "ZeeNp1.147106" -o\
+ "$sName" == "ZmumuNp0.147113" -o\
+ "$sName" == "ZmumuNp1.147114" -o\
+ "$sName" == "ZeeHeavyJets.128975" -o\
+ "$sName" == "ZmumuHeavyJets.128976"  -o\
+ "$sName" == "ZeeNp0.107650" -o\
+ "$sName" == "ZmumuNp0.107660" -o\
+ "$sName" == "ttbar.105861" -o\
+ "$sName" == "ttbar.105860" -o\
+ "$sName" == "Zee.147806" -o\
+ "$sName" == "Zmumu.147807" -o\
+ "$sName" == "ZeeLightJets.146820" -o\
+ "$sName" == "ZmumuLightJets.146821" \
 		    ]; then
-		    SYS1=("NOM"      "EES_Z_DN"    "EES_MAT_DN" "EES_PS_DN"  "EES_LOW_DN"  "EER_DN" "MS_DN" "ID_DN" "JES_DN" "SCALEST_UP" \
-"TRIGSF_EL_UP" "TRIGSF_MU_UP" "TES_UP" "BTag_BJet_DN"  "BTag_LJet_DN" "BTag_CJet_UP" "BKGMETHOD_UP" "XS_UP")
-		    SYS2=("EES_Z_UP" "EES_MAT_UP"  "EES_PS_UP"  "EES_LOW_UP" "EER_UP"      "MS_UP"  "ID_UP" "JES_UP" "JER"   "RESOST"     \
-"TRIGSF_EL_DN" "TRIGSF_MU_DN" "TES_DN" "BTag_CJet_DN" "BTag_BJet_UP" "BTag_LJet_UP" "BKGMETHOD_DN" "XS_DN" )
-		    
+
+		    SYS1=("NOM"      "EES_Z_DN"    "EES_MAT_DN" "EES_PS_DN"  "EES_LOW_DN"  "EER_DN" "MS_DN" "ID_DN" "JES_DN" "SCALEST_UP" 
+"TRIGSF_EL_UP" "TRIGSF_MU_UP" "TES_UP" "BTag_BJet_DN"  "BTag_LJet_DN" "BTag_CJet_UP" "BKGMETHOD_UP" "XS_UP" "GEN")
+		    SYS2=("EES_Z_UP" "EES_MAT_UP"  "EES_PS_UP"  "EES_LOW_UP" "EER_UP"      "MS_UP"  "ID_UP" "JES_UP" "JER"   "RESOST"     
+"TRIGSF_EL_DN" "TRIGSF_MU_DN" "TES_DN" "BTag_CJet_DN" "BTag_BJet_UP" "BTag_LJet_UP" "BKGMETHOD_DN" "XS_DN" "Pileup_DN")
+
 		    echo "Submitting MC using Sys Range "
 		    index=0
 		    for sys1 in ${SYS1[@]}; do

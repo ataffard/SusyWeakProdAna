@@ -55,7 +55,8 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
     //    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_12.root"; //WH 2D MM
     //"/SameSignMatrixMethod/data/FinalFakeHist_Feb_16.root"; //WH 2D flat SF, increase eta sys. 
     //    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_18.root"; //WH 2D w/ pT bin SF 
-    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_27.root"; //WH 2D Fraction and FR - 1D orginial SF 
+    //"/SameSignMatrixMethod/data/FinalFakeHist_Feb_27.root"; //WH 2D Fraction and FR - 1D orginial SF 
+    "/SameSignMatrixMethod/data/FinalFakeHist_Apr_10.root"; //WH 2D Fraction and FR - 2D SF  
   cout << "Loading fake SS-WH MM " << _fakeInputSS << endl;
 
   bool m_use2dparametrization=true;
@@ -180,7 +181,8 @@ float SusyBaseAna::eventWeight(int mode, uint iSys)
 
       _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,useProcSumW, useSusyXsec,iiSys);
       
-      if(iSys == DGSys_XS_UP || iSys == DGSys_XS_DN){ //Get Xs uncertainty from local implementation
+      if((iSys == DGSys_XS_UP || iSys == DGSys_XS_DN) 
+	 && !isSimplifiedModelGrid(nt->evt()->mcChannel) ){ //Get Xs uncertainty from local implementation
 	float uncert = getXsUncert(nt->evt()->mcChannel);
 	if(iSys == DGSys_XS_UP) _evtW *= 1 + uncert;
 	if(iSys == DGSys_XS_DN) _evtW *= 1 - uncert;

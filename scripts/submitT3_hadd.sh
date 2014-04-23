@@ -23,8 +23,8 @@
 #!/bin/bash
 
 #Update for a given pass
-#date="012914_21fb_n0145_DD_WH_v3"
-date="022814_21fb_n0150_DD_WH_v5"
+#date="022814_21fb_n0150_DD_WH_v5"
+date="041614_21fb_n0150_DD_WH_v6"
 #date="030614_21fb_n0150_DD_FAKE_v1"
 
 

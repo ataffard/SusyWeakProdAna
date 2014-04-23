@@ -832,33 +832,33 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
       if(imc==FAKE && !disableFake)_hsys = _mcH1[FAKE][DGSys_NOM]; //add the nominal values since those sys have no effect
       else  _hsys = _mcH1[imc][isys];
       if(_hsys && _hsys->Integral(0,-1)>0) {
-	/*
+	
 	cout << "\t\t MC " << MCNames[imc]
 	     << "\t Sys " << DGSystNames[isys] 
 	     << "\t " << _hsys->Integral(0,-1) << endl;
 	
-	int ibin1 = _hsys->GetBin(70);
-	int ibin2 = _hsys->GetBin(75);
-	cout << "\t bin 70 " << _hsys->GetBinContent(ibin1) << " \t" <<  _hsys->GetBinContent(ibin2) <<endl;
-	*/
+	//int ibin1 = _hsys->GetBin(1);
+	//int ibin2 = _hsys->GetBin(1);
+	//cout << "\t bin 70 " << _hsys->GetBinContent(ibin1) << " \t" <<  _hsys->GetBinContent(ibin2) <<endl;
+	
 	totalSysHisto->Add(_hsys);
       }
       //else cout << " Sys " << DGSystNames[isys] << " empty " << endl;
     }   
     if(totalSysHisto->Integral(0,-1)>0){
-      /*
+      
       cout << "Sys " << DGSystNames[isys] 
 	   << "\t " << totalSysHisto->Integral(0,-1) 
 	   << "\t nom " << _hist->Integral(0,-1) 
 	   << endl;
-      */
+      
       transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
       _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
     }
     totalSysHisto->Reset();
   }
-  //cout << "Sys band before fake " << endl;
-  //_asymErrors->Print();
+  cout << "Sys band before fake " << endl;
+  _asymErrors->Print();
 
   //Add the fake systematics
   if(!disableFake){
@@ -881,7 +881,7 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
       }
 
       totalSysHisto->Add(fakeSys[i]); //Add the fake sys
-      //cout << "Check Int sys i " << fakeSys[i]->Integral(0,-1)<<endl;;
+      cout << "Check Int sys i " << fakeSys[i]->Integral(0,-1)<<endl;;
       
       transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
       _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad to the other MC bkg sys
@@ -894,8 +894,8 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
     fakeSys.clear();
   }
   
-  //  cout << "Sys band final " << endl;
-  //_asymErrors->Print();
+    cout << "Sys band final " << endl;
+  _asymErrors->Print();
 
 
 

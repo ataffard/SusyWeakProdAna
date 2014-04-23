@@ -13,11 +13,14 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_5FB  //A->B14
 
 #define LUMI_21FB  //All 2012
-//const std::string TAG  = "030614";
-//const std::string SUFF = "_n0150_DD_FAKE_v1";
+//const std::string TAG  = "042314";
+//const std::string SUFF = "_n0150_DD_WH_v7"; //update qFlip overlap
 
-const std::string TAG  = "022814";
-const std::string SUFF = "_n0150_DD_WH_v5";
+const std::string TAG  = "041614";
+const std::string SUFF = "_n0150_DD_WH_v6"; //update qFlip overlap
+
+//const std::string TAG  = "022814";
+//const std::string SUFF = "_n0150_DD_WH_v5";
 
 const bool n0150BugFix=true;
 
