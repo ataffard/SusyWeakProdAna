@@ -1,9 +1,18 @@
 //_____________________________________________________________________________//
 //_____________________________________________________________________________//
 //   .L ../macros/fakeStudies.C++
-//   
+//   fakeStudies(opt value)
 //_____________________________________________________________________________//
 //_____________________________________________________________________________//
+
+
+/*
+Davide's code
+https://github.com/gerbaudo/SusyTest0/blob/44055a89c17a9fa33aed9beaab46e0da0483877c/Root/IterativeFakeCorrection.cxx
+https://github.com/gerbaudo/SusyTest0/blob/sf-eta-dep/Root/MeasureFakeRate2.cxx
+https://github.com/gerbaudo/SusyTest0/blob/master/run/python/iterativeCorrection.py
+*/
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -179,7 +188,7 @@ void loadSamples();
 void setSelection(string SRegion, int dilType, int probeFlavor, bool verbose=true);
 
 
-//Specific analysis selection
+//Specific analysis selections
 void do_SSEM(int dilType, int probeFlavor, bool verbose);
 
 //Select the events
@@ -200,7 +209,10 @@ void     plotFRSF_mcCorr(string sRegion, string vName, bool logy=true);
 void     getFRSF_iterCorr(string sRegion, string vName);
 void     plotFRSF_iterCorr(string sRegion, string vName, bool logy=true);
 
-
+void     correctRate(TH1F* &rate, TH1F* data, TH1F* mc,
+		     vector<double> corrections);
+vector<double> getC(TH1F* rate, TH1F* data_num, TH1F* data_den, TH1F* mc, bool tight);
+double         getFake(float r, float f, float nL, float nT, bool tight);
 
 TH1F*    histList(string hName, string vName);
 TH1F*    myBook(string hName, int nbin, float  xlow, float  xhigh, string xaxis, string yaxis);
@@ -882,7 +894,6 @@ void getFRSF_mcCorr(string sRegion, string vName)
   string fileName="fake_" + sRegion + "_histos.root";
   TFile* _f = new TFile(fileName.c_str(), "READ");
   cout << "Opening histo file " << fileName << endl;
-  cout << "Got histos " << endl;
 
   string histName; 
   int ivar=0;
@@ -909,12 +920,15 @@ void getFRSF_mcCorr(string sRegion, string vName)
     if(iT==0) h_data_loose = (TH1F*) _f->Get(histName.c_str());
     if(iT==1) h_data_tight = (TH1F*) _f->Get(histName.c_str());
   }
+  cout << "Got histos " << endl;
+
   TH1F* h_data_loose_raw = (TH1F*) h_data_loose->Clone();
   h_data_loose_raw->SetTitle(string(string(h_data_loose->GetTitle()) + "_noCorr").c_str());
   h_data_loose_raw->SetName(string(string(h_data_loose->GetName()) + "_noCorr").c_str());
   TH1F* h_data_tight_raw = (TH1F*) h_data_tight->Clone();
   h_data_tight_raw->SetTitle(string(string(h_data_tight->GetTitle()) + "_noCorr").c_str());
   h_data_tight_raw->SetName(string(string(h_data_tight->GetName()) + "_noCorr").c_str());
+
 
 
   //
@@ -944,6 +958,8 @@ void getFRSF_mcCorr(string sRegion, string vName)
       if(iT==1) h_mc_real_tight->Add(htmp);
     }
   }
+
+
 
   h_data_loose->Add(h_mc_real_loose,-1);
   h_data_tight->Add(h_mc_real_tight,-1);
@@ -1077,8 +1093,8 @@ void plotFRSF_mcCorr(string sRegion, string vName, bool logy){
   TH1F* _hData_T2 = (TH1F*) _f->Get(string("data_Probe_Tight_" + vName).c_str());
   _utils->myDraw1d(_hData_T1,_c2,1,"e",logy,kBlue,false,20);
   _utils->myDraw1d(_hData_T2,_c2,1,"esame",logy,kRed,false,20);
-  _leg2->AddEntry(_hData_T1,"Data Loose lepton (raw)", "p");
-  _leg2->AddEntry(_hData_T2,"Data Loose lepton (corrected)", "p");
+  _leg2->AddEntry(_hData_T1,"Data Tight lepton (raw)", "p");
+  _leg2->AddEntry(_hData_T2,"Data Tight lepton (corrected)", "p");
   _leg2->Draw();
 
 
@@ -1212,8 +1228,9 @@ void getFRSF_iterCorr(string sRegion, string vName)
   
   //
   //MC histos
+  // MC should not include HF
   //
-  for(uint iS=0; iS<2; iS++){
+  for(uint iS=0; iS<2; iS++){ //mt40 mt100
     h_mc_loose[iS] = (TH1F*) h_data_loose[iS]->Clone();
     h_mc_loose[iS]->Reset();
     h_mc_loose[iS]->SetTitle(string("MC_Probe_Loose_"+_selIter[iS] + varName).c_str());
@@ -1226,8 +1243,8 @@ void getFRSF_iterCorr(string sRegion, string vName)
   }
   
   for(uint iT=0; iT<_lepType.size(); iT++){ //Loose-Tight
-    for(uint ibkg=0; ibkg<N_MC; ibkg++){
-      for(uint iS=0; iS<2; iS++){
+    for(uint ibkg=1; ibkg<N_MC; ibkg++){ //BKG  w/o HF
+      for(uint iS=0; iS<2; iS++){ //mt40 mt100
 	string prefix = _lepKind[iK] + _lepType[iT] + _selIter[iS];
 	histName = _type[1] + MCLabel[ibkg] + "_" + prefix + varName;
 	cout << "MC " << histName << endl;
@@ -1242,10 +1259,68 @@ void getFRSF_iterCorr(string sRegion, string vName)
   //
   //Do the iterative correction
   //
+  static const unsigned int nIter =10;
 
+  //Iter 0 - set to data
+  TH1F* corrected[2];
+  
+  corrected[0] = (TH1F*) h_data_tight[0]->Clone("Corrected_num");//Tight - low Mt
+  corrected[1] = (TH1F*) h_data_loose[0]->Clone("Corrected_den");//Loose - low Mt
+  for(uint iIter=0; iIter<nIter; iIter++){
+    cout << "--------------------------------" << endl;
+    cout << "Iteration: "<< iIter << endl;
 
+    // Dump the rate
+    for(int bin=1; bin<=corrected[0]->GetNbinsX(); ++bin){
+      float num = corrected[0]->GetBinContent(bin);
+      float den = corrected[1]->GetBinContent(bin);
+      cout<<"Bin: "<<bin<<" num: "<<num<<" den: "<<den<<" rate: "<<num/den<<endl;
+    }
+    
+    // Make temporary rate
+    TH1F* rate = (TH1F*) corrected[0]->Clone("rate");
+    rate->Reset();
+    rate->Divide(corrected[0], corrected[1],1,1,"B");
+    
+    vector<double> C_T = getC(rate, h_data_tight[1], h_data_loose[1], h_mc_tight[1], true);
+    vector<double> C_L = getC(rate, h_data_tight[1], h_data_loose[1], h_mc_loose[1], false);
 
+    // Correct the rates
+    correctRate(corrected[0], h_data_tight[0], h_mc_tight[0], C_T);
+    correctRate(corrected[1], h_data_loose[0], h_mc_loose[0], C_L);
+    
+    delete rate;
+    
+  }
 
+  //Data FR
+  TH1F* h_FR_data = (TH1F*)  h_data_loose[0]->Clone();
+  h_FR_data->Reset();
+  histName = _type[0] + "FR_" + _lepKind[iK] + varName;
+  h_FR_data->SetTitle(histName.c_str());
+  h_FR_data->SetName(histName.c_str());
+  h_FR_data->Divide(h_data_tight[0],h_data_loose[1],1,1,"B");
+
+  //MC FR
+  TH1F* h_FR_mc = (TH1F*)  h_mc_loose[0]->Clone();
+  h_FR_mc->Reset();
+  histName = _type[1] + "FR_" + _lepKind[iK] + varName;
+  h_FR_mc->SetTitle(histName.c_str());
+  h_FR_mc->SetName(histName.c_str());
+
+  h_FR_mc->Divide(h_mc_tight[0],h_mc_loose[0],1,1,"B");
+
+  //
+  // Compute the SF Data/MC
+  //
+  TH1F* h_SF = (TH1F*)  h_mc_loose[0]->Clone();
+  h_SF->Reset();
+  histName = "SF_" + _lepKind[iK] + varName;
+  h_SF->SetTitle(histName.c_str());
+  h_SF->SetName(histName.c_str());
+
+  h_SF->Divide(h_FR_data, h_FR_mc,1,1,"B");
+  h_SF->Draw();
 
 
   //
@@ -1263,7 +1338,9 @@ void getFRSF_iterCorr(string sRegion, string vName)
     h_mc_tight[iS]->Write();
   }
 
-  //Add save FR and SF histos
+  h_FR_data->Write();
+  h_FR_mc->Write();
+  h_SF->Write();
 
 
   cout << "FR/SF histograms saved " << _ff->GetName() << endl;
@@ -1277,6 +1354,70 @@ void getFRSF_iterCorr(string sRegion, string vName)
 
 
 }
+//-----------------------------------------------//
+// Correct rate
+//-----------------------------------------------//
+void correctRate(TH1F* &rate, TH1F* data, TH1F* mc, vector<double> corrections)
+{
+  // Loop and correct each bin.
+  int nbins = rate->GetNbinsX();
+  for(int bin=1; bin<=nbins; ++bin){
+    float d_bc = data->GetBinContent(bin);
+    float d_be = data->GetBinError(bin);
+    float m_bc = mc->GetBinContent(bin);
+    float m_be = mc->GetBinError(bin);
+    float corr = corrections.at(bin-1);
+    cout<<"\t\tbin: "<<bin<<" data: "<<d_bc<<" mc: "<<m_bc<<" Corrected: "<<d_bc - corr * m_bc<<endl;
+    rate->SetBinContent(bin, d_bc - corr * m_bc);
+    rate->SetBinError(bin, sqrt(pow(d_be,2) + pow(corr*m_be,2)) );
+  }
+
+}
+
+//-----------------------------------------------//
+// Get correction
+//-----------------------------------------------//
+vector<double> getC(TH1F* rate, TH1F* data_num, TH1F* data_den, TH1F* mc, bool tight)
+{
+  // Correction factor:
+  // C = (N^(data,high) - N^(fake pred, high))/N^(MC,high)
+
+  cout<<"Getting corrections for tight? "<<tight<<endl;
+  vector<double> corrections;
+
+  int nbins = data_num->GetNbinsX();
+  for(int bin=1; bin<=nbins; ++bin){
+    // Set N loose and tight for 1-D MM
+    float nLoose = data_den->GetBinContent(bin);
+    float nTight = data_num->GetBinContent(bin); //tight ? data_num->GetBinContent(bin) : 0.;
+
+    // Get r and f
+    float r = 1;//m_real->GetBinContent(bin);  //Real Eff --- need the histos !!!!
+    float f = rate->GetBinContent(bin);
+    //f = r-f <= 0.3 ? r-0.3 : f;
+
+    // Set the values for C
+    double nData = tight ? nTight : nLoose;
+    double nMC   = mc->GetBinContent(bin);
+    double nFake = getFake(r, f, nLoose, nTight, tight);
+    cout<<"\tCorrection: "<<nData<<" "<<nFake<<" "<<nMC<<" === "<<(nData-nFake)/nMC<<endl;
+    corrections.push_back( (nData - nFake)/nMC );
+
+  }// end loop over bins
+
+  return corrections;
+
+}
+//-----------------------------------------------//
+// Get the fake contribution
+//-----------------------------------------------//
+double getFake(float r, float f, float nL, float nT, bool tight)
+{
+  cout<<"\t\t\tr: "<<r<<" f: "<<f<<" nL: "<<nL<<" nT: "<<nT<<endl;
+  if(tight) return f/(r-f) * (nL*r -nT);
+  else      return 1/(r-f) * (nL*r -nT);
+}
+
 
 //_____________________________________________________________________________//
 void plotFRSF_iterCorr(string sRegion, string vName, bool logy){

@@ -193,7 +193,7 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
   if(HNAME.Contains("_metrel")) {
     _dataH1->GetXaxis()->SetTitle("E_{T}^{miss,rel} [GeV]");
   }
-  _utils->yAxis(_dataH1,"GeV");		\
+  _utils->yAxis(_dataH1,"GeV");		
 
   if(HIDEDATA) blindDataSR();
 
@@ -221,11 +221,11 @@ void DrawPlots::grabHisto(string name, bool quiet, bool sysHistos)
       if(HNAME.Contains("_metrel")) {
 	_h->GetXaxis()->SetTitle("E_{T}^{miss,rel} [GeV]");
       }
-      _utils->yAxis(_h,"GeV");			\
+      _utils->yAxis(_h,"GeV");			
 
       if(USESF)	_h->Scale(SF);
       if(isys==DGSys_NOM) _hNom = (TH1F*) _h->Clone();
-      setGenSys(hName,i, _hNom, _h);
+      //setGenSys(hName,i, _hNom, _h); //2L hard coded sys !!!!
 
       _hArray.push_back(_h);
       if(_hArray[isys]==NULL){ //put an empty histo
@@ -816,49 +816,104 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
   totalSysHisto->Reset();
   TGraphAsymmErrors* transient; 
 
-  for(uint isys=DGSys_EES_Z_UP; isys</*DGSys_BKGMETHOD_UP*//*DGSys_FAKE_EL_RE_UP*/DGSys_N; isys++){
-    //Deal with fake sys separately - uncorrelated 
-    //if(isys==DGSys_RESOST) continue;
-    // if(isys>=DGSys_SCALEST_UP && isys<=DGSys_SCALEST_DN) continue;
+  for(uint isys=DGSys_EES_Z_UP; isys<DGSys_N; isys++){
+    //Deal with fake, wz & sz sys separately - uncorrelated 
+    if(isys==DGSys_GEN) continue; //N/A
+    if(isys>=DGSys_PDF_UP && isys<=DGSys_PDF_DN) continue;//N/A
 
-    if(isys>=DGSys_BKGMETHOD_UP && isys<=DGSys_BKGMETHOD_DN) continue;
-    if(isys>=DGSys_XS_UP && isys<=DGSys_XS_DN) continue;
     if(isys>=DGSys_FAKE_EL_RE_UP && isys <= DGSys_FAKE_MU_FR_DN) continue;
-    if(isys==DGSys_GEN) continue;
-    if(isys>=DGSys_PDF_UP && isys<=DGSys_PDF_DN) continue;
+    if(isys>=DGSys_XS_UP && isys<=DGSys_XS_DN) continue;//uncorrelated
+    if(isys>=DGSys_GEN_UP && isys<=DGSys_GEN_DN) continue;
 
     for(uint imc=0; imc<_mcH1.size(); imc++){ //100% correlation between sample - add linear
       TH1F* _hsys;
       if(imc==FAKE && !disableFake)_hsys = _mcH1[FAKE][DGSys_NOM]; //add the nominal values since those sys have no effect
       else  _hsys = _mcH1[imc][isys];
       if(_hsys && _hsys->Integral(0,-1)>0) {
-	
-	cout << "\t\t MC " << MCNames[imc]
-	     << "\t Sys " << DGSystNames[isys] 
-	     << "\t " << _hsys->Integral(0,-1) << endl;
-	
-	//int ibin1 = _hsys->GetBin(1);
-	//int ibin2 = _hsys->GetBin(1);
-	//cout << "\t bin 70 " << _hsys->GetBinContent(ibin1) << " \t" <<  _hsys->GetBinContent(ibin2) <<endl;
-	
+	/*
+	if(isys == DGSys_MS_UP || isys==DGSys_GEN_UP ||isys==DGSys_GEN_DN){
+	  cout << "\t\t MC " << MCNames[imc]
+	       << "\t Sys " << DGSystNames[isys] 
+	       << "\t " << _hsys->Integral(0,-1) << endl;
+	}
+	*/
 	totalSysHisto->Add(_hsys);
       }
       //else cout << " Sys " << DGSystNames[isys] << " empty " << endl;
     }   
     if(totalSysHisto->Integral(0,-1)>0){
-      
+      /*
       cout << "Sys " << DGSystNames[isys] 
-	   << "\t " << totalSysHisto->Integral(0,-1) 
-	   << "\t nom " << _hist->Integral(0,-1) 
+	   << "\t nom " << totalSysHisto->GetBinContent(1) 
+	   << "\t err " << totalSysHisto->GetBinError(1) 
+	   << "\t diff " << totalSysHisto->Integral(0,-1)-_hist->Integral(0,-1)
 	   << endl;
-      
+      */
       transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
       _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad
     }
     totalSysHisto->Reset();
   }
-  cout << "Sys band before fake " << endl;
-  _asymErrors->Print();
+  //cout << "Sys band mc correlated only " << endl;
+  //_asymErrors->Print();
+
+  //XS uncertainty uncorrelated across sample - NOT FINISH
+  for(uint imc=0; imc<_mcH1.size(); imc++){
+    if(imc==FAKE && !disableFake) continue;
+    vector<TH1F*> xsSys;
+    TH1F* sys00 = (TH1F*) _mcH1[imc][DGSys_XS_UP]->Clone();
+    TH1F* sys11 = (TH1F*) _mcH1[imc][DGSys_XS_DN]->Clone();
+    xsSys.push_back(sys00);
+    xsSys.push_back(sys11);
+    totalSysHisto->Reset();
+    for(uint i=0; i<xsSys.size(); i++){//loop xs UP/DN
+      for(uint iimc=0; iimc<_mcH1.size(); iimc++){
+	if(iimc == imc) continue;
+	TH1F* _hsys = _mcH1[iimc][DGSys_NOM];
+	totalSysHisto->Add(_hsys);
+      }
+      totalSysHisto->Add(xsSys[i]); //Add the wz sys
+      //cout << "Check Int " << imc << " XS sys i " << xsSys[i]->Integral(0,-1)<<endl;;
+ 
+      transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+      _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad to the other MC bkg sys
+      totalSysHisto->Reset();
+    }
+  }
+  //cout << "Sys after xs " << endl;
+  //_asymErrors->Print();
+
+
+  //FOR WH analysis 
+  //Add the WZ systematic from GEN_UP/DN  (uncorrelated to others)
+  vector<TH1F*> wzSys;
+  TH1F* sys00 = (TH1F*) _mcH1[ZV][DGSys_GEN_UP]->Clone();
+  TH1F* sys11 = (TH1F*) _mcH1[ZV][DGSys_GEN_DN]->Clone();
+  //  cout << "WZ NOM " << _mcH1[ZV][DGSys_NOM]->Integral(0,-1) 
+  //<< " UP "    << _mcH1[ZV][DGSys_GEN_UP]->Integral(0,-1) 
+  //<< " DN "    << _mcH1[ZV][DGSys_GEN_DN]->Integral(0,-1) << endl;
+
+  wzSys.push_back(sys00);
+  wzSys.push_back(sys11);
+  for(uint i=0; i<wzSys.size(); i++){//loop WZ UP/DN
+    totalSysHisto->Reset();
+    for(uint imc=0; imc<_mcH1.size(); imc++){
+      if(imc==ZV) continue;
+      TH1F* _hsys = _mcH1[imc][DGSys_NOM];
+      totalSysHisto->Add(_hsys);
+    }
+    
+    //cout << "\t WZ check yield before wz sys " << totalSysHisto->Integral(0,-1) << endl;
+    totalSysHisto->Add(wzSys[i]); //Add the wz sys
+    //cout << "\t Check Int WZ sys " << wzSys[i]->Integral(0,-1)<<endl;;
+    
+    transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
+    _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad to the other MC bkg sys
+    totalSysHisto->Reset();
+  }
+  //cout << "Sys after wz " << endl;
+  //_asymErrors->Print();
+
 
   //Add the fake systematics
   if(!disableFake){
@@ -881,7 +936,7 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
       }
 
       totalSysHisto->Add(fakeSys[i]); //Add the fake sys
-      cout << "Check Int sys i " << fakeSys[i]->Integral(0,-1)<<endl;;
+      //cout << "Check Int sys i " << fakeSys[i]->Integral(0,-1)<<endl;;
       
       transient = _utils->TH1TOTGraphAsymErrors(totalSysHisto);   //Mem leak!!!
       _utils->myAddtoBand(transient,_asymErrors); //100 uncorrelated sys - add in quad to the other MC bkg sys
@@ -894,8 +949,8 @@ TGraphAsymmErrors* DrawPlots::getSysErrorBand(TH1F* _hist, bool sysBand)
     fakeSys.clear();
   }
   
-    cout << "Sys band final " << endl;
-  _asymErrors->Print();
+  //cout << "Sys band final " << endl;
+  //_asymErrors->Print();
 
 
 
@@ -1113,8 +1168,8 @@ void DrawPlots::drawATLAS(float x, float y)
   //string _text = "ATLAS Work In Progress";
   string _text1 = "#bf{ATLAS} ";
   _utils->myText(x,y,kBlack,_text1.c_str(),0.07);
-  //  string _text2 = "Internal";
-  string _text2 = "Preliminary";
+  string _text2 = "Internal";
+  //string _text2 = "Preliminary";
   _utils->myText(x+0.15,y,kBlack,_text2.c_str(),0.05);
   
 }
@@ -1210,6 +1265,7 @@ void DrawPlots::getYield(std::vector<TH1F*> histV,
   }
 
   for(uint isys=DGSys_NOM+1; isys<DGSys_N; isys++){
+    //if(isys==DGSys_Pileup_UP || isys==DGSys_Pileup_DN) continue;
     if(histV[isys]==NULL) continue;
     Double_t val = histV[isys]->Integral(0,-1);
     if(val==0) continue; //No Sys
@@ -1263,13 +1319,15 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
   _hSum->Add(histHiggs[DGSys_NOM]);
 
   nom = _hSum->IntegralAndError(0,-1,stat_err);
-
-
   
   float mcSysUp=0;
-  float mcSysDn=0;
-  
-  for(uint isys=DGSys_NOM; isys< histZjetsV.size() /*DGSys_N*/; isys++){
+  float mcSysDn=0; 
+  for(uint isys=DGSys_NOM; isys< DGSys_N; isys++){
+    if(isys == DGSys_XS_UP || isys==DGSys_XS_DN ||
+       isys == DGSys_GEN_UP || isys==DGSys_GEN_DN) continue;
+    //skip fake
+    if(isys > DGSys_XS_DN && isys<DGSys_GEN) continue;
+    
     Double_t val = 0;
     if(histZVV[isys]->Integral(0,-1)>0) 
       val += histZVV[isys]->Integral(0,-1)-histZVV[DGSys_NOM]->Integral(0,-1);
@@ -1285,18 +1343,57 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
     if(val==0) continue; //No Sys
     if(val>0) mcSysUp += pow(val,2);
     else      mcSysDn += pow(val,2);
-    /*
-    cout << "\t SysMC " << DGSystNames[isys] 
-	 << " " << val 
-	 << " + " << mcSysUp
-	 << " - " << mcSysDn
-	 << endl; 
-    */
+
+    if(verbose) 
+      cout << "\t SysMC " << DGSystNames[isys] 
+	   << " " << val 
+	   << " + " << mcSysUp
+	   << " - " << mcSysDn
+	   << endl; 
+
   }
   mcSysUp = sqrt(mcSysUp);
   mcSysDn = sqrt(mcSysDn);
-  //cout << "MC sys " << mcSysUp << " " << mcSysDn << endl;
+  if(verbose) cout << "MC sys " << mcSysUp << " " << mcSysDn << endl;
   
+  //Add Xs sys - uncorrelated between grouping - add quad
+  float xsSysUp=0;
+  float xsSysDn=0;
+  for(uint isys=DGSys_XS_UP; isys<DGSys_XS_DN+1; isys++){
+    Double_t   val = 0;
+    if(histZVV[isys]->Integral(0,-1)>0) 
+      val += pow(histZVV[isys]->Integral(0,-1)-histZVV[DGSys_NOM]->Integral(0,-1),2);
+    if(histWWV[isys]->Integral(0,-1)>0) 
+      val += pow(histWWV[isys]->Integral(0,-1)-histWWV[DGSys_NOM]->Integral(0,-1),2);
+    if(histTopV[isys]->Integral(0,-1)>0) 
+      val += pow(histTopV[isys]->Integral(0,-1)-histTopV[DGSys_NOM]->Integral(0,-1),2);
+    if(histZjetsV[isys]->Integral(0,-1)>0) 
+      val += pow(histZjetsV[isys]->Integral(0,-1)-histZjetsV[DGSys_NOM]->Integral(0,-1),2);
+    if(histHiggs[isys]->Integral(0,-1)>0) 
+      val += pow(histHiggs[isys]->Integral(0,-1)-histHiggs[DGSys_NOM]->Integral(0,-1),2);
+
+    if(isys==DGSys_XS_UP)      xsSysUp = sqrt(val);
+    else if(isys==DGSys_XS_DN) xsSysDn = sqrt(val);
+  }
+   if(verbose) cout << "XS sys " << xsSysUp << " " << xsSysDn << endl;
+
+  //Add WZ sys
+  float wzSysUp=0;
+  float wzSysDn=0;
+  if(histZVV.size()>1){
+    for(uint isys=DGSys_GEN_UP; isys<DGSys_GEN_DN+1; isys++){
+      if(histZVV[isys]==NULL) continue;
+      Double_t val=0;
+      if(histZVV[isys]->Integral(0,-1)>0)
+	val = histZVV[isys]->Integral(0,-1) - histZVV[DGSys_NOM]->Integral(0,-1);
+      if(val>0) wzSysUp += pow(val,2);
+      else      wzSysDn += pow(val,2);
+    }
+  }
+  wzSysUp = sqrt(wzSysUp);
+  wzSysDn = sqrt(wzSysDn);
+   if(verbose) cout << "WZ sys " << wzSysUp << " " << wzSysDn << endl;
+
   //Add fake sys
   float fakeSysUp=0;
   float fakeSysDn=0;
@@ -1311,19 +1408,20 @@ void DrawPlots::getYieldBkgAll(std::vector<TH1F*> histFakeV,
     }
     fakeSysUp = sqrt(fakeSysUp);
     fakeSysDn = sqrt(fakeSysDn);
-    // cout << "Fake sys " << fakeSysUp << " " << fakeSysDn << endl;
+    //cout << "Fake sys " << fakeSysUp << " " << fakeSysDn << endl;
   }
 
   //
   //Add MC & fake sys in quad
   //
-  sysUp = sqrt(pow(mcSysUp,2) + pow(fakeSysUp,2) );
-  sysDn = sqrt(pow(mcSysDn,2) + pow(fakeSysDn,2) );
+  sysUp = sqrt(pow(mcSysUp,2) + pow(xsSysUp,2) + pow(wzSysUp,2) + pow(fakeSysUp,2) );
+  sysDn = sqrt(pow(mcSysDn,2) + pow(xsSysDn,2) + pow(wzSysDn,2) + pow(fakeSysDn,2) );
   
-  if(verbose) cout << "\t Yield " << nom 
-		   << " +/- " << stat_err
-		   << " + " << sysUp << " - " << sysDn 
-		   << endl;
+  if(verbose)
+    cout << "\t Yield " << nom 
+	 << " +/- " << stat_err
+	 << " + " << sysUp << " - " << sysDn 
+	 << endl;
   
 }
 

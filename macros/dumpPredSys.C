@@ -8,6 +8,7 @@ typedef unsigned uint;
 //string dir ="histos_022814_21fb_n0150_DD_WH_v5/";
 //string dir ="histos_022814_21fb_n0150_DD_WH_v5/histOutputs/WH_SRSS1j_EE/";
 string dir ="histos_041614_21fb_n0150_DD_WH_v6/";
+//string dir ="histos_042314_21fb_n0150_DD_WH_v7/";
 //string dir ="";
 
 TGuiUtils* _utils;
@@ -27,10 +28,11 @@ int main(int argc, char *argv[]){
   vector<string> sample;
   //sample.push_back("histo_data12_flep.root");
   //sample.push_back("histo_Zjets_AlpgenPythia_rlep.root");
-  //sample.push_back("histo_WZ_ZZ_Sherpa_rlep.root");
+  sample.push_back("histo_WZ_ZZ_Sherpa_rlep.root");
   //sample.push_back("histo_WW_Sherpa_rlep.root");
   //sample.push_back("histo_top_MCNLO_rlep.root");
-  sample.push_back("histo_Higgs_rlep.root");
+  //sample.push_back("histo_Higgs_rlep.root");
+  //sample.push_back("histo_Bkg_Zjets_Alpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO_rlep.root");
 
   //sample.push_back("histo_TtbarLeptLept.117800_rlep.root");
   //sample.push_back("histo_llnunu_WW.126892_rlep.root");
@@ -66,9 +68,10 @@ int main(int argc, char *argv[]){
   //SR.push_back("DG2L_CRTOP_");
   //SR.push_back("DG2L_SRmT2a_")
   //SR.push_back("ML_VRWZ_");
-  SR.push_back("DGWH_WH_SRSS1j_");
-  SR.push_back("DGWH_WH_SRSS23j_");
+  //SR.push_back("DGWH_WH_SRSS1j_");
+  //SR.push_back("DGWH_WH_SRSS23j_");
   //SR.push_back("DGWH_WH_CRSSFAKE_");
+  SR.push_back("DGWH_WH_CRSSZVFAKE_");
   
   /*
     SR.push_back("DG2L_SR2jets_");
@@ -108,6 +111,9 @@ int main(int argc, char *argv[]){
       for(uint il=0; il<LEP.size(); il++){
 	cout << " ******************* " << LEP[il] << " ***************** "  << endl;
 	float nom=0;
+	float sys_dn=0.0;
+	float sys_up=0.0;
+	float nominal =0.0;
 	for(uint isys=DGSys_NOM; isys<DGSys_N; isys++){
 	  //string sHName = SR[is] + LEP[il] + "_DG2L_pred_"+ DG2LSystNames[isys];
 	  //string sHName = SR[is] + LEP[il] + "_ML_pred_"+ DGSystNames[isys];
@@ -117,10 +123,27 @@ int main(int argc, char *argv[]){
 	  //cout << "Name " << sHName << endl;
 	  TH1F* _h = (TH1F*)  _f->Get(sHName.c_str())->Clone();
 	  float fracErr = 0;
-	  if(isys==DGSys_NOM) nom=_h->Integral(0,-1);
-	  else   fracErr = (nom>0 || nom<0) ? (_h->Integral(0,-1) - nom)/nom : 0.;
-	  cout << SR[is] << LEP[il] << "_" << DGSystNames[isys]<< "\t";
-	  printf("\t\t %3.4f \t %3.4f \n",_h->Integral(0,-1),fracErr); 
+	  if(isys==DGSys_NOM) {
+	    nom=_h->Integral(0,-1);
+	    nominal=nom;
+	  }
+	  else  {
+	    fracErr = (nom>0 || nom<0) ? (_h->Integral(0,-1) - nom)/nom : 0.;
+	    if(_h->Integral(0,-1)>0){ //skip sys not available
+	      if(isys==DGSys_GEN) continue; //N/A
+	      if(isys>=DGSys_PDF_UP && isys<=DGSys_PDF_DN) continue;//N/A
+	      /*
+	      if(isys>=DGSys_FAKE_EL_RE_UP && isys <= DGSys_FAKE_MU_FR_DN) continue;
+	      if(isys>=DGSys_XS_UP && isys<=DGSys_XS_DN) continue;//uncorrelaated
+	      if(isys>=DGSys_GEN_UP && isys<=DGSys_GEN_DN) continue;
+	      */
+	      float diff = _h->Integral(0,-1) - nom;
+	      if(diff<0) sys_dn += pow(diff,2);
+	      else       sys_up += pow(diff,2);
+	    }
+	  }
+	  string name = SR[is] + LEP[il] + "_" +DGSystNames[isys];
+	  printf("%s \t\t\t %3.4f \t %3.4f \n", name.c_str(),_h->Integral(0,-1),fracErr); 
 
 	  double val,err;
 	  val = _h->IntegralAndError(0,-1,err);
@@ -128,6 +151,9 @@ int main(int argc, char *argv[]){
 	  _pred->SetBinError(isys+1, il+1,err);
 	  
 	}
+	sys_up = sqrt(sys_up);
+	sys_dn = sqrt(sys_dn);
+	cout << "\n Predicted " << nominal << " + " << sys_up << " - " << sys_dn << endl;
       }
       cout << "\n\n" << endl;
     }

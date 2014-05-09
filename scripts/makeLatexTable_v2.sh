@@ -1,7 +1,8 @@
 # ./makeLatexTable.sh  
 
 #date="022514_21fb_n0150_DD_WH_v4"
-date="041614_21fb_n0150_DD_WH_v6"
+#date="041614_21fb_n0150_DD_WH_v6"
+date="042314_21fb_n0150_DD_WH_v7"
 
 pathRun=${WORKAREA}/SusyWeakProdAna/run
 pathScripts=${WORKAREA}/SusyWeakProdAna/scripts

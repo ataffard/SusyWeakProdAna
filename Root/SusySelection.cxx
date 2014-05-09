@@ -540,7 +540,7 @@ bool SusySelection::passIsPromptLepton(const LeptonVector* leptons, int method, 
 // To determine if have true OS event - ie neither e has qFlip
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::hasQFlip(const LeptonVector* leptons){
-  if(leptons->size() < 1) return false;
+  if(leptons->size() < 2) return false;
 
   const Susy::Lepton* _l1 = leptons->at(0);
   const Susy::Lepton* _l2 = leptons->at(1);
@@ -555,7 +555,7 @@ bool SusySelection::hasQFlip(const LeptonVector* leptons){
 /*--------------------------------------------------------------------------------*/
 float SusySelection::getQFlipProb(LeptonVector* leptons, Met* met, uint iSys)
 {
-  if(leptons->size() < 1) return 1;
+  if(leptons->size() < 2) return 1;
   Susy::Lepton* _l1 = leptons->at(0);
   Susy::Lepton* _l2 = leptons->at(1);
   
@@ -788,7 +788,7 @@ bool SusySelection::passMETRel(const Met *met, const LeptonVector* leptons,
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passLead2LepPt(const LeptonVector* leptons)
 {
-  if( leptons->size() < 1 ) return false;
+  if( leptons->size() < 2 ) return false;
   if(m_pTl0Min >-1 && leptons->at(0)->Pt() < m_pTl0Min) return false;
   if(m_pTl1Min >-1 && leptons->at(1)->Pt() < m_pTl1Min) return false;
   if(m_pTl1Max >-1 && leptons->at(1)->Pt() > m_pTl1Max) return false;
@@ -1102,6 +1102,8 @@ bool SusySelection::passMtCut(const LeptonVector* leptons, const Met* met)
 /*--------------------------------------------------------------------------------*/
 float SusySelection::JZBJet(const JetVector* jets, const LeptonVector* leptons)
 {
+  if(leptons->size()<2) return -999;
+
   TVector2 sumPtJet(0,0);
   TLorentzVector Z = (*leptons->at(0) + *leptons->at(1));
 
@@ -1116,6 +1118,8 @@ float SusySelection::JZBJet(const JetVector* jets, const LeptonVector* leptons)
 /*--------------------------------------------------------------------------------*/
 float SusySelection::JZBEtmiss(const Met *met, const LeptonVector* leptons)
 {
+  if(leptons->size()<2) return -999;
+
   TLorentzVector Z = (*leptons->at(0) + *leptons->at(1));
   TVector2 Z_2(Z.Px(), Z.Py());
   TVector2 met_2(-met->lv().Px(), -met->lv().Py());

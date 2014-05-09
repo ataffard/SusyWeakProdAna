@@ -30,7 +30,7 @@ static const string SR        = "_WH_optimSRSS";
 static const int dbg = 0;
 
 //Options for optimisation
-static const int    selDil    = 2;  //EE, MM, EM for SS and C1C1 grids
+static const int    selDil = 2;  //EE, MM, EM for SS and C1C1 grids
 static const int    selCuts   = 2; //2 //WH 1 or 2+3jets
 
 //wA WH grids
@@ -42,7 +42,7 @@ static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use fo
 
 //Settings for optimisation/plots
 static const bool   weightEvt          = true;   //Weight bkg/signal events
-static const bool   showData           = false; // shows Zn below plot
+static const bool   showData           = true;//false; // shows Zn below plot
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group;
 static const bool   showCutflow        = true;   //dump cutflow yield
@@ -571,8 +571,8 @@ TH1F* histList(int ivar, string name)
   if(ivar==38) h = myBook(name.c_str(),50,0,1,"MV1_j0+MV1_j1",sY.c_str());
   if(ivar==39) h = myBook(name.c_str(),32,0,3.2,"dPhi(met,ll) [rad]",sY.c_str());
   if(ivar==40) h = myBook(name.c_str(),40,0,400,"m_{T2}^{J} [GeV]",sY.c_str());
-  if(ivar==41) h = myBook(name.c_str(),40,0,400,"m_{lj} [GeV]",sY.c_str());
-  if(ivar==42) h = myBook(name.c_str(),40,0,400,"m_{ljj} [GeV]",sY.c_str());
+  if(ivar==41) h = myBook(name.c_str(),14,0,420,"m_{lj} [GeV]",sY.c_str());// suneet: was 40,0,400
+  if(ivar==42) h = myBook(name.c_str(),14,0,420,"m_{ljj} [GeV]",sY.c_str());// ''
   if(ivar==43) h = myBook(name.c_str(),40,0,4,"#delta#eta_{jj} ",sY.c_str());
   if(ivar==44) h = myBook(name.c_str(),30,0,3,"#delta#eta_{ll} ",sY.c_str());
   if(ivar==45) h = myBook(name.c_str(),40,0,400,"max(m_{T}^{l0},(m_{T}^{l1}) [GeV]",sY.c_str());
@@ -1068,9 +1068,9 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
       _vCut.push_back(TCut("abs(mll-91.2)>10"));
-      _vCut.push_back(TCut("metrel>55"));
-      _vCut.push_back(TCut("mEff>200"));
-      _vCut.push_back(TCut("mlj<90")); 
+      //_vCut.push_back(TCut("metrel>55"));
+      //_vCut.push_back(TCut("mEff>200"));
+      //_vCut.push_back(TCut("mlj<90")); // SUNEET rem mljj
 
 
       //VR-fake
@@ -1101,10 +1101,10 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
-      _vCut.push_back(TCut("abs(deta_ll)<1.5"));
-      _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
-      _vCut.push_back(TCut("mEff>200"));
-      _vCut.push_back(TCut("mlj<90")); 
+      //_vCut.push_back(TCut("abs(deta_ll)<1.5"));
+      //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
+      //_vCut.push_back(TCut("mEff>200"));
+      //_vCut.push_back(TCut("mlj<90")); //// SUNEET rem mljj
 
 
       //CR-ZV
@@ -1151,11 +1151,11 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("nCJets==1"));
       _vCut.push_back(TCut("l_pt[0]>30"));// 30
       _vCut.push_back(TCut("l_pt[1]>30"));// 30
-      _vCut.push_back(TCut("abs(deta_ll)<1.5"));
+      //_vCut.push_back(TCut("abs(deta_ll)<1.5"));
       //JUNK//      _vCut.push_back(TCut("mWWT>120"));
-	  _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
-      _vCut.push_back(TCut("mEff>200"));
-      _vCut.push_back(TCut("mlj<90")); 
+      //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
+      //_vCut.push_back(TCut("mEff>200"));
+      //_vCut.push_back(TCut("mlj<90"));// SUNEET rem mljj
 
 
       //CR FAKE+ZV
@@ -1186,20 +1186,22 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
       _vCut.push_back(TCut("abs(mll-91.2)>10"));
-      _vCut.push_back(TCut("metrel>30"));
-      _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
-      _vCut.push_back(TCut("mljj<120"));
+      //_vCut.push_back(TCut("metrel>30"));
+      //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>100"));
+      //_vCut.push_back(TCut("mljj<120"));// SUNEET rem mljj
 
     }
     else if(dilType==1){ //MM
       if(verbose) cout << " \t SRWH SS-MM 2-3j" << endl;
       _vCut.push_back(TCut("llType==1 && !isOS"));
       _vCut.push_back(TCut("nCJets>1 && nCJets<4"));
-      _vCut.push_back(TCut("l_pt[0]>30"));
-      _vCut.push_back(TCut("l_pt[1]>30"));
-      _vCut.push_back(TCut("abs(deta_ll)<1.5"));
-      _vCut.push_back(TCut("mEff>220"));
-      _vCut.push_back(TCut("mljj<120"));
+      //_vCut.push_back(TCut("l_pt[0]>30"));
+      //      _vCut.push_back(TCut("l_pt[1]>30"));
+      _vCut.push_back(TCut("l_pt[0]>20"));
+      _vCut.push_back(TCut("l_pt[1]>20"));
+   //    _vCut.push_back(TCut("abs(deta_ll)<1.5"));
+//       _vCut.push_back(TCut("mEff>220"));
+//       _vCut.push_back(TCut("mljj<120"));// SUNEET rem mljj
 
       
       //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>80"));
@@ -1210,13 +1212,15 @@ TCut sel_AnyesWH(int opt, int dilType, bool verbose)
       if(verbose) cout << " \t SRWH SS-EM 2-3j" << endl;
       _vCut.push_back(TCut("llType==2"));
       _vCut.push_back(TCut("nCJets>1 && nCJets<4"));
-      _vCut.push_back(TCut("l_pt[0]>30"));// 30
-      _vCut.push_back(TCut("l_pt[1]>30"));// 30
-      _vCut.push_back(TCut("abs(deta_ll)<1.5"));
+      _vCut.push_back(TCut("l_pt[0]>20"));
+      _vCut.push_back(TCut("l_pt[1]>20"));
+      //      _vCut.push_back(TCut("l_pt[0]>30"));
+      //      _vCut.push_back(TCut("l_pt[1]>30"));
+      //_vCut.push_back(TCut("abs(deta_ll)<1.5"));
 	  //JUNK//      _vCut.push_back(TCut("mWWT>110"));
-	  _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
-      _vCut.push_back(TCut("mEff>200"));
-      _vCut.push_back(TCut("mljj<120"));
+      //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>110"));
+      //_vCut.push_back(TCut("mEff>200"));
+      //_vCut.push_back(TCut("mljj<120")); // SUNEET rem mljj
 
 
       //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>120"));

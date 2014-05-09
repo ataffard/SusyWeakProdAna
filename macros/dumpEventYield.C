@@ -10,8 +10,8 @@ string mth = "std";
 //string dir = "histos_022814_21fb_n0150_DD_WH_v5";
 string dir = "histos_041614_21fb_n0150_DD_WH_v6";
 
-string sampleSet = "data12.txt";
-//string sampleSet = "Zjets_AlpgenPythia.txt";
+//string sampleSet = "data12.txt";
+string sampleSet = "Zjets_AlpgenPythia.txt";
 //string sampleSet = "WZ_ZZ_Sherpa.txt";
 //string sampleSet = "WW_Sherpa.txt";
 //string sampleSet = "Higgs.txt";
@@ -50,9 +50,10 @@ int main(int argc, char *argv[]){
  //SR.push_back("SRmT2a");
  //SR.push_back("SRmT2b");
  // SR.push_back("SRZjets");
- SR.push_back("SRSS1j");
- SR.push_back("SRSS23j");
+ // SR.push_back("SRSS1j");
+ //SR.push_back("SRSS23j");
  //SR.push_back("CRSSFAKE");
+ SR.push_back("CRSSZVFAKE");
  // SR.push_back("SRSS3");
  // SR.push_back("SRSS4");
  //SR.push_back("optimSRSS");

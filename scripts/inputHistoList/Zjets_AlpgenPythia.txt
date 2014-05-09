@@ -94,3 +94,5 @@ ZtautaubbNp0.110825_mll60
 ZtautaubbNp1.110826_mll60
 ZtautaubbNp2.110827_mll60
 ZtautaubbNp3.110828_mll60
+eegammaPt10.145161 
+mumugammaPt10.145162

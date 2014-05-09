@@ -112,26 +112,27 @@ class ToyNt: public SusyNtTools
   double  _b_wqflip;
   
   //Lepton Block
+  static const int nLepMax=5;
   int     _b_nlep;
-  float   _b_l_pt[2];
-  float   _b_l_eta[2];
-  float   _b_l_phi[2];
-  float   _b_l_e[2];
-  float   _b_l_Y[2]; //rapidity   - remove
-  int     _b_l_q[2];
-  float   _b_l_ptcone30[2];
-  float   _b_l_etcone30[2];
-  float   _b_l_etconetopo30[2];
-  float   _b_l_d0[2];  
-  float   _b_l_d0Err[2]; 
-  float   _b_l_z0[2];
-  bool    _b_l_isEle[2];
-  bool    _b_l_isT[2];     //is signal lepton  
-  int     _b_l_org[2];     //MC truth org info PR, CONV, HF, LF 
-  bool    _b_l_isQFlip[2];  //--OK
+  float   _b_l_pt[nLepMax];
+  float   _b_l_eta[nLepMax];
+  float   _b_l_phi[nLepMax];
+  float   _b_l_e[nLepMax];
+  float   _b_l_Y[nLepMax]; //rapidity   - remove
+  int     _b_l_q[nLepMax];
+  float   _b_l_ptcone30[nLepMax];
+  float   _b_l_etcone30[nLepMax];
+  float   _b_l_etconetopo30[nLepMax];
+  float   _b_l_d0[nLepMax];  
+  float   _b_l_d0Err[nLepMax]; 
+  float   _b_l_z0[nLepMax];
+  bool    _b_l_isEle[nLepMax];
+  bool    _b_l_isT[nLepMax];     //is signal lepton  
+  int     _b_l_org[nLepMax];     //MC truth org info PR=0, CONV=1, HF=2, LF=3, UNKN
+  bool    _b_l_isQFlip[nLepMax]; 
 
 
-  //Dilepton Block
+  //Dilepton Block: leading 2
   bool    _b_isOS;
   bool    _b_isGenuineSS;    //MC only - True SS no conv.
   int     _b_llType;
@@ -182,8 +183,8 @@ class ToyNt: public SusyNtTools
   bool    _b_topTag;
 
   //MET & lepton/Jet kinematics  
-  float   _b_dphi_metl[2]; 
-  float   _b_mTl[2];
+  float   _b_dphi_metl[nLepMax]; 
+  float   _b_mTl[nLepMax];
   float   _b_dphi_metcl;  //closest lepton
   float   _b_dphi_metcj;  //closest jet
 
@@ -236,20 +237,33 @@ class ToyNt: public SusyNtTools
 
 
   //For Fake studies
-  int  _b_ll_FType;          //Fake  category LL, TL, LT, TT 
+  int  _b_ll_FType;          //Fake  category LL, TL, LT, TT using leading 2 leptons
   
   //Fake selection flags  All OK
   bool  _b_pass_SS1j; 
   bool  _b_pass_SSEM;
   bool  _b_pass_HFTP;
+  bool  _b_pass_MCEff;
+  bool  _b_pass_ZTP;
+  bool  _b_pass_ZConv;
+  bool  _b_pass_ZHFLF;
+
 
   int  _b_SSEM_tagIdx;     //Idx tag 
   int  _b_SSEM_probeIdx;   //Idx probe
   int  _b_HFTP_tagIdx;     //
   int  _b_HFTP_probeIdx;   //
-
-
-
+  int  _b_ZTP_tagIdx1;     //Idx tag combo 1
+  int  _b_ZTP_probeIdx1;   //Idx probe combo 1
+  int  _b_ZTP_tagIdx2;     //Idx tag combo 2
+  int  _b_ZTP_probeIdx2;   //Idx probe combo 2
+  int  _b_ZConv_tagIdx1;   //Idx tag 
+  int  _b_ZConv_tagIdx2;   //Idx tag 
+  int  _b_ZConv_probeIdx;  //Idx probe
+  int  _b_ZHFLF_tagIdx1;   //Idx tag 
+  int  _b_ZHFLF_tagIdx2;   //Idx tag 
+  int  _b_ZHFLF_probeIdx;  //Idx probe
+  float _b_ZHFLF_mlll;
 
  private:
 

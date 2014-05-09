@@ -54,8 +54,8 @@ class SusyFakeAna: public SusyBaseAna
 
   //>=1 CJet SS events 2 Tight leptons - For SR's FR, fractions studies 
   bool passSS1j(LeptonVector* leptons, 
-	      const JetVector* jets,
-	      const Met* met);
+		const JetVector* jets,
+		const Met* met);
 
 
   //SSEM - for Ele SF 
@@ -68,6 +68,25 @@ class SusyFakeAna: public SusyBaseAna
 		      const JetVector* jets,
 		      const Met* met);
 
+  //MC only. Extraction region for FR/Eff
+  bool passMCExtractionEff(LeptonVector* leptons, 
+			   const JetVector* jets,
+			   const Met* met);
+
+  //Z Tag -probe for Eff real
+  bool passZTagProbe(LeptonVector* leptons, 
+		     const JetVector* jets,
+		     const Met* met);
+
+  //Conv in Z events for conv FR
+  bool passConv(LeptonVector* leptons, 
+		const JetVector* jets,
+		const Met* met);
+  
+  //Probe in Z events - for HF/LF SF
+  bool passZHFLF(LeptonVector* leptons, 
+		 const JetVector* jets,
+		 const Met* met);
 
 
   //Z tag & probe
@@ -102,7 +121,10 @@ class SusyFakeAna: public SusyBaseAna
   int n_pass_SS1j;
   int n_pass_SSEM;
   int n_pass_HFTagProbe;
-
+  int n_pass_MCExtractionEff;
+  int n_pass_ZTagProbe;
+  int n_pass_ZConv;
+  int n_pass_ZHFLF;
 
 
  

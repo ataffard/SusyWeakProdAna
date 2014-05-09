@@ -115,6 +115,9 @@ class SusyBaseAna: public SusySelection
 
     //For debugging
     void dumpEvent();
+    void dumpLeptons(const LeptonVector* leptons);
+    void dumpJets(const JetVector* jets);
+    void dumpTrigger();
 
    
     ClassDef(SusyBaseAna, 1);

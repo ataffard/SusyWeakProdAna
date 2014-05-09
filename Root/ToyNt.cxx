@@ -188,13 +188,26 @@ void ToyNt::BookTree()
     tree->Branch("pass_SS1j",&_b_pass_SS1j,"pass_SS1j/O");
     tree->Branch("pass_SSEM",&_b_pass_SSEM,"pass_SSEM/O");
     tree->Branch("pass_HFTP",&_b_pass_HFTP,"pass_HFTP/O");
+    tree->Branch("pass_MCEff",&_b_pass_MCEff,"pass_MCEff/O");
+    tree->Branch("pass_ZTP",&_b_pass_ZTP,"pass_ZTP/O");
+    tree->Branch("pass_ZConv",&_b_pass_ZConv,"pass_Zconv/O");
+    tree->Branch("pass_ZHFLF",&_b_pass_ZHFLF,"pass_ZHFLF/O");
 
     tree->Branch("SSEM_tagIdx",&_b_SSEM_tagIdx,"SSEM_tagIdx/I");
     tree->Branch("SSEM_probeIdx",&_b_SSEM_probeIdx,"SSEM_probeIdx/I");
     tree->Branch("HFTP_tagIdx",&_b_HFTP_tagIdx,"HFTP_tagIdx/I");
     tree->Branch("HFTP_probeIdx",&_b_HFTP_probeIdx,"HFTP_probeIdx/I");
-
-
+    tree->Branch("ZTP_tagIdx1",&_b_ZTP_tagIdx1,"ZTP_tagIdx1/I");
+    tree->Branch("ZTP_probeIdx1",&_b_ZTP_probeIdx1,"ZTP_probeIdx1/I");
+    tree->Branch("ZTP_tagIdx2",&_b_ZTP_tagIdx2,"ZTP_tagIdx2/I");
+    tree->Branch("ZTP_probeIdx2",&_b_ZTP_probeIdx2,"ZTP_probeIdx2/I");
+    tree->Branch("ZConv_tagIdx1",&_b_ZConv_tagIdx1,"ZConv_tagIdx1/I");
+    tree->Branch("ZConv_tagIdx2",&_b_ZConv_tagIdx2,"ZConv_tagIdx2/I");
+    tree->Branch("ZConv_probeIdx",&_b_ZConv_probeIdx,"ZConv_probeIdx/I");
+    tree->Branch("ZHFLF_tagIdx1",&_b_ZHFLF_tagIdx1,"ZHFLF_tagIdx1/I");
+    tree->Branch("ZHFLF_tagIdx2",&_b_ZHFLF_tagIdx2,"ZHFLF_tagIdx2/I");
+    tree->Branch("ZHFLF_probeIdx",&_b_ZHFLF_probeIdx,"ZHFLF_probeIdx/I");
+    tree->Branch("ZHFLF_mlll",&_b_ZHFLF_mlll,"ZHFLF_mlll/F");
   }
 
 
@@ -218,7 +231,7 @@ void ToyNt::clearOutputBranches(void) {
   _b_wqflip=1;
 
   _b_nlep=0;
-  for(uint i=0; i<2; i++){
+  for(uint i=0; i<nLepMax; i++){
     _b_l_pt[i]=-999;
     _b_l_eta[i]=-999;
     _b_l_phi[i]=-999;
@@ -285,7 +298,7 @@ void ToyNt::clearOutputBranches(void) {
   _b_ST=-999;
   _b_topTag=false;
 
-  for(uint i=0; i<2; i++){
+  for(uint i=0; i<nLepMax; i++){
     _b_dphi_metl[i]=-999; 
     _b_mTl[i]=-999;  
   }
@@ -334,12 +347,26 @@ void ToyNt::clearOutputBranches(void) {
   _b_pass_SS1j=false;
   _b_pass_SSEM=false;
   _b_pass_HFTP=false;
+  _b_pass_MCEff=false;
+  _b_pass_ZTP=false;
+  _b_pass_ZConv=false;
+  _b_pass_ZHFLF=false;
 
   _b_SSEM_tagIdx=-1;
   _b_SSEM_probeIdx=-1;
   _b_HFTP_tagIdx=-1;
   _b_HFTP_probeIdx=-1;
-
+  _b_ZTP_tagIdx1=-1;
+  _b_ZTP_probeIdx1=-1;
+  _b_ZTP_tagIdx2=-1;
+  _b_ZTP_probeIdx2=-1;
+  _b_ZConv_tagIdx1=-1;
+  _b_ZConv_tagIdx2=-1;
+  _b_ZConv_probeIdx=-1;
+  _b_ZHFLF_tagIdx1=-1;
+  _b_ZHFLF_tagIdx2=-1;
+  _b_ZHFLF_probeIdx=-1;
+  _b_ZHFLF_mlll=-999;
 
   return;
 }
@@ -382,7 +409,7 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
 			    ElectronVector& baseElectrons, MuonVector& baseMuons, 
 			    const Met* met, int nVtx, bool isMc, int llType)
 {
-  if(leptons->size()==2) _b_nlep=2;
+  if(leptons->size()<nLepMax) _b_nlep=leptons->size();
   else{ 
     cerr << "FillTreeLeptons - too many " << leptons->size() << endl;
     abort();
@@ -397,8 +424,10 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
 
   for(uint ilep=0; ilep<leptons->size(); ilep++){
      const Susy::Lepton* _l = leptons->at(ilep);
-    _ll += (*_l);
-    qqType *= _l->q;
+     if(ilep<2) {
+       _ll += (*_l);
+       qqType *= _l->q;
+     }
 
     _b_l_pt[ilep] = _l->Pt();
     _b_l_eta[ilep] = _l->Eta();
@@ -436,26 +465,25 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
   }
 
   //Dilepton kinematics
-  _b_isOS = (qqType<0) ? true : false;
-  _b_llType = llType;
-  _b_dphi_ll = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
-  _b_deta_ll = leptons->at(0)->Eta()-leptons->at(1)->Eta();
-  _b_dR_ll = leptons->at(0)->DeltaR(*leptons->at(1));
-  _b_pTll = _ll.Pt();
-  _b_phill = _ll.Phi();
-  _b_mll = _ll.M();
-  
-
- 
-  //2LSS kinematics
-  _b_mWWT = mT(_ll, met->lv());
-
-
-  //Divers - kine vars
-  TLorentzVector _pTll_b = _ll + met->lv();  //???
-  _b_pTll_Tb = _pTll_b.Pt();  //???
-  _b_dPhib = _pTll_b.DeltaPhi(met->lv()); //???
-
+  if(leptons->size()>1){
+    _b_isOS = (qqType<0) ? true : false;
+    _b_llType = llType;
+    _b_dphi_ll = fabs(leptons->at(0)->DeltaPhi(*leptons->at(1)));
+    _b_deta_ll = leptons->at(0)->Eta()-leptons->at(1)->Eta();
+    _b_dR_ll = leptons->at(0)->DeltaR(*leptons->at(1));
+    _b_pTll = _ll.Pt();
+    _b_phill = _ll.Phi();
+    _b_mll = _ll.M();
+        
+    //2LSS kinematics
+    _b_mWWT = mT(_ll, met->lv());
+        
+    //Divers - kine vars
+    TLorentzVector _pTll_b = _ll + met->lv();  //???
+    _b_pTll_Tb = _pTll_b.Pt();  //???
+    _b_dPhib = _pTll_b.DeltaPhi(met->lv()); //???
+    
+  }
 
 }
 //-----------------------------------------------------------------------------------------------------------

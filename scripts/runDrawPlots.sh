@@ -143,23 +143,22 @@ fi
 if [ "$mode" == "DGWH" ] || [ "$mode" == "ALL" ] ; then
 
 DIL=(EE MM EM)
-#DIL=(EM)
+#DIL=(EE)
 
 #<<SKIP
 SR=( \
-    #WH_SRSS1j WH_SRSS23j \
+#    WH_SRSS1j WH_SRSS23j \
     WH_CRSSZVFAKE \
-#    WH_CRSSFAKE \
-#    WH_optimSRSS \
-#    WH_HighMll WH_HighPtll WH_lowMET WH_BTag \
+    WH_CRSSFAKE \
+    WH_optimSRSS \
+    WH_HighMll WH_HighPtll WH_lowMET WH_BTag \
 )
 #SKIP
 
-PLOTS=( pred
-#    pred  qq  nCJets  nBJets \
-#    mllcoarse mllShift mjj mWWT  mTl1 mTl2 max_mT etmiss metrel mt2 mt2j mljj mEff ST \
-#    ptl1 ptl2 etal1 etal2 eEta mEta dPhill dRll pTll dEtall \    
-#    ptj1 ptj2 ptj3 etaj1 etaj2 etaj3 \
+PLOTS=( pred  qq  nCJets  nBJets \
+    mllcoarse mllShift mjj mWWT  mTl1 mTl2 max_mT etmiss metrel mt2 mt2j mljj mEff ST \
+    ptl1 ptl2 etal1 etal2 eEta mEta dPhill dRll pTll dEtall \    
+    ptj1 ptj2 ptj3 etaj1 etaj2 etaj3 \
 	)
     
     for sr in ${SR[@]}; do

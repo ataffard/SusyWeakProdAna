@@ -494,6 +494,49 @@ void SusyBaseAna::dumpEvent()
 }
 
 /*--------------------------------------------------------------------------------*/
+// Debuging leptons
+/*--------------------------------------------------------------------------------*/
+void SusyBaseAna::dumpLeptons(const LeptonVector* leptons)
+{
+  for(uint i=0; i < leptons->size(); i++){
+    cout << "  ";
+    leptons->at(i)->print();
+  }
+}
+
+/*--------------------------------------------------------------------------------*/
+// Debuging jets
+/*--------------------------------------------------------------------------------*/
+void SusyBaseAna::dumpJets(const JetVector* jets)
+{
+  for(uint i=0; i < jets->size(); i++){
+    cout << "  ";
+    jets->at(i)->print();
+  }
+}
+
+
+/*--------------------------------------------------------------------------------*/
+// Debuging trigger
+/*--------------------------------------------------------------------------------*/
+void SusyBaseAna::dumpTrigger()
+{
+  uint flag( nt->evt()->trigFlags);
+  
+  if(flag & TRIG_e24vhi_medium1) cout << "Pass e24vhi" << endl;
+  if(flag & TRIG_mu24i_tight)    cout << "Pass mu24i" << endl;
+
+  if(flag & TRIG_2e12Tvh_loose1 || flag & TRIG_e24vh_medium1_e7_medium1)
+    cout << "Pass di-Ele" << endl;
+
+  if(flag & TRIG_2mu13 || flag & TRIG_mu18_tight_mu8_EFFS) 
+    cout << "Pass di-Mu" << endl;
+
+  if(flag & TRIG_e12Tvh_medium1_mu8 || flag & TRIG_mu18_tight_e7_medium1)
+    cout << "Pass di-MuEle" << endl;
+
+}
+/*--------------------------------------------------------------------------------*/
 // Initialize ToyNt
 /*--------------------------------------------------------------------------------*/
 void SusyBaseAna::initializeToyNt(bool metD, bool dijetB, 
@@ -545,7 +588,6 @@ void SusyBaseAna::fillToyNt(uint iSYS,
 			 nt->evt()->nVtx, corrNpv,_ww, _wwBTag, _wwQFlip);	 
   m_toyNt->FillTreeLeptons(leptons,*v_baseEle,*v_baseMu,met,nt->evt()->nVtx,nt->evt()->isMC, m_ET);
   //These need to be done here because uses SusySelection feature that cannot call from ToyNt
-
   for(uint ilep=0; ilep<leptons->size(); ilep++){
     const Susy::Lepton* _l = leptons->at(ilep);
     bool removeLepsFromIso=false;
@@ -567,7 +609,8 @@ void SusyBaseAna::fillToyNt(uint iSYS,
   float metRel = getMetRel(met,*leptons,*jets);
   m_toyNt->FillTreeMetVar(met,metRel);
 
-  float mll_collApprox = mZTauTau(*leptons->at(0),*leptons->at(1),met->lv());
+  float mll_collApprox = -999;
+  if(leptons->size()>1) mll_collApprox= mZTauTau(*leptons->at(0),*leptons->at(1),met->lv());
 
   float sphericity=-999;
   float sphericityTrans=-999;
@@ -576,12 +619,14 @@ void SusyBaseAna::fillToyNt(uint iSYS,
   vector<float> pz;
 
   //Lepton px, py, pz
-  px.push_back(leptons->at(0)->Px());
-  px.push_back(leptons->at(1)->Px());
-  py.push_back(leptons->at(0)->Py());
-  py.push_back(leptons->at(1)->Py());
-  pz.push_back(leptons->at(0)->Pz());
-  pz.push_back(leptons->at(1)->Pz());
+  if(leptons->size()>1){
+    px.push_back(leptons->at(0)->Px());
+    px.push_back(leptons->at(1)->Px());
+    py.push_back(leptons->at(0)->Py());
+    py.push_back(leptons->at(1)->Py());
+    pz.push_back(leptons->at(0)->Pz());
+    pz.push_back(leptons->at(1)->Pz());
+  }
 
   float mt2jj=-999;
   float mt2J=-999;
@@ -589,7 +634,8 @@ void SusyBaseAna::fillToyNt(uint iSYS,
   float Mlj  = mljj(*leptons,*jets);
 
   float jjAcoplanarity=-999;
-   float llAcoplanarity = acoplanarity(*leptons->at(0),*leptons->at(1));
+  float llAcoplanarity = -999;
+  if(leptons->size()>1) llAcoplanarity = acoplanarity(*leptons->at(0),*leptons->at(1));
 
   if(jets->size()>=2){
     const TLorentzVector* j1TLV=NULL;
@@ -602,7 +648,7 @@ void SusyBaseAna::fillToyNt(uint iSYS,
       if(iC20j==1) j2TLV = &(*jet);
       iC20j++;
     }
-    if(j1TLV && j2TLV){
+    if(j1TLV && j2TLV && leptons->size()>1){
       //Jet px, py, pz of central jets
       px.push_back(j1TLV->Px());
       px.push_back(j2TLV->Px());
@@ -636,20 +682,20 @@ void SusyBaseAna::fillToyNt(uint iSYS,
 			    sphericity, sphericityTrans,
 			    llAcoplanarity,jjAcoplanarity,
 			    _topTag,mll_collApprox);
-    
+
   float mt2 =  getMT2(*leptons, met);
   m_toyNt->FillMT2(mt2, mt2jj, mt2J);
 
-   
-  float mct     = mCT(*leptons->at(0),*leptons->at(1));
-  float mctPerp = mCTperp(*leptons->at(0),*leptons->at(1),met->lv());
-  float mctPara = mCTpara(*leptons->at(0),*leptons->at(1),met->lv());
-  m_toyNt->FillMCT(mct, mctPerp, mctPara);
+  if(leptons->size()>1){
+    float mct     = mCT(*leptons->at(0),*leptons->at(1));
+    float mctPerp = mCTperp(*leptons->at(0),*leptons->at(1),met->lv());
+    float mctPara = mCTpara(*leptons->at(0),*leptons->at(1),met->lv());
+    m_toyNt->FillMCT(mct, mctPerp, mctPara);
+  }
 
   float JZBj = JZBJet(v_sigJet,leptons);
   float JZBm = JZBEtmiss(met,leptons);
   m_toyNt->FillJZB(JZBj, JZBm);
-  
 
   //Checks
   /*
@@ -676,7 +722,6 @@ void SusyBaseAna::fillToyNt(uint iSYS,
 	 << " FakeType " <<  m_toyNt->_b_ll_FType 
 	 << endl;
   */
-
 
   //Write entry to TTree
   m_toyNt->WriteTree();
