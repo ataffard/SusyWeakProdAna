@@ -724,7 +724,7 @@ void DrawPlots::drawPlotErrBand(string name, bool logy,bool wSig, bool sysBand)
   std::cout << "Average ratio data/MC " << avgRatio << std::endl;
   
   //Overwrite log scale if less than 100 entries 
-  float maxEntries =500;
+  float maxEntries =500000;
   if(_mcStackH->Integral(0,-1)<maxEntries || _dataH1->Integral(0,-1)<maxEntries) logy=false;
   setLogy(logy);
   if(logy){
