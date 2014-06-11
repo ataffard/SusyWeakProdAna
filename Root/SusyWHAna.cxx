@@ -6,7 +6,7 @@
 
 #include "SusyWeakProdAna/SusyAnaCommon.h"
 //#include "SusyWeakProdAna/DsidGroups.h"
-
+#include "SameSignMatrixMethod/FakeRegions.h"
 
 using namespace std;
 using namespace Susy;
@@ -143,8 +143,8 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
       }
       else if(dilType==ET_mm){
 	m_dEtallMax  = 1.5;
-	m_mtMaxLow   = 100;
-	m_highMljj = 90;
+	m_mtMaxLow   = 110;
+	m_highMljj   = 90;
 	m_HTMin      = 200;
       }
       else if(dilType==ET_em){
@@ -166,18 +166,18 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
 	m_highMll    = MZ+10;//100;
 	m_metRelMin  = 30;//55;
 	m_highMljj   = 120;
-	m_mtMaxLow   = 100;
+	m_mtMaxLow   = 110;
       }
       else if(dilType==ET_mm){
 	m_dEtallMax  = 1.5;
 	m_pTl1Min    = 30;
-	m_highMljj  = 120;
-	m_HTMin      = 220;
+	m_highMljj   = 120;
+	m_HTMin      = 200;
       }
       else if(dilType==ET_em){
 	m_pTl1Min    = 30;
 	m_dEtallMax  = 1.5;
-	m_highMljj = 120;
+	m_highMljj   = 120;
 	m_mtMaxLow   = 110;
 	m_HTMin      = 200;
 	//m_lowMTWW    = 110;
@@ -198,6 +198,8 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
     if(m_sel.Contains("WH_CRSSZVFAKE")){
       if(dilType==ET_ee){
 	m_mllIn      = true;
+	m_pTl0Min    = 20;
+	m_pTl1Min    = 20;
 	m_lowMll     = MZ-10;
 	m_highMll    = MZ+10;
 	m_metRelMin  = 40;
@@ -218,11 +220,14 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
       if(dilType==ET_ee){//NOT DEFINE
       }
       else if(dilType==ET_mm){
+	m_pTl0Min    = 20;
+	m_pTl1Min    = 20;
 	m_pTl1Max    = 30;
-	m_lowMljj    = 90;//120   //Cut depends on nC20J, raised to 120 fror 2+3j  !!!
+	//m_lowMljj    = 90;//120   //Cut depends on nC20J, raised to 120 fror 2+3j  !!! --diverge --- from Davide/Suneet cuts.
       }
       else if(dilType==ET_em){
-	m_pTl0Min    = 30;
+	m_pTl0Min    = 20;// --- Diverge --- from Davide/Suneet cuts.
+	m_pTl1Min    = 20;
 	m_pTl1Max    = 30;
 	m_lowMljj    = 90;//120   //Cut depends on nC20J, raised to 120 fror 2+3j  !!!
       }
@@ -637,7 +642,10 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     
     //Special for the CR - raise mljj cut in 2+3 (save histo booking!)
-    if((iSR == WH_CRSSZVFAKE || iSR == WH_CRSSFAKE) && signalJets->size()>1) m_lowMljj = 120;
+    if((iSR == WH_CRSSZVFAKE || iSR == WH_CRSSFAKE) && signalJets->size()>1){
+      m_lowMljj = 120;
+      if(m_ET==ET_mm)  m_lowMljj = 0;
+    }
 
 
     if(!passMljj(leptons,signalJets)) continue;
@@ -732,7 +740,7 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   
   if(leptons->size()>2) return 0;
 
-  susy::fake::Region frSR = susy::fake::CR_SSInc1j;
+  susy::fakess::Region frSR = susy::fakess::CR_SSInc1j;
   /*
   switch (iSR){
   case WH_SRSS1j:
@@ -789,10 +797,10 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
 
 
   //WH 1D fake MM
-  float _fw_1D = m_matrix_method.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
+  float _fw_1D = 1;/*m_matrix_method.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
 					_isSignal[1], _isEle[1], _pt[1],_eta[1],
 					frSR, metrel, 
-					(SusyMatrixMethod::SYSTEMATIC) iiSys);  
+					(SusyMatrixMethod::SYSTEMATIC) iiSys);  */
 
   //WH 2D MM
   _fw = m_matrix_methodWH.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
@@ -1052,7 +1060,7 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
   _hh->H1FILL(_hh->DGWH_JZBJet[iSR][m_ET][iSYS],JZBJet(v_sigJet,leptons),_ww); 
   _hh->H1FILL(_hh->DGWH_JZBEtmiss[iSR][m_ET][iSYS],JZBEtmiss(met,leptons),_ww); 
   _hh->H1FILL(_hh->DGWH_etmiss[iSR][m_ET][iSYS],met->lv().Pt(),_ww); 
-  _hh->H1FILL(_hh->DGWH_etmissPhi[iSR][m_ET][iSYS],met->lv().Phi(),_ww); 
+  _hh->H1FILL(_hh->DGWH_etmissPhi[iSR][m_ET][iSYS],TVector2::Phi_mpi_pi(met->lv().Phi())*TMath::RadToDeg(),_ww); 
   _hh->H1FILL(_hh->DGWH_metrel[iSR][m_ET][iSYS],metRel,_ww); 
   _hh->H1FILL(_hh->DGWH_metrel1[iSR][m_ET][iSYS],metRel,_ww); 
   _hh->H1FILL(_hh->DGWH_metrel2[iSR][m_ET][iSYS],metRel,_ww); 

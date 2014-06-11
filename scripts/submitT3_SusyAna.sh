@@ -52,11 +52,11 @@ ana=SusyAnaLooperExec
 #anaOpt1=doAll
 #anaOpt1=do2L
 
-#anaOpt1=doWH
+anaOpt1=doWH
 
 #anaOpt1=do3L
 
-anaOpt1=doFake
+#anaOpt1=doFake
 
 anaOpt2=true #doMll 
 #anaOpt2=false #doMll 
@@ -65,7 +65,7 @@ sys1="\"\""
 sys2="\"\""
 nEvt=-1
 
-#doSys=true
+doSys=true
 
 
 ##

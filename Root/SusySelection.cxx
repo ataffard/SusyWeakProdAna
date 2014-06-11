@@ -105,7 +105,8 @@ SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
     "/ChargeFlip/data/chargeflip_map.root";
   if(qFlipd0) chargeFlipInput =  string(getenv("WORKAREA")) + 
     //  "/ChargeFlip/data/d0_chargeflip_map.root";
-    "/ChargeFlip/data/d0_new2d_chargeflip_map.root";
+    //"/ChargeFlip/data/d0_new2d_chargeflip_map.root";
+    "/ChargeFlip/data/d0_new2d_chargeflip_map_scale_with_mc_last_ptbin.root"; 
   cout << "Using flip map: " << chargeFlipInput <<endl;
   m_chargeFlip = new chargeFlip(chargeFlipInput);
 
@@ -582,8 +583,12 @@ float SusySelection::getQFlipProb(LeptonVector* leptons, Met* met, uint iSys)
 				  _pdg2, &_l2_tlv, 
 				  _sys, isData, map2use);
 
-  if(_sys==1)       cfP *=  (m_chargeFlip->overlapFrac().first + m_chargeFlip->overlapFrac().second);
-  else if(_sys==-1) cfP *=  (m_chargeFlip->overlapFrac().first - m_chargeFlip->overlapFrac().second);
+  //Updated WH - June 3rd.
+  //50% uncet on overlap fraction
+  //  if(_sys==1)       cfP *=  (m_chargeFlip->overlapFrac().first + m_chargeFlip->overlapFrac().second);
+  //  else if(_sys==-1) cfP *=  (m_chargeFlip->overlapFrac().first - m_chargeFlip->overlapFrac().second);
+  if(_sys==1)       cfP *= 1.5;
+  if(_sys==-1)      cfP *= 0.5;
   else if(_sys==0)  cfP *=   m_chargeFlip->overlapFrac().first; // QFLIP_RESCLALE;
 
 

@@ -23,9 +23,9 @@
 #!/bin/bash
 
 #Update for a given pass
-#date="022814_21fb_n0150_DD_WH_v5"
+date="060314_21fb_n0150_DD_WH_v8"
 #date="041614_21fb_n0150_DD_WH_v6"
-date="042314_21fb_n0150_DD_WH_v7"
+#date="042314_21fb_n0150_DD_WH_v7"
 #date="030614_21fb_n0150_DD_FAKE_v1"
 
 

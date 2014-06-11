@@ -26,7 +26,7 @@ Produce the tex tables as well
 using namespace std;
 typedef unsigned uint;
 
-static const bool blindData=true;
+static const bool blindData=false;//true;
 bool verbose =  false;
 
 //

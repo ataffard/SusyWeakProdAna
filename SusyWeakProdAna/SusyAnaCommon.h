@@ -13,8 +13,11 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 //#define LUMI_5FB  //A->B14
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "042314";
-const std::string SUFF = "_n0150_DD_WH_v7"; //update qFlip overlap
+const std::string TAG  = "060314";
+const std::string SUFF = "_n0150_DD_WH_v8"; //update qFlip overlap & fake MM + errors
+
+//const std::string TAG  = "042314";
+//const std::string SUFF = "_n0150_DD_WH_v7"; //update qFlip overlap
 
 //const std::string TAG  = "041614";
 //const std::string SUFF = "_n0150_DD_WH_v6"; //update qFlip overlap
@@ -36,7 +39,7 @@ const bool   FILL_TOYNT        = true;       //Write ToyNt
 const string TOYNT_SR          ="WH_optimSRSS";    //SR used to fill ToyNt
 const unsigned int TOYNT_iSR   = WH_optimSRSS;     //SR used to fill ToyNt
 
-const bool DO_SYS         = false;//true;   //Toggles systematics looper
+const bool DO_SYS         = true;   //Toggles systematics looper
 const bool FILL_HFT       = false;  //Write the HistFitterTree
 
 const bool CUTFLOW        = false;  // require at least 2 tight/base lep SPEED ANA

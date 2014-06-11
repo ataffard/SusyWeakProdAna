@@ -5,6 +5,7 @@
 #include "SusyWeakProdAna/PhysicsTools.h"
 
 #include "SusyWeakProdAna/SusyAnaCommon.h"
+#include "SusyMatrixMethod/FakeRegions.h"
 
 using namespace std;
 using namespace Susy;
