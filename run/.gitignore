@@ -1,0 +1,5 @@
+jobLogs
+batchLogs
+*Exec
+*.root
+*.log
