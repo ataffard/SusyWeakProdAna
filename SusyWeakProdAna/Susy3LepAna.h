@@ -19,12 +19,14 @@ class Susy3LepAna: public SusyBaseAna
     virtual ~Susy3LepAna(){};
 
     //Analysis main 
-    void doAnalysis(unsigned int isys);
+    void doAnalysis(float w, unsigned int isys);
 
     // Full event selection. Specify which leptons to use.
     bool selectEvent(LeptonVector* leptons, 
 		     const TauVector* taus,
-		     const JetVector* jets, const Susy::Met* met);
+		     const JetVector* jets, 
+		     const Susy::Met* met,
+		     float w);
 
     // Selection region 
     void setSelection(std::string s);

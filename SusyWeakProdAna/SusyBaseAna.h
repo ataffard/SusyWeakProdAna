@@ -11,12 +11,11 @@
 // Root Packages
 #include "TRandom3.h"
 
-// Susy Common
-#include "SusyNtuple/SleptonXsecReader.h"
-#include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
-#include "SameSignMatrixMethod/DiLeptonMatrixMethod.h"
+//Susy Fake Matrix
+#include "SusyMatrixMethod/DiLeptonMatrixMethod.h"       //2L OS EWK
+#include "SameSignMatrixMethod/DiLeptonMatrixMethod.h"   //2L SS WH
 
-
+//HistFitter
 #include "HistFitterTree/HistFitterTree.h"
 #include "SusyXSReader/XSReader.h"
 
@@ -60,11 +59,8 @@ class SusyBaseAna: public SusySelection
 			);
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
-    //MC weight
-    float eventWeight(int mode=1, uint iSys=DGSys_NOM);
     bool  isSimplifiedModelGrid(int dsId);
     float getXsUncert(uint dsid);
-
 
     float getLepSFWeight(const LeptonVector* leptons, uint iSys=DGSys_NOM);
     float getTriggerWeight(const LeptonVector* leptons, 
@@ -72,14 +68,6 @@ class SusyBaseAna: public SusySelection
 			   uint iSys=DGSys_NOM);
     float getBTagSF(const Susy::Event*, const JetVector* jets, uint iSys=DGSys_NOM);
 
-    //Correct SumWs for Slepton and MC dataset
-    map<int,float> getSleptonSumWs(                      ) { return m_sleptonSumWs;  };
-    void           setSleptonSumWs( map<int,float> sumws ) { m_sleptonSumWs = sumws; };
-
-    const SumwMap* getMCSumWs(           ) { return m_MCSumWs;  };
-    void           setMCSumWs( const SumwMap* sumwMap ) { m_MCSumWs = sumwMap; };
-
-    
     void finish();
 
     //To print cutflow
@@ -124,8 +112,8 @@ class SusyBaseAna: public SusySelection
 
   protected:
 
-    SusyHistos*  _hh;   //Histograms
-    ToyNt*  m_toyNt;    // toyNt
+    SusyHistos*  _hh;        //Histograms
+    ToyNt*       m_toyNt;    // toyNt
 
 
     //External packages
@@ -142,17 +130,11 @@ class SusyBaseAna: public SusySelection
     uint    _sys1;        //Sys loop over - need to book HFT
     uint    _sys2;
     
-    SleptonXsecReader*   m_SleptonXSecReader;
-    map<int,float>       m_sleptonSumWs;
     XSReader* susyXS;
-
-    const SumwMap*       m_MCSumWs;    
 
     ofstream out;
     ofstream evtDump;
     ifstream sigXsfile;
-
-
 
 };
 

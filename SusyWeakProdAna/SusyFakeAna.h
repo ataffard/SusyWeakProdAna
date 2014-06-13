@@ -32,7 +32,7 @@ class SusyFakeAna: public SusyBaseAna
   SusyFakeAna(SusyHistos* _histos);
   virtual ~SusyFakeAna(){};
   
-  void doAnalysis(unsigned int isys=DGSys_NOM);
+  void doAnalysis(float w, unsigned int isys=DGSys_NOM);
   void end();
 
   
@@ -40,9 +40,11 @@ class SusyFakeAna: public SusyBaseAna
   bool selectEvent(LeptonVector* baseLeptons, 
 		   LeptonVector* signalLeptons, 
 		   const JetVector* jets,
-		   const Met* met);
+		   const Met* met,
+		   float w);
   
-  void getEventWeights(LeptonVector* leptons, 
+  void getEventWeights(float w,
+		       LeptonVector* leptons, 
 		       const JetVector* jets,
 		       const Met* met);
 

@@ -206,6 +206,7 @@ int main(int argc, char** argv)
     ChainHelper::addFileDir(chain, fileDir);
   }
   else{
+    //CERN EOS
     string eosFileList =  string(getenv("WORKAREA")) + "/SusyWeakProdAna" + "/scripts/EOSFiles/" 
       + sample + "_" + smethod + ".txt";
     cout << "Using EOS inputFileList " << eosFileList << endl; 
@@ -215,46 +216,6 @@ int main(int argc, char** argv)
   Long64_t nEntries = chain->GetEntries();
   chain->ls();
 
-  // Hack to get the correct SumW for Sleptons
-  // Works since we have 1 ROOT file always per signal point
-  map<int, float> sleptonSumWs;
-  bool isSlepton=false;
-  if(!sample.empty() && sample.find("DLiSlep")!=std::string::npos ){
-    // Open the ROOT file
-    TFile* fileToRead = chain->GetFile();
-    
-    cout << "HERE " << endl;
-    fileToRead->ls();
-    if(fileToRead->IsOpen()) {
-      // Get the histograms
-      TH1F*  histo201   = (TH1F*) fileToRead->Get("procCutFlow201");
-      TH1F*  histo202   = (TH1F*) fileToRead->Get("procCutFlow202");
-      TH1F*  histo216   = (TH1F*) fileToRead->Get("procCutFlow216");
-      TH1F*  histo217   = (TH1F*) fileToRead->Get("procCutFlow217");
-      // Read the numbers
-      float sumW201     = histo201->GetBinContent(1);
-      float sumW202     = histo202->GetBinContent(1);
-      float sumW216     = histo216->GetBinContent(1);
-      float sumW217     = histo217->GetBinContent(1);
-      // Write information
-      sleptonSumWs[201] = sumW201; sleptonSumWs[202] = sumW202;
-      sleptonSumWs[216] = sumW201; sleptonSumWs[217] = sumW202;
-      // Print information
-      cout << "==================================" << endl;
-      cout << "Slepton SumW checks::" << endl;
-      cout << "201 :: " << sumW201 << endl;
-      cout << "202 :: " << sumW202 << endl;
-      cout << "216 :: " << sumW216 << endl;
-      cout << "217 :: " << sumW217 << endl;
-      cout << "==================================" << endl;
-      // Delete
-      delete histo201; delete histo202; delete histo216; delete histo217;
-      fileToRead->Close();
-      delete fileToRead;
-      isSlepton=true;
-    }
-  }
-
   // Build the TSelector
   SusyAnaLooper* susyAna = new SusyAnaLooper(do2L, do3L, doWH, doFake);
   susyAna->setDebug(dbg);
@@ -262,24 +223,12 @@ int main(int argc, char** argv)
   susyAna->setSampleName(sample);
   if(dbgEvt) susyAna->setEvtDebug();
   susyAna->doMll(doMll);
-  //  susyAna->doFake(doFake);
   susyAna->useLooseLep(useLoose);
   susyAna->setMethod(method);
   if(strcmp(sys2.c_str(),"")!=0)
     susyAna->doSysRange(sys1,sys2);
   else if(strlen(sys1.c_str())>0) 
     susyAna->setSystematic(sys1);
-
-  //Grab sumW for the samples
-  if(sample.find("period") == string::npos) {
-    bool isSimplifiedModel = (sample.find("wA") != string::npos || sample.find("wC") != string::npos) ? true:false; 
-    SumwMap mcSumOfWeights = susyAna->SusyNtTools::buildSumwMap(chain,isSimplifiedModel); 
-    cout << "Using SumW map for simplifiedModel " << isSimplifiedModel << endl;
-    susyAna->setSumwMap(mcSumOfWeights);
-  }
-
-  if(isSlepton) susyAna->setSleptonSumWs(sleptonSumWs); 
-
 
 
   // Run the job

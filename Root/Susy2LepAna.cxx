@@ -25,10 +25,18 @@ Susy2LepAna::Susy2LepAna(SusyHistos* _histos):
 /*--------------------------------------------------------------------------------*/
 // Main process loop function 
 /*--------------------------------------------------------------------------------*/
-void Susy2LepAna::doAnalysis(unsigned int isys)
+void Susy2LepAna::doAnalysis(float w, unsigned int isys)
 {
   reset();
   SYST = isys;
+  
+  float evtW = w;
+  if((isys == DGSys_XS_UP || isys == DGSys_XS_DN) 
+     && !isSimplifiedModelGrid(nt->evt()->mcChannel) ){ //Get Xs uncertainty from local implementation
+    float uncert = getXsUncert(nt->evt()->mcChannel);
+    if(isys == DGSys_XS_UP) evtW *= 1 + uncert;
+    if(isys == DGSys_XS_DN) evtW *= 1 - uncert;
+  }
 
   if(FILL_HFT && !m_writeHFT) initializeHistFitterTree();
   if(FILL_TOYNT && !m_writeToyNt && isys==DGSys_NOM){
@@ -47,11 +55,11 @@ void Susy2LepAna::doAnalysis(unsigned int isys)
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
     if(!CUTFLOW && v_baseLep->size()<2) return;
-    if(!selectEvent(v_baseLep, v_baseLep, v_sigJet, m_met)) return;
+    if(!selectEvent(v_baseLep, v_baseLep, v_sigJet, m_met, evtW)) return;
   }
   else{
     if(!CUTFLOW && v_sigLep->size()<2) return;
-    if(!selectEvent(v_sigLep, v_baseLep, v_sigJet, m_met)) return;
+    if(!selectEvent(v_sigLep, v_baseLep, v_sigJet, m_met, evtW)) return;
   }
   return;
 }
@@ -671,7 +679,8 @@ void Susy2LepAna::setSelection(std::string s, uint dilType)
 bool Susy2LepAna::selectEvent(LeptonVector* leptons, 
 			      LeptonVector* baseLeps, 
 			      const JetVector* signalJets,
-			      const Met* met)
+			      const Met* met,
+			      float w)
 {
   //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
   if(nt->evt()->isMC) _inc = nt->evt()->w; 
@@ -733,7 +742,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
   //
   //set _ww to the appropriate weighting
   //
-  float _ww      = eventWeight(LUMIMODE); 
+  float _ww      = w;//eventWeight(LUMIMODE); 
   if(!WEIGHT_COUNT) _ww=1;
   float _lepSFW  = getLepSFWeight(leptons);
   float _trigW   = getTriggerWeight(leptons, 
@@ -1537,7 +1546,7 @@ void Susy2LepAna::fillHistograms(uint iSR,uint iSYS,
   for(uint ijet=0; ijet<jets->size(); ijet++){
     const Susy::Jet* _j = jets->at(ijet);
     nSigJet++;
-    if(isCentralLightJet(_j)) nSigCJet++;
+    if(isCentralLightJet(_j,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType)) nSigCJet++;
     if(isForwardJet(_j)) nSigFJet++;
     if(isCentralBJet(_j)){
       nBJets++;
@@ -1710,7 +1719,7 @@ float Susy2LepAna::writeIntoHistFitterTree(uint iSR,
   bool  _isEE   =  evtType==ET_ee ? true:false;
   bool  _isEM   = (evtType==ET_em || evtType==ET_me) ? true:false;
   bool  _isMM   = evtType==ET_mm ? true:false;
-  int   _nC20   = numberOfCLJets(*signalJets);
+  int   _nC20   = numberOfCLJets(*signalJets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType);
   int   _nB20   = numberOfCBJets(*signalJets);
   int   _nF30   = numberOfFJets(*signalJets);
   float _ptl1   = leptons->at(0)->Pt();

@@ -30,10 +30,11 @@ SusyFakeAna::SusyFakeAna(SusyHistos* _histos):
 /*--------------------------------------------------------------------------------*/
 // Main process loop function 
 /*--------------------------------------------------------------------------------*/
-void SusyFakeAna::doAnalysis(unsigned int isys)
+void SusyFakeAna::doAnalysis(float w, unsigned int isys)
 {
   reset();
   SYST = isys;
+  float evtW = w;
 
   if(FILL_TOYNT){
     bool metDetails      = false;
@@ -51,7 +52,7 @@ void SusyFakeAna::doAnalysis(unsigned int isys)
   
 
   if(!CUTFLOW && v_baseLep->size()< 1/*NBASELEPMIN*/) return;
-  if(!selectEvent(v_baseLep, v_sigLep, v_sigJet, m_met)) return;
+  if(!selectEvent(v_baseLep, v_sigLep, v_sigJet, m_met, evtW)) return;
   
   
   return;
@@ -109,7 +110,8 @@ void SusyFakeAna::end()
 bool SusyFakeAna::selectEvent(LeptonVector* baseLeps, 
 			      LeptonVector* signalLeptons, 
 			      const JetVector* signalJets,
-			      const Met* met)
+			      const Met* met,
+			      float w)
 {
   //
   //Basic cleaning
@@ -124,7 +126,7 @@ bool SusyFakeAna::selectEvent(LeptonVector* baseLeps,
 
   if(passSelections(baseLeps, signalLeptons, signalJets, met)){
     m_toyNt->_b_isGenuineSS  =  isGenuineSS(baseLeps,nt->evt()->isMC);
-    getEventWeights(baseLeps, signalJets, met);
+    getEventWeights(w, baseLeps, signalJets, met);
     fillToyNt(SYST, baseLeps, signalJets, met,_ww, _wwBTag, _wwqFlip);
   }
 
@@ -135,11 +137,12 @@ bool SusyFakeAna::selectEvent(LeptonVector* baseLeps,
 /*--------------------------------------------------------------------------------*/
 // Get event weights
 /*--------------------------------------------------------------------------------*/
-void SusyFakeAna::getEventWeights(LeptonVector* leptons, 
+void SusyFakeAna::getEventWeights(float w,
+				  LeptonVector* leptons, 
 				  const JetVector* jets,
 				  const Met* met)
 {
-  _ww              = eventWeight(LUMIMODE); 
+  _ww              = w;//eventWeight(LUMIMODE); 
   float _lepSFW    = getLepSFWeight(leptons);
   float _trigW     = getTriggerWeight(leptons, met->lv().Pt(), jets->size(), nt->evt()->nVtx, SYST);
   _ww             *= _lepSFW * _trigW;  //If we use bTag event, add the BTag weight 

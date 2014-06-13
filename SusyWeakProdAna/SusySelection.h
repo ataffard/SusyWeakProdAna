@@ -17,7 +17,6 @@
 #include "SusyNtuple/SusyNtTools.h"
 #include "SusyNtuple/DilTrigLogic.h"
 #include "SusyNtuple/TrilTrigLogic.h"
-#include "SusyNtuple/SleptonXsecReader.h"
 
 #include "ChargeFlip/chargeFlip.h"
 
@@ -141,10 +140,6 @@ class SusySelection: public SusyNtTools
   bool  isQFlip(const Lepton* lep);
   LEP_TYPE  getType(const Lepton* lep);
   
-
-
-
-
   ClassDef(SusySelection, 1);
   
  protected:
@@ -265,8 +260,8 @@ class SusySelection: public SusyNtTools
   float               m_HTMax;        // min HT
   bool                m_vetoLooseSFOSinZ;  // veto SF
   
-  //DiLepEvtType        m_ET;           // Dilepton event type to store cf
-  uint       m_ET;           // Multilep event type to store cf
+  //DiLepEvtType      
+  uint       m_ET;    // Multilep event type to store cf
   
   
   // Event counters

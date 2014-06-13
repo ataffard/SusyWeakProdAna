@@ -591,7 +591,6 @@ float SusySelection::getQFlipProb(LeptonVector* leptons, Met* met, uint iSys)
   if(_sys==-1)      cfP *= 0.5;
   else if(_sys==0)  cfP *=   m_chargeFlip->overlapFrac().first; // QFLIP_RESCLALE;
 
-
   //cfP*= QFLIP_RESCLALE;
   
   if(dbg()>5){
@@ -687,7 +686,7 @@ bool SusySelection::passFJet(const JetVector* jets){
 }
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passLJet(const JetVector* jets){
-  int nLJet= numberOfCLJets(*jets);
+  int nLJet= numberOfCLJets(*jets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType);
   if(m_minC20>-1 && nLJet<m_minC20) return false;
   if(m_maxC20>-1 && nLJet>m_maxC20) return false;
   if(SYST==DGSys_NOM) n_pass_LJet[m_ET][SR]+=_inc;
@@ -695,7 +694,8 @@ bool SusySelection::passLJet(const JetVector* jets){
 }
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passCentralJet(const JetVector* jets){
-  int nCJet= numberOfCLJets(*jets)+ numberOfCBJets(*jets);
+  int nCJet= numberOfCLJets(*jets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType) +
+    numberOfCBJets(*jets);
   if(m_minCJet>-1 && nCJet<m_minCJet) return false;
   if(SYST==DGSys_NOM) n_pass_CJet[m_ET][SR]+=_inc;
   return true;
@@ -757,7 +757,6 @@ bool SusySelection::passZVeto(const LeptonVector* leptons, bool useOS,
     
   if(m_vetoZ && hasz) return false;
   if(m_selZ){
-    //hasz = hasZWindow(*leptons,Zlow, Zhigh); //has SFOS requirement
     if( !hasz) return false;
   }
   

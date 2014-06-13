@@ -510,7 +510,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     const Susy::Jet* _j = jets->at(ijet); 
     _b_nJets++;
 
-    if(isCentralLightJet(_j)){
+    if(isCentralLightJet(_j,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType)){
       _b_nCJets++;
       _b_j_isC20[ijet] = true;
     }
@@ -541,7 +541,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     if(_dPhi<_b_dphi_metcj) _b_dphi_metcj=_dPhi;
 
     _b_ST += _j->Pt();
-    if(isCentralLightJet(_j) && nCjj<2){
+    if(isCentralLightJet(_j,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType) && nCjj<2){
       _jj += (*jets->at(ijet));
       nCjj++;
     }

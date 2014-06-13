@@ -1,5 +1,5 @@
-jobLogs
-batchLogs
-*Exec
-*.root
-*.log
+/jobLogs/
+/batchLogs/
+/*Exec
+/*.root
+/*.log

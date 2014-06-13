@@ -34,30 +34,20 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
     cout << " MESSAGE: Using MC trigger decision " << endl;
   }
 
-  // Configure using fake rates file
+  // Configure using fake rates file - 2L OS -EWK 
   // Currently rates are provided as function of pT only, so only use PT as second option
-  //string _fakeInput  =  string(getenv("WORKAREA")) + 
-  //"/SusyMatrixMethod/data/pass3_Summer2013.root"; //Summer 2013 2L paper!
   string _fakeInput  =  string(getenv("WORKAREA")) + 
-    //"/SusyMatrixMethod/data/forDavide_Sep11_2013.root"; //WH ana!
-    //"/SusyMatrixMethod/data/FinalFakeHist_Jan_29.root"; //WH new Iso
-    //"/SusyMatrixMethod/data/FinalFakeHist_Jan_31.root"; //WH new Iso new extraction reg no metrel
-    //    "/SusyMatrixMethod/data/FinalFakeHist_Feb_02.root"; //WH new Iso update CR/SR
+    //"/SusyMatrixMethod/data/pass3_Summer2013.root"; //Summer 2013 2L paper!
     "/SusyMatrixMethod/data/FinalFakeHist_Feb_11.root"; //WH new Iso update CR/SR to match Anyes selection cuts
     
-  cout << "Loading fake MM " << _fakeInput << endl;
+  cout << "Loading 2L OS EWK fake MM " << _fakeInput << endl;
   m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT,
 			    SusyMatrixMethod::PT);
 
-
+  // Configure 2L SS - WH 
   string _fakeInputSS  =  string(getenv("WORKAREA")) + 
-    //    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_12.root"; //WH 2D MM
-    //"/SameSignMatrixMethod/data/FinalFakeHist_Feb_16.root"; //WH 2D flat SF, increase eta sys. 
-    //    "/SameSignMatrixMethod/data/FinalFakeHist_Feb_18.root"; //WH 2D w/ pT bin SF 
-    //"/SameSignMatrixMethod/data/FinalFakeHist_Feb_27.root"; //WH 2D Fraction and FR - 1D orginial SF 
-    //"/SameSignMatrixMethod/data/FinalFakeHist_Apr_10.root"; //WH 2D Fraction and FR - 2D SF  
     "/SameSignMatrixMethod/data/FinalFakeHist_May_16.root"; //WH update fake - old sys
   cout << "Loading fake SS-WH MM " << _fakeInputSS << endl;
 
@@ -74,18 +64,12 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
   m_trig3LObj->loadTriggerMaps();
   //if(m_trigAccOnly) m_trigLogic->setAccOnly(true); //to not apply trigger, just pt Thrs
 
+
+  //REMOVE !!!
   //Open signal cross section file
   string _sSigFile = string(getenv("WORKAREA")) +
     "/SusyWeakProdAna/data/" + "Simplified_CrossSections.txt";
   sigXsfile.open(_sSigFile.c_str());
-
-  // Get the handle on the SleptonXsecReader
-  string sleptonXSecFile = string(getenv("ROOTCOREDIR")) +
-    "/data/SusyNtuple/DLiSlep_SignalUncertainties_All.root" ;
-  string sleptonDSIDFile =  string(getenv("ROOTCOREDIR")) +
-    "/data/SusyNtuple/samplesList_pMSSM_DLiSlep.txt";
-
-  m_SleptonXSecReader    = new SleptonXsecReader();
 
   susyXS = new XSReader();
   susyXS->LoadXSInfo();
@@ -119,8 +103,6 @@ void SusyBaseAna::hookContainers(Susy::SusyNtObject* _ntPtr,
   v_baseTau  = _baseTauA;
   v_sigTau   = _sigTauA;
 
- 
-
   if(DUMP_RUNEVT){
     string dumpName = _hh->sampleName()+ "_dump.txt";
     evtDump.open (dumpName.c_str());
@@ -134,7 +116,6 @@ void SusyBaseAna::hookContainers(Susy::SusyNtObject* _ntPtr,
 /*--------------------------------------------------------------------------------*/
 void SusyBaseAna::finish()
 {
-  
   if(DUMP_RUNEVT){
     evtDump.close ();
   }  
@@ -149,84 +130,12 @@ void SusyBaseAna::finish()
     string cmd = "mv " + m_toyNt->getFilename() + " " + dir;
     std::cout << "Moving ToyNt " << cmd << std::endl;
     gSystem->Exec(cmd.c_str());
-
-    //delete m_toyNt;
   }
 
   clearVectors();
   sigXsfile.close();  
 }
 
-/*--------------------------------------------------------------------------------*/
-// Event weight
-/*--------------------------------------------------------------------------------*/
-float SusyBaseAna::eventWeight(int mode, uint iSys)
-{
-  bool useSumWMap  = true; 
-  bool useProcSumW = true;
-  bool useSusyXsec = true;
-
-  if( !nt->evt()->isMC) return 1; //Data weight =1
-
-  float _evtW=nt->evt()->w;
-
-  if(mode==NOLUMI) _evtW= nt->evt()->w; //raw weight - generator included!
-  if(mode==LUMI21FB){ //Moriond dataset
-    if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
-    else{
-      MCWeighter::WeightSys iiSys;
-           if(iSys == DGSys_Pileup_UP) iiSys = MCWeighter::Sys_PILEUP_UP;
-      else if(iSys == DGSys_Pileup_DN) iiSys = MCWeighter::Sys_PILEUP_DN;
-	   //else if(iSys == DGSys_XS_UP)     iiSys = MCWeighter::Sys_XSEC_UP; //Not functional. DB incomplete
-	   //else if(iSys == DGSys_XS_DN)     iiSys = MCWeighter::Sys_XSEC_DN;
-      else                             iiSys = MCWeighter::Sys_NOM; 
-
-      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,useProcSumW, useSusyXsec,iiSys);
-      
-      if((iSys == DGSys_XS_UP || iSys == DGSys_XS_DN) 
-	 && !isSimplifiedModelGrid(nt->evt()->mcChannel) ){ //Get Xs uncertainty from local implementation
-	float uncert = getXsUncert(nt->evt()->mcChannel);
-	if(iSys == DGSys_XS_UP) _evtW *= 1 + uncert;
-	if(iSys == DGSys_XS_DN) _evtW *= 1 - uncert;
-      }
-
-      if(dbg()>10)
-	cout << "Syst " << DGSystNames[iSys] 
-	     << " Ana W: " << nt->evt()->w 
-	     << " pileup " << nt->evt()->wPileup 
-	     << " xsec " <<  nt->evt()->xsec 
-	     << " lumi " << LUMI_A_L 
-	     << " sumw " << nt->evt()->sumw 
-	     << " evtW " << _evtW << endl;
-
-    }
-  }
-  
-  // Correct the cross section for DLiSlep
-  //02-10-2013 TO be added by Serhan in SUSYTools
-  if(
-     (nt->evt()->mcChannel >= 166501 && nt->evt()->mcChannel <= 166658) ||
-     (nt->evt()->mcChannel >= 175420 && nt->evt()->mcChannel <= 175583) ||
-     (nt->evt()->mcChannel >= 177423 && nt->evt()->mcChannel <= 177496) 
-     ) {
-    if(m_SleptonXSecReader!=NULL) {
-      if( nt->evt()->susyFinalState==201 ) 
-	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kLeftHanded )/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[201]);   
-      else if( nt->evt()->susyFinalState==202 )
-	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kRightHanded)/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[202]);   
-      else if( nt->evt()->susyFinalState==216 )
-	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kLeftHanded )/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[216]);   
-      else if( nt->evt()->susyFinalState==217 )
-	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kRightHanded)/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[217]);   
-      else _evtW = 0;  //protection against undefined final state
-    }
-    else
-      cout << "m_SleptonXSecReader is null, won't touch the event weight" << endl;
-  }
-  
-
-  return _evtW;
-}
 /*--------------------------------------------------------------------------------*/
 // determine if Simplified model grid
 /*--------------------------------------------------------------------------------*/
@@ -308,10 +217,8 @@ float  SusyBaseAna::getTriggerWeight(const LeptonVector* leptons,
 					  met, nSignalJets, npv,
 					  (SusyNtSys) iiSys);
     if(_wTrig<0 || _wTrig>1) {
-      //cout << "WARNING Trigger weight out of bound - set to 0 or 1 " << DIL_FLAV[m_ET]  << " " << _wtrig << endl;
       if(_wTrig<0) _wTrig=0;
       if(_wTrig>0) _wTrig=1;
-      
     }
     if(_wTrig != _wTrig){
       float _wTrigNoSys = m_trigObj->getTriggerWeight(*leptons, nt->evt()->isMC, 
@@ -489,7 +396,7 @@ void SusyBaseAna::dumpEvent()
     cout << "  ";
     v_sigJet->at(iJ)->print();
   }
-  cout << "N_C20 " <<  numberOfCLJets(*v_sigJet) 
+  cout << "N_C20 " <<  numberOfCLJets(*v_sigJet,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType) 
        << " N_B20 " << numberOfCBJets(*v_sigJet)
        << " N_F30 " << numberOfFJets(*v_sigJet)
        << endl;
@@ -546,9 +453,8 @@ void SusyBaseAna::initializeToyNt(bool metD, bool dijetB,
 				  bool fakeB)
 {
   if(m_writeToyNt==true) return; //Already initialized
-
-  // Set the writeToyNt flag
-  m_writeToyNt=true;
+  
+  m_writeToyNt=true; // Set the writeToyNt flag
   cout << " ===> Initialising ToyNt Outputs " << endl;
   
   if(nt->evt()->isMC){
@@ -573,7 +479,6 @@ void SusyBaseAna::initializeToyNt(bool metD, bool dijetB,
 
   m_toyNt->BookTree();
   
-
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -594,8 +499,10 @@ void SusyBaseAna::fillToyNt(uint iSYS,
     const Susy::Lepton* _l = leptons->at(ilep);
     bool removeLepsFromIso=false;
     bool isTight=false;
-    if(_l->isEle()) isTight = isSignalElectron((Electron*) _l, *v_baseEle,*v_baseMu, nt->evt()->nVtx, nt->evt()->isMC,removeLepsFromIso);
-    else            isTight = isSignalMuon((Muon*) _l,*v_baseEle,*v_baseMu, nt->evt()->nVtx, nt->evt()->isMC,removeLepsFromIso);
+    if(_l->isEle()) isTight = isSignalElectron((Electron*) _l, *v_baseEle,*v_baseMu, nt->evt()->nVtx, 
+					       nt->evt()->isMC,removeLepsFromIso);
+    else            isTight = isSignalMuon((Muon*) _l,*v_baseEle,*v_baseMu, nt->evt()->nVtx, 
+					   nt->evt()->isMC,removeLepsFromIso);
     m_toyNt->_b_l_isT[ilep] = isTight;
     
     m_toyNt->_b_l_org[ilep]     = getType(_l);     
@@ -645,7 +552,7 @@ void SusyBaseAna::fillToyNt(uint iSYS,
     int iC20j=0;
     for(uint ijet=0; ijet<jets->size(); ijet++){
       const Susy::Jet* jet = jets->at(ijet);
-      if(!isCentralLightJet(jet)) continue;
+      if(!isCentralLightJet(jet,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType)) continue;
       if(iC20j==0) j1TLV = &(*jet);
       if(iC20j==1) j2TLV = &(*jet);
       iC20j++;
@@ -663,12 +570,13 @@ void SusyBaseAna::fillToyNt(uint iSYS,
       TLorentzVector jj = *j1TLV+*j2TLV;
       TLorentzVector l0 = *leptons->at(0);
       TLorentzVector l1 = *leptons->at(1);
-      //float dR1 = jj.DeltaR(l0);
-      //float dR2 = jj.DeltaR(l1);
-      //      mljj = (dR1<dR2) ? (jj+l0).M() : (jj+l1).M();
       
-      float mt2_a = getMT2(&(l0+*j1TLV),&(l1+*j2TLV),met,false);
-      float mt2_b = getMT2(&(l0+*j2TLV),&(l1+*j1TLV),met,false);
+      TLorentzVector l0j1 = l0+*j1TLV;
+      TLorentzVector l1j2 = l1+*j2TLV;
+      TLorentzVector l0j2 = l0+*j2TLV;
+      TLorentzVector l1j1 = l1+*j1TLV;
+      float mt2_a = getMT2(&l0j1,&l1j2,met,false);
+      float mt2_b = getMT2(&l0j2,&l1j1,met,false);
       mt2J = min(mt2_a, mt2_b);
 
       jjAcoplanarity = acoplanarity(*j1TLV, *j2TLV);

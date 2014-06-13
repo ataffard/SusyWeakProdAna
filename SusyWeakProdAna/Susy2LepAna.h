@@ -12,7 +12,6 @@
 #include "TRandom3.h"
 
 // Susy Common
-#include "SusyNtuple/SleptonXsecReader.h"
 #include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
 #include "HistFitterTree/HistFitterTree.h"
 #include "SusyXSReader/XSReader.h"
@@ -32,7 +31,7 @@ class Susy2LepAna: public SusyBaseAna
 			int iSR, float metrel, uint iSys=DGSys_NOM);
    
     //Analysis main 
-    void doAnalysis(unsigned int isys=DGSys_NOM);
+    void doAnalysis(float w, unsigned int isys=DGSys_NOM);
     
     void end();
     
@@ -43,7 +42,8 @@ class Susy2LepAna: public SusyBaseAna
     bool selectEvent(LeptonVector* leptons, 
 		     LeptonVector* baseLeptons, 
 		     const JetVector* jets,
-		     const Met* met);
+		     const Met* met,
+		     float w);
     
     void fillHistograms(uint iSR,
 			uint iSYS,

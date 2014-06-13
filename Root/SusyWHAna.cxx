@@ -25,10 +25,25 @@ SusyWHAna::SusyWHAna(SusyHistos* _histos):
 /*--------------------------------------------------------------------------------*/
 // Main process loop function 
 /*--------------------------------------------------------------------------------*/
-void SusyWHAna::doAnalysis(unsigned int isys)
+void SusyWHAna::doAnalysis(float w, unsigned int isys)
 {
   reset();
   SYST = isys;
+
+  float evtW = w;
+  if((isys == DGSys_XS_UP || isys == DGSys_XS_DN) 
+     && !isSimplifiedModelGrid(nt->evt()->mcChannel) ){ //Get Xs uncertainty from local implementation
+    float uncert = getXsUncert(nt->evt()->mcChannel);
+    if(isys == DGSys_XS_UP) evtW *= 1 + uncert;
+    if(isys == DGSys_XS_DN) evtW *= 1 - uncert;
+  }
+  // Get uncertainty on WZ 
+  if(nt->evt()->isMC && (SYST == DGSys_GEN_UP || SYST == DGSys_GEN_DN) ){
+    int nCJets = numberOfCLJets(*v_sigJet,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType);   
+    float uncert = getWZUncertainty(nt->evt()->mcChannel,nCJets);
+    if(SYST == DGSys_GEN_UP) evtW *= 1 + uncert;
+    if(SYST == DGSys_GEN_DN) evtW *= 1 - uncert;
+  }
 
   if(FILL_TOYNT && isys==DGSys_NOM){
     bool metDetails      = false;
@@ -45,11 +60,11 @@ void SusyWHAna::doAnalysis(unsigned int isys)
   //Do selection for SR/CR/N-reg & fill plots
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
     if(!CUTFLOW && v_baseLep->size()<2) return;
-    if(!selectEvent(v_baseLep, v_baseLep, v_sigJet, m_met)) return;
+    if(!selectEvent(v_baseLep, v_baseLep, v_sigJet, m_met, evtW)) return;
   }
   else{
     if(!CUTFLOW && v_sigLep->size()<2) return;
-    if(!selectEvent(v_sigLep, v_baseLep, v_sigJet, m_met)) return;
+    if(!selectEvent(v_sigLep, v_baseLep, v_sigJet, m_met, evtW)) return;
   }
   return;
 }
@@ -346,9 +361,10 @@ void SusyWHAna::setSelection(std::string s, uint dilType)
 // Full event selection
 /*--------------------------------------------------------------------------------*/
 bool SusyWHAna::selectEvent(LeptonVector* leptons, 
-			      LeptonVector* baseLeps, 
-			      const JetVector* signalJets,
-			      const Met* met)
+			    LeptonVector* baseLeps, 
+			    const JetVector* signalJets,
+			    const Met* met,
+			    float w)
 {
   //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
   if(nt->evt()->isMC) _inc = nt->evt()->w; 
@@ -410,17 +426,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   //
   //set _ww to the appropriate weighting
   //
-  float _ww      = eventWeight(LUMIMODE,SYST); 
-  // Get uncertainty on WZ 
-  if(nt->evt()->isMC && (SYST == DGSys_GEN_UP || SYST == DGSys_GEN_DN) ){
-    int nCJets = numberOfCLJets(*signalJets);   
-    float uncert = getWZUncertainty(nt->evt()->mcChannel,nCJets);
-    if(SYST == DGSys_GEN_UP) _ww *= 1 + uncert;
-    if(SYST == DGSys_GEN_DN) _ww *= 1 - uncert;
-  }
-
-
-
+  float _ww      = w;//eventWeight(LUMIMODE,SYST); 
 
   if(!WEIGHT_COUNT) _ww=1;
   float _lepSFW  = getLepSFWeight(leptons,SYST);
@@ -522,7 +528,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
       if(dbg()>10) 
 	cout << WH_FLAV[m_ET] << " " << nt->evt()->run  
 	     << " " << nt->evt()->event 
-	     << " nJets " << numberOfCLJets(*signalJets) << " fail 3rd loose lep veto" << endl;
+	     << " nJets " << numberOfCLJets(*signalJets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType) << " fail 3rd loose lep veto" << endl;
 	
       /*
       if(DUMP_RUNEVT && iSR==PRINT_SR){
@@ -538,7 +544,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
       if(dbg()>10)
 	cout << WH_FLAV[m_ET] << " " << nt->evt()->run  
 	     << " " << nt->evt()->event 
-	     << " nJets " << numberOfCLJets(*signalJets) << " pass 3rd loose lep veto" << endl;
+	     << " nJets " << numberOfCLJets(*signalJets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType) << " pass 3rd loose lep veto" << endl;
     }
     if(dbg()>1 ) cout << "\t Pass 3rd lepton veto " << sSR << endl;
 
@@ -1092,7 +1098,7 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
   for(uint ijet=0; ijet<jets->size(); ijet++){
     const Susy::Jet* _j = jets->at(ijet);
     nSigJet++;
-    if(isCentralLightJet(_j)) nSigCJet++;
+    if(isCentralLightJet(_j,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType)) nSigCJet++;
     if(isForwardJet(_j)) nSigFJet++;
     if(isCentralBJet(_j)){
       nBJets++;
@@ -1131,9 +1137,13 @@ void SusyWHAna::fillHistograms(uint iSR,uint iSYS,
     TLorentzVector j1 = *jets->at(1);
     TLorentzVector l0 = *leptons->at(0);
     TLorentzVector l1 = *leptons->at(1);
-
-    float mt2_a = getMT2(&(l0+j0),&(l1+j1),met,false);
-    float mt2_b = getMT2(&(l0+j1),&(l1+j0),met,false);
+    
+    TLorentzVector l0j0 = l0+j0;
+    TLorentzVector l1j1 = l1+j1;
+    TLorentzVector l0j1 = l0+j1;
+    TLorentzVector l1j0 = l1+j0;
+    float mt2_a = getMT2(&l0j0,&l1j1,met,false);
+    float mt2_b = getMT2(&l0j1,&l1j0,met,false);
     mt2J = min(mt2_a, mt2_b);
   }
   _hh->H1FILL(_hh->DGWH_mt2j[iSR][m_ET][iSYS],mt2J,_ww); 

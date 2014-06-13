@@ -112,7 +112,7 @@ class ToyNt: public SusyNtTools
   double  _b_wqflip;
   
   //Lepton Block
-  static const int nLepMax=5;
+  static const unsigned int nLepMax=5;
   int     _b_nlep;
   float   _b_l_pt[nLepMax];
   float   _b_l_eta[nLepMax];

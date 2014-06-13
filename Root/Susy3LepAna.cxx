@@ -24,19 +24,27 @@ Susy3LepAna::Susy3LepAna(SusyHistos* _histos) :
 /*--------------------------------------------------------------------------------*/
 // Main process loop function 
 /*--------------------------------------------------------------------------------*/
-void Susy3LepAna::doAnalysis(unsigned int isys)
+void Susy3LepAna::doAnalysis(float w, unsigned int isys)
 {
   reset();
   SYST = isys;
   
+  float evtW = w;
+  if((isys == DGSys_XS_UP || isys == DGSys_XS_DN) 
+     && !isSimplifiedModelGrid(nt->evt()->mcChannel) ){ //Get Xs uncertainty from local implementation
+    float uncert = getXsUncert(nt->evt()->mcChannel);
+    if(isys == DGSys_XS_UP) evtW *= 1 + uncert;
+    if(isys == DGSys_XS_DN) evtW *= 1 - uncert;
+  }
+
   // Check Event
   if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
     if(!CUTFLOW && v_baseLep->size()<3) return;
-    if(!selectEvent(v_baseLep, v_sigTau, v_sigJet, m_met)) return;
+    if(!selectEvent(v_baseLep, v_sigTau, v_sigJet, m_met, evtW)) return;
   }
   else{
     if(!CUTFLOW && v_baseLep->size()<3) return;
-    if(!selectEvent(v_sigLep, v_sigTau, v_sigJet, m_met)) return;
+    if(!selectEvent(v_sigLep, v_sigTau, v_sigJet, m_met, evtW)) return;
   }
 
   return;
@@ -158,7 +166,9 @@ void Susy3LepAna::setSelection(std::string s)
 /*--------------------------------------------------------------------------------*/
 bool Susy3LepAna::selectEvent(LeptonVector* leptons, 
 			      const TauVector* taus,
-			      const JetVector* jets, const Met* met)
+			      const JetVector* jets, 
+			      const Met* met,
+			      float w)
 {
   //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
   if(nt->evt()->isMC) _inc = nt->evt()->w; 
@@ -186,7 +196,7 @@ bool Susy3LepAna::selectEvent(LeptonVector* leptons,
     //Restore leptons/met
     restoreOriginal(*leptons,met);
 
-    float _ww = eventWeight(LUMIMODE); //set _ww to the appropriate weighting
+    float _ww = w;// eventWeight(LUMIMODE); //set _ww to the appropriate weighting
     if(!WEIGHT_COUNT) _ww=1;
     float _lepSFW  = getLepSFWeight(leptons);
     if(WEIGHT_COUNT)  _ww *= _lepSFW;

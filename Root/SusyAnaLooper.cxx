@@ -2,7 +2,6 @@
 #include "SusyWeakProdAna/SusyAnaLooper.h"
 #include "SusyWeakProdAna/SusyAnaCommon.h"
 
-
 using namespace Susy;
 
 /*--------------------------------------------------------------------------------*/
@@ -10,6 +9,7 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake): 
   SusyNtAna(),
+  m_mcWeighter(0),
   _do2LAna(do2L), 
   _doWHAna(doWH),
   _doMll(false),
@@ -77,8 +77,6 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 				 &m_baseLeptons, &m_signalLeptons,
 				 &m_preJets, &m_baseJets, &m_signalJets2Lep,
 				 &m_baseTaus, &m_signalTaus);
-    //    _susyHistos->BookFakeHistograms(_histoDir);
-    _susyFakeAna->setMCSumWs(getSumwMap());
   }
 
   if(_do2LAna){
@@ -94,8 +92,6 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_preJets, &m_baseJets, &m_signalJets2Lep,
 			       &m_baseTaus, &m_signalTaus);
     _susyHistos->Book2LHistograms(_histoDir,DO_SYS);
-    if(_isSleptonGrid) _susy2LAna->setSleptonSumWs(_sleptonSumWs);
-    _susy2LAna->setMCSumWs(getSumwMap());
 
     if(DO_SYS){
       if(_runOneSys || _runSysRange){
@@ -132,7 +128,6 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_preJets, &m_baseJets, &m_signalJets2Lep,
 			       &m_baseTaus, &m_signalTaus);
     _susyHistos->BookWHHistograms(_histoDir,DO_SYS);
-    _susyWHAna->setMCSumWs(getSumwMap());
 
     if(DO_SYS){
       if(_runOneSys || _runSysRange){
@@ -169,7 +164,6 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_baseTaus, &m_signalTaus);
 
     _susyHistos->Book3LHistograms(_histoDir);
-    _susy3LAna->setMCSumWs(getSumwMap());
 
 
     if(DO_SYS){
@@ -197,6 +191,19 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 
 
 }
+
+/*--------------------------------------------------------------------------------*/
+// Init is called when TTree or TChain is attached
+/*--------------------------------------------------------------------------------*/
+void SusyAnaLooper::Init(TTree* tree)
+{
+  SusyNtAna::Init(tree);
+
+  // MC Normalization - safe to initialize on data also
+  string xsecDir = gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc12_8TeV/");
+  m_mcWeighter = new MCWeighter(m_tree, xsecDir);
+}
+
 
 /*--------------------------------------------------------------------------------*/
 // Analysis settings/flags
@@ -339,7 +346,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 
     for(uint iiSyst=minSys; iiSyst<maxSys; iiSyst++){     //Syst Looper
       if(dbg()>10) cout << "Do sys? " << DGSystNames[iiSyst] <<endl;
-
+      
       if( !nt.evt()->isMC && iiSyst>DGSys_NOM){
 	if(_method==FLEP){
 	  if(iiSyst < DGSys_FAKE_EL_RE_UP || iiSyst>DGSys_FAKE_MU_FR_DN){
@@ -350,7 +357,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 	else if(_method!=FLEP) break; // done here
       }
       if(nt.evt()->isMC && iiSyst >= DGSys_FAKE_EL_RE_UP && iiSyst<=DGSys_FAKE_MU_FR_DN) continue; //DD Fake sys
-
+      
       //Skip spare sys.
       if(iiSyst == DGSys_GEN || iiSyst == DGSys_PDF_UP || iiSyst == DGSys_PDF_DN) continue; // Skip these - not used
      
@@ -364,30 +371,38 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       
       if(dbg()>5) dumpEvent();
       
+      //
+      //Get the event weight
+      //
+      const Event* evt = nt.evt();
+      MCWeighter::WeightSys iiSys;
+      if(     iiSyst == DGSys_Pileup_UP) iiSys = MCWeighter::Sys_PILEUP_UP;
+      else if(iiSyst == DGSys_Pileup_DN) iiSys = MCWeighter::Sys_PILEUP_DN;
+      else                               iiSys = MCWeighter::Sys_NOM; 
+      float w = m_mcWeighter->getMCWeight(evt, LUMI_A_L, iiSys);
+      
       if(_do2LAna){
 	_susy2LAna->hookMet(m_met);
-	_susy2LAna->doAnalysis(iiSyst);
+	_susy2LAna->doAnalysis(w, iiSyst);
       }
       if(_doWHAna){
 	_susyWHAna->hookMet(m_met);
-	_susyWHAna->doAnalysis(iiSyst);
+	_susyWHAna->doAnalysis(w, iiSyst);
       }
       if(_do3LAna){
 	_susy3LAna->hookMet(m_met);
-	_susy3LAna->doAnalysis(iiSyst);
+	_susy3LAna->doAnalysis(w, iiSyst);
       }
       if(_doFakeAna){
 	_susyFakeAna->hookMet(m_met);
-	_susyFakeAna->doAnalysis();
+	_susyFakeAna->doAnalysis(w);
       }
     }   
-   }
+  }
   else{
     selectObjects((SusyNtSys) iSys,false,TauID_medium,n0150BugFix);
     if(dbgEvt()) dumpEvent();
-
     //perform event analysis
-    
   }
 
   return kTRUE;
@@ -430,13 +445,7 @@ void SusyAnaLooper::Terminate()
 					 _doMll,_isZAlpgenSherpa,
 					 _systematic1, _systematic2);
 
-    //if(_doFakeAna)
-      /*_susyHistos->SaveHistograms(_histoDir,_method,
-				  _doMll,_isZAlpgenSherpa,
-				  _systematic1, _systematic2);*/
-
   }
-
 
 
   SusyNtAna::Terminate();

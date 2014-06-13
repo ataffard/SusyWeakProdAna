@@ -18,8 +18,9 @@
 // Root Packages
 #include "TTree.h"
 
-// Susy Common
+//SusyNtuple
 #include "SusyNtuple/SusyNtAna.h"
+#include "SusyNtuple/MCWeighter.h"
 
 //SusyWeakProdAna 
 #include "SusyWeakProdAna/SusyHistos.h"
@@ -38,6 +39,8 @@ class SusyAnaLooper : public SusyNtAna
 
     ofstream out;
 
+    // Init is called when TTree (or TChain) is attached
+    virtual void    Init(TTree* tree);
     // Begin is called before looping on entries
     virtual void    Begin(TTree *tree);
     // Terminate is called after looping is finished
@@ -45,11 +48,11 @@ class SusyAnaLooper : public SusyNtAna
     // Main event loop function
     virtual Bool_t  Process(Long64_t entry);
 
+    void setMCWeighter(MCWeighter* mcw) { m_mcWeighter = mcw; }
     void do2L(bool b){_do2LAna=b;}
     void doWH(bool b){_doWHAna=b;}
     void doMll(bool b){_doMll=b;}
     void do3L(bool b){_do3LAna=b;}
-    void doFake(bool b){_doFakeAna=b;}
     void setMethod(int m) {_method=m;}
     void setSystematic(string sys) {
       if(!DO_SYS){
@@ -80,9 +83,6 @@ class SusyAnaLooper : public SusyNtAna
       abort();
     }
 
-    map<int,float> getSleptonSumWs(                      ) { return _sleptonSumWs;  };
-    void           setSleptonSumWs( map<int,float> sumws ) { _sleptonSumWs = sumws; _isSleptonGrid = true; };
-
     void useLooseLep(bool b){_useLooseLep=b;}
 
     void printSettings();
@@ -100,7 +100,9 @@ class SusyAnaLooper : public SusyNtAna
     SusyWHAna*   _susyWHAna;
     Susy3LepAna* _susy3LAna;
     SusyFakeAna* _susyFakeAna;
-    
+
+    MCWeighter*         m_mcWeighter;   // My MC weight class
+   
     bool _do2LAna;
     bool _doWHAna;
     bool _doMll;
@@ -117,9 +119,6 @@ class SusyAnaLooper : public SusyNtAna
     bool _isZAlpgenSherpa;
     int nHFOR;
     int nMllCut;
-
-    bool              _isSleptonGrid;
-    map<int,float>    _sleptonSumWs;
 
 };
 
