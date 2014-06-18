@@ -1,0 +1,150 @@
+\hypertarget{classSusy2LepAna}{
+\section{Susy2LepAna Class Reference}
+\label{classSusy2LepAna}\index{Susy2LepAna@{Susy2LepAna}}
+}
+Inheritance diagram for Susy2LepAna:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=130pt]{classSusy2LepAna__inherit__graph}
+\end{center}
+\end{figure}
+Collaboration diagram for Susy2LepAna:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=372pt]{classSusy2LepAna__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSusy2LepAna_a0237540d04fdc88c660b0caa57358dd2}{
+{\bfseries Susy2LepAna} (\hyperlink{classSusyHistos}{SusyHistos} $\ast$\_\-histos)}
+\label{classSusy2LepAna_a0237540d04fdc88c660b0caa57358dd2}
+
+\item 
+\hypertarget{classSusy2LepAna_a5be35d360519d524621450274f4a3d37}{
+float {\bfseries getFakeWeight} (const LeptonVector $\ast$leptons, uint nVtx, bool isMC, int iSR, float metrel, uint iSys=DGSys\_\-NOM)}
+\label{classSusy2LepAna_a5be35d360519d524621450274f4a3d37}
+
+\item 
+\hypertarget{classSusy2LepAna_a4b79edbd172829545eedb035414636ad}{
+void {\bfseries doAnalysis} (float w, unsigned int isys=DGSys\_\-NOM)}
+\label{classSusy2LepAna_a4b79edbd172829545eedb035414636ad}
+
+\item 
+\hypertarget{classSusy2LepAna_ae005ac716d400f5bead2d5a72e0c0a95}{
+void {\bfseries end} ()}
+\label{classSusy2LepAna_ae005ac716d400f5bead2d5a72e0c0a95}
+
+\item 
+\hypertarget{classSusy2LepAna_a1e90ba8b63135cd2d10a80b58043a171}{
+void {\bfseries setSelection} (std::string s, uint dilType)}
+\label{classSusy2LepAna_a1e90ba8b63135cd2d10a80b58043a171}
+
+\item 
+\hypertarget{classSusy2LepAna_ab5da399f55f2a125e9f267da7941575e}{
+bool {\bfseries selectEvent} (LeptonVector $\ast$leptons, LeptonVector $\ast$baseLeptons, const JetVector $\ast$jets, const Met $\ast$met, float w)}
+\label{classSusy2LepAna_ab5da399f55f2a125e9f267da7941575e}
+
+\item 
+\hypertarget{classSusy2LepAna_a8609fc82111b8c7b785cdfe2c53712a6}{
+void {\bfseries fillHistograms} (uint iSR, uint iSYS, const LeptonVector $\ast$leptons, const JetVector $\ast$jets, const Met $\ast$met, float \_\-ww)}
+\label{classSusy2LepAna_a8609fc82111b8c7b785cdfe2c53712a6}
+
+\item 
+\hypertarget{classSusy2LepAna_aedb67994c4929809a52c75505868046b}{
+void {\bfseries initializeHistFitterTree} ()}
+\label{classSusy2LepAna_aedb67994c4929809a52c75505868046b}
+
+\item 
+\hypertarget{classSusy2LepAna_a1a0d2b619104ffc129b7378d0ad78aa3}{
+float {\bfseries writeIntoHistFitterTree} (uint iSR, LeptonVector $\ast$leptons, const LeptonVector $\ast$baseLeptons, const JetVector $\ast$signalJets, const JetVector $\ast$baseJets, const Met $\ast$met)}
+\label{classSusy2LepAna_a1a0d2b619104ffc129b7378d0ad78aa3}
+
+\item 
+\hypertarget{classSusy2LepAna_ae8dd26f0b33cb51f17c5154d8987d90a}{
+bool {\bfseries validSystForHFT} (uint iSR)}
+\label{classSusy2LepAna_ae8dd26f0b33cb51f17c5154d8987d90a}
+
+\item 
+\hypertarget{classSusy2LepAna_ac72ae5958184ca2594786e279466e51a}{
+void {\bfseries moveHFTOutput} ()}
+\label{classSusy2LepAna_ac72ae5958184ca2594786e279466e51a}
+
+\item 
+\hypertarget{classSusy2LepAna_ab92b69085553cec932f1d852828a27b1}{
+void {\bfseries print\_\-SRmT2} ()}
+\label{classSusy2LepAna_ab92b69085553cec932f1d852828a27b1}
+
+\item 
+\hypertarget{classSusy2LepAna_aa313308520befbf3059f31b50114a19d}{
+void {\bfseries print\_\-SRWW} ()}
+\label{classSusy2LepAna_aa313308520befbf3059f31b50114a19d}
+
+\item 
+\hypertarget{classSusy2LepAna_a94e9f02c276646d82833e45f20b75ec0}{
+void {\bfseries print\_\-SRZjets} ()}
+\label{classSusy2LepAna_a94e9f02c276646d82833e45f20b75ec0}
+
+\item 
+\hypertarget{classSusy2LepAna_a713ed7fec5d1c8cef9ec8db3740d0f99}{
+void {\bfseries print\_\-SRSSjets} ()}
+\label{classSusy2LepAna_a713ed7fec5d1c8cef9ec8db3740d0f99}
+
+\item 
+\hypertarget{classSusy2LepAna_ae98d6a9bd56a7a72a3e1a725a72d23ee}{
+void {\bfseries print\_\-WWCR} ()}
+\label{classSusy2LepAna_ae98d6a9bd56a7a72a3e1a725a72d23ee}
+
+\item 
+\hypertarget{classSusy2LepAna_a3b4a54efb897c0ff83001416b46c7b47}{
+void {\bfseries print\_\-TOPCR} ()}
+\label{classSusy2LepAna_a3b4a54efb897c0ff83001416b46c7b47}
+
+\item 
+\hypertarget{classSusy2LepAna_a8778301326d981a8cf1697761998f54a}{
+void {\bfseries print\_\-ZVCR} ()}
+\label{classSusy2LepAna_a8778301326d981a8cf1697761998f54a}
+
+\item 
+\hypertarget{classSusy2LepAna_af4e0741b5f83f1e1843d5b52a2d79153}{
+void {\bfseries print\_\-VRSS} ()}
+\label{classSusy2LepAna_af4e0741b5f83f1e1843d5b52a2d79153}
+
+\item 
+\hypertarget{classSusy2LepAna_aec04d7ad73e705c21eaa19135237c3c6}{
+void {\bfseries print\_\-CRZ} ()}
+\label{classSusy2LepAna_aec04d7ad73e705c21eaa19135237c3c6}
+
+\item 
+\hypertarget{classSusy2LepAna_a62ec3a44d0b55bee59ab3ea72e869425}{
+{\bfseries ClassDef} (\hyperlink{classSusy2LepAna}{Susy2LepAna}, 1)}
+\label{classSusy2LepAna_a62ec3a44d0b55bee59ab3ea72e869425}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSusy2LepAna_ad0141ca9740e4671a0b8e14127b3878e}{
+HistFitterTree $\ast$ {\bfseries m\_\-histFitterTrees} \mbox{[}DGSys\_\-GEN\mbox{]}}
+\label{classSusy2LepAna_ad0141ca9740e4671a0b8e14127b3878e}
+
+\item 
+\hypertarget{classSusy2LepAna_a2c84893e90fc06d4ee53e0d1929b1636}{
+bool {\bfseries m\_\-writeHFT}}
+\label{classSusy2LepAna_a2c84893e90fc06d4ee53e0d1929b1636}
+
+\item 
+\hypertarget{classSusy2LepAna_ac2de9c96ade4fd1b6b1adf714eae0f9c}{
+string {\bfseries HFTName}}
+\label{classSusy2LepAna_ac2de9c96ade4fd1b6b1adf714eae0f9c}
+
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+SusyWeakProdAna/Susy2LepAna.h\item 
+Root/Susy2LepAna.cxx\end{DoxyCompactItemize}

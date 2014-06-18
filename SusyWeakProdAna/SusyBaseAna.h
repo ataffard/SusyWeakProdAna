@@ -28,6 +28,12 @@
 
 #include "SusyNtuple/SusyNtAna.h"
 
+///
+/// \class SusyBaseAna
+/// \brief Base class inherited by all analysis classes.
+///
+/// Contains common functions used by all analysis code. 
+///
 
 class SusyBaseAna: public SusySelection
 {

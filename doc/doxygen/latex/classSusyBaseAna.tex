@@ -1,0 +1,238 @@
+\hypertarget{classSusyBaseAna}{
+\section{SusyBaseAna Class Reference}
+\label{classSusyBaseAna}\index{SusyBaseAna@{SusyBaseAna}}
+}
+
+
+Base class inherited by all analysis classes.  
+
+
+{\ttfamily \#include $<$SusyBaseAna.h$>$}Inheritance diagram for SusyBaseAna:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=400pt]{classSusyBaseAna__inherit__graph}
+\end{center}
+\end{figure}
+Collaboration diagram for SusyBaseAna:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=372pt]{classSusyBaseAna__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSusyBaseAna_accf5ab460f9a98ff5caaea35218513ee}{
+{\bfseries SusyBaseAna} (\hyperlink{classSusyHistos}{SusyHistos} $\ast$\_\-histos, bool is2LAna=true, bool isWHAna=false, bool qFlipd0=false)}
+\label{classSusyBaseAna_accf5ab460f9a98ff5caaea35218513ee}
+
+\item 
+\hypertarget{classSusyBaseAna_a78e6d0b763df2f96ef0de1c2220e6a6a}{
+void {\bfseries setUseLooseLep} (bool b)}
+\label{classSusyBaseAna_a78e6d0b763df2f96ef0de1c2220e6a6a}
+
+\item 
+\hypertarget{classSusyBaseAna_a293ed2785910de12869f8b791d03788b}{
+void {\bfseries setMethod} (int m)}
+\label{classSusyBaseAna_a293ed2785910de12869f8b791d03788b}
+
+\item 
+\hypertarget{classSusyBaseAna_a9051f708fa685d0aac5edc6375d95344}{
+void {\bfseries hookContainers} (Susy::SusyNtObject $\ast$\_\-ntPtr, ElectronVector $\ast$\_\-preEleA, ElectronVector $\ast$\_\-baseEleA, ElectronVector $\ast$\_\-sigEleA, MuonVector $\ast$\_\-preMuoA, MuonVector $\ast$\_\-baseMuoA, MuonVector $\ast$\_\-sigMuoA, LeptonVector $\ast$\_\-baseLepA, LeptonVector $\ast$\_\-sigLepA, JetVector $\ast$\_\-preJetA, JetVector $\ast$\_\-baseJetA, JetVector $\ast$\_\-sigJetA, TauVector $\ast$\_\-baseTauA, TauVector $\ast$\_\-sigTauA)}
+\label{classSusyBaseAna_a9051f708fa685d0aac5edc6375d95344}
+
+\item 
+\hypertarget{classSusyBaseAna_ad8ec8c7886d0d265963f6744da7a6522}{
+void {\bfseries hookMet} (const Susy::Met $\ast$\_\-met)}
+\label{classSusyBaseAna_ad8ec8c7886d0d265963f6744da7a6522}
+
+\item 
+\hypertarget{classSusyBaseAna_a69619f7eeac5b97852bdb8e77b45a13a}{
+bool {\bfseries isSimplifiedModelGrid} (int dsId)}
+\label{classSusyBaseAna_a69619f7eeac5b97852bdb8e77b45a13a}
+
+\item 
+\hypertarget{classSusyBaseAna_ad7e0a457c025155b13d14f53cf57b777}{
+float {\bfseries getXsUncert} (uint dsid)}
+\label{classSusyBaseAna_ad7e0a457c025155b13d14f53cf57b777}
+
+\item 
+\hypertarget{classSusyBaseAna_aad612e1174deda592686352ffaa29bc3}{
+float {\bfseries getLepSFWeight} (const LeptonVector $\ast$leptons, uint iSys=DGSys\_\-NOM)}
+\label{classSusyBaseAna_aad612e1174deda592686352ffaa29bc3}
+
+\item 
+\hypertarget{classSusyBaseAna_a92a852f309b7fbd33468f2a5f83c787f}{
+float {\bfseries getTriggerWeight} (const LeptonVector $\ast$leptons, float met, int nSignalJets, int npv, uint iSys=DGSys\_\-NOM)}
+\label{classSusyBaseAna_a92a852f309b7fbd33468f2a5f83c787f}
+
+\item 
+\hypertarget{classSusyBaseAna_a65224353aae95449d5b6dd790d9f1768}{
+float {\bfseries getBTagSF} (const Susy::Event $\ast$, const JetVector $\ast$jets, uint iSys=DGSys\_\-NOM)}
+\label{classSusyBaseAna_a65224353aae95449d5b6dd790d9f1768}
+
+\item 
+\hypertarget{classSusyBaseAna_a49853feb82dbd4a1ef9a012c2bbf58e5}{
+void {\bfseries finish} ()}
+\label{classSusyBaseAna_a49853feb82dbd4a1ef9a012c2bbf58e5}
+
+\item 
+\hypertarget{classSusyBaseAna_a275dcbcfe10ff6cbdee5dd2217ae8995}{
+void {\bfseries print\_\-line} (string s, float a, float b, float c)}
+\label{classSusyBaseAna_a275dcbcfe10ff6cbdee5dd2217ae8995}
+
+\item 
+\hypertarget{classSusyBaseAna_a7264ac8641bb1592be5be230c0b5e099}{
+void {\bfseries print\_\-line} (string s, int istart, int iend, float array\mbox{[}LEP\_\-N\mbox{]})}
+\label{classSusyBaseAna_a7264ac8641bb1592be5be230c0b5e099}
+
+\item 
+\hypertarget{classSusyBaseAna_ae3eb899634929fe37035f00bec252e02}{
+void {\bfseries print\_\-line} (string s, int istart, int iend, int sr, float array\mbox{[}LEP\_\-N\mbox{]}\mbox{[}SR\_\-N\mbox{]})}
+\label{classSusyBaseAna_ae3eb899634929fe37035f00bec252e02}
+
+\item 
+\hypertarget{classSusyBaseAna_acf83b46b750b0832b43cedbb09c9529e}{
+void {\bfseries saveOriginal} ()}
+\label{classSusyBaseAna_acf83b46b750b0832b43cedbb09c9529e}
+
+\item 
+\hypertarget{classSusyBaseAna_a8428b73112a64359f58791c557ee3f63}{
+void {\bfseries restoreOriginal} (LeptonVector \&leptons, const Met $\ast$met)}
+\label{classSusyBaseAna_a8428b73112a64359f58791c557ee3f63}
+
+\item 
+\hypertarget{classSusyBaseAna_add60fe54c904c946639aa129b12d48b5}{
+void {\bfseries clearVectors} ()}
+\label{classSusyBaseAna_add60fe54c904c946639aa129b12d48b5}
+
+\item 
+\hypertarget{classSusyBaseAna_a77b45dc84d04140ac293aee3b5012745}{
+void {\bfseries setMcSysMinMax} (uint sys1=DGSys\_\-NOM, uint sys2=DGSys\_\-Pileup\_\-DN)}
+\label{classSusyBaseAna_a77b45dc84d04140ac293aee3b5012745}
+
+\item 
+\hypertarget{classSusyBaseAna_a7167e1ce20469860098d8a593400901e}{
+void {\bfseries initializeToyNt} (bool metD=false, bool dijetB=false, bool OS2LB=false, bool SS2LB=false, bool ZBalB=false, bool diverVarsB=false, bool fakeB=false)}
+\label{classSusyBaseAna_a7167e1ce20469860098d8a593400901e}
+
+\item 
+\hypertarget{classSusyBaseAna_a9acbfd9acb5d7b6f2ec899ad005b9786}{
+void {\bfseries fillToyNt} (uint iSYS, const LeptonVector $\ast$leptons, const JetVector $\ast$jets, const Met $\ast$met, float \_\-ww, float \_\-wwBTag, float \_\-wwQFlip)}
+\label{classSusyBaseAna_a9acbfd9acb5d7b6f2ec899ad005b9786}
+
+\item 
+\hypertarget{classSusyBaseAna_a6f6a198f8cc0f7b295caa7ca981bece7}{
+void {\bfseries dumpEvent} ()}
+\label{classSusyBaseAna_a6f6a198f8cc0f7b295caa7ca981bece7}
+
+\item 
+\hypertarget{classSusyBaseAna_a64cb7644fc15d4342013d9c313f940eb}{
+void {\bfseries dumpLeptons} (const LeptonVector $\ast$leptons)}
+\label{classSusyBaseAna_a64cb7644fc15d4342013d9c313f940eb}
+
+\item 
+\hypertarget{classSusyBaseAna_ac74908d780e64ea0ae016d87d1a2ff65}{
+void {\bfseries dumpJets} (const JetVector $\ast$jets)}
+\label{classSusyBaseAna_ac74908d780e64ea0ae016d87d1a2ff65}
+
+\item 
+\hypertarget{classSusyBaseAna_a110acd130bf5ee0b7ed2f74a9ed949d9}{
+void {\bfseries dumpTrigger} ()}
+\label{classSusyBaseAna_a110acd130bf5ee0b7ed2f74a9ed949d9}
+
+\item 
+\hypertarget{classSusyBaseAna_a5579c2261e2f72d0c753361273e9b579}{
+{\bfseries ClassDef} (\hyperlink{classSusyBaseAna}{SusyBaseAna}, 1)}
+\label{classSusyBaseAna_a5579c2261e2f72d0c753361273e9b579}
+
+\end{DoxyCompactItemize}
+\subsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classSusyBaseAna_a367bd65db63346df07ddd580294af668}{
+\hyperlink{classSusyHistos}{SusyHistos} $\ast$ {\bfseries \_\-hh}}
+\label{classSusyBaseAna_a367bd65db63346df07ddd580294af668}
+
+\item 
+\hypertarget{classSusyBaseAna_a442fc5acd64350b7af670237a3caa2bd}{
+\hyperlink{classToyNt}{ToyNt} $\ast$ {\bfseries m\_\-toyNt}}
+\label{classSusyBaseAna_a442fc5acd64350b7af670237a3caa2bd}
+
+\item 
+\hypertarget{classSusyBaseAna_a222bf62a46a03eebda35c795d0e1f46b}{
+DilTrigLogic $\ast$ {\bfseries m\_\-trigObj}}
+\label{classSusyBaseAna_a222bf62a46a03eebda35c795d0e1f46b}
+
+\item 
+\hypertarget{classSusyBaseAna_ae93079dc51825393f6c3f70759a03f2d}{
+TrilTrigLogic $\ast$ {\bfseries m\_\-trig3LObj}}
+\label{classSusyBaseAna_ae93079dc51825393f6c3f70759a03f2d}
+
+\item 
+\hypertarget{classSusyBaseAna_ae5de4586a5d7d2eb20f1ad4ce8ed87d6}{
+SusyMatrixMethod::DiLeptonMatrixMethod {\bfseries m\_\-matrix\_\-method}}
+\label{classSusyBaseAna_ae5de4586a5d7d2eb20f1ad4ce8ed87d6}
+
+\item 
+\hypertarget{classSusyBaseAna_ac1177a441f9e79e014cc936c98e9dca9}{
+SameSignMatrixMethod::DiLeptonMatrixMethod {\bfseries m\_\-matrix\_\-methodWH}}
+\label{classSusyBaseAna_ac1177a441f9e79e014cc936c98e9dca9}
+
+\item 
+\hypertarget{classSusyBaseAna_a7c2b27602fc8ca489a91a8a679c427ce}{
+bool {\bfseries m\_\-useLooseLep}}
+\label{classSusyBaseAna_a7c2b27602fc8ca489a91a8a679c427ce}
+
+\item 
+\hypertarget{classSusyBaseAna_a8655efab2d0fe20e78ce15b78ad53e67}{
+int {\bfseries m\_\-method}}
+\label{classSusyBaseAna_a8655efab2d0fe20e78ce15b78ad53e67}
+
+\item 
+\hypertarget{classSusyBaseAna_a2e19b9c79b7cee0f7940cf0e70297fe6}{
+bool {\bfseries m\_\-writeToyNt}}
+\label{classSusyBaseAna_a2e19b9c79b7cee0f7940cf0e70297fe6}
+
+\item 
+\hypertarget{classSusyBaseAna_a964237851f19aa3e9804fab95f71688f}{
+uint {\bfseries \_\-sys1}}
+\label{classSusyBaseAna_a964237851f19aa3e9804fab95f71688f}
+
+\item 
+\hypertarget{classSusyBaseAna_a5f1448f8ab04639816ab6c0f199fca5e}{
+uint {\bfseries \_\-sys2}}
+\label{classSusyBaseAna_a5f1448f8ab04639816ab6c0f199fca5e}
+
+\item 
+\hypertarget{classSusyBaseAna_adeadb0175b1d269ac471adfb4308ee80}{
+XSReader $\ast$ {\bfseries susyXS}}
+\label{classSusyBaseAna_adeadb0175b1d269ac471adfb4308ee80}
+
+\item 
+\hypertarget{classSusyBaseAna_a4a3f6e6a46a87dc92765a5b30a460781}{
+ofstream {\bfseries out}}
+\label{classSusyBaseAna_a4a3f6e6a46a87dc92765a5b30a460781}
+
+\item 
+\hypertarget{classSusyBaseAna_a442fe2a2c2bd557a54f1aecf3c8d7147}{
+ofstream {\bfseries evtDump}}
+\label{classSusyBaseAna_a442fe2a2c2bd557a54f1aecf3c8d7147}
+
+\item 
+\hypertarget{classSusyBaseAna_a2532294a1f669a773730d8a89ac95335}{
+ifstream {\bfseries sigXsfile}}
+\label{classSusyBaseAna_a2532294a1f669a773730d8a89ac95335}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Base class inherited by all analysis classes. Contains common functions used by all analysis code. 
+
+The documentation for this class was generated from the following files:\begin{DoxyCompactItemize}
+\item 
+SusyWeakProdAna/SusyBaseAna.h\item 
+Root/SusyBaseAna.cxx\end{DoxyCompactItemize}
