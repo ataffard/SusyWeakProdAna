@@ -1,8 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" id="node5" href="$classHiggsLFVAna.html" title="HiggsLFVAna" alt="" coords="5,160,112,189"/>
-<area shape="rect" id="node7" href="$classSusy2LepAna.html" title="Susy2LepAna" alt="" coords="136,160,245,189"/>
-<area shape="rect" id="node9" href="$classSusy3LepAna.html" title="Susy3LepAna" alt="" coords="269,160,379,189"/>
-<area shape="rect" id="node11" href="$classSusyFakeAna.html" title="SusyFakeAna" alt="" coords="403,160,512,189"/>
-<area shape="rect" id="node13" href="$classSusyWHAna.html" title="SusyWHAna" alt="" coords="536,160,637,189"/>
-<area shape="rect" id="node2" href="$classSusySelection.html" title="SusySelection" alt="" coords="267,5,381,35"/>
-</map>
