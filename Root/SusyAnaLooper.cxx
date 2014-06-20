@@ -424,24 +424,24 @@ void SusyAnaLooper::Terminate()
       _SS.Contains("sM_wA") ||
       _SS.Contains("DGemt") ||
       _SS.Contains("DLiSlep") ){
-    _susyHistos->SaveHistograms(_histoDir,_method,
+    _susyHistos->SaveHistograms(_histoDir, sampleName(),_method,
 				_doMll,_isZAlpgenSherpa,
 				_systematic1, _systematic2);
   }
   else{
     if(_do2LAna)
-      _susyHistos->SaveSplit2LHistograms(_histoDir,_method,
+      _susyHistos->SaveSplit2LHistograms(_histoDir, sampleName(),_method,
 					 _doMll,_isZAlpgenSherpa,
 					 _systematic1, _systematic2);
 
     if(_doWHAna)
-      _susyHistos->SaveSplitWHHistograms(_histoDir,_method,
+      _susyHistos->SaveSplitWHHistograms(_histoDir,sampleName(), _method, 
 					 _doMll,_isZAlpgenSherpa,
 					 _systematic1, _systematic2);
 
 
     if(_do3LAna)
-      _susyHistos->SaveSplit3LHistograms(_histoDir,_method,
+      _susyHistos->SaveSplit3LHistograms(_histoDir, sampleName(), _method, 
 					 _doMll,_isZAlpgenSherpa,
 					 _systematic1, _systematic2);
 

@@ -22,6 +22,14 @@
 using namespace std;
 typedef unsigned uint;
 
+//Select running mode
+//std: All lepton
+//rlep: Prompt lep only - for DD method
+//flep: Fake lep only - for MC fake estimate only
+const char* const SMETHOD[] = {"std","rlep","flep"};
+enum METHOD {STD=0, RLEP=1, FLEP=2};
+
+
 #define nHM  2  //0: selected probe, 1: truth matching [method]
 #define nHMC 4  //prompt, hf, LF, conv [type]
 #define nCR  11 //Evt selection CR fro DG2L & ML FR measurements. CR make sense only from trm_fr histo

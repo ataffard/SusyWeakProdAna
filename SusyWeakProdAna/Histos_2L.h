@@ -13,7 +13,6 @@
 const char* const DIL_FLAV[] = {"EE", "MM", "EM"};
 const char* const DIL_QQ[] = {"OS", "SS"};
 
-
 enum DIL_SR{DIL_SRmT2a=0, DIL_SRmT2b, DIL_SRmT2c,
 	    DIL_SRZjets,  DIL_SRZjetsb, DIL_SRSSjets,
 	    DIL_SRWWa, DIL_SRWWb, DIL_SRWWc, 
@@ -70,6 +69,11 @@ class Histos_2L
   virtual ~Histos_2L(){};
   
   void Book2LHistograms(TDirectory* _hDir, bool useSys=true);
+
+  void SaveSplit2LHistograms(TDirectory* _hDir, string sample,
+			     int method=STD, 
+			     bool mcMll=false, bool isZAlpgenShepa=false, 
+			     string sys1="", string sys2="");
 
   TGuiUtils* _utils;
 

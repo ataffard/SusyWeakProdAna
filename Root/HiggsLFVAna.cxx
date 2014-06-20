@@ -26,6 +26,30 @@ void HiggsLFVAna::doAnalysis(float w, unsigned int isys)
 {
   reset();
   SYST = isys;
+  float evtW = w;
+  
+  if(FILL_TOYNT && isys==DGSys_NOM){
+    bool metDetails      = false;
+    bool dijetBlock      = false;
+    bool OS2LBlock       = true;
+    bool SS2LBlock       = false;
+    bool ZBalanceBlock   = false;
+    bool diversVarsBlock = false;
+
+    initializeToyNt(metDetails, dijetBlock, 
+		    OS2LBlock, SS2LBlock, ZBalanceBlock, diversVarsBlock);
+  }
+  
+  //Do selection for SR/CR/N-reg & fill plots
+  if(m_useLooseLep){  //use baseline leptons - for fake MM estimate
+    if(!CUTFLOW && v_baseLep->size()<2) return;
+    if(!selectEvent(v_baseLep, v_baseLep, v_sigJet, m_met, evtW)) return;
+  }
+  else{
+    if(!CUTFLOW && v_sigLep->size()<2) return;
+    if(!selectEvent(v_sigLep, v_baseLep, v_sigJet, m_met, evtW)) return;
+  }
+  return;
 
 
 }
@@ -88,6 +112,25 @@ void HiggsLFVAna::setSelection(std::string s, uint dilType)
   m_nLepMin=2;
   m_nLepMax=2;
 
+  //----------------------------//
+  // OS Signal Regions EM/ME
+  //----------------------------//
+  if(m_sel.Contains("LFV_SR")){
+     m_selOS     = true;
+     m_selOF     = true;
+
+     m_pTl0Min   = 40;
+     m_pTl1Min   = 20;
+     m_vetoJ     = true;
+     m_dPhillMin = 2.5;
+     m_dPhiMetl1 = 0.5;
+  }
+
+  if(m_sel.Contains("LFV_base")){
+     m_selOS     = true;
+     m_selOF     = true;
+  }
+
 
 }
 
@@ -101,6 +144,100 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
 			    float w)
 {
 
+
+ //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
+  if(nt->evt()->isMC) _inc = nt->evt()->w; 
+  else _inc =1;
+  if(nt->evt()->isMC && !WEIGHT_COUNT && WEIGHT_ONE) _inc=1;
+
+  if(SYST==DGSys_NOM) n_readin+=_inc;
+  
+  if(!passEventCleaning() ){
+    if(dbg()>10) cout<<"Fail cleaning" << endl;  
+    return false;
+  }
+
+  if( v_baseLep->size() < NBASELEPMIN ){ 
+    if(dbg()>10) cout<<"Fail baselepMIN " << endl;  
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_atleast2BaseLep+=_inc;
+  if(v_baseLep->size()>NBASELEPMAX ){ 
+    if(dbg()>10) cout<<"Fail baselepMAX " << endl;
+    return false;
+  }
+  if(SYST==DGSys_NOM) n_pass_exactly2BaseLep+=_inc;
+  
+  if(! passMll20(baseLeps)){ 
+    if(dbg()>10) cout<<"Fail Mll20 " << endl; 
+      return false;
+    }
+  if(SYST==DGSys_NOM) n_pass_mll20+=_inc;
+
+  //
+  // Get Event Type to continue cutflow
+  //
+  m_ET = getDiLepEvtType(*baseLeps);
+  
+  //
+  // Get Event Type to continue cutflow
+  //
+  m_ET = getDiLepEvtType(*baseLeps);
+
+
+  if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;
+
+  if( !passNLepCut(leptons) ){ 
+    if(dbg()>10) cout<<"Fail Nlep " << endl; 
+    return false;
+  }
+
+  if( !passTauVeto(v_sigTau) ){
+    if(dbg()>10) cout << "Fail Tau veto " << endl;
+    return false;
+  }
+  
+  if( !passTrigger(leptons, m_trigObj, met) ){ 
+    if(dbg()>10) cout<<"Fail Trig " << endl;  
+    return false; 
+  }
+
+  if( !passIsPromptLepton(leptons,m_method, nt->evt()->isMC)){
+    if(dbg()>10) cout<<"Fail Prompt " << endl; 
+    return false; 
+  }
+
+
+  //
+  //set _ww to the appropriate weighting
+  //
+  float _ww      = w;//eventWeight(LUMIMODE,SYST); 
+
+  if(!WEIGHT_COUNT) _ww=1;
+  float _lepSFW  = getLepSFWeight(leptons,SYST);
+  float _trigW   = getTriggerWeight(leptons, 
+				    met->lv().Pt(),
+				    signalJets->size(),
+				    nt->evt()->nVtx,
+				    SYST);
+  float bTagWeight =  getBTagSF(nt->evt(),v_baseJet,SYST);
+
+  if(WEIGHT_COUNT)  _ww *= _lepSFW * _trigW;
+  float _wwSave = _ww;
+
+  
+  //
+  //Loop over SR's & CR's
+  //
+  for(uint iSR=LFV_base; iSR< LFV_NSR; iSR++){
+    int icut =0;
+    string sSR=LFV_SRNAME[iSR];
+    setSelection(sSR,m_ET);
+    SR=iSR;
+    if(dbg() > 2 ) cout << "Signal region " << sSR << endl;
+
+
+  }
 
 
   return true;

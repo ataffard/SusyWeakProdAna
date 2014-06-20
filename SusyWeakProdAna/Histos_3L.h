@@ -55,6 +55,10 @@ class Histos_3L
 
   void Book3LHistograms(TDirectory* _hDir, bool useSys=true);
   void Sum3LHistograms();
+  void SaveSplit3LHistograms(TDirectory* _hDir, string sample,
+			     int method=STD, 
+			     bool mcMll=false, bool isZAlpgenShepa=false, 
+			     string sys1="", string sys2="");
 
   TGuiUtils* _utils;
 

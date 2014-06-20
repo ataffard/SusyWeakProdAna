@@ -14,6 +14,8 @@ const char* const WH_FLAV[] = {"EE", "MM", "EM"};
 const char* const WH_QQ[] = {"OS", "SS"};
 
 
+
+
 enum WH_SR{WH_SRSS1j=0, WH_SRSS23j, 
 	   WH_optimSRSS,
 	   WH_CRSSZVFAKE, WH_CRSSFAKE,
@@ -44,6 +46,11 @@ class Histos_WH
   virtual ~Histos_WH(){};
   
   void BookWHHistograms(TDirectory* _hDir, bool useSys=true);
+
+  void SaveSplitWHHistograms(TDirectory* _hDir, string sample,
+			     int method=STD, 
+			     bool mcMll=false, bool isZAlpgenShepa=false, 
+			     string sys1="", string sys2="");
 
   TGuiUtils* _utils;
 

@@ -911,8 +911,8 @@ bool SusySelection::passDPhiMetll(const LeptonVector* leptons, const Met* met)
 bool SusySelection::passDPhiMetl1(const LeptonVector* leptons, const Met* met)
 {
   TLorentzVector metlv = met->lv();
-  TLorentzVector ll = *leptons->at(1);
-  if( m_dPhiMetl1>-1 && !passdPhi(metlv, ll, m_dPhiMetl1) ) return false;
+  TLorentzVector l1 = *leptons->at(1);
+  if( m_dPhiMetl1>-1 && !passdPhi(metlv, l1, m_dPhiMetl1) ) return false;
   if(SYST==DGSys_NOM) n_pass_dPhiMetl1[m_ET][SR]+=_inc;
   return true;
 }

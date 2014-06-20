@@ -247,7 +247,7 @@ class SusySelection: public SusyNtTools
   float               m_pTj0Min;      // min pT (leading jets)
   float               m_pTj1Min;      // min pT (second leading jets)
   float               m_dPhiMetll;    // dphi Met & ll
-  float               m_dPhiMetl1;    // dphi Met & l1
+  float               m_dPhiMetl1;    // dphi Met & l1 (sub leading lepton)
   float               m_dPhillJ0Min;  // min dPhi ll & lead Jet
   float               m_dPhillJ0Max;  // max dPhi ll & lead Jet
   float               m_dPhillMetMin; // min dPhi ll & met
