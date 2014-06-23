@@ -44,6 +44,7 @@ class Histos_LFV
  
   //2lep DG
   HLFV LFV_pred;
+  HLFV LFV_cutflow;
 
   ClassDef(Histos_LFV,1);
 

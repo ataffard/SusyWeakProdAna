@@ -62,7 +62,7 @@ void HiggsLFVAna::end()
   cout << endl;
   cout << endl;
   cout << "**********************************************" << endl;
-  cout << "SusyWHAna::event counters" <<endl;
+  cout << "HiggsLFVAna::event counters" <<endl;
   cout << std::setprecision(0) << std::fixed;
   cout << "read in:            " << n_readin        << endl;
   cout << "pass SUSY grid:     " << n_pass_SUSYGrid << endl;
@@ -83,21 +83,20 @@ void HiggsLFVAna::end()
   
   cout << std::setprecision(1) << std::fixed;
 
-  cout << "Channels        " << WH_FLAV[0] << "\t " << WH_FLAV[1] << "\t " << WH_FLAV[2] <<endl;
-  print_line("pass category ",n_pass_dil[0], n_pass_dil[1], n_pass_dil[2]);
-  print_line("pass nLep     ",n_pass_signalLep[0], n_pass_signalLep[1], n_pass_signalLep[2]);
-  print_line("pass tau veto ",n_pass_tauVeto[0], n_pass_tauVeto[1], n_pass_tauVeto[2]);
-  print_line("pass trig     ",n_pass_trig[0],n_pass_trig[1],n_pass_trig[2]);
-  print_line("pass truth    ",n_pass_truth[0],n_pass_truth[1],n_pass_truth[2]);
+  cout << "Channels        " << LFV_FLAV[0] << "\t\t " << LFV_FLAV[1] 
+       << "\t\t " << LFV_FLAV[2] << "\t\t " << LFV_FLAV[3] <<endl;
 
-  print_preOS();
-
+  print_line("pass category ",0,3,&n_pass_dil[0]);
+  print_line("pass nLep     ",0,3,&n_pass_signalLep[0]);
+  print_line("pass tau veto ",0,3,&n_pass_tauVeto[0]);
+  print_line("pass trig     ",0,3,&n_pass_trig[0]);
+  print_line("pass truth    ",0,3,&n_pass_truth[0]);
+  print_base();
+  print_SR();
   
   cout << std::endl << std::endl; 
-
  
   finish();
-
 }
 
 
@@ -145,7 +144,7 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
 {
 
 
- //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
+  //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
   if(nt->evt()->isMC) _inc = nt->evt()->w; 
   else _inc =1;
   if(nt->evt()->isMC && !WEIGHT_COUNT && WEIGHT_ONE) _inc=1;
@@ -178,13 +177,6 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
   // Get Event Type to continue cutflow
   //
   m_ET = getDiLepEvtType(*baseLeps);
-  
-  //
-  // Get Event Type to continue cutflow
-  //
-  m_ET = getDiLepEvtType(*baseLeps);
-
-
   if(SYST==DGSys_NOM) n_pass_dil[m_ET]+=_inc;
 
   if( !passNLepCut(leptons) ){ 
@@ -207,12 +199,10 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
     return false; 
   }
 
-
   //
   //set _ww to the appropriate weighting
   //
-  float _ww      = w;//eventWeight(LUMIMODE,SYST); 
-
+  float _ww         = w;//eventWeight(LUMIMODE,SYST); 
   if(!WEIGHT_COUNT) _ww=1;
   float _lepSFW  = getLepSFWeight(leptons,SYST);
   float _trigW   = getTriggerWeight(leptons, 
@@ -226,9 +216,9 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
   float _wwSave = _ww;
 
   
-  //
+  //************************//
   //Loop over SR's & CR's
-  //
+  //************************//
   for(uint iSR=LFV_base; iSR< LFV_NSR; iSR++){
     int icut =0;
     string sSR=LFV_SRNAME[iSR];
@@ -237,7 +227,140 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
     if(dbg() > 2 ) cout << "Signal region " << sSR << endl;
 
 
-  }
+    //For data - fake estimate/weight
+    if( !nt->evt()->isMC && m_useLooseLep){
+      float _metRel = getMetRel(met,*leptons,*signalJets);
+      //
+      //TO ADD
+      //
+      //_ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,
+      //iSR,signalJets->size(),_metRel,SYST);
+      if(WEIGHT_COUNT) _inc = _ww;
+    }
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+    //
+    // Apply event selection cuts
+    // Bailout as soon as one cut fail for a given SR/CR
+    //
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+
+    if(!passQQ(leptons)) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass QQ " << sSR << endl;
+   
+    if(!passFlavor(leptons)) continue; 
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass lep flavor " << sSR << endl;
+ 
+    if(!passZVeto(leptons,false)) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass Zveto " << sSR << endl;
+    
+    //-------------------------------------------------------//
+    // Apply bweight only to SR where we use jet count/veto
+    //-------------------------------------------------------//
+    if(USE_BWEIGHT && nt->evt()->isMC) {
+      if(iSR == LFV_SR) _ww *= bTagWeight;
+      if(WEIGHT_COUNT) _inc = _ww;
+    }
+
+    //JET CUTS
+    if(!passFullJetVeto(signalJets)) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass Full-Jet veto " << sSR << endl;
+
+    if(!passFJet(signalJets)) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass F-Jet req " << sSR << endl;
+    
+    if(!passBJet(signalJets)) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass b-Jet req " << sSR << endl;
+    
+    if(!passLJet(signalJets)) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passCentralJet(signalJets)) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg()>1 ) cout << "\t Pass central jet " << sSR << endl;
+
+    if(!passLead2JetsPt(signalJets) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >10 ) cout << "\t Pass Jet pT " << sSR << endl;
+    
+    //DILEPTON CUTS
+    if(!passLead2LepPt(leptons) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass l0 pT " << sSR << endl;
+    
+    if(!passMll(leptons) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass Mll " << sSR << endl;
+    
+    if(!passPtll(leptons) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passPtllBound(leptons) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passdPhill(leptons) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passdEtall(leptons) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+    if(!passdRll(leptons) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passDPhiMetl1(leptons,met) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+    //EVT KINEMATICS CUTS
+    if(!passMaxMT(leptons,met) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+    if(!passDPhillJ0(leptons,signalJets) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passDPhillMET(leptons,met) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passMeff(signalJets, met) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passHT(leptons,signalJets, met) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg()>1 ) cout << "\t Pass HT " << sSR << endl;
+
+    if(!passMetMeff(leptons,signalJets, met,true) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    
+    if(!passTopTagger(leptons,signalJets,met) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >10 ) cout << "\t Pass toptagger " << sSR << endl;
+    
+    if(!passMETRel(met,leptons,signalJets) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass MetRel " << sSR << endl;
+    
+    if(!passMET(met) ) continue;
+    _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
+    if(dbg() >1 ) cout << "\t Pass Met " << sSR << endl;
+    
+    
+    //
+    // Fill histos, ToyNt and HFT 
+    //
+    if(DO_FILL_HISTO ){
+      fillHistograms(SR,SYST,leptons, signalJets,met,_ww);
+      if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
+    }
+    if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) 
+      fillToyNt(SYST,leptons, signalJets,met,_ww, bTagWeight,_ww);
+    
+  }//SR loop
 
 
   return true;
@@ -245,10 +368,24 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
 
 /*--------------------------------------------------------------------------------*/
 /*--------------------------------------------------------------------------------*/
-void HiggsLFVAna::print_preOS()
+void HiggsLFVAna::print_base()
 {
-
-
+  int j= LFV_base;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << LFV_SRNAME[j] <<endl;
+  print_line("pass OS ",0,3,j,&n_pass_os[0]);
+  print_line("pass OF ",0,3,j,&n_pass_flav[0]);
+}
+/*--------------------------------------------------------------------------------*/
+void HiggsLFVAna::print_SR()
+{
+  int j= LFV_SR;
+  cout << "---------------------------------"    << endl;
+  cout << ">>> SR " << LFV_SRNAME[j] <<endl;
+  print_line("pass Jveto         ",0,3,j,&n_pass_FullJveto[0]);
+  print_line("pass lepPt         ",0,3,j,&n_pass_leadLepPt[0]);
+  print_line("pass dPhi(ll)      ",0,3,j,&n_pass_dPhill[0]);
+  print_line("pass dPhi(Met,l1)  ",0,3,j,&n_pass_dPhiMetl1[0]);
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -260,5 +397,15 @@ void HiggsLFVAna::fillHistograms(uint iSR,uint iSYS,
 				 const Met* met,
 				 float _ww)
 {
+
+
+  if(dbg()>1) cout << "\t Fill histo " << LFV_FLAV[m_ET] << " " 
+		   << LFV_SRNAME[iSR] << " " << DGSystNames[iSYS] << " w " << _ww << endl;
+  
+  _hh->H1FILL(_hh->LFV_pred[iSR][m_ET][iSYS],0.,_ww); 
+
+
+
+
 
 }

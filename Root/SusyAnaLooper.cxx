@@ -7,7 +7,7 @@ using namespace Susy;
 /*--------------------------------------------------------------------------------*/
 // SusyAnaLooper Constructor
 /*--------------------------------------------------------------------------------*/
-SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake): 
+SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake, bool doLFV): 
   SusyNtAna(),
   m_mcWeighter(0),
   _do2LAna(do2L), 
@@ -15,6 +15,7 @@ SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake):
   _doMll(false),
   _do3LAna(do3L),
   _doFakeAna(doFake),
+  _doLFVAna(doLFV),
   _useLooseLep(false),
   _method(STD),
   _systematic1(""),
@@ -29,6 +30,7 @@ SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake):
   else if(_doWHAna)   setAnaType(Ana_2LepWH,true);
   else if(_doFakeAna) setAnaType(Ana_2LepWH,true);
   else if(_do3LAna)   setAnaType(Ana_3Lep,true);
+  else if(_doLFVAna)  setAnaType(Ana_2Lep,true);
   else setAnaType(Ana_2Lep,true);
 
   setSelectTaus(true);
@@ -53,6 +55,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
   cout << "     WHAna " << _doWHAna << endl;
   cout << "     3LAna " << _do3LAna << endl;
   cout << "     FakeAna " << _doFakeAna << endl;
+  cout << "     LFVAna " << _doLFVAna << endl;
   cout << "  Select Taus: true " << endl;
   cout << "--------------------------" << endl;
 
@@ -188,6 +191,42 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
     }
     
   }
+ if(_doLFVAna){
+   _higgsLFVAna = new HiggsLFVAna(_susyHistos);
+   _higgsLFVAna->setAnaType(Ana_2Lep,true);
+   _higgsLFVAna->setDebug(dbg());
+   _higgsLFVAna->setUseLooseLep(_useLooseLep);
+   _higgsLFVAna->setMethod(_method);
+   _higgsLFVAna->hookContainers(&nt,
+				 &m_preElectrons, &m_baseElectrons, &m_signalElectrons,
+				 &m_preMuons, &m_baseMuons, &m_signalMuons,
+				 &m_baseLeptons, &m_signalLeptons,
+				 &m_preJets, &m_baseJets, &m_signalJets2Lep,
+				 &m_baseTaus, &m_signalTaus);
+    _susyHistos->BookLFVHistograms(_histoDir,DO_SYS);
+    
+    if(DO_SYS){
+      if(_runOneSys || _runSysRange){
+	if(_systematic1.length()>2){
+	  int minSys=getSysIndex(_systematic1);
+	  if(_runOneSys)   _higgsLFVAna->setMcSysMinMax(minSys,minSys);
+	  else if(_runSysRange){
+	    int maxSys=getSysIndex(_systematic2);
+	    _higgsLFVAna->setMcSysMinMax(minSys, maxSys);
+	  }
+	}
+	else {
+	  _systematic1="";
+	  _systematic2="";
+	  _runOneSys=false;
+	  _runSysRange=false;
+	  _higgsLFVAna->setMcSysMinMax();
+	}
+      }
+      else _higgsLFVAna->setMcSysMinMax();
+    }
+    
+  }
 
 
 }
@@ -316,7 +355,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 
   // grab base object and select signal objects
   uint iSys=DGSys_NOM;
-  if(_do2LAna || _doWHAna ||_do3LAna || _doFakeAna){
+  if(_do2LAna || _doWHAna ||_do3LAna || _doFakeAna || _doLFVAna){
     uint minSys=DGSys_NOM;
     uint maxSys=DGSys_NOM+1;
     if(DO_SYS){
@@ -397,6 +436,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 	_susyFakeAna->hookMet(m_met);
 	_susyFakeAna->doAnalysis(w);
       }
+      if(_doLFVAna){
+	_higgsLFVAna->hookMet(m_met);
+	_higgsLFVAna->doAnalysis(w, iiSyst);
+      }
     }   
   }
   else{
@@ -417,6 +460,7 @@ void SusyAnaLooper::Terminate()
   if(_doWHAna)   _susyWHAna->end();
   if(_do3LAna)   _susy3LAna->end();
   if(_doFakeAna) _susyFakeAna->end();
+  if(_doLFVAna)  _higgsLFVAna->end();
 
   TString _SS(sampleName());
 
@@ -444,6 +488,16 @@ void SusyAnaLooper::Terminate()
       _susyHistos->SaveSplit3LHistograms(_histoDir, sampleName(), _method, 
 					 _doMll,_isZAlpgenSherpa,
 					 _systematic1, _systematic2);
+
+
+    if(_doLFVAna)
+      //TO UPDATE FOR SYS
+      //_susyHistos->SaveSplitLFVHistograms(_histoDir,sampleName(), _method, 
+      //_doMll,_isZAlpgenSherpa,
+      //      _systematic1, _systematic2);
+      _susyHistos->SaveHistograms(_histoDir, sampleName(),_method,
+				  _doMll,_isZAlpgenSherpa,
+				  _systematic1, _systematic2);
 
   }
 

@@ -10,6 +10,7 @@
 
 #include "SusyWeakProdAna/Histos_2L.h"
 #include "SusyWeakProdAna/Histos_WH.h"
+#include "SusyWeakProdAna/Histos_LFV.h"
 
 enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 
@@ -40,17 +41,17 @@ const bool n0150BugFix=true;
 const unsigned int  NBASELEPMAX    = 2;  //number of base lepton allowed - 2 for std analysis
 const unsigned int  NBASELEPMIN    = 2;  //number of base lepton allowed - 2 for std analysis
 
-const bool   FILL_TOYNT        = true;       //Write ToyNt
-const string TOYNT_SR          ="WH_optimSRSS";    //SR used to fill ToyNt
-const unsigned int TOYNT_iSR   = WH_optimSRSS;     //SR used to fill ToyNt
+const bool   FILL_TOYNT        = true;        //Write ToyNt
+const string TOYNT_SR          ="LFV_base";    //SR used to fill ToyNt
+const unsigned int TOYNT_iSR   = LFV_base;     //SR used to fill ToyNt
 
-const bool DO_SYS         = true;   //Toggles systematics looper
+const bool DO_SYS         = false;   //Toggles systematics looper
 const bool FILL_HFT       = false;  //Write the HistFitterTree
 
-const bool CUTFLOW        = false;  // require at least 2 tight/base lep SPEED ANA
+const bool CUTFLOW        = true; //false;  // require at least 2 tight/base lep SPEED ANA
 
-const bool WEIGHT_COUNT   = false;//true;   //Apply weight to dump count table - NLO weight always applied
-const bool WEIGHT_ONE     = false;  //Ignore evt->w use 1
+const bool WEIGHT_COUNT   = false; //true;   //Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_ONE     = false; //Ignore evt->w use 1
 const bool DO_FILL_HISTO  = true;
 
 const bool USE_DGWEIGHT   = true;
@@ -64,7 +65,7 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 const bool BLIND_MC       = false;
 
 const bool DUMP_RUNEVT    = false;   //Dump run:event info
-const unsigned int  PRINT_SR = WH_SRSS1j;//WH_SRSS1j;
+const unsigned int  PRINT_SR = 10;
 
 const float MLLCUT = 60;
 

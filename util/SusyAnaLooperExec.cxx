@@ -59,6 +59,9 @@ void help()
   cout << "  -doFake                         "  << endl;
   cout << "     run Fake ana                  " << endl;
 
+  cout << "  -doLFV                            "  << endl;
+  cout << "     run LFV ana                    " << endl;
+
   cout << "  -useLoose                       "  << endl;
   cout << "     run 2L 3L using loose lepton " << endl;
 
@@ -91,6 +94,7 @@ int main(int argc, char** argv)
   bool doWH   = false;
   bool do3L   = false;
   bool doFake = false;
+  bool doLFV   = false;
   bool doMll  = false;
   bool useLoose = false;
   int method    = 0; //see SusyHisto.h 0:STD; 1:RLEP, 2:FLEP
@@ -133,6 +137,8 @@ int main(int argc, char** argv)
       do3L = true;
     else if (strcmp(argv[i], "-doFake") == 0)
       doFake = true;
+    else if (strcmp(argv[i], "-doLFV") == 0)
+      doLFV = true;
     else if (strcmp(argv[i], "-useLoose") == 0)
       useLoose = true;
     else if (strcmp(argv[i], "-doMll") == 0){
@@ -145,6 +151,7 @@ int main(int argc, char** argv)
       doWH = true;
       do3L = true;
       doFake = true;
+      doLFV = true;
     }
     else if (strcmp(argv[i], "-method") == 0){
       smethod = argv[++i];
@@ -186,6 +193,7 @@ int main(int argc, char** argv)
   cout << "  doWH      " << doWH     << endl;
   cout << "  do3L      " << do3L     << endl;
   cout << "  doFake    " << doFake   << endl;
+  cout << "  doLFV     " << doWH     << endl;
   cout << "  doMll     " << doMll    << endl;
   cout << "  useLoose  " << useLoose << endl;
   cout << "  method    " << method   << endl;
@@ -217,7 +225,7 @@ int main(int argc, char** argv)
   chain->ls();
 
   // Build the TSelector
-  SusyAnaLooper* susyAna = new SusyAnaLooper(do2L, do3L, doWH, doFake);
+  SusyAnaLooper* susyAna = new SusyAnaLooper(do2L, do3L, doWH, doFake, doLFV);
   susyAna->setDebug(dbg);
   susyAna->toggleCheckDuplicates(true);
   susyAna->setSampleName(sample);

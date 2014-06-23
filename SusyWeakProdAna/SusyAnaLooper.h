@@ -28,13 +28,14 @@
 #include "SusyWeakProdAna/Susy2LepAna.h"
 #include "SusyWeakProdAna/SusyWHAna.h"
 #include "SusyWeakProdAna/Susy3LepAna.h"
+#include "SusyWeakProdAna/HiggsLFVAna.h"
 #include "SusyWeakProdAna/SusyAnaCommon.h"
 
 class SusyAnaLooper : public SusyNtAna
 {
   public:
 
-  SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake);
+  SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake, bool doLFV);
     virtual ~SusyAnaLooper(){};
 
     ofstream out;
@@ -53,6 +54,7 @@ class SusyAnaLooper : public SusyNtAna
     void doWH(bool b){_doWHAna=b;}
     void doMll(bool b){_doMll=b;}
     void do3L(bool b){_do3LAna=b;}
+    void doLFV(bool b){_doLFVAna=b;}
     void setMethod(int m) {_method=m;}
     void setSystematic(string sys) {
       if(!DO_SYS){
@@ -100,6 +102,7 @@ class SusyAnaLooper : public SusyNtAna
     SusyWHAna*   _susyWHAna;
     Susy3LepAna* _susy3LAna;
     SusyFakeAna* _susyFakeAna;
+    HiggsLFVAna* _higgsLFVAna;
 
     MCWeighter*         m_mcWeighter;   // My MC weight class
    
@@ -108,6 +111,7 @@ class SusyAnaLooper : public SusyNtAna
     bool _doMll;
     bool _do3LAna;
     bool _doFakeAna;
+    bool _doLFVAna;
     bool _useLooseLep;    
 
     int _method;

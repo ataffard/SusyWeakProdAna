@@ -44,8 +44,9 @@ class HiggsLFVAna: public SusyBaseAna
 			float _ww);
 
 
-   //Other functions
-    void print_preOS();
+    //Other functions
+    void print_base();
+    void print_SR();
 
 
     ClassDef(HiggsLFVAna, 1);

@@ -49,7 +49,7 @@ void Histos_LFV::BookLFVHistograms(TDirectory* _hDir, bool useSys)
   }
 
   BOOK_SRLFV(LFV_pred,"","",syaxis,1,-0.5,0.5);
-
+  BOOK_SRLFV(LFV_cutflow,"","",syaxis,30,-0.5,29.5);
 
 
 #undef BOOK_SRDG2L
