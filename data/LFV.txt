@@ -1,0 +1,5 @@
+#datasetID finalState XS BF filterEff relUncertainty
+169670	0	0.1897	1.000000	1.000000	0.08
+169671	0	0.1897	1.000000	1.000000	0.08
+
+
