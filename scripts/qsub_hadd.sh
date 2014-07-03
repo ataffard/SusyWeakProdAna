@@ -1,30 +1,33 @@
 #!/bin/bash
-#
-## PBS -q  c6145
-#PBS -q atlas
-#PBS -l nodes=1:ppn=1
+
+#SBATCH -p atlas_all
+#SBATCH --mem-per-cpu=1gb
+#SBATCH --time=8:00:00
+#SBATCH --job-name=${name}
+#SBATCH --get-user-env
+
 
 echo
-echo "**************"
-echo "**   qsub   **"
-echo "**************"
-
+echo "**********************"
+echo "**  SLURM OPTIONS   **"
+echo "**********************"
+echo "  Queue:        ${SLURM_QUEUE}"
+echo "  JobId         ${SLURM_JOBID}"
+echo "  JobName       ${SLURM_JOB_NAME}"
+echo "  Run dir:      ${SLURM_SUBMIT_DIR}"
 echo
-echo "qsub options"
-echo "  Host:         $HOSTNAME"
-echo "  Queue:        $PBS_O_QUEUE"
-echo "  Sub dir:      $PBS_O_WORKDIR"
-echo "  Run dir:      $scratch"
+echo "********************"
+echo "**  ANA OPTIONS   **"
+echo "********************"
 echo
 echo "analysis options"
 echo "  Script:       ${script}"
 echo "  Name :        ${jobName}"
 echo
 
+cd ${SLURM_SUBMIT_DIR}
+echo "Starting job on $HOSTNAME: "
 
-cd $PBS_O_WORKDIR
-
-echo "Starting: "
 echo ${PWD} 
 date +"%F__%T"
 

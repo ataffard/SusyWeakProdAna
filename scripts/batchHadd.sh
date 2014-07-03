@@ -1,33 +1,39 @@
+#!/bin/bash
+
 #
 # Batch node submission script
 # Called by submitT3_SusyAna.sh
 #
 
-#!/bin/bash
 
-#PBS -q atlas
-#PBS -l nodes=1:ppn=2
-
-echo
-echo "**************"
-echo "**   qsub   **"
-echo "**************"
+#SBATCH -p atlas_all
+#SBATCH --mem-per-cpu=1gb
+#SBATCH --time=8:00:00
+#SBATCH --job-name=${name}
+#SBATCH --get-user-env
 
 echo
-echo "qsub options"
-echo "  Host:         $HOSTNAME"
-echo "  Queue:        $PBS_O_QUEUE"
-echo "  Sub dir:      $PBS_O_WORKDIR"
-echo "  Run dir:      $scratch"
+echo "**********************"
+echo "**  SLURM OPTIONS   **"
+echo "**********************"
+echo "  Queue:        ${SLURM_QUEUE}"
+echo "  JobId         ${SLURM_JOBID}"
+echo "  JobName       ${SLURM_JOB_NAME}"
+echo "  Run dir:      ${SLURM_SUBMIT_DIR}"
+
 echo
+echo "********************"
+echo "**  ANA OPTIONS   **"
+echo "********************"
 echo "analysis options"
 echo "  ana           hadd"
 echo "  Outfile       $outfile"
 echo "  List          $list"
 
-cd $PBS_O_WORKDIR
 
-echo "Starting: "
+cd ${SLURM_SUBMIT_DIR}
+echo "Starting job on $HOSTNAME: "
+
 echo ${PWD} 
 date +"%F__%T"
 

@@ -1,3 +1,4 @@
+#!/bin/bash
 #
 #
 # check log for errors:
@@ -20,12 +21,10 @@
 #
 #
 #
-#!/bin/bash
 
 #Update for a given pass
-date="060314_21fb_n0150_DD_WH_v8"
-#date="041614_21fb_n0150_DD_WH_v6"
-#date="042314_21fb_n0150_DD_WH_v7"
+date="062714_21fb_n0150_DD_LFV_v1"
+#date="060314_21fb_n0150_DD_WH_v8"
 #date="030614_21fb_n0150_DD_FAKE_v1"
 
 
@@ -49,8 +48,8 @@ inToyNtPath=${HISTOANA}/SusyAna/histos_${date}/ToyNtOutputs
 #toyNt_SR="DIL_optimSRSS"
 #toyNt_SR="DIL_optimSR0jet"
 
-toyNt_SR="WH_optimSRSS"
-#toyNt_SR="WH_optimSRjets"
+#toyNt_SR="WH_optimSRSS"
+toyNt_SR="LFV_base"
 
 passDir=${HISTOANA}/SusyAna/histos_${date}
 
@@ -306,9 +305,11 @@ while read line; do
 	#echo "qsub -j oe -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh,jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh"
 		#qsub -j oe -d ${PWD} -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr}_${dil}.sh,jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh
 	  done
-	  jobName=${bkgGp}_${mth}_${sr}
+	  export jobName=${bkgGp}_${mth}_${sr}
 	  echo "Submitting ${jobName}"
-	  qsub -j oe -d ${PWD} -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr},jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh
+	  export script=${dir}/hadd_${bkgGp}_${mth}_${sr}
+	  sbatch --job-name=${jobName}  --output=${pathRun}/batchLogs/${name}_${method}${suff}.log --error=${pathRun}/batchLogs/${name}_${method}${suff}.log  ${pathScript}/qsub_hadd.sh "script=$script, jobName=$jobName"
+	  #qsub -j oe -d ${PWD} -V -v script=${dir}/hadd_${bkgGp}_${mth}_${sr},jobName=${jobName} -N ${jobName} -o ${pathRun}/batchLogs  ${pathScript}/qsub_hadd.sh
 	  sleep 0.5
 		
 

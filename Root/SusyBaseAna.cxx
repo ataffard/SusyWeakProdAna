@@ -450,7 +450,7 @@ void SusyBaseAna::dumpTrigger()
 /*--------------------------------------------------------------------------------*/
 void SusyBaseAna::initializeToyNt(bool metD, bool dijetB, 
 				  bool OS2LB, bool SS2LB, bool ZBalB, bool diverVarsB,
-				  bool fakeB)
+				  bool fakeB, bool LFVB, bool razorB)
 {
   if(m_writeToyNt==true) return; //Already initialized
   
@@ -475,7 +475,8 @@ void SusyBaseAna::initializeToyNt(bool metD, bool dijetB,
   }
 
   m_toyNt->setBlocks(metD, dijetB, 
-		     OS2LB, SS2LB, ZBalB, diverVarsB, fakeB);
+		     OS2LB, SS2LB, ZBalB, diverVarsB, 
+		     LFVB, razorB, fakeB);
 
   m_toyNt->BookTree();
   
@@ -606,6 +607,12 @@ void SusyBaseAna::fillToyNt(uint iSYS,
   float JZBj = JZBJet(v_sigJet,leptons);
   float JZBm = JZBEtmiss(met,leptons);
   m_toyNt->FillJZB(JZBj, JZBm);
+  
+  m_toyNt->FillLFV(leptons,met);
+  m_toyNt->FillRazor(leptons,met);
+    
+
+
 
   //Checks
   /*

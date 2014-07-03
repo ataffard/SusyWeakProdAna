@@ -241,6 +241,7 @@ void SusyAnaLooper::Init(TTree* tree)
   // MC Normalization - safe to initialize on data also
   string xsecDir = gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc12_8TeV/");
   m_mcWeighter = new MCWeighter(m_tree, xsecDir);
+  m_mcWeighter->parseAdditionalXsecFile("$ROOTCOREBIN/data/SusyWeakProdAna/LFV.txt",true);
 }
 
 
@@ -537,8 +538,8 @@ void SusyAnaLooper::dumpEvent()
     cout << "  ";
     m_signalMuons[iMu]->print();
   }
-  for(uint iJ=0; iJ < m_signalJets.size(); iJ++){
+  for(uint iJ=0; iJ < m_signalJets2Lep.size(); iJ++){
     cout << "  ";
-    m_signalJets[iJ]->print();
+    m_signalJets2Lep[iJ]->print();
   }
 }

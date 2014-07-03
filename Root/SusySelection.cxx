@@ -687,6 +687,7 @@ bool SusySelection::passFJet(const JetVector* jets){
 /*--------------------------------------------------------------------------------*/
 bool SusySelection::passLJet(const JetVector* jets){
   int nLJet= numberOfCLJets(*jets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType);
+  //cout << "Count light " << nLJet << " ana " << m_anaType << endl;
   if(m_minC20>-1 && nLJet<m_minC20) return false;
   if(m_maxC20>-1 && nLJet>m_maxC20) return false;
   if(SYST==DGSys_NOM) n_pass_LJet[m_ET][SR]+=_inc;

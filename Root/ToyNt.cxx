@@ -21,12 +21,18 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
   TTree::SetBranchStyle(1);
   (tree)->SetDirectory(file);
 
+  _b_vBeta_z      = new TVector3();
+  _b_pTCM         = new TVector3();
+  _b_vBetaT_CMtoR = new TVector3();
+  _b_vBetaR       = new TVector3();
+
 }
   
 //-----------------------------------------------------------------------------------------------------------
 void ToyNt::setBlocks(bool metD, bool dijetB, 
 		      bool OS2LB, bool SS2LB,
 		      bool ZBalB, bool diverVarsB,
+		      bool LFV, bool razor,
 		      bool fakeB)
 {
   metDetails      = metD;
@@ -36,6 +42,8 @@ void ToyNt::setBlocks(bool metD, bool dijetB,
   ZBalanceBlock   = ZBalB;
   diversVarsBlock = diverVarsB;
   fakeBlock       = fakeB;
+  LFVBlock        = LFV;
+  razorBlock      = razor;
 
 }
 
@@ -178,6 +186,26 @@ void ToyNt::BookTree()
     tree->Branch("JZBmet",&_b_JZBmet,"JZBmet/F");   
     tree->Branch("pTll_Tb",&_b_pTll_Tb,"pTll_Tb/F");
     tree->Branch("dPhib",&_b_dPhib,"dPhib/F");
+  }
+
+  //LFV block
+  if(LFVBlock){
+    tree->Branch("mcoll",&_b_mcoll,"mcoll/F");
+    tree->Branch("metCorr",&_b_metCorr,"metCorr/F");
+  }
+
+  if(razorBlock){
+    tree->Branch("shatr",&_b_shatr,"shatr/D");
+    tree->Branch("dphi_ll_vBetaT",&_b_dphi_ll_vBetaT,"dphi_ll_vBetaT/D");
+    tree->Branch("dphi_l1l2",&_b_dphi_l1l2,"dphi_l1l2/D");
+    tree->Branch("gammaR",&_b_gammaR,"gammaR/D");
+    tree->Branch("dphi_vBetaR_vBetaT",&_b_dphi_vBetaR_vBetaT,"dphi_vBetaR_vBetaT/D");
+    tree->Branch("mDeltaR",&_b_mDeltaR,"mDeltaR/D");
+    tree->Branch("cosThetaRp1",&_b_cosThetaRp1,"cosThetaRp1/D");
+    tree->Branch("vBeta_z","TVector3",&_b_vBeta_z);
+    tree->Branch("pTCM","TVector3",&_b_pTCM);
+    tree->Branch("vBetaT_CMtoR","TVector3",&_b_vBetaT_CMtoR);
+    tree->Branch("vBetaR","TVector3",&_b_vBetaR);
   }
 
 
@@ -342,6 +370,21 @@ void ToyNt::clearOutputBranches(void) {
   _b_pTll_Tb=-999;
   _b_dPhib=-999;
 
+  _b_mcoll=-999;
+  _b_metCorr=-999;
+
+  _b_shatr=-999;
+  _b_dphi_ll_vBetaT=-999;
+  _b_dphi_l1l2=-999;
+  _b_gammaR=-999;
+  _b_dphi_vBetaR_vBetaT=-999;
+  _b_mDeltaR=-999;
+  _b_cosThetaRp1=-999;
+  _b_vBeta_z->Clear();
+  _b_pTCM->Clear();
+  _b_vBetaT_CMtoR->Clear();
+  _b_vBetaR->Clear();
+  
   
   _b_ll_FType=-1;
   _b_pass_SS1j=false;
@@ -628,6 +671,26 @@ void ToyNt::FillJZB(float JZBjets, float JZBmet)
 {
   _b_JZBjets = JZBjets;
   _b_JZBmet = JZBmet;
+}
+
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillLFV(const LeptonVector* leptons, const Met* met)
+{
+  _b_mcoll   = mColl(*leptons->at(0),*leptons->at(1),met->lv());
+  
+  //Substract the soft Term from met
+  float met_x = met->lv().Px()-met->softJet_etx;
+  float met_y = met->lv().Py()-met->softJet_ety;
+  _b_metCorr = sqrt(met_x*met_x + met_y*met_y);
+
+}
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillRazor(const LeptonVector* leptons, const Met* met)
+{
+  superRazor( *leptons, met, 
+	      *_b_vBeta_z, *_b_pTCM, *_b_vBetaT_CMtoR, *_b_vBetaR,
+	      _b_shatr, _b_dphi_ll_vBetaT, _b_dphi_l1l2,
+	      _b_gammaR, _b_dphi_vBetaR_vBetaT, _b_mDeltaR, _b_cosThetaRp1);
 }
 
 //-----------------------------------------------------------------------------------------------------------

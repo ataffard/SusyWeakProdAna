@@ -5,22 +5,21 @@ if [[ $# = 1 ]]; then
     echo "Requested to kill " ${job}
 fi
 
-
-matches=(`qstat |grep ataffard |cut -d' ' -f 1-1`)
+#matches=(`squeue |grep ataffard |cut -d' ' -f 1-1`)
+matches=(`squeue -u ataffard -o %i`)
 
 for line in ${matches[@]}; do
     idx=(`echo $line | tr ',' ' '`)
     echo "Idx " ${idx}
     if [[ "$job" == "all" ]] ; then
-        qdel ${idx}
+        scancel ${idx}
         echo "Killing ${idx}"
     else
         if [[ ${job} -eq ${idx} ]] ; then
-            qdel ${idx}
+            scancel ${idx}
             echo "Killing ${idx}"
         fi
     fi
 done
 
-
-qstat |grep ataffard
+squeue |grep ataffard

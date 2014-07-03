@@ -36,6 +36,7 @@ class ToyNt: public SusyNtTools
   void setBlocks(bool metD=false, bool dijetB=false, 
 		 bool OS2LB=false, bool SS2LB=false, 
 		 bool ZBalB=false, bool diverVarsB=false,
+		 bool LFV=false, bool razor=false,
 		 bool fakeB=false);
 
   void BookTree(); //Book the branches
@@ -72,6 +73,10 @@ class ToyNt: public SusyNtTools
   void FillMCT(float mct, float mctPerp, float mctPara);
   void FillJZB(float JZBjets, float JZBmet);
 
+  void FillLFV(const LeptonVector* leptons, const Met* met);
+
+  void FillRazor(const LeptonVector* leptons, const Met* met);
+
 
   //Must be called after FillTreeSignalJets
   //Other baselibne jet get added to the arrays of jet vars
@@ -96,6 +101,9 @@ class ToyNt: public SusyNtTools
   bool ZBalanceBlock;
   bool diversVarsBlock;
   bool fakeBlock;
+  bool LFVBlock;
+  bool razorBlock;
+    
   
 
   //
@@ -234,7 +242,22 @@ class ToyNt: public SusyNtTools
   float   _b_pTll_Tb; //CONF 2013-048 
   float   _b_dPhib; 
 
-
+  //Higgs LFV
+  float  _b_mcoll;
+  float  _b_metCorr;
+  
+  //Razor
+  double     _b_shatr;
+  double     _b_dphi_ll_vBetaT;
+  double     _b_dphi_l1l2;
+  double     _b_gammaR;
+  double     _b_dphi_vBetaR_vBetaT;
+  double     _b_mDeltaR;
+  double     _b_cosThetaRp1;
+  TVector3* _b_vBeta_z;
+  TVector3* _b_pTCM;
+  TVector3* _b_vBetaT_CMtoR;
+  TVector3* _b_vBetaR;
 
   //For Fake studies
   int  _b_ll_FType;          //Fake  category LL, TL, LT, TT using leading 2 leptons

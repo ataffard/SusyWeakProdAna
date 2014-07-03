@@ -16,6 +16,16 @@ Opt1=do2L
 Opt2=true
 #Opt2=false
 
+#####
+# Run flags
+#####
+dbgEvt=""
+#dbgEvt="-dbgEvt"
+debug=0
+#debug=11
+nEvt="-n -1"
+#nEvt="-n 100"
+
 if [[ $# -eq 3 ]]; then
     type=$1
     DS=$2
@@ -27,8 +37,8 @@ elif [[ $# -eq 4 ]]; then
     Opt2=$4
 fi
 
-#NOM=""
-NOM="-sys1 NOM"
+NOM=""
+#NOM="-sys1 NOM"
 #NOM="-sys1 NOM -sys2 XS_DN"
 
 methodMC=std
@@ -47,16 +57,18 @@ if [ "$type" == "mc12" ]; then
     else
 	name=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
 	sample=(`more ../scripts/mc12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-	./SusyAnaLooperExec  ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
+	echo "Submitting " ${name} 
+	echo " " ${sample}
+	./SusyAnaLooperExec  ${dbgEvt} ${nEvt} -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s  ${name} -D ${sample} |tee jobLogs/${name}_${methodMC}.log
     fi
 elif [ "$type" == "data12" ]; then
     name=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/data12_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodData}.log
+    ./SusyAnaLooperExec ${dbgEvt} ${nEvt} -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodData} -s  ${name}  -D ${sample} |tee jobLogs/${name}_${methodData}.log
 elif [ "$type" == "susy" ]; then
     name=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 1-1`)
     sample=(`more ../scripts/susy_sampleList.txt |grep ${DS} |cut -d" " -f 3-4`)
-    ./SusyAnaLooperExec ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
+    ./SusyAnaLooperExec ${dbgEvt} ${nEvt} -d ${debug} ${NOM} -${Opt1} -doMll ${Opt2} -method ${methodMC} -s ${name}  -D ${sample} |tee jobLogs/${name}_${methodMC}.log
 fi
 
 

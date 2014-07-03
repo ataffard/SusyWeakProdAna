@@ -854,11 +854,22 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
 	if(WEIGHT_COUNT) _inc = _ww;
     }
 
+    if(DUMP_RUNEVT && iSR==PRINT_SR){
+      evtDump << DIL_FLAV[m_ET] << " " << nt->evt()->run  
+	      << " " << nt->evt()->event 
+	      << " nLJets " << numberOfCLJets(*signalJets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType)
+	      << " nBJets " << numberOfCBJets(*signalJets) 
+	      << " nFJets " << numberOfFJets(*signalJets) 
+	      << endl;
+    }
     if(!passFullJetVeto(signalJets)){
       if(dbg()>5 && iSR==PRINT_SR) cout << "Fail Jveto " << nt->evt()->run << " " << nt->evt()->event << endl;
       continue;
     }
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);
+
+  
+
 
     if(!passFJet(signalJets)) continue;
     _hh->H1FILL(_hh->DG2L_cutflow[SR][m_ET][SYST],icut++,_ww);

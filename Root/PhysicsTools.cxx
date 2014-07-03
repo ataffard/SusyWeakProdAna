@@ -95,6 +95,17 @@ float mCTpara(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met){
 };
 
 //-----------------------------------------------------------------------------
+float mColl(TLorentzVector lep0, TLorentzVector lep1, TLorentzVector met)
+{
+  float dEta = lep0.Eta()-lep1.Eta();
+  float dPhi = lep0.DeltaPhi(lep1);
+
+  return sqrt(2*lep0.Pt()*(lep1.Pt()+met.Et())*(cosh(dEta)-cos(dPhi)));
+}
+
+
+
+//-----------------------------------------------------------------------------
 // d0 signed wrt to jet direction
 float signedD0(float d0, float sigmaD0,
 	       TLorentzVector _p, TLorentzVector _j){
@@ -109,7 +120,7 @@ float signedD0(float d0, float sigmaD0,
 
 }
 /*--------------------------------------------------------------------------------*/
-// pT rel to jet axis
+// pTshik relshii to jet axis
 float ptRel(TLorentzVector j, TLorentzVector p){
   TVector3 jet(j.Px(), j.Py(), j.Pz());
   TVector3 part(p.Px(), p.Py(), p.Pz());
@@ -118,6 +129,8 @@ float ptRel(TLorentzVector j, TLorentzVector p){
 
 /*--------------------------------------------------------------------------------*/
 // mtt collinear approximation
+//https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HiggsToTauTauToLH2012Summer
+//https://svnweb.cern.ch/trac/atlasphys/browser/Physics/Higgs/HSG4/software/common/CommonAnalysisUtils/trunk/Root/Algorithms.cxx
 float mZTauTau(TLorentzVector l0, TLorentzVector l1, TLorentzVector met){
   float px0(l0.Px()), py0(l0.Py());
   float px1(l1.Px()), py1(l1.Py());

@@ -38,10 +38,10 @@ elif [[ $# -eq 4 ]]; then
     Opt2=$4
 fi
 
-#NOM=""
+NOM=""
 #NOM="-sys1 NOM"
 #NOM="-sys1 MS_UP"
-NOM="-sys1 NOM -sys2 Pileup_DN"
+#NOM="-sys1 NOM -sys2 Pileup_DN"
 
 methodMC=std
 methodData=std

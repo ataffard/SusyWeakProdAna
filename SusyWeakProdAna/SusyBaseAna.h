@@ -100,7 +100,8 @@ class SusyBaseAna: public SusySelection
     void initializeToyNt(bool metD=false, bool dijetB=false, 
 			 bool OS2LB=false, bool SS2LB=false, 
 			 bool ZBalB=false, bool diverVarsB=false,
-			 bool fakeB=false);
+			 bool fakeB=false,
+			 bool LFVB=false, bool razorB=false);
     void fillToyNt(uint iSYS,
 		   const LeptonVector* leptons, 
 		   const JetVector* jets,

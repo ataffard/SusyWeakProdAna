@@ -53,7 +53,6 @@ static const bool   logPlot            = false;//true;
 static const float SYS_ERR = 0.3; //30% systematic on Bkg  - Note: Zn add stat err on tot bkg
 
 //_____________________________________________________________________________//
-
 const float MZ = 91.2;
 
 enum MC 
@@ -150,7 +149,7 @@ TEventList*         _dataEvtList;
 
 void runOptimisation(bool useOneSignal=true);          //Run Optimisation
 void signalYield();                                    //Print signal yield 
-void getZnForGrid(int idil, int iSR);                                    //Make Zn plots given a selection
+void getZnForGrid(int idil, int iSR);                  //Make Zn plots given a selection
 
 
 void init();
