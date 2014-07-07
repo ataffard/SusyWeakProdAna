@@ -23,7 +23,8 @@
 #
 
 #Update for a given pass
-date="062714_21fb_n0150_DD_LFV_v1"
+#date="062714_21fb_n0150_DD_LFV_v1"
+date="070614_21fb_n0150_DD_LFV_v1"
 #date="060314_21fb_n0150_DD_WH_v8"
 #date="030614_21fb_n0150_DD_FAKE_v1"
 

@@ -23,7 +23,7 @@
 
 
 //_____________________________________________________________________________//
-static const string ver       = "histos_062714_21fb_n0150_DD_LFV_v1/";  
+static const string ver       = "histos_070614_21fb_n0150_DD_LFV_v1/";  
 static const string SR        = "_LFV_base"; //Skimmed ToyNt suffix
 
 static const int dbg = 0;
@@ -200,15 +200,14 @@ int main(int argc, char *argv[]){
   loadSamples(); 
   bookHist();
   
-  runOptimisation();
+  //runOptimisation();
   
-  /*
   signal_kin(); resetHist();
   //EM
   data_kin(EM); resetHist();
   //ME
   data_kin(ME); resetHist();
-  */
+
 
 }
 
@@ -468,15 +467,15 @@ TH1F* histList(int ivar, string name)
   if(ivar==3) h = myBook(name.c_str(),26,20,280,"m_{ll} [GeV]",sY.c_str());
   if(ivar==4) h = myBook(name.c_str(),26,20,280,"m_{ll}^{collApproximation} [GeV]",sY.c_str());
   if(ivar==5) h = myBook(name.c_str(),45,0,4.5,"dR_{ll} ",sY.c_str());
-  if(ivar==6) h = myBook(name.c_str(),32,0,3.2,"d#phi_{ll} [rad]",sY.c_str());
+  if(ivar==6) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{ll} [rad]",sY.c_str());
   if(ivar==7) h = myBook(name.c_str(),80,0,800,"m_{Eff} [GeV]",sY.c_str());
   if(ivar==8) h = myBook(name.c_str(),40,0,400,"S_{T} [GeV]",sY.c_str());
   if(ivar==9) h = myBook(name.c_str(),40,0,200,"p_{T}^{l0} [GeV]",sY.c_str());
   if(ivar==10) h = myBook(name.c_str(),40,0,200,"p_{T}^{l1} [GeV]",sY.c_str());
   if(ivar==11) h = myBook(name.c_str(),40,0,400,"m_{T}^{l0} [GeV]",sY.c_str());
   if(ivar==12) h = myBook(name.c_str(),40,0,400,"m_{T}^{l1} [GeV]",sY.c_str());
-  if(ivar==13) h = myBook(name.c_str(),32,0,3.2,"d#phi_{l0,ETmiss} [rad]",sY.c_str());
-  if(ivar==14) h = myBook(name.c_str(),32,0,3.2,"d#phi_{l1,ETmiss} [rad]",sY.c_str());
+  if(ivar==13) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{l0,ETmiss} [rad]",sY.c_str());
+  if(ivar==14) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{l1,ETmiss} [rad]",sY.c_str());
   if(ivar==15) h = myBook(name.c_str(),8,-0.5,7.5,"Njets",sY.c_str());
   if(ivar==16) h = myBook(name.c_str(),8,-0.5,7.5,"NLjets",sY.c_str());
   if(ivar==17) h = myBook(name.c_str(),8,-0.5,7.5,"NBjets",sY.c_str());
@@ -489,7 +488,7 @@ TH1F* histList(int ivar, string name)
   if(ivar==24) h = myBook(name.c_str(),60,-0.1,0.5,"Etcone30/pt (l1)",sY.c_str());
   if(ivar==25) h = myBook(name.c_str(),40,0,400,"min(m_{T}^{l0},(m_{T}^{l1}) [GeV]",sY.c_str());
   if(ivar==26) h = myBook(name.c_str(),40,0,800,"HT [GeV]",sY.c_str());
-  if(ivar==27) h = myBook(name.c_str(),32,0,3.2,"dPhi(met,ll) [rad]",sY.c_str());
+  if(ivar==27) h = myBook(name.c_str(),32,0,3.2,"#delta#phi(met,ll) [rad]",sY.c_str());
   if(ivar==28) h = myBook(name.c_str(),30,0,3,"#delta#eta_{ll} ",sY.c_str());
   if(ivar==29) h = myBook(name.c_str(),40,0,400,"max(m_{T}^{l0},(m_{T}^{l1}) [GeV]",sY.c_str());
   if(ivar==30) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{e}",sY.c_str());
@@ -1014,7 +1013,7 @@ void signal_kin(int iSig)
   _vNtSig[iSig]->Draw("nFJets>>sig_nFJets",_sel*weight,"goff");
 
   _vNtSig[iSig]->Draw("dphi_ll>>sig_dphi_ll",_sel*weight,"goff");
-  _vNtSig[iSig]->Draw("deta_ll>>sig_deta_ll",_sel*weight,"goff");
+  _vNtSig[iSig]->Draw("abs(deta_ll)>>sig_deta_ll",_sel*weight,"goff");
 
   _vNtSig[iSig]->Draw("dphi_metl[0]>>sig_dphi_metl[0]",_sel*weight,"goff");
   _vNtSig[iSig]->Draw("dphi_metl[1]>>sig_dphi_metl[1]",_sel*weight,"goff");
@@ -1056,6 +1055,7 @@ void data_kin(int dil)
 
   TCut weight("w");
   TCut _sel("metrel>=0");//dummy cut
+  TCut _sel2("");//additional selection cuts
 
   TCut _sel_EM("llType==2");
   TCut _sel_ME("llType==3");
@@ -1081,7 +1081,7 @@ void data_kin(int dil)
   ntData->Draw("nFJets>>data_nFJets",_sel*weight,"goff");
 
   ntData->Draw("dphi_ll>>data_dphi_ll",_sel*weight,"goff");
-  ntData->Draw("deta_ll>>data_deta_ll",_sel*weight,"goff");
+  ntData->Draw("abs(deta_ll)>>data_deta_ll",_sel*weight,"goff");
 
   ntData->Draw("dphi_metl[0]>>data_dphi_metl[0]",_sel*weight,"goff");
   ntData->Draw("dphi_metl[1]>>data_dphi_metl[1]",_sel*weight,"goff");
@@ -1096,17 +1096,95 @@ void data_kin(int dil)
   _h_pt_C20->SetTitle("data_jC20_pt[0]");
   _h_pt_C20->SetName("data_jC20_pt[0]");
 
-  _sel+= TCut("nBJets==0 && j_isC20[0]");
-  ntData->Draw("j_pt[0]>>data_jC20_pt[0]",_sel*weight,"goff");
+  _sel2 += _sel + TCut("nBJets==0 && j_isC20[0]");
+  ntData->Draw("j_pt[0]>>data_jC20_pt[0]",_sel2*weight,"goff");
   
   //Forward jet - pT 
   TH1F* _h_pt_F30 = (TH1F*) _hSig[19]->Clone();
   _h_pt_F30->SetTitle("data_jF30_pt[0]");
   _h_pt_F30->SetName("data_jF30_pt[0]");
 
-  _sel = TCut("nBJets==0 && j_isF30[0]");
-  ntData->Draw("j_pt[0]>>data_jF30_pt[0]",_sel*weight,"goff");
+  _sel2.Clear();
+  _sel2 = _sel + TCut("nBJets==0 && j_isF30[0]");
+  ntData->Draw("j_pt[0]>>data_jF30_pt[0]",_sel2*weight,"goff");
+
+  //With selection cuts
+  //lepton pT>20
+  _sel2.Clear();
+  _sel2 = _sel + TCut("l_pt[0]>20 && l_pt[1]>20");
+  TH1F* _h_pt_l0 = (TH1F*) _hSig[9]->Clone();
+  _h_pt_l0->SetTitle("data_l0_pt_cut20");
+  _h_pt_l0->SetName("data_l0_pt_cut20");
+  TH1F* _h_pt_l1 = (TH1F*) _hSig[10]->Clone();
+  _h_pt_l1->SetTitle("data_l1_pt_cut20");
+  _h_pt_l1->SetName("data_l1_pt_cut20");
+
+  ntData->Draw("l_pt[0]>>data_l0_pt_cut20",_sel2*weight,"goff");
+  ntData->Draw("l_pt[1]>>data_l1_pt_cut20",_sel2*weight,"goff");
+
+  TH1F* _h_pt_l0_Lead = (TH1F*) _hSig[9]->Clone();
+  _h_pt_l0_Lead->SetTitle("data_l0_pt_cut20_Lead");
+  _h_pt_l0_Lead->SetName("data_l0_pt_cut20_Lead");
+  TH1F* _h_pt_l1_subLead = (TH1F*) _hSig[10]->Clone();
+  _h_pt_l1_subLead->SetTitle("data_l1_pt_cut20_subLead");
+  _h_pt_l1_subLead->SetName("data_l1_pt_cut20_subLead");
+
+
+  if(dil==2   ){//EM
+    TCut _sel_lep("l_isEle[0] && !l_isEle[1]");
+    ntData->Draw("l_pt[0]>>data_l0_pt_cut20_Lead",(_sel_lep&&_sel2)*weight,"goff");
+    ntData->Draw("l_pt[1]>>data_l1_pt_cut20_subLead",(_sel_lep&&_sel2)*weight,"goff");
+  }
+  else if (dil==3){//MU
+    TCut _sel_lep("!l_isEle[0] && l_isEle[1]");
+    ntData->Draw("l_pt[0]>>data_l0_pt_cut20_Lead",(_sel_lep&&_sel2)*weight,"goff");
+    ntData->Draw("l_pt[1]>>data_l1_pt_cut20_subLead",(_sel_lep&&_sel2)*weight,"goff");
+  }
+
+  TH1F* _h_dPhi_ll = (TH1F*) _hSig[6]->Clone();
+  _h_dPhi_ll->SetTitle("data_dPhill_cut20");
+  _h_dPhi_ll->SetName("data_dPhill_cut20");
+
+  TH1F* _h_dEta_ll = (TH1F*) _hSig[28]->Clone();
+  _h_dEta_ll->SetTitle("data_dEtall_cut20");
+  _h_dEta_ll->SetName("data_dEtall_cut20");
+
+  TH1F* _h_dPhi_metL1 = (TH1F*) _hSig[14]->Clone();
+  _h_dPhi_metL1->SetTitle("data_dPhi_metL1_cut20");
+  _h_dPhi_metL1->SetName("data_dPhi_metL1_cut20");
+
+  ntData->Draw("dphi_ll>>data_dPhill_cut20",_sel2*weight,"goff");
+  ntData->Draw("abs(deta_ll)>>data_dEtall_cut20",_sel2*weight,"goff");
+  ntData->Draw("dphi_metl[1]>>data_dPhi_metL1_cut20",_sel2*weight,"goff");
   
+  TH1F* _h_dPhi_metL1_corr = (TH1F*) _hSig[14]->Clone();
+  _h_dPhi_metL1_corr->SetTitle("data_dPhi_metL1_corr_cut20");
+  _h_dPhi_metL1_corr->SetName("data_dPhi_metL1_corr_cut20");
+  ntData->Draw("acos(cos(l_phi[1]-metCorrPhi))>>data_dPhi_metL1_corr_cut20",_sel2*weight,"goff");
+  
+
+  //+ Angular cuts
+  //replace using metCorr !!!
+  _sel2.Clear();
+  _sel2 = _sel + TCut("l_pt[0]>20 && l_pt[1]>20 && abs(dphi_ll)>2.5 && abs(dphi_metl[1])<0.5");
+  TH1F* _h_pt_l0_ang = (TH1F*) _hSig[9]->Clone();
+  _h_pt_l0_ang->SetTitle("data_l0_pt_cut20_ang");
+  _h_pt_l0_ang->SetName("data_l0_pt_cut20_ang");
+  TH1F* _h_pt_l1_ang = (TH1F*) _hSig[10]->Clone();
+  _h_pt_l1_ang->SetTitle("data_l1_pt_cut20_ang");
+  _h_pt_l1_ang->SetName("data_l1_pt_cut20_ang");
+
+  TH1F* _h_dPhi_ll_ang = (TH1F*) _hSig[6]->Clone();
+  _h_dPhi_ll_ang->SetTitle("data_dPhill_cut20");
+  _h_dPhi_ll_ang->SetName("data_dPhill_cut20");
+
+
+  ntData->Draw("l_pt[0]>>data_l0_pt_cut20_ang",_sel2*weight,"goff");
+  ntData->Draw("l_pt[1]>>data_l1_pt_cut20_ang",_sel2*weight,"goff");
+  ntData->Draw("dphi_ll>>data_dPhill_cut20_ang",_sel2*weight,"goff");
+  
+
+
 
   saveHist(filename);
 
@@ -1140,15 +1218,15 @@ void compareData(bool normalize, bool logy)
     TH1F* h_ME = (TH1F*) f_ME->Get(obj->GetName()); h_ME->Sumw2();
 
     if(normalize){ //Normalize integral to 1
-      _utils->normalize(h_EM,1);
-      _utils->normalize(h_ME,1);
+      _utils->normalize(h_EM,1.);
+      _utils->normalize(h_ME,1.);
       h_EM->GetYaxis()->SetTitle("Arbitrary Unit");
       h_ME->GetYaxis()->SetTitle("Arbitrary Unit");
     }
     
     //overwrite logy base on the number of entries
-    if(h_EM->Integral(0,-1) > maxEntries || h_ME->Integral(0,-1) > maxEntries) logy=true;
-    if(h_EM->Integral(0,-1) < maxEntries || h_ME->Integral(0,-1) < maxEntries) logy=false;
+    //if(h_EM->Integral(0,-1) > maxEntries || h_ME->Integral(0,-1) > maxEntries) logy=true;
+    //if(h_EM->Integral(0,-1) < maxEntries || h_ME->Integral(0,-1) < maxEntries) logy=false;
     float scale=maxScaleLin;
     if(logy)  scale=maxScaleLog;
 

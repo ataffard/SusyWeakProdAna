@@ -192,6 +192,7 @@ void ToyNt::BookTree()
   if(LFVBlock){
     tree->Branch("mcoll",&_b_mcoll,"mcoll/F");
     tree->Branch("metCorr",&_b_metCorr,"metCorr/F");
+    tree->Branch("metCorrPhi",&_b_metCorrPhi,"metCorrPhi/F");
   }
 
   if(razorBlock){
@@ -372,6 +373,7 @@ void ToyNt::clearOutputBranches(void) {
 
   _b_mcoll=-999;
   _b_metCorr=-999;
+  _b_metCorrPhi=-999;
 
   _b_shatr=-999;
   _b_dphi_ll_vBetaT=-999;
@@ -679,9 +681,11 @@ void ToyNt::FillLFV(const LeptonVector* leptons, const Met* met)
   _b_mcoll   = mColl(*leptons->at(0),*leptons->at(1),met->lv());
   
   //Substract the soft Term from met
-  float met_x = met->lv().Px()-met->softJet_etx;
-  float met_y = met->lv().Py()-met->softJet_ety;
-  _b_metCorr = sqrt(met_x*met_x + met_y*met_y);
+  float met_x = met->lv().Px()-met->softTerm_etx;
+  float met_y = met->lv().Py()-met->softTerm_ety;
+  TVector2 metCorr(met_x,met_y);
+  _b_metCorr = metCorr.Mod();// sqrt(met_x*met_x + met_y*met_y);
+  _b_metCorrPhi = metCorr.Phi();
 
 }
 //-----------------------------------------------------------------------------------------------------------

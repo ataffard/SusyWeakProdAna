@@ -15,7 +15,7 @@
 enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 
 #define LUMI_21FB  //All 2012
-const std::string TAG  = "062714";
+const std::string TAG  = "070614";
 const std::string SUFF = "_n0150_DD_LFV_v1"; 
 
 const bool n0150BugFix=true;
@@ -37,7 +37,7 @@ const bool FILL_HFT       = false;  //Write the HistFitterTree
 
 const bool CUTFLOW        = true;  // require at least 2 tight/base lep SPEED ANA
 
-const bool WEIGHT_COUNT   = false;//true;   //Apply weight to dump count table - NLO weight always applied
+const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool WEIGHT_ONE     = false; //Ignore evt->w use 1
 const bool DO_FILL_HISTO  = true;
 
@@ -51,7 +51,7 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 
 const bool BLIND_MC       = false;
 
-const bool DUMP_RUNEVT    = true;   //Dump run:event info
+const bool DUMP_RUNEVT    = false;   //Dump run:event info
 const unsigned int  PRINT_SR = 1;
 
 const float MLLCUT = 60;

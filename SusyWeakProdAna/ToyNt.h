@@ -245,6 +245,7 @@ class ToyNt: public SusyNtTools
   //Higgs LFV
   float  _b_mcoll;
   float  _b_metCorr;
+  float  _b_metCorrPhi;
   
   //Razor
   double     _b_shatr;
