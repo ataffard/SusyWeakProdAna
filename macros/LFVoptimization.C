@@ -35,16 +35,16 @@ static const int    selCuts   = 0; //0: SR
 //LFV grids
 static const unsigned int   sigSampleStart = 169670; //TauMu
 static const unsigned int   sigSampleEnd   = 169671; //TauEl
-static const unsigned int   sigSampleIdx   = 1; //Idx of signal sample to use for optimisation
+static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use for optimisation
 
 //Settings for optimisation/plots
 static const bool   weightEvt          = true;   //Weight bkg/signal events
-static const bool   showData           = true;   //false; // shows Zn below plot
+static const bool   showData           = false;  //true;   //false; // shows Zn below plot
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group;
 static const bool   showCutflow        = true;   //dump cutflow yield
 static const bool   showCutflowDetail  = true;   //dump yield last cut
-static const bool   showCutflowDetail2 = true;//false;  //dump cutflow each cut
+static const bool   showCutflowDetail2 = false;  //dump cutflow each cut
 static const bool   logPlot            = false;  //true;   
 
 static const float SYS_ERR = 0.3; //30% systematic on Bkg  - Note: Zn add stat err on tot bkg
@@ -200,14 +200,16 @@ int main(int argc, char *argv[]){
   loadSamples(); 
   bookHist();
   
-  //runOptimisation();
+  runOptimisation();
   
+  /*
   signal_kin(); resetHist();
   //EM
   data_kin(EM); resetHist();
   //ME
   data_kin(ME); resetHist();
-
+  compareData();
+  */
 
 }
 
@@ -398,7 +400,7 @@ void bookHist()
   _var.push_back("mll_collApprox");
   _var.push_back("dR_ll");
   _var.push_back("dphi_ll");
-  _var.push_back("mEff");
+  _var.push_back("mEff"); //Sum lep T & met - overwrite due to bug when nSj=0!
   _var.push_back("ST");
   
   _var.push_back("l_pt[0]");
@@ -430,6 +432,7 @@ void bookHist()
   //LFV specific
   _var.push_back("mcoll");
   _var.push_back("metCorr");
+  _var.push_back("dphi_metCorrL1");
 
   cout << "Booking histo for " << _var.size() << " variables " << endl;
 
@@ -497,6 +500,7 @@ TH1F* histList(int ivar, string name)
   //LFV specific
   if(ivar==32) h = myBook(name.c_str(),30,0,300,"m_{coll} [GeV]",sY.c_str());
   if(ivar==33) h = myBook(name.c_str(),30,0,300,"E_{T}^{miss-corr} [GeV]",sY.c_str());
+  if(ivar==34) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{l1,ETmissCorr} [rad]",sY.c_str());
 
   return h;
 }
@@ -516,6 +520,7 @@ void fillHist()
     TCut _sel("metrel>=0"); //dummy cut to weight the events
     TCut _selData("");
     if     (ivar==4)  cmd = "mll_collApprox";
+    else if(ivar==7)  cmd = "l_pt[0]+l_pt[1]+met";
     else if(ivar==23) cmd = "l_etcone30[0]/l_pt[0]";
     else if(ivar==24) cmd = "l_etcone30[1]/l_pt[1]";
     else if(ivar==25) cmd = "TMath::Min(mTl[0],mTl[1])";
@@ -533,6 +538,7 @@ void fillHist()
       _sel += TCut("!l_isEle");
       _selData += TCut("!l_isEle");
     }
+    else if(ivar==34) cmd = "acos(cos(l_phi[1]-metCorrPhi))";
     else              cmd = _var[ivar];
     
     cmdSig = cmd + ">>sig_" + _var[ivar];
@@ -902,10 +908,10 @@ void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr,bool detail)
     tot = _hCut[icut]->IntegralAndError(0,-1,statErr);
 
     if(detail){
-      if(showCutflowDetail2 && icut<_vCut.size()-1) 
+      if(showCutflowDetail2 && icut<_vCut.size()) 
 	cout << "\n" <<_vCut[icut].GetTitle() 
 	     <<  std::setprecision(2) << std::fixed <<"\t\t\t" << tot << " +/- " << statErr;
-      else if(icut==_vCut.size()-1){
+      if(icut==_vCut.size()-1){
 	if(showCutflowDetail2) cout << endl;
 	cout << "\t\t\t " << std::setprecision(2) << std::fixed << tot << " +/- " << statErr ;
       }
@@ -956,29 +962,80 @@ TCut sel_SR(int dilType, bool verbose)
   //EM
   else if(dilType==2)
     {
+      //Shikma selection - presentation HSG4 05/21
+      /*
+      _vCut.push_back(TCut("llType==2"));
+      _vCut.push_back(TCut("isOS"));
+      _vCut.push_back(TCut("l_pt[0]>30"));
+      _vCut.push_back(TCut("l_pt[1]>20"));
+      //_vCut.push_back(TCut("nJets==0"));
+      _vCut.push_back(TCut("nJets>=1 && j_pt[0]<30 && abs(j_eta[0])<2.5"));
+
+      _vCut.push_back(TCut("abs(dphi_ll)>2.5"));
+      _vCut.push_back(TCut("abs(dphi_metl[1])<0.5"));
+      */
+
       _vCut.push_back(TCut("llType==2"));
       _vCut.push_back(TCut("isOS"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));   
       //_vCut.push_back(TCut("nBJets==0"));
       // _vCut.push_back(TCut("nCJets>=0 && nBJets==0 && nFJets==0"));
-      _vCut.push_back(TCut("nCJets==0"));
-      _vCut.push_back(TCut("abs(dphi_ll)>2.5"));
-      _vCut.push_back(TCut("abs(dphi_metl[1])<0.5"));
+      //_vCut.push_back(TCut("nCJets==0"));
+      //      _vCut.push_back(TCut("abs(dphi_ll)>2.5"));
+      //_vCut.push_back(TCut("abs(dphi_metl[1])<0.5"));
+
+      
+      
     }
   //ME
   else if(dilType==3)
     {
+      //Shikma selection - presentation HSG4 05/21
+      /*
       _vCut.push_back(TCut("llType==3"));
       _vCut.push_back(TCut("isOS"));
-      //_vCut.push_back(TCut("nCJets==0"));
       _vCut.push_back(TCut("l_pt[0]>30"));
       _vCut.push_back(TCut("l_pt[1]>20"));
-      //_vCut.push_back(TCut("nBJets==0"));
-      // _vCut.push_back(TCut("nCJets>=0 && nBJets==0 && nFJets==0"));
+      //_vCut.push_back(TCut("nJets==0"));
+      _vCut.push_back(TCut("nJets>=1 && j_pt[0]<30 && abs(j_eta[0])<2.5"));
 
       _vCut.push_back(TCut("abs(dphi_ll)>2.5"));
       _vCut.push_back(TCut("abs(dphi_metl[1])<0.5"));
+      */
+
+
+      _vCut.push_back(TCut("llType==3"));
+      _vCut.push_back(TCut("isOS"));
+      _vCut.push_back(TCut("l_pt[0]>40"));
+      //_vCut.push_back(TCut("l_pt[1]>20"));
+      _vCut.push_back(TCut("nBJets==0"));
+      _vCut.push_back(TCut("nFJets==0"));
+
+      //      _vCut.push_back(TCut("nCJets==0"));
+      _vCut.push_back(TCut("nCJets==1"));
+      
+      
+      _vCut.push_back(TCut("metrel<40")); //signal has little metrel since it's aligned w/ 1 lepton
+      _vCut.push_back(TCut("mll>50 && mll<120")); //signal has mll >50 - removes Ztt, mll<120 removes WW/Top
+      _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>50"));
+      _vCut.push_back(TCut("(l_pt[0]+l_pt[1]+met)>100 && (l_pt[0]+l_pt[1]+met)<200"));  
+      _vCut.push_back(TCut("acos(cos(l_phi[1]-metCorrPhi))<0.5"));
+      //_vCut.push_back(TCut("pTll>20"));
+
+
+      //Not use
+      //_vCut.push_back(TCut("abs(dphi_ll)>2.5"))
+      //_vCut.push_back(TCut("met<80")); //signal has met ~40. WW/Top have higher MET.
+      
+      /*
+	mT l0/ max MT, peaks higher for signal than Ztt
+	HT between 100-200 - lower bound reduce Ztt, upper bound WW/top. cut 60% eff on signal- needed considering mcoll?
+
+	In 1j need to suppress firther Ztt
+	
+       */
+
     }
 
   
@@ -1164,27 +1221,31 @@ void data_kin(int dil)
   
 
   //+ Angular cuts
-  //replace using metCorr !!!
   _sel2.Clear();
-  _sel2 = _sel + TCut("l_pt[0]>20 && l_pt[1]>20 && abs(dphi_ll)>2.5 && abs(dphi_metl[1])<0.5");
+  _sel2 = _sel + TCut("l_pt[0]>40 && l_pt[1]>20 && abs(dphi_ll)>2.5 && abs(acos(cos(l_phi[1]-metCorrPhi)))<0.5");
   TH1F* _h_pt_l0_ang = (TH1F*) _hSig[9]->Clone();
-  _h_pt_l0_ang->SetTitle("data_l0_pt_cut20_ang");
-  _h_pt_l0_ang->SetName("data_l0_pt_cut20_ang");
+  _h_pt_l0_ang->SetTitle("data_l0_pt_cut4020_ang");
+  _h_pt_l0_ang->SetName("data_l0_pt_cut4020_ang");
   TH1F* _h_pt_l1_ang = (TH1F*) _hSig[10]->Clone();
-  _h_pt_l1_ang->SetTitle("data_l1_pt_cut20_ang");
-  _h_pt_l1_ang->SetName("data_l1_pt_cut20_ang");
+  _h_pt_l1_ang->SetTitle("data_l1_pt_cut4020_ang");
+  _h_pt_l1_ang->SetName("data_l1_pt_cut4020_ang");
 
   TH1F* _h_dPhi_ll_ang = (TH1F*) _hSig[6]->Clone();
-  _h_dPhi_ll_ang->SetTitle("data_dPhill_cut20");
-  _h_dPhi_ll_ang->SetName("data_dPhill_cut20");
+  _h_dPhi_ll_ang->SetTitle("data_dPhill_cut4020");
+  _h_dPhi_ll_ang->SetName("data_dPhill_cut4020");
+  TH1F* _h_dPhi_metL1_corr_ang = (TH1F*) _hSig[14]->Clone();
+  _h_dPhi_metL1_corr_ang->SetTitle("data_dPhi_metL1_corr_cut4020_ang");
+  _h_dPhi_metL1_corr_ang->SetName("data_dPhi_metL1_corr_cut4020_ang");
 
+  ntData->Draw("l_pt[0]>>data_l0_pt_cut4020_ang",_sel2*weight,"goff");
+  ntData->Draw("l_pt[1]>>data_l1_pt_cut4020_ang",_sel2*weight,"goff");
+  ntData->Draw("dphi_ll>>data_dPhill_cut4020_ang",_sel2*weight,"goff");
+  ntData->Draw("acos(cos(l_phi[1]-metCorrPhi))>>data_dPhi_metL1_corr_cut4020_ang",_sel2*weight,"goff");
 
-  ntData->Draw("l_pt[0]>>data_l0_pt_cut20_ang",_sel2*weight,"goff");
-  ntData->Draw("l_pt[1]>>data_l1_pt_cut20_ang",_sel2*weight,"goff");
-  ntData->Draw("dphi_ll>>data_dPhill_cut20_ang",_sel2*weight,"goff");
-  
-
-
+  TH1F* _h_mcoll_ang = (TH1F*) _hSig[32]->Clone();
+  _h_mcoll_ang->SetTitle("data_mcoll_cut4020_ang");
+  _h_mcoll_ang->SetName("data_mcoll_cut4020_ang");
+  ntData->Draw("mcoll>>data_mcoll_cut4020_ang",_sel2*weight,"goff");
 
   saveHist(filename);
 
@@ -1218,6 +1279,7 @@ void compareData(bool normalize, bool logy)
     TH1F* h_ME = (TH1F*) f_ME->Get(obj->GetName()); h_ME->Sumw2();
 
     if(normalize){ //Normalize integral to 1
+      //TO DO fix error bars --- the ratio plots gets garbage errors - not sure why yet.
       _utils->normalize(h_EM,1.);
       _utils->normalize(h_ME,1.);
       h_EM->GetYaxis()->SetTitle("Arbitrary Unit");
@@ -1294,8 +1356,8 @@ void compareData(bool normalize, bool logy)
     _pTop->Draw();
 
     _pTop->cd();
-    _utils->myDraw1d(h_EM,_pTop,1,"e",logy,C_TOP,false,20);
-    _utils->myDraw1d(h_ME,_pTop,1,"esame",logy,C_WW,false,20);
+    _utils->myDraw1d(h_EM,_pTop,1,"e",logy,C_WW,false,20);
+    _utils->myDraw1d(h_ME,_pTop,1,"esame",logy,C_TOP,false,20);
     h_EM->GetYaxis()->SetTitleSize(0.8);
 
     _leg->AddEntry(h_EM,string("Data " + LepNames[EM]).c_str(), "p");

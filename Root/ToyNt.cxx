@@ -536,6 +536,8 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
 			       const ElectronVector* preElectrons, 
 			       const MuonVector* preMuons)
 {
+  _b_mEff =  Meff(*leptons,*jets,met,JET_PT_CUT);
+
   _b_nSJets = jets->size();
   if(_b_nSJets==0) return;
 
@@ -616,7 +618,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     _b_pTjj = _jj.Pt();
   }
 
-  _b_mEff =  Meff(*leptons,*jets,met,JET_PT_CUT);
+ 
 
 }
 
