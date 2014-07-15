@@ -569,7 +569,6 @@ TH1F* histList(int ivar, string name)
   if(ivar==37) h = myBook(name.c_str(),40,0,800,"HT [GeV]",sY.c_str());
   if(ivar==38) h = myBook(name.c_str(),50,0,1,"MV1_j0+MV1_j1",sY.c_str());
   if(ivar==39) h = myBook(name.c_str(),32,0,3.2,"dPhi(met,ll) [rad]",sY.c_str());
-  if(ivar==40) h = myBook(name.c_str(),40,0,400,"m_{T2}^{J} [GeV]",sY.c_str());
   if(ivar==41) h = myBook(name.c_str(),14,0,420,"m_{lj} [GeV]",sY.c_str());// suneet: was 40,0,400
   if(ivar==42) h = myBook(name.c_str(),14,0,420,"m_{ljj} [GeV]",sY.c_str());// ''
   if(ivar==43) h = myBook(name.c_str(),40,0,4,"#delta#eta_{jj} ",sY.c_str());

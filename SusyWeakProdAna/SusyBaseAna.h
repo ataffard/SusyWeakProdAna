@@ -65,8 +65,12 @@ class SusyBaseAna: public SusySelection
 			);
     void hookMet(const Susy::Met* _met){m_met = _met;}
 
+    float eventWeight(int mode=1, uint iSys=DGSys_NOM);
     bool  isSimplifiedModelGrid(int dsId);
     float getXsUncert(uint dsid);
+
+    const SumwMap* getMCSumWs(           ) { return m_MCSumWs;  };
+    void           setMCSumWs( const SumwMap* sumwMap ) { m_MCSumWs = sumwMap; };
 
     float getLepSFWeight(const LeptonVector* leptons, uint iSys=DGSys_NOM);
     float getTriggerWeight(const LeptonVector* leptons, 
@@ -138,6 +142,7 @@ class SusyBaseAna: public SusySelection
     uint    _sys2;
     
     XSReader* susyXS;
+    const SumwMap*       m_MCSumWs; 
 
     ofstream out;
     ofstream evtDump;

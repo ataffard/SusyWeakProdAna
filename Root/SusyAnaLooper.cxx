@@ -131,6 +131,7 @@ void SusyAnaLooper::Begin(TTree* /*tree*/)
 			       &m_preJets, &m_baseJets, &m_signalJets2Lep,
 			       &m_baseTaus, &m_signalTaus);
     _susyHistos->BookWHHistograms(_histoDir,DO_SYS);
+    _susyWHAna->setMCSumWs(getSumwMap());
 
     if(DO_SYS){
       if(_runOneSys || _runSysRange){
@@ -242,6 +243,12 @@ void SusyAnaLooper::Init(TTree* tree)
   string xsecDir = gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc12_8TeV/");
   m_mcWeighter = new MCWeighter(m_tree, xsecDir);
   m_mcWeighter->parseAdditionalXsecFile("$ROOTCOREBIN/data/SusyWeakProdAna/LFV.txt",true);
+
+  /*
+  m_mcWeighter->dumpSumwMap();
+  m_mcWeighter->dumpXsecCache();
+  m_mcWeighter->dumpXsecDb();
+  */
 }
 
 
@@ -525,7 +532,7 @@ void SusyAnaLooper::dumpEvent()
     m_baseMuons[iMu]->print();
   }
   for(uint iJ=0; iJ < m_baseJets.size(); iJ++){
-    cout << "  ";
+    cout << "  dEta " <<  m_baseJets[iJ]->detEta << " " ;
     m_baseJets[iJ]->print();
   }
 
@@ -539,7 +546,8 @@ void SusyAnaLooper::dumpEvent()
     m_signalMuons[iMu]->print();
   }
   for(uint iJ=0; iJ < m_signalJets2Lep.size(); iJ++){
-    cout << "  ";
+    cout << "  dEta " <<  m_signalJets2Lep[iJ]->detEta << " " ;
     m_signalJets2Lep[iJ]->print();
+
   }
 }

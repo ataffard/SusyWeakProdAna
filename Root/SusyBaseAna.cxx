@@ -135,7 +135,74 @@ void SusyBaseAna::finish()
   clearVectors();
   sigXsfile.close();  
 }
+/*--------------------------------------------------------------------------------*/
+float SusyBaseAna::eventWeight(int mode, uint iSys)
+{
+  bool useSumWMap  = true; 
+  bool useProcSumW = true;
+  bool useSusyXsec = true;
 
+  if( !nt->evt()->isMC) return 1; //Data weight =1
+
+  float _evtW=nt->evt()->w;
+
+  if(mode==NOLUMI) _evtW= nt->evt()->w; //raw weight - generator included!
+  if(mode==LUMI21FB){ //Moriond dataset
+    if(USE_MCWEIGHT) _evtW =  nt->evt()->w;
+    else{
+      MCWeighter::WeightSys iiSys;
+           if(iSys == DGSys_Pileup_UP) iiSys = MCWeighter::Sys_PILEUP_UP;
+      else if(iSys == DGSys_Pileup_DN) iiSys = MCWeighter::Sys_PILEUP_DN;
+	   //else if(iSys == DGSys_XS_UP)     iiSys = MCWeighter::Sys_XSEC_UP; //Not functional. DB incomplete
+	   //else if(iSys == DGSys_XS_DN)     iiSys = MCWeighter::Sys_XSEC_DN;
+      else                             iiSys = MCWeighter::Sys_NOM; 
+
+      _evtW = getEventWeight(nt->evt(),LUMI_A_L,useSumWMap,m_MCSumWs,useProcSumW, useSusyXsec,iiSys);
+      
+      if((iSys == DGSys_XS_UP || iSys == DGSys_XS_DN) 
+	 && !isSimplifiedModelGrid(nt->evt()->mcChannel) ){ //Get Xs uncertainty from local implementation
+	float uncert = getXsUncert(nt->evt()->mcChannel);
+	if(iSys == DGSys_XS_UP) _evtW *= 1 + uncert;
+	if(iSys == DGSys_XS_DN) _evtW *= 1 - uncert;
+      }
+
+      if(dbg()>10)
+	cout << "Syst " << DGSystNames[iSys] 
+	     << " Ana W: " << nt->evt()->w 
+	     << " pileup " << nt->evt()->wPileup 
+	     << " xsec " <<  nt->evt()->xsec 
+	     << " lumi " << LUMI_A_L 
+	     << " sumw " << nt->evt()->sumw 
+	     << " evtW " << _evtW << endl;
+
+    }
+  }
+  
+  // Correct the cross section for DLiSlep
+  //02-10-2013 TO be added by Serhan in SUSYTools
+  // if(
+  //    (nt->evt()->mcChannel >= 166501 && nt->evt()->mcChannel <= 166658) ||
+  //    (nt->evt()->mcChannel >= 175420 && nt->evt()->mcChannel <= 175583) ||
+  //    (nt->evt()->mcChannel >= 177423 && nt->evt()->mcChannel <= 177496) 
+  //    ) {
+  //   if(m_SleptonXSecReader!=NULL) {
+  //     if( nt->evt()->susyFinalState==201 ) 
+  // 	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kLeftHanded )/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[201]);   
+  //     else if( nt->evt()->susyFinalState==202 )
+  // 	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kRightHanded)/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[202]);   
+  //     else if( nt->evt()->susyFinalState==216 )
+  // 	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kLeftHanded )/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[216]);   
+  //     else if( nt->evt()->susyFinalState==217 )
+  // 	_evtW *= (m_SleptonXSecReader->getCrossSection(nt->evt()->mcChannel,SleptonPoint::kRightHanded)/nt->evt()->xsec)*(nt->evt()->sumw/m_sleptonSumWs[217]);   
+  //     else _evtW = 0;  //protection against undefined final state
+  //   }
+  //   else
+  //     cout << "m_SleptonXSecReader is null, won't touch the event weight" << endl;
+  // }
+  
+
+  return _evtW;
+}
 /*--------------------------------------------------------------------------------*/
 // determine if Simplified model grid
 /*--------------------------------------------------------------------------------*/
@@ -608,7 +675,7 @@ void SusyBaseAna::fillToyNt(uint iSYS,
   float JZBm = JZBEtmiss(met,leptons);
   m_toyNt->FillJZB(JZBj, JZBm);
   
-  m_toyNt->FillLFV(leptons,met);
+  m_toyNt->FillLFV(leptons,met,jets);
   m_toyNt->FillRazor(leptons,met);
     
 

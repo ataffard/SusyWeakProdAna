@@ -28,14 +28,14 @@ const bool n0150BugFix=true;
 const unsigned int  NBASELEPMAX    = 2;  //number of base lepton allowed - 2 for std analysis
 const unsigned int  NBASELEPMIN    = 2;  //number of base lepton allowed - 2 for std analysis
 
-const bool   FILL_TOYNT        = true;        //Write ToyNt
+const bool   FILL_TOYNT        = true;         //Write ToyNt
 const string TOYNT_SR          ="LFV_base";    //SR used to fill ToyNt
 const unsigned int TOYNT_iSR   = LFV_base;     //SR used to fill ToyNt
 
 const bool DO_SYS         = false;   //Toggles systematics looper
 const bool FILL_HFT       = false;  //Write the HistFitterTree
 
-const bool CUTFLOW        = true;  // require at least 2 tight/base lep SPEED ANA
+const bool CUTFLOW        = false;  // require at least 2 tight/base lep SPEED ANA
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool WEIGHT_ONE     = false; //Ignore evt->w use 1
@@ -51,8 +51,8 @@ const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
 
 const bool BLIND_MC       = false;
 
-const bool DUMP_RUNEVT    = false;   //Dump run:event info
-const unsigned int  PRINT_SR = 1;
+const bool DUMP_RUNEVT    =false;   //Dump run:event info
+const unsigned int  PRINT_SR = DIL_SRmT2a;//1;
 
 const float MLLCUT = 60;
 

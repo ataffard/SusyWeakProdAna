@@ -48,7 +48,7 @@ if [ -n "$sys1" ]; then
     fi
 fi
 
-${ana}  -${anaOpt1} -sys1 ${sys1} -sys2 ${sys2} -doMll ${anaOpt2} -method ${method} -s ${name} -n ${nEvt} -D ${fileDir} >& jobLogs/${name}_${method}${suff}.log
+${ana}  -${anaOpt1} -sys1 ${sys1} -sys2 ${sys2} -doMll ${anaOpt2} -method ${method} -s ${name} -n ${nEvt} -D ${fileDir} 2>&1 |tee jobLogs/${name}_${method}${suff}.log
 
 echo "Ending: " 
 date +"%F__%T" 

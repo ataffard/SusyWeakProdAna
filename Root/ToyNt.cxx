@@ -193,6 +193,10 @@ void ToyNt::BookTree()
     tree->Branch("mcoll",&_b_mcoll,"mcoll/F");
     tree->Branch("metCorr",&_b_metCorr,"metCorr/F");
     tree->Branch("metCorrPhi",&_b_metCorrPhi,"metCorrPhi/F");
+    tree->Branch("metrelCorr",&_b_metrelCorr,"metrelCorr/F");
+    tree->Branch("mcollCorr",&_b_mcollCorr,"mcollCorr/F");
+    tree->Branch("mTl0Corr",&_b_mTl0Corr,"mTl0Corr/F");
+    tree->Branch("mTl1Corr",&_b_mTl1Corr,"mTl1Corr/F");
   }
 
   if(razorBlock){
@@ -374,6 +378,10 @@ void ToyNt::clearOutputBranches(void) {
   _b_mcoll=-999;
   _b_metCorr=-999;
   _b_metCorrPhi=-999;
+  _b_metrelCorr=-999;
+  _b_mcollCorr=-999;
+  _b_mTl0Corr=-999;
+  _b_mTl1Corr=-999;
 
   _b_shatr=-999;
   _b_dphi_ll_vBetaT=-999;
@@ -539,7 +547,10 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
   _b_mEff =  Meff(*leptons,*jets,met,JET_PT_CUT);
 
   _b_nSJets = jets->size();
-  if(_b_nSJets==0) return;
+  if(_b_nSJets==0){
+    // cout << "no signal jet " << endl;
+    return;
+  }
 
   TLorentzVector _ll;
   for(uint ilep=0; ilep<leptons->size(); ilep++){
@@ -556,19 +567,25 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     if(ijet>25) continue;
     const Susy::Jet* _j = jets->at(ijet); 
     _b_nJets++;
-
-    if(isCentralLightJet(_j,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType)){
+    //cout << "  dEta " << _j->detEta << " " ;
+    //_j->print();
+    
+    if(isCentralBJet(_j)){
+      _b_nBJets++;
+      _b_j_isB20[ijet] = true;
+      //cout << "Got BJet" << endl;
+    }    
+    else if(isCentralLightJet(_j,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType)){
       _b_nCJets++;
       _b_j_isC20[ijet] = true;
+      //cout << "Got CJet" << endl;
     }
     else if(isForwardJet(_j)){
       _b_nFJets++;
       _b_j_isF30[ijet] = true;
+      //cout << "Got FJet" << endl;
     }
-    else if(isCentralBJet(_j)){
-      _b_nBJets++;
-      _b_j_isB20[ijet] = true;
-    }
+    //else cout << "Unidenfify jet type" << endl;
 
     _b_j_pt[ijet]  = _j->Pt();
     _b_j_eta[ijet] = _j->Eta();
@@ -618,7 +635,8 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     _b_pTjj = _jj.Pt();
   }
 
- 
+  //cout << "nSJets " << _b_nSJets << " nCJets " << _b_nCJets 
+  //<< " nBJets " << _b_nBJets << " nFJets " << _b_nFJets << endl;
 
 }
 
@@ -678,7 +696,7 @@ void ToyNt::FillJZB(float JZBjets, float JZBmet)
 }
 
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillLFV(const LeptonVector* leptons, const Met* met)
+void ToyNt::FillLFV(const LeptonVector* leptons, const Met* met, const JetVector* jets)
 {
   _b_mcoll   = mColl(*leptons->at(0),*leptons->at(1),met->lv());
   
@@ -688,6 +706,18 @@ void ToyNt::FillLFV(const LeptonVector* leptons, const Met* met)
   TVector2 metCorr(met_x,met_y);
   _b_metCorr = metCorr.Mod();// sqrt(met_x*met_x + met_y*met_y);
   _b_metCorrPhi = metCorr.Phi();
+
+  TLorentzVector metLV(metCorr.Mod(),0,metCorr.Phi(),metCorr.Mod());
+  Susy::Met corrMet = *met;
+  corrMet.Et = metCorr.Mod();
+  corrMet.phi = metCorr.Phi();
+  
+  _b_metrelCorr   = getMetRel(&corrMet, *leptons, *jets);
+  _b_mcollCorr    = mColl(*leptons->at(0),*leptons->at(1),metLV);
+  _b_mTl0Corr     =  mT(*leptons->at(0), corrMet.lv());  
+  _b_mTl1Corr     =  mT(*leptons->at(1), corrMet.lv());  
+  
+
 
 }
 //-----------------------------------------------------------------------------------------------------------

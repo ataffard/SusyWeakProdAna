@@ -38,7 +38,7 @@ echo "Starting job on $HOSTNAME: "
 echo ${PWD} 
 date +"%F__%T"
 
-${ana} -${anaOpt1} -doMll ${anaOpt2} -method ${method} -s ${name} -n ${nEvt} -D ${fileDir} >& jobLogs/${name}_${method}.log
+${ana} -${anaOpt1} -doMll ${anaOpt2} -method ${method} -s ${name} -n ${nEvt} -D ${fileDir} 2>&1 |tee jobLogs/${name}_${method}.log
 
 echo "Ending: " 
 date +"%F__%T" 

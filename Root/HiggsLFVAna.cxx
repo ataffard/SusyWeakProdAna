@@ -391,8 +391,10 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
       fillHistograms(SR,SYST,leptons, signalJets,met,_ww);
       if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
     }
-    if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) 
+    if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) {
+      cout  << nt->evt()->run  << " " << nt->evt()->event << endl;
       fillToyNt(SYST,leptons, signalJets,met,_ww, bTagWeight,_ww);
+    }
     
   }//SR loop
 

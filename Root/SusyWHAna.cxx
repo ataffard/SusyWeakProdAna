@@ -427,7 +427,10 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
   //set _ww to the appropriate weighting
   //
   float _ww      = w;//eventWeight(LUMIMODE,SYST); 
-
+  float _ww_tmp  = 1;//eventWeight(LUMIMODE,SYST); 
+  //_ww = _ww_tmp;//check can reproduce old number
+  
+  
   if(!WEIGHT_COUNT) _ww=1;
   float _lepSFW  = getLepSFWeight(leptons,SYST);
   float _trigW   = getTriggerWeight(leptons, 
@@ -437,10 +440,13 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 				    SYST);
   float bTagWeight =  getBTagSF(nt->evt(),v_baseJet,SYST);
 
-  if(WEIGHT_COUNT)  _ww *= _lepSFW * _trigW;
+  if(WEIGHT_COUNT){
+    _ww *= _lepSFW * _trigW;
+    _ww_tmp *= _lepSFW * _trigW;
+  }
   float _wwSave = _ww;
   saveOriginal(); //Backup Met & leptons  --> newMet if charge flip
-    
+  
   if(dbg()>1){ 
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
@@ -518,7 +524,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
 
     if(!passFlavor(leptons)){ 
-      if(iSR==PRINT_SR) cout << "Fail flavor" << nt->evt()->run << " " << nt->evt()->event << endl; 
+      //if(iSR==PRINT_SR) cout << "Fail flavor" << nt->evt()->run << " " << nt->evt()->event << endl; 
       continue; 
     }
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -530,7 +536,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
 	     << " " << nt->evt()->event 
 	     << " nJets " << numberOfCLJets(*signalJets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType) << " fail 3rd loose lep veto" << endl;
 	
-      /*
+       /*
       if(DUMP_RUNEVT && iSR==PRINT_SR){
 	
 	evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  
@@ -562,6 +568,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
       /*if( ! ( iSR ==DIL_CR2LepOS || iSR==DIL_CR2LepSS 
 	|| iSR==DIL_CR2LepSS40 || iSR==DIL_CRZ) )*/
 	_ww *= bTagWeight;
+	_ww_tmp *= bTagWeight;
 	if(WEIGHT_COUNT) _inc = _ww;
     }
 
@@ -600,26 +607,6 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     if(!passMjj(signalJets) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
     if(dbg() >10 ) cout << "\t Pass Mjj " << sSR << endl;
-
-    /*
-    if(DUMP_RUNEVT && iSR==PRINT_SR && m_ET==1){
-      
-      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event 
-	      << " nJets " << numberOfCLJets(*signalJets) << " w " << _ww << endl;
-      //cout << ">>> run " << nt->evt()->run  
-      //<< " event " << nt->evt()->event <<endl;
-      //dumpEvent();
-      cout << ">>> run " << nt->evt()->run  
-	   << " event " << nt->evt()->event 
-	   << " SYST " << DGSystNames[SYST]
-	   << " lepSF " << _lepSFW
-	   << " trigW " << _trigW
-	   << " bTag " << bTagWeight
-	   << " ww " << _ww 
-	   << " weight(w/btag) " << _ww*bTagWeight << " wwSave " << _wwSave << endl;
-    }
-    */
-
 
     if(!passLead2LepPt(leptons) ) continue;
     _hh->H1FILL(_hh->DGWH_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -699,6 +686,28 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
     //
     // Debugging - Dump run event
     //
+    if(DUMP_RUNEVT && iSR==PRINT_SR ){
+      
+      evtDump << WH_FLAV[m_ET] << " " << nt->evt()->run  << " " << nt->evt()->event
+	      << " nJets " <<  numberOfCLJets(*signalJets,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType) 
+	      << " SR " << WH_SRNAME[iSR] 
+	      << " w " << _ww  << " _wOld " << _ww_tmp << endl;
+      //cout << ">>> run " << nt->evt()->run  
+      //<< " event " << nt->evt()->event <<endl;
+      //dumpEvent();
+      cout << ">>> run " << nt->evt()->run  
+	   << " event " << nt->evt()->event 
+	   << " SYST " << DGSystNames[SYST]
+	   << " evtWeight " << w
+	   << " lepSF " << _lepSFW
+	   << " trigW " << _trigW
+	   << " bTag " << bTagWeight
+	   << " qFlip " <<  _ww_qFlip
+	   << " ww " << _ww 
+	   << " wwSave " << _wwSave 
+	   << " old way " << _ww_tmp 
+	   << endl;
+    }
     /*
     if(DUMP_RUNEVT && iSR==PRINT_SR){
       

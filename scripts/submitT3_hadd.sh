@@ -125,7 +125,7 @@ elif [[ $# = 1 ]]; then
 	mkdir -p ${passDir}/logs/jobs
 
 	mv ${pathRun}/jobLogs/*hadd.log ${passDir}/logs/hadd
-	mv ${pathRun}/jobLogs/*.log ${passDir}/logs/jobs
+	mv ${pathRun}/batchLogs/*.log ${passDir}/logs/jobs
 	mv ${endpath}/HFTOutputs ${passDir}
 	mv ${endpath}/ToyNtOutputs ${passDir}
 	mv ${endpath}/hadd_histOutputs ${passDir}

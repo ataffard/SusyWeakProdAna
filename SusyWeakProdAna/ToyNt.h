@@ -73,7 +73,7 @@ class ToyNt: public SusyNtTools
   void FillMCT(float mct, float mctPerp, float mctPara);
   void FillJZB(float JZBjets, float JZBmet);
 
-  void FillLFV(const LeptonVector* leptons, const Met* met);
+  void FillLFV(const LeptonVector* leptons, const Met* met, const JetVector* jets);
 
   void FillRazor(const LeptonVector* leptons, const Met* met);
 
@@ -246,6 +246,11 @@ class ToyNt: public SusyNtTools
   float  _b_mcoll;
   float  _b_metCorr;
   float  _b_metCorrPhi;
+  float  _b_metrelCorr; //recompute var based on corrected met.
+  float  _b_mcollCorr;
+  float  _b_mTl0Corr;
+  float  _b_mTl1Corr;
+  
   
   //Razor
   double     _b_shatr;
