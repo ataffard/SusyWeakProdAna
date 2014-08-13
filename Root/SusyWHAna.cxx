@@ -54,7 +54,8 @@ void SusyWHAna::doAnalysis(float w, unsigned int isys)
     bool diversVarsBlock = false;
 
     initializeToyNt(metDetails, dijetBlock, 
-		    OS2LBlock, SS2LBlock, ZBalanceBlock, diversVarsBlock);
+		    OS2LBlock, SS2LBlock,
+		    ZBalanceBlock, diversVarsBlock);
   }
 
   //Do selection for SR/CR/N-reg & fill plots

@@ -47,7 +47,7 @@ const bool USE_LEPSF      = true;
 const bool USE_QFLIP      = true;    //Toggled charge flip prob
 
 const bool USE_MCWEIGHT   = false;   //Use this to apply only the mcWeight and then one another weight at a time
-const bool USE_MCTRIG     = false;   //Use MC trigger. DGWeight = false
+const bool USE_MCTRIG     = false;   //Use MC trigger. Set DGWeight = false
 
 const bool BLIND_MC       = false;
 

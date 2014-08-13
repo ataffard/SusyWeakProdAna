@@ -32,7 +32,7 @@ ToyNt::ToyNt(TString MCID, TString suffix) :
 void ToyNt::setBlocks(bool metD, bool dijetB, 
 		      bool OS2LB, bool SS2LB,
 		      bool ZBalB, bool diverVarsB,
-		      bool LFV, bool razor,
+		      bool LFVB, bool razorB,
 		      bool fakeB)
 {
   metDetails      = metD;
@@ -42,8 +42,8 @@ void ToyNt::setBlocks(bool metD, bool dijetB,
   ZBalanceBlock   = ZBalB;
   diversVarsBlock = diverVarsB;
   fakeBlock       = fakeB;
-  LFVBlock        = LFV;
-  razorBlock      = razor;
+  LFVBlock        = LFVB;
+  razorBlock      = razorB;
 
 }
 
@@ -567,7 +567,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     if(ijet>25) continue;
     const Susy::Jet* _j = jets->at(ijet); 
     _b_nJets++;
-    //cout << "  dEta " << _j->detEta << " " ;
+    //cout << "  dEta " a<< _j->detEta << " " ;
     //_j->print();
     
     if(isCentralBJet(_j)){
@@ -578,7 +578,7 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     else if(isCentralLightJet(_j,m_jvfTool, (SusyNtSys) DGSys_NOM, m_anaType)){
       _b_nCJets++;
       _b_j_isC20[ijet] = true;
-      //cout << "Got CJet" << endl;
+      // cout << "Got CJet" << endl;
     }
     else if(isForwardJet(_j)){
       _b_nFJets++;

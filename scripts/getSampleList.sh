@@ -1,4 +1,9 @@
 #!/bin/bash
+
+#
+# sed 's/^/#/' mc12_sampleList.txt >mc12_sampleList_primary.txt
+#
+
 sub=_n0154
 
 InPath=/gdata/atlas/ucintprod/SusyNt

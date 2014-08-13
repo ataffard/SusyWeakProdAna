@@ -53,6 +53,21 @@ class HiggsLFVAna: public SusyBaseAna
 
   protected:
 
+    float tmp_totalEvtWeight[2];
+    float tmp_pTSel[2];
+    float tmp_regA[2]; //EM - ME
+    float tmp_regB[2];
+    float tmp_regUnk[2];
+
+    float tmp_regA_trigEvt[2];
+    float tmp_regB_trigEvt[2];
+
+    float tmp_regA_trigMatch[2];
+    float tmp_regB_trigMatch[2];
+
+    float tmp_regA_trigMatch_w[2];
+    float tmp_regB_trigMatch_w[2];
+
    
 };
 

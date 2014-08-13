@@ -36,7 +36,7 @@ class ToyNt: public SusyNtTools
   void setBlocks(bool metD=false, bool dijetB=false, 
 		 bool OS2LB=false, bool SS2LB=false, 
 		 bool ZBalB=false, bool diverVarsB=false,
-		 bool LFV=false, bool razor=false,
+		 bool LFVB=false, bool razorB=false,
 		 bool fakeB=false);
 
   void BookTree(); //Book the branches

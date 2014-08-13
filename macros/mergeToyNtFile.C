@@ -25,6 +25,8 @@ void mergeToyNtFile()
       cout << "Cannot open file " << fileList.c_str() << ". Exitting" << endl;
       exit(1);
     }
+    
+    TChain* ntTmp = new TChain("ToyNt");
 
     while( !feof(fPtr)){
       char _name[200];
@@ -33,12 +35,14 @@ void mergeToyNtFile()
       uint   idx = _ss.find("ToyNtOutputs");
       string _subName = _ss.substr(idx+strlen("ToyNtOutputs/"));
       
-      cout << "\t Adding file " << _subName << endl;
+      ntTmp->Add(_ss.c_str());
+      cout << "\t Adding file " << _subName << " " << ntTmp->GetEntries() << endl;
       nt->Add(_ss.c_str());
+      ntTmp->Reset();
     }
 
     
-    cout << "Merged TChain saved in " << outfile << endl;
+    cout << "Merged TChain saved in " << outfile << " total entries " << nt->GetEntries() << endl;
     nt->Merge(outfile.c_str());
 
 }

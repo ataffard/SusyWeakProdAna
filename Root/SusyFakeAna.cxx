@@ -43,11 +43,15 @@ void SusyFakeAna::doAnalysis(float w, unsigned int isys)
     bool SS2LBlock       = true;
     bool ZBalanceBlock   = false;
     bool diversVarsBlock = false;
+    bool LFVBlock        = false;
+    bool razorBlock      = false;
     bool fakeBlock       = true;
 
     initializeToyNt(metDetails, dijetBlock, 
-		    OS2LBlock, SS2LBlock, ZBalanceBlock,
-		    diversVarsBlock,fakeBlock);
+		    OS2LBlock, SS2LBlock, 
+		    ZBalanceBlock, diversVarsBlock,
+		    LFVBlock, razorBlock,
+		    fakeBlock);
   }
   
 

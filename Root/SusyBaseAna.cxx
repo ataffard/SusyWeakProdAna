@@ -542,8 +542,11 @@ void SusyBaseAna::initializeToyNt(bool metD, bool dijetB,
   }
 
   m_toyNt->setBlocks(metD, dijetB, 
-		     OS2LB, SS2LB, ZBalB, diverVarsB, 
-		     LFVB, razorB, fakeB);
+		     OS2LB, SS2LB, 
+		     ZBalB, diverVarsB, 
+		     LFVB, razorB, 
+		     fakeB);
+  m_toyNt->setAnaType(this->m_anaType);//retreive the anaType currently being used.
 
   m_toyNt->BookTree();
   

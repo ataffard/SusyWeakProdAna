@@ -70,8 +70,8 @@ nEvt=-1
 #
 # Mll cut for Zjets - kind of obsolete
 #
-anaOpt2=true #doMll 
-#anaOpt2=false #doMll 
+#anaOpt2=true #doMll 
+anaOpt2=false #doMll 
 methodMC=std
 
 #

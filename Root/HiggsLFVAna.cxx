@@ -17,6 +17,23 @@ HiggsLFVAna::HiggsLFVAna(SusyHistos* _histos):
   cout << "----------------------------------" << endl;
   cout << "    Running Higgs-LFV Analysis    " << endl;
   cout << "----------------------------------" << endl;
+ 
+  for(int i=0; i<2; i++){
+    tmp_totalEvtWeight[i] = 0;
+    tmp_pTSel[i] = 0;
+    tmp_regA[i] = 0; //EM - ME
+    tmp_regB[i] = 0;
+    tmp_regUnk[i] = 0;
+
+    tmp_regA_trigEvt[i] = 0;
+    tmp_regB_trigEvt[i] = 0;
+
+    tmp_regA_trigMatch[i] = 0;
+    tmp_regB_trigMatch[i] = 0;
+
+    tmp_regA_trigMatch_w[i] = 0;
+    tmp_regB_trigMatch_w[i] = 0;
+  }
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -42,8 +59,8 @@ void HiggsLFVAna::doAnalysis(float w, unsigned int isys)
     initializeToyNt(metDetails, dijetBlock, 
 		    OS2LBlock, SS2LBlock, 
 		    ZBalanceBlock, diversVarsBlock,
-		    fakeBlock,
-		    LFVBlock, razorBlock);
+		    LFVBlock, razorBlock,
+		    fakeBlock);
   }
   
   //Do selection for SR/CR/N-reg & fill plots
@@ -102,6 +119,23 @@ void HiggsLFVAna::end()
   
   cout << std::endl << std::endl; 
  
+
+  cout << "Trigger check \t EM \t ME" << endl;
+  cout << "event weight         " << tmp_totalEvtWeight[0]   << "\t " << tmp_totalEvtWeight[1] << endl;
+  cout << "pTSel                " << tmp_pTSel[0]            << "\t " << tmp_pTSel[1] << endl;
+  cout << "Reg A                " << tmp_regA[0]             << "\t " << tmp_regA[1] << endl; 
+  cout << "Reg A - trigEvt      " << tmp_regA_trigEvt[0]     << "\t " << tmp_regA_trigEvt[1] << endl; 
+  cout << "Reg A - matchTrig    " << tmp_regA_trigMatch[0]   << "\t " << tmp_regA_trigMatch[1] << endl; 
+  cout << "Reg A - matchTrig+ w " << tmp_regA_trigMatch_w[0] << "\t " << tmp_regA_trigMatch_w[1] << endl; 
+  cout << endl;
+  cout << "Reg B                " << tmp_regB[0]             << "\t " << tmp_regB[1] << endl; 
+  cout << "Reg B - trigEvt      " << tmp_regB_trigEvt[0]     << "\t " << tmp_regB_trigEvt[1] << endl; 
+  cout << "Reg B - matchTrig    " << tmp_regB_trigMatch[0]   << "\t " << tmp_regB_trigMatch[1] << endl; 
+  cout << "Reg B - matchTrig+ w " << tmp_regB_trigMatch_w[0] << "\t " << tmp_regB_trigMatch_w[1] << endl; 
+
+
+
+
   finish();
 }
 
@@ -222,7 +256,47 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
   if(WEIGHT_COUNT)  _ww *= _lepSFW * _trigW;
   float _wwSave = _ww;
 
-  
+  /*
+  if(m_ET==2 || m_ET==3){
+    tmp_totalEvtWeight[m_ET-2]   += w * _lepSFW;
+    if(leptons->at(0)->Pt()>30 && leptons->at(1)->Pt()>18){
+      tmp_pTSel[m_ET-2]   += w * _lepSFW;
+      const Lepton* elec = leptons->at(0)->isEle() ? leptons->at(0) : leptons->at(1);
+      const Lepton* muon = leptons->at(0)->isEle() ? leptons->at(1) : leptons->at(0);
+      int region = m_trigObj->getEMTrigRegion(elec->Pt(), muon->Pt());
+      //cout << ">>> run " << nt->evt()->run  
+      //<< " event " << nt->evt()->event 
+      //<< " pass EM trigger region " << region
+      //<< " trigW " << _trigW 
+      //<< endl;
+      bool passTrigEvt   =  m_trigObj->passDilEvtTrig(*leptons, met->lv().Pt(), nt->evt());
+      bool passTrigMatch =  m_trigObj->passDilTrigMatch(*leptons, met->lv().Pt(), nt->evt());
+      if      (region==7){
+	tmp_regA[m_ET-2]   += w * _lepSFW;
+	if(passTrigEvt){
+	  tmp_regA_trigEvt[m_ET-2]   += w * _lepSFW;
+	  if(passTrigMatch){
+	    tmp_regA_trigMatch[m_ET-2]   += w * _lepSFW;
+	    tmp_regA_trigMatch_w[m_ET-2]   += w * _lepSFW * _trigW;
+	  }
+	}
+      }
+      else if(region==8){
+	tmp_regB[m_ET-2]   += w * _lepSFW;
+	if(passTrigEvt){
+	  tmp_regB_trigEvt[m_ET-2]   += w * _lepSFW;
+	  if(passTrigMatch){
+	    tmp_regB_trigMatch[m_ET-2]   += w * _lepSFW;
+	    tmp_regB_trigMatch_w[m_ET-2]   += w * _lepSFW * _trigW;
+	  }
+	}
+      }
+      else    tmp_regUnk[m_ET-2] += w * _lepSFW;
+    }
+  }
+  */
+
+
   if(dbg()>1){ 
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
@@ -392,7 +466,6 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
       if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
     }
     if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) {
-      cout  << nt->evt()->run  << " " << nt->evt()->event << endl;
       fillToyNt(SYST,leptons, signalJets,met,_ww, bTagWeight,_ww);
     }
     

@@ -9,7 +9,7 @@ Zjets_AlpgenPythia
 WW_Sherpa
 WZ_Sherpa
 ZZ_Sherpa
-WZ_ZZ_Sherpa
+#WZ_ZZ_Sherpa
 #Bkg_Zjets_Alpgen_WZ_ZZ_Sherpa_WW_Sherpa_TopMCNLO
 #ChargeFlip_diBSherpaM
 #GenuineSS_diBSherpaM
