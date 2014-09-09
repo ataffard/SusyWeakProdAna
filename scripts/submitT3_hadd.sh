@@ -24,7 +24,8 @@
 
 #Update for a given pass
 #date="062714_21fb_n0150_DD_LFV_v1"
-date="070614_21fb_n0150_DD_LFV_v1"
+date="090514_21fb_n0155_DD_LFV_v2"
+#date="082814_21fb_n0154_DD_LFV_v1"
 #date="060314_21fb_n0150_DD_WH_v8"
 #date="030614_21fb_n0150_DD_FAKE_v1"
 
@@ -125,6 +126,7 @@ elif [[ $# = 1 ]]; then
 	mkdir -p ${passDir}/logs/jobs
 
 	mv ${pathRun}/jobLogs/*hadd.log ${passDir}/logs/hadd
+	rm -f ${pathRun}/jobLogs/*.log 
 	mv ${pathRun}/batchLogs/*.log ${passDir}/logs/jobs
 	mv ${endpath}/HFTOutputs ${passDir}
 	mv ${endpath}/ToyNtOutputs ${passDir}

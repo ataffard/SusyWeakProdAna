@@ -13,8 +13,8 @@
 
 Opt1=doLFV
 #mll40 cut on low mass alpgen
-#Opt2=true
-Opt2=false
+Opt2=true
+#Opt2=false
 
 #####
 # Run flags
@@ -22,7 +22,7 @@ Opt2=false
 dbgEvt=""
 #dbgEvt="-dbgEvt"
 debug=0
-#debug=2
+#debug=6
 nEvt="-n -1"
 #nEvt="-n 100"
 

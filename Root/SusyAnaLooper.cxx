@@ -24,7 +24,10 @@ SusyAnaLooper::SusyAnaLooper(bool do2L, bool do3L, bool doWH, bool doFake, bool 
   _runSysRange(false),
   _isZAlpgenSherpa(false),
   nHFOR(0),
-  nMllCut(0)
+  nMllCut(0),
+  nCount(0),
+  nDuplicate(0),
+  nLepFilter(0)
 {
   if(_do2LAna)        setAnaType(Ana_2Lep,true);
   else if(_doWHAna)   setAnaType(Ana_2LepWH,true);
@@ -318,9 +321,9 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   //Debug this event - check if should be processed
   if(m_dbgEvt && !processThisEvent(nt.evt()->run, nt.evt()->event))  return kFALSE;
   
-  if(!nt.evt()->isMC && nt.evt()->run < MINRUN) return kFALSE;
-  if(!nt.evt()->isMC && nt.evt()->run > MAXRUN) return kFALSE;
-
+  //if(!nt.evt()->isMC && nt.evt()->run < MINRUN) return kFALSE;
+  //if(!nt.evt()->isMC && nt.evt()->run > MAXRUN) return kFALSE;
+  
   if(nt.evt()->hfor==4 && 
      !( (nt.evt()->mcChannel >= 164440 && nt.evt()->mcChannel <= 164443) ||
        (nt.evt()->mcChannel >= 164450 && nt.evt()->mcChannel <= 164453) )
@@ -332,7 +335,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
   //
   // Sherpa - Alpgen patch
   //
-  if(_doMll){
+  if(_doMll && nt.evt()->isMC){
     //Sherpa - upper cut mll<60
     if((nt.evt()->mcChannel>=147770 && nt.evt()->mcChannel<=147772) || //masselss b/c
        (nt.evt()->mcChannel>=128975 && nt.evt()->mcChannel<=128977) || //Heavy/light
@@ -341,7 +344,7 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       _isZAlpgenSherpa=true;
       if(nt.evt()->mllMcTruth > MLLCUT){ nMllCut++; return kFALSE;}
     }
-    //AlpgenPythia LF/HF lower cut mll>60
+    //AlpgenPythia LF/HF lower cut mll>60, to remove overlap with DY-HF 178396
     if((nt.evt()->mcChannel>=110805 && nt.evt()->mcChannel<=110828) || //HF bb/cc
        (nt.evt()->mcChannel>=117650 && nt.evt()->mcChannel<=117675)    //LF
        ){
@@ -353,7 +356,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
 
   //Check Duplicate run:event in data
   if(!nt.evt()->isMC && checkDuplicate()){
-    if(isDuplicate(nt.evt()->run, nt.evt()->event))  return kFALSE;
+    if(isDuplicate(nt.evt()->run, nt.evt()->event)){
+      nDuplicate++;
+      return kFALSE;
+    }
   }
 
   if(dbg()>1){
@@ -386,11 +392,14 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
     if(!CUTFLOW){
       int nNtLep = nt.ele()->size() + nt.muo()->size();
       //int nNtTau = nt.tau()->size();
-      if(nNtLep < 2) return false;
+      if(nNtLep < 2){
+	nLepFilter++;
+	return false;
+      }
       //if(m_nTauMin >= 0 && nNtTau < m_nTauMin) return false;
     }
 
-
+    nCount++;
     for(uint iiSyst=minSys; iiSyst<maxSys; iiSyst++){     //Syst Looper
       if(dbg()>10) cout << "Do sys? " << DGSystNames[iiSyst] <<endl;
       
@@ -416,7 +425,10 @@ Bool_t SusyAnaLooper::Process(Long64_t entry)
       else
 	selectObjects((SusyNtSys) DGSys_NOM, false, TauID_medium,n0150BugFix);
       
-      if(dbg()>5) dumpEvent();
+      if(dbg()>5){
+	//_higgsLFVAna->getAnaType();
+	dumpEvent();
+      }
       
       //
       //Get the event weight
@@ -512,8 +524,12 @@ void SusyAnaLooper::Terminate()
 
   SusyNtAna::Terminate();
   if(dbg()>0) cout << "SusyAnaLooper::Terminate" << endl;
-  cout << "Number of event rejected by HFOR " << nHFOR <<endl;
-  cout << "Number of event rejected by MllCut " << nMllCut <<endl;
+  cout << "Number of events in chain:                " << m_chainEntry << endl;
+  cout << "Number of events processed:               " << nCount << endl;
+  cout << "Number of events rejected by HFOR:        " << nHFOR <<endl;
+  cout << "Number of events rejected by MllCut:      " << nMllCut <<endl;
+  cout << "Number of events rejected by duplicate:   " << nDuplicate <<endl;
+  cout << "Number of events rejected by 2Lep filter: " << nLepFilter << endl;
 
 }
 

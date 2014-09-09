@@ -124,6 +124,10 @@ class SusyAnaLooper : public SusyNtAna
     int nHFOR;
     int nMllCut;
 
+    Long64_t nCount; //number of event processed
+    Long64_t nDuplicate; //number of duplicat events in data
+    Long64_t nLepFilter;
+
 };
 
 #endif

@@ -44,6 +44,9 @@ class HiggsLFVAna: public SusyBaseAna
 			float _ww);
 
 
+    float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, 
+			int iSR, int nJet, float metrel, uint iSys=DGSys_NOM);
+
     //Other functions
     void print_base();
     void print_SR();

@@ -121,6 +121,7 @@ SusySelection::SusySelection(bool is2LAna, bool qFlipd0):
 void SusySelection::resetCounter()
 {
   n_pass_SUSYGrid = 0;
+  n_eventProcessed = 0;
   n_readin       = 0;
   n_pass_GRL     = 0;
   n_pass_LarErr  = 0;

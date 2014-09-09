@@ -59,8 +59,7 @@ void HiggsLFVAna::doAnalysis(float w, unsigned int isys)
     initializeToyNt(metDetails, dijetBlock, 
 		    OS2LBlock, SS2LBlock, 
 		    ZBalanceBlock, diversVarsBlock,
-		    LFVBlock, razorBlock,
-		    fakeBlock);
+		    fakeBlock, LFVBlock, razorBlock );
   }
   
   //Do selection for SR/CR/N-reg & fill plots
@@ -69,7 +68,7 @@ void HiggsLFVAna::doAnalysis(float w, unsigned int isys)
     if(!selectEvent(v_baseLep, v_baseLep, v_sigJet, m_met, evtW)) return;
   }
   else{
-    if(!CUTFLOW && v_sigLep->size()<2) return;
+    //if(!CUTFLOW && v_sigLep->size()<2) return;
     if(!selectEvent(v_sigLep, v_baseLep, v_sigJet, m_met, evtW)) return;
   }
   return;
@@ -87,7 +86,8 @@ void HiggsLFVAna::end()
   cout << "**********************************************" << endl;
   cout << "HiggsLFVAna::event counters" <<endl;
   cout << std::setprecision(0) << std::fixed;
-  cout << "read in:            " << n_readin        << endl;
+  cout << "event processed (unweighted): " << n_eventProcessed << endl;
+  cout << "read in (weighted): " << n_readin        << endl;
   cout << "pass SUSY grid:     " << n_pass_SUSYGrid << endl;
   cout << "pass GRL:           " << n_pass_GRL      << endl;
   cout << "pass TileTrip:      " << n_pass_TileTrip << endl;
@@ -184,7 +184,7 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
 			    float w)
 {
 
-
+  n_eventProcessed++;
   //Set increment to mc weight (otherwise confusing w/ sample w/ -1 weight)
   if(nt->evt()->isMC) _inc = nt->evt()->w; 
   else _inc =1;
@@ -230,10 +230,13 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
     return false;
   }
 
+  /*
+    //Anyes Sept 5. Disable to study triggers OR & single-lept
   if( !passTrigger(leptons, m_trigObj, met) ){ 
     if(dbg()>10) cout<<"Fail Trig " << endl;  
     return false; 
   }
+  */
 
   if( !passIsPromptLepton(leptons,m_method, nt->evt()->isMC)){
     if(dbg()>10) cout<<"Fail Prompt " << endl; 
@@ -253,7 +256,7 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
 				    SYST);
   float bTagWeight =  getBTagSF(nt->evt(),v_baseJet,SYST);
 
-  if(WEIGHT_COUNT)  _ww *= _lepSFW * _trigW;
+  if(WEIGHT_COUNT)  _ww *= _lepSFW ;// * _trigW ;//* bTagWeight;;
   float _wwSave = _ww;
 
   /*
@@ -330,11 +333,7 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
     //For data - fake estimate/weight
     if( !nt->evt()->isMC && m_useLooseLep){
       float _metRel = getMetRel(met,*leptons,*signalJets);
-      //
-      //TO ADD
-      //
-      //_ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,
-      //iSR,signalJets->size(),_metRel,SYST);
+      _ww = getFakeWeight(leptons,nt->evt()->nVtx,nt->evt()->isMC,iSR,signalJets->size(),_metRel,SYST);
       if(WEIGHT_COUNT) _inc = _ww;
     }
     _hh->H1FILL(_hh->LFV_cutflow[SR][m_ET][SYST],icut++,_ww);
@@ -466,13 +465,64 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
       if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
     }
     if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) {
-      fillToyNt(SYST,leptons, signalJets,met,_ww, bTagWeight,_ww);
+      fillToyNt(SYST,leptons, signalJets,met,_ww, bTagWeight,_ww,_trigW);
     }
     
   }//SR loop
 
 
   return true;
+}
+/*--------------------------------------------------------------------------------*/
+// Fake Bkg estimate event weight
+/*--------------------------------------------------------------------------------*/
+float HiggsLFVAna::getFakeWeight(const LeptonVector* leptons, uint nVtx, 
+				 bool isMC, int iSR, int nJet, float metrel,
+				 uint iSys)
+{
+  bool _isSignal[2];
+  bool _isEle[2];
+  float _pt[2];
+  float _eta[2];
+  
+  if(leptons->size()>2) return 0;
+  
+  const std::string regionName = "emuInc";
+  size_t iRegion = m_matrix_methodLFV.getIndexRegion(regionName);
+  
+  for(uint i=0; i<leptons->size(); i++){
+    _isEle[i]=leptons->at(i)->isEle();
+    _pt[i]= leptons->at(i)->pt;
+    _eta[i]= leptons->at(i)->eta;
+    if(_isEle[i])_isSignal[i] = isSignalElectron((Electron*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
+    else         _isSignal[i] = isSignalMuon((Muon*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
+  }  
+
+  //Map naming convention  
+  float _fw = 0;
+  Systematic::Value iiSys = Systematic::SYS_NOM;
+  if(iSys==DGSys_FAKE_EL_RE_UP) iiSys=Systematic::SYS_EL_RE_UP;
+  if(iSys==DGSys_FAKE_EL_RE_DN) iiSys=Systematic::SYS_EL_RE_DOWN;
+  if(iSys==DGSys_FAKE_EL_FR_UP) iiSys=Systematic::SYS_EL_FR_UP;
+  if(iSys==DGSys_FAKE_EL_FR_DN) iiSys=Systematic::SYS_EL_FR_DOWN;
+  if(iSys==DGSys_FAKE_MU_RE_UP) iiSys=Systematic::SYS_MU_RE_UP;
+  if(iSys==DGSys_FAKE_MU_RE_DN) iiSys=Systematic::SYS_MU_RE_DOWN;
+  if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=Systematic::SYS_MU_FR_UP;
+  if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=Systematic::SYS_MU_FR_DOWN;
+
+  sf::Lepton l0(_isSignal[0], _isEle[0], _pt[0], _eta[0]);
+  sf::Lepton l1(_isSignal[1], _isEle[1], _pt[1], _eta[1]);
+  _fw = m_matrix_methodLFV.getTotalFake(l0, l1, iRegion, metrel, iiSys); 
+
+  if(dbg()>10) cout << "SR " << WH_SRNAME[iSR] 
+		     << " applying Ssys " << SYST 
+		     << " " << DGSystNames[SYST] 
+		     << " l0 pT " << leptons->at(0)->pt << " eta " << leptons->at(0)->eta << " isEle " << leptons->at(0)->isEle()
+		     << " l1 pT " << leptons->at(1)->pt << " eta " << leptons->at(1)->eta << " isEle " << leptons->at(1)->isEle()
+		     << " 2D fw: " << _fw 
+		     << endl;
+  
+  return _fw;
 }
 
 /*--------------------------------------------------------------------------------*/

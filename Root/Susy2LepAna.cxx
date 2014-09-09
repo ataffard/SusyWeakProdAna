@@ -5,7 +5,6 @@
 #include "SusyWeakProdAna/PhysicsTools.h"
 
 #include "SusyWeakProdAna/SusyAnaCommon.h"
-#include "SusyMatrixMethod/FakeRegions.h"
 
 using namespace std;
 using namespace Susy;
@@ -945,7 +944,7 @@ bool Susy2LepAna::selectEvent(LeptonVector* leptons,
       if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
     }
     if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) 
-      fillToyNt(SYST,leptons, signalJets,&new_met,_ww, bTagWeight,_ww_qFlip);
+      fillToyNt(SYST,leptons, signalJets,&new_met,_ww, bTagWeight,_ww_qFlip,_trigW);
 
     if(m_writeHFT && validSystForHFT(SYST) ){
       float wHFT= writeIntoHistFitterTree(iSR,leptons,baseLeps,signalJets,v_baseJet,met);
@@ -1003,135 +1002,136 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   float _eta[2];
   
   if(leptons->size()>2) return 0;
-  /*
-    ANYES 01-17-14  ---- NEED COMPATIBILITY w/ 2 MM packages
-  SusyMatrixMethod::FAKE_REGION  frSR = SusyMatrixMethod::FR_SRmT2a;
+ 
+  std::string regionName;
+
   switch (iSR){
   case DIL_SRmT2a:
-    frSR = SusyMatrixMethod::FR_SRmT2a;
+    regionName = "SRmT2a";
     break;
   case DIL_SRmT2b:
-    frSR = SusyMatrixMethod::FR_SRmT2b;
+    regionName ="SRmT2b";
     break;
   case DIL_SRmT2c:
-    frSR = SusyMatrixMethod::FR_SRmT2c;
+    regionName = "SRmT2c";
     break;
   case DIL_SRZjets:
-    frSR = SusyMatrixMethod::FR_SRZjets; 
+    regionName = "SRZjets"; 
     break;
   case DIL_SRZjetsb:
-    frSR = SusyMatrixMethod::FR_SRZjets; 
+    regionName = "SRZjets"; 
     break;
   case DIL_SRWWa:
-    frSR = SusyMatrixMethod::FR_SRWWa;
+    regionName = "SRWWa";
     break;
   case DIL_SRWWb:
-    frSR = SusyMatrixMethod::FR_SRWWb;
+    regionName = "SRWWb";
     break;
   case DIL_SRWWc:
-    frSR = SusyMatrixMethod::FR_SRWWc;
+    regionName = "SRWWc";
     break;
   case DIL_SRSSjets:
-    frSR = SusyMatrixMethod::FR_SRSSInc;
+    regionName = "CR_SSInc";
     break;
     
   case DIL_CRWWmet:
-    frSR = SusyMatrixMethod::FR_CRWWMet;
+    regionName = "CRWWMet";
     break;
   case DIL_CRWWmt2:
-    frSR = SusyMatrixMethod::FR_CRWWmT2;
+    regionName = "CRWWmT2";
     break;
   case DIL_CRTOPmet:
-    frSR = SusyMatrixMethod::FR_CRTopMet;
+    regionName = "CRTopMet";
     break;
   case DIL_CRTOPmt2:
-    frSR = SusyMatrixMethod::FR_CRTopmT2;
+    regionName = "CRTopmT2";
     break;
   case DIL_CRTOPZjets:
-    frSR = SusyMatrixMethod::FR_CRTopZjets;
+    regionName = "CRTopZjets";
     break;
   case DIL_CRZVmet:
-    frSR = SusyMatrixMethod::FR_CRZVMet;
+    regionName = "CRZVMet";
     break;
   case DIL_CRZVmt2a:
-    frSR = SusyMatrixMethod::FR_CRZVmT2_90;
+    regionName = "CRZVmT2_90";
     break;
   case DIL_CRZVmt2b:
-    frSR = SusyMatrixMethod::FR_CRZVmT2_100;
+    regionName = "CRZVmT2_100";
     break;
   case DIL_CRZVmt2c:
-    frSR = SusyMatrixMethod::FR_CRZVmT2_120;
+    regionName = "CRZVmT2_120";
     break;
   case DIL_CRZVmt2d:
-    frSR = SusyMatrixMethod::FR_CRZVmT2_150;
+    regionName = "CRZVmT2_150";
     break;
   case DIL_CRZVZjets:
-    frSR = SusyMatrixMethod::FR_CRZVMet;
+    regionName = "CRZVMet";
     break;
   case DIL_CRZVZjets1:
-    frSR = SusyMatrixMethod::FR_CRZVMet; //TEMP
+    regionName = "CRZVMet"; 
     break;
   case DIL_CRZVZjets2:
-    frSR = SusyMatrixMethod::FR_CRZVMet; //TEMP
+    regionName = "CRZVMet"; 
     break;
   case DIL_CRZVZjets3:
-    frSR = SusyMatrixMethod::FR_CRZVMet; //TEMP
+    regionName ="CRZVMet";
     break;
   case DIL_CRZVZjets4:
-    frSR = SusyMatrixMethod::FR_CRZVMet; //TEMP
+    regionName ="CRZVMet";
     break;
   case DIL_VRSS:
-    frSR = SusyMatrixMethod::FR_VRSS;
+    regionName = "VRSS";
     break;  
     
     //No proper weihted average defined for these
   case DIL_CRZ:
-    frSR = SusyMatrixMethod::FR_SRZjets;
+    regionName = "SRZjets";
     break;        
   case DIL_CRZjets:
-    frSR = SusyMatrixMethod::FR_SRZjets;
+    regionName = "SRZjets";
     break;        
   case DIL_CRZjveto:
-    frSR = SusyMatrixMethod::FR_SRmT2a;
+    regionName = "SRmT2a";
     break;        
   case DIL_CR2LepOS:
-    frSR = SusyMatrixMethod::FR_SRZjets; 
+    regionName = "SRZjets"; 
     break;
   case DIL_CR2LepSS:
-    frSR = SusyMatrixMethod::FR_SRSSInc;
+    regionName = "CR_SSInc";
     break;
   case DIL_CR2LepSS40:
-    frSR = SusyMatrixMethod::FR_VRSS;
+    regionName = "VRSS";
     break;
   case DIL_preSROSjveto:
-    frSR = SusyMatrixMethod::FR_SRmT2a;
+    regionName = "SRmT2a";
     break;
   case DIL_preSRmT2:
-    frSR = SusyMatrixMethod::FR_CRPremT2;
+    regionName = "CRPremT2";
     break;
   case DIL_preSRWW:
-    frSR = SusyMatrixMethod::FR_CRPremT2;
+    regionName = "CRPremT2";
     break;
   case DIL_preSRZjets:
-    frSR = SusyMatrixMethod::FR_SRZjets; 
+    regionName = "SRZjets"; 
     break;
   case DIL_preSRSS:
-    frSR = SusyMatrixMethod::FR_VRSS;
+    regionName = "VRSS";
     break;
   case DIL_optimSRZjets:
-    frSR = SusyMatrixMethod::FR_SRZjets; 
+    regionName = "SRZjets"; 
     break;
   case DIL_optimSRjets:
-    frSR = SusyMatrixMethod::FR_SRZjets; 
+    regionName ="SRZjets"; 
     break;
   case DIL_optimSRSS:
-    frSR = SusyMatrixMethod::FR_SRSSInc; 
+    regionName = "CR_SSInc"; 
     break;
   case DIL_optimSR0jet:
-    frSR = SusyMatrixMethod::FR_SRmT2a; 
+    regionName = "SRmT2a"; 
     break;
   }
-  */
+  size_t iRegion = m_matrix_method.getIndexRegion(regionName);
+
 
   for(uint i=0; i<leptons->size(); i++){
     _isEle[i]=leptons->at(i)->isEle();
@@ -1141,28 +1141,25 @@ float Susy2LepAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
     else         _isSignal[i] = isSignalMuon((Muon*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
   }  
 
-  //Map naming convention  
   float _fw = 0;
-  uint iiSys = DGSys_NOM;
-  if(iSys==DGSys_FAKE_EL_RE_UP) iiSys=SusyMatrixMethod::SYS_EL_RE_UP;
-  if(iSys==DGSys_FAKE_EL_RE_DN) iiSys=SusyMatrixMethod::SYS_EL_RE_DOWN;
-  if(iSys==DGSys_FAKE_EL_FR_UP) iiSys=SusyMatrixMethod::SYS_EL_FR_UP;
-  if(iSys==DGSys_FAKE_EL_FR_DN) iiSys=SusyMatrixMethod::SYS_EL_FR_DOWN;
-  if(iSys==DGSys_FAKE_MU_RE_UP) iiSys=SusyMatrixMethod::SYS_MU_RE_UP;
-  if(iSys==DGSys_FAKE_MU_RE_DN) iiSys=SusyMatrixMethod::SYS_MU_RE_DOWN;
-  if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=SusyMatrixMethod::SYS_MU_FR_UP;
-  if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=SusyMatrixMethod::SYS_MU_FR_DOWN;
+  Systematic::Value iiSys = Systematic::SYS_NOM;
+  if(iSys==DGSys_FAKE_EL_RE_UP) iiSys=Systematic::SYS_EL_RE_UP;
+  if(iSys==DGSys_FAKE_EL_RE_DN) iiSys=Systematic::SYS_EL_RE_DOWN;
+  if(iSys==DGSys_FAKE_EL_FR_UP) iiSys=Systematic::SYS_EL_FR_UP;
+  if(iSys==DGSys_FAKE_EL_FR_DN) iiSys=Systematic::SYS_EL_FR_DOWN;
+  if(iSys==DGSys_FAKE_MU_RE_UP) iiSys=Systematic::SYS_MU_RE_UP;
+  if(iSys==DGSys_FAKE_MU_RE_DN) iiSys=Systematic::SYS_MU_RE_DOWN;
+  if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=Systematic::SYS_MU_FR_UP;
+  if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=Systematic::SYS_MU_FR_DOWN;
 
-  /*
-  _fw = m_matrix_method.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
-				     _isSignal[1], _isEle[1], _pt[1],_eta[1],
-				     frSR, metrel, 
-				     (SusyMatrixMethod::SYSTEMATIC) iiSys);  
+  sf::Lepton l0(_isSignal[0], _isEle[0], _pt[0], _eta[0]);
+  sf::Lepton l1(_isSignal[1], _isEle[1], _pt[1], _eta[1]);
+  _fw = m_matrix_method.getTotalFake(l0, l1, iRegion, metrel, iiSys); 
   
   if(dbg()>10) cout << "SR " << DIL_SRNAME[iSR] 
 		    << " applying Ssys " << SYST 
 		    << " " << DGSystNames[SYST] << " fw " << _fw << endl;
-  */
+
   return _fw;
 }
 

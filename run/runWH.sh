@@ -19,10 +19,10 @@ Opt2=true
 #####
 # Run flags
 #####
-#dbgEvt=""
-dbgEvt="-dbgEvt"
-#debug=0
-debug=6
+dbgEvt=""
+#dbgEvt="-dbgEvt"
+debug=0
+#debug=6
 nEvt="-n -1"
 #nEvt="-n 100"
 

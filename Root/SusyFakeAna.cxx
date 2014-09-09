@@ -131,7 +131,7 @@ bool SusyFakeAna::selectEvent(LeptonVector* baseLeps,
   if(passSelections(baseLeps, signalLeptons, signalJets, met)){
     m_toyNt->_b_isGenuineSS  =  isGenuineSS(baseLeps,nt->evt()->isMC);
     getEventWeights(w, baseLeps, signalJets, met);
-    fillToyNt(SYST, baseLeps, signalJets, met,_ww, _wwBTag, _wwqFlip);
+    fillToyNt(SYST, baseLeps, signalJets, met,_ww, _wwBTag, _wwqFlip,1);
   }
 
   return true;

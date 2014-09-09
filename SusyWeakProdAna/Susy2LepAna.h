@@ -12,7 +12,6 @@
 #include "TRandom3.h"
 
 // Susy Common
-#include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
 #include "HistFitterTree/HistFitterTree.h"
 #include "SusyXSReader/XSReader.h"
 

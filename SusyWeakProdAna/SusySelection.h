@@ -265,6 +265,7 @@ class SusySelection: public SusyNtTools
   
   
   // Event counters
+  float                n_eventProcessed;
   float                n_readin;
   float                n_pass_SUSYGrid;
   float                n_pass_GRL;

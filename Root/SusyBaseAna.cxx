@@ -34,28 +34,65 @@ SusyBaseAna::SusyBaseAna(SusyHistos* _histos, bool is2LAna, bool isWHAna, bool q
     cout << " MESSAGE: Using MC trigger decision " << endl;
   }
 
-  // Configure using fake rates file - 2L OS -EWK 
+  // Configure using fake rates file - 2L OS -EWK - paper2013
   // Currently rates are provided as function of pT only, so only use PT as second option
-  string _fakeInput  =  string(getenv("WORKAREA")) + 
-    //"/SusyMatrixMethod/data/pass3_Summer2013.root"; //Summer 2013 2L paper!
-    "/SusyMatrixMethod/data/FinalFakeHist_Feb_11.root"; //WH new Iso update CR/SR to match Anyes selection cuts
-    
-  cout << "Loading 2L OS EWK fake MM " << _fakeInput << endl;
-  m_matrix_method.configure(_fakeInput, SusyMatrixMethod::PT,
-			    SusyMatrixMethod::PT,
-			    SusyMatrixMethod::PT,
-			    SusyMatrixMethod::PT);
 
-  // Configure 2L SS - WH 
-  string _fakeInputSS  =  string(getenv("WORKAREA")) + 
-    "/SameSignMatrixMethod/data/FinalFakeHist_May_16.root"; //WH update fake - old sys
-  cout << "Loading fake SS-WH MM " << _fakeInputSS << endl;
+  //2L - OS - EWK - Summer 2013 2L paper!
+  string _fakeInput_EWK  =  string(getenv("WORKAREA")) + 
+    "/DileptonMatrixMethod/data/pass3_Summer2013.root";
+  Parametrization::Value rp = Parametrization::PT;
+  std::vector<std::string> regions_OS_EWK;
+  regions_OS_EWK.push_back("CRPremT2");
+  regions_OS_EWK.push_back("CRTopMet");
+  regions_OS_EWK.push_back("CRTopZjets");
+  regions_OS_EWK.push_back("CRTopmT2");
+  regions_OS_EWK.push_back("CRWWMet");
+  regions_OS_EWK.push_back("CRWWmT2");
+  regions_OS_EWK.push_back("CRZVMet");
+  regions_OS_EWK.push_back("CRZVmT2_90");
+  regions_OS_EWK.push_back("CRZVmT2_100");
+  regions_OS_EWK.push_back("CRZVmT2_120");
+  regions_OS_EWK.push_back("CRZVmT2_150");
+  regions_OS_EWK.push_back("CRZXZjets");
+  regions_OS_EWK.push_back("CR_SSInc");
+  regions_OS_EWK.push_back("SRWWa");
+  regions_OS_EWK.push_back("SRWWb");
+  regions_OS_EWK.push_back("SRWWc");
+  regions_OS_EWK.push_back("SRZjets");
+  regions_OS_EWK.push_back("SRmT2a");
+  regions_OS_EWK.push_back("SRmT2b");
+  regions_OS_EWK.push_back("SRmT2c");
+  regions_OS_EWK.push_back("VRSS");
 
-  bool m_use2dparametrization=true;
-  SameSignMatrixMethod::RATE_PARAM pm = (m_use2dparametrization ? SameSignMatrixMethod::PT_ETA : 
-					 SameSignMatrixMethod::PT);
-  m_matrix_methodWH.configure(_fakeInputSS, pm, pm, pm, pm);
+  if(m_matrix_method.configure(_fakeInput_EWK, regions_OS_EWK, rp, rp, rp, rp))
+    cout << "Configured 2L OS EWK fake MM " << _fakeInput_EWK << endl;
+  else
+    cout << "Fail to configured 2L OS EWK fake MM " << _fakeInput_EWK << endl;
   
+  // Configure 2L SS - WH
+  string _fakeInput_WH  =  string(getenv("WORKAREA")) + 
+    "/DileptonMatrixMethod/data/FinalFakeHist_May_16.root"; 
+  rp = Parametrization::PT_ETA;
+  std::vector<std::string> regions_SS_WH;
+  regions_SS_WH.push_back("CR_SSInc1j");
+
+  if(m_matrix_methodWH.configure(_fakeInput_WH, regions_SS_WH, rp, rp, rp, rp))
+    cout << "Configured 2L SS WH fake MM " << _fakeInput_WH << endl;
+  else
+    cout << "Fail to configured 2L SS WH fake MM " << _fakeInput_WH << endl;
+  
+  // Configure 2L OS - LFV
+  string _fakeInput_LFV  =  string(getenv("WORKAREA")) + 
+    "/DileptonMatrixMethod/data/FakeMatrix_Jul_26.root"; 
+  rp = Parametrization::PT_ETA;
+  std::vector<std::string> regions_OS_LFV;
+  regions_OS_LFV.push_back("emuInc");
+
+  if(m_matrix_methodLFV.configure(_fakeInput_LFV, regions_OS_LFV, rp, rp, rp, rp))
+    cout << "Configured 2L OS LFV fake MM " << _fakeInput_LFV << endl;
+  else
+    cout << "Fail to configured 2L OS LFV fake MM " << _fakeInput_LFV << endl;
+
 
   //-------------------------
   //3L Trigger
@@ -557,13 +594,22 @@ void SusyBaseAna::fillToyNt(uint iSYS,
 			    const LeptonVector* leptons, 
 			    const JetVector* jets,
 			    const Met* met,
-			    float _ww, float _wwBTag, float _wwQFlip)
+			    float _ww, float _wwBTag, float _wwQFlip, float _wwTrig )
 {
   float corrNpv = nt->evt()->nVtx;
   if(nt->evt()->isMC) corrNpv = GetNVertexBsCorrected(nt->evt()->nVtx);
   
+  /*
   m_toyNt->FillTreeEvent(nt->evt()->run, nt->evt()->event, nt->evt()->mcChannel,
-			 nt->evt()->nVtx, corrNpv,_ww, _wwBTag, _wwQFlip);	 
+			 nt->evt()->nVtx, corrNpv,_ww, _wwBTag, _wwQFlip, _wwTrig, 
+			 passTrigger(leptons, m_trigObj, met) );
+  */
+
+  m_toyNt->FillTreeEvent(nt->evt(),
+			 corrNpv,_ww, _wwBTag, _wwQFlip, _wwTrig, 
+			 passTrigger(leptons, m_trigObj, met) );
+
+	 
   m_toyNt->FillTreeLeptons(leptons,*v_baseEle,*v_baseMu,met,nt->evt()->nVtx,nt->evt()->isMC, m_ET);
   //These need to be done here because uses SusySelection feature that cannot call from ToyNt
   for(uint ilep=0; ilep<leptons->size(); ilep++){
@@ -680,9 +726,8 @@ void SusyBaseAna::fillToyNt(uint iSYS,
   
   m_toyNt->FillLFV(leptons,met,jets);
   m_toyNt->FillRazor(leptons,met);
-    
-
-
+  
+  m_toyNt->FillTrigger(nt->evt(),leptons);
 
   //Checks
   /*

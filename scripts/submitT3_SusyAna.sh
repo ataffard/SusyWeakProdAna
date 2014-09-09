@@ -12,7 +12,7 @@
 #     type=mc12 or data12
 #     mode= STD or DD
 # ./submitT3_SusyAna mc12 DD                // submit all MC
-# ./submitT3_SusyAna data12                 // submit all data
+# ./submitT3_SusyAna data12 DD              // submit all data + fake
 # ./submitT3_SusyAna mc12 ttbar             // submit all mc ttbar
 # ./submitT3_SusyAna data12 Egamma.periodB1 // submit all data: periodE muon Dil
 #./submitT3_SusyAna.sh mc12 Mll10to60 DD    //to submit just the alpgen low mass
@@ -70,8 +70,8 @@ nEvt=-1
 #
 # Mll cut for Zjets - kind of obsolete
 #
-#anaOpt2=true #doMll 
-anaOpt2=false #doMll 
+anaOpt2=true #doMll 
+#anaOpt2=false #doMll 
 methodMC=std
 
 #

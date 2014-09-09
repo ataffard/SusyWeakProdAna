@@ -30,7 +30,12 @@ class ToyNt: public SusyNtTools
  public: 
 
   ToyNt(TString MCID, TString suffix);
-  ~ToyNt(){};
+  ~ToyNt(){
+    delete _b_vBeta_z;
+    delete _b_pTCM;
+    delete _b_vBetaT_CMtoR;
+    delete _b_vBetaR;
+  };
 
   //Toggles blocks of vars to save
   void setBlocks(bool metD=false, bool dijetB=false, 
@@ -49,14 +54,15 @@ class ToyNt: public SusyNtTools
   string getFilename() const {return filename.Data();} //Tree output filename
 
   
-  void FillTreeEvent(int run, int event, int mcId,
-		     float npv, float npvCorr, double w, double wbtag, double wqflip);
+  void FillTreeEvent(const Susy::Event* evt,
+		     float npvCorr, double w, double wbtag, double wqflip, double wtrig, 
+		     bool passDilTrig);
 
   void FillTreeLeptons(const LeptonVector* leptons, 
 		       ElectronVector& baseElectrons, MuonVector& baseMuons, 
 		       const Met* met, int nVtx, bool isMc, int llType);
 
- void FillTreeSignalJets(const JetVector* jets, 
+  void FillTreeSignalJets(const JetVector* jets, 
 			  const LeptonVector* leptons, 
 			  const Met* met,
 			  const ElectronVector* preElectrons, 
@@ -68,6 +74,9 @@ class ToyNt: public SusyNtTools
 			float sphericity, float sphericityTrans,
 			float llAcoplanarity, float jjAcoplanarity,
 			bool topTag, float mllCollApprox);
+
+  void FillTrigger(const Susy::Event* evt,const LeptonVector* leptons);
+
 
   void FillMT2(float mT2, float mT2jj, float mT2J);
   void FillMCT(float mct, float mctPerp, float mctPara);
@@ -118,11 +127,16 @@ class ToyNt: public SusyNtTools
   double  _b_w;
   double  _b_wbtag;
   double  _b_wqflip;
+  double  _b_wtrig;
+  bool    _b_passDilTrig;
+  bool    _b_isEg;
+  bool    _b_isMc;
   
   //Lepton Block
   static const unsigned int nLepMax=5;
   int     _b_nlep;
   float   _b_l_pt[nLepMax];
+  float   _b_l_pz[nLepMax];
   float   _b_l_eta[nLepMax];
   float   _b_l_phi[nLepMax];
   float   _b_l_e[nLepMax];
@@ -260,10 +274,31 @@ class ToyNt: public SusyNtTools
   double     _b_dphi_vBetaR_vBetaT;
   double     _b_mDeltaR;
   double     _b_cosThetaRp1;
+  double     _b_cosTheta_b;
   TVector3* _b_vBeta_z;
   TVector3* _b_pTCM;
   TVector3* _b_vBetaT_CMtoR;
   TVector3* _b_vBetaR;
+
+  //Trigger info
+  //-- event level
+  bool _b_trig_e12_mu8;
+  bool _b_trig_mu18_e7;
+  bool _b_trig_e60;
+  bool _b_trig_mu36;
+  bool _b_trig_e24i;
+  bool _b_trig_mu24i;
+  //-- lepton matching
+  bool _b_l_e7[nLepMax];
+  bool _b_l_e12[nLepMax];
+  bool _b_l_e60[nLepMax];
+  bool _b_l_e24i[nLepMax];
+  bool _b_l_mu8[nLepMax];
+  bool _b_l_mu18[nLepMax];
+  bool _b_l_mu36[nLepMax];
+  bool _b_l_mu24i[nLepMax];
+
+
 
   //For Fake studies
   int  _b_ll_FType;          //Fake  category LL, TL, LT, TT using leading 2 leptons

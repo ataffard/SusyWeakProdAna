@@ -12,7 +12,6 @@
 #include "TRandom3.h"
 
 // Susy Common
-#include "SusyMatrixMethod/DiLeptonMatrixMethod.h"
 #include "HistFitterTree/HistFitterTree.h"
 #include "SusyXSReader/XSReader.h"
 
@@ -30,8 +29,7 @@ class SusyWHAna: public SusyBaseAna
     SusyWHAna(SusyHistos* _histos);
     virtual ~SusyWHAna(){};
 
-    float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, 
-			int iSR, int nJet, float metrel, uint iSys=DGSys_NOM);
+  
    
     //Analysis main 
     void doAnalysis(float w, unsigned int isys=DGSys_NOM);
@@ -54,6 +52,9 @@ class SusyWHAna: public SusyBaseAna
 			const JetVector* jets,
 			const Met* met,
 			float _ww);
+
+    float getFakeWeight(const LeptonVector* leptons, uint nVtx, bool isMC, 
+			int iSR, int nJet, float metrel, uint iSys=DGSys_NOM);
 
     //Uncertainty on the W background
     float getWZUncertainty(uint dsid, int nJet);

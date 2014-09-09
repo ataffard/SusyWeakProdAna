@@ -59,11 +59,16 @@ void ToyNt::BookTree()
   tree->Branch("npvCorr",&_b_npvCorr,"npvCorr/F");
   tree->Branch("w",&_b_w,"w/D");
   tree->Branch("wbtag",&_b_wbtag,"w/D");
+  tree->Branch("wtrig",&_b_wtrig,"w/D");
   tree->Branch("wqflip",&_b_wqflip,"w/D");
+  tree->Branch("passDilTrig",&_b_passDilTrig,"w/O");
+  tree->Branch("isEg",&_b_isEg,"w/O");
+  tree->Branch("isMc",&_b_isMc,"w/O");
 
   //Lepton Block
   tree->Branch("nlep",&_b_nlep,"nlep/I");
   tree->Branch("l_pt",_b_l_pt,"l_pt[nlep]/F");
+  tree->Branch("l_pz",_b_l_pz,"l_pz[nlep]/F");
   tree->Branch("l_eta",_b_l_eta,"l_eta[nlep]/F");
   tree->Branch("l_phi",_b_l_phi,"l_phi[nlep]/F");
   tree->Branch("l_e",_b_l_e,"l_e[nlep]/F");
@@ -207,11 +212,29 @@ void ToyNt::BookTree()
     tree->Branch("dphi_vBetaR_vBetaT",&_b_dphi_vBetaR_vBetaT,"dphi_vBetaR_vBetaT/D");
     tree->Branch("mDeltaR",&_b_mDeltaR,"mDeltaR/D");
     tree->Branch("cosThetaRp1",&_b_cosThetaRp1,"cosThetaRp1/D");
+    tree->Branch("cosTheta_b",&_b_cosTheta_b,"cosTheta_b/D");
     tree->Branch("vBeta_z","TVector3",&_b_vBeta_z);
     tree->Branch("pTCM","TVector3",&_b_pTCM);
     tree->Branch("vBetaT_CMtoR","TVector3",&_b_vBetaT_CMtoR);
     tree->Branch("vBetaR","TVector3",&_b_vBetaR);
   }
+
+  //trigger block
+  tree->Branch("trig_e12_mu8",&_b_trig_e12_mu8,"trig_e12_mu8/O");
+  tree->Branch("trig_mu18_e7",&_b_trig_mu18_e7,"trig_mu18_e7/O");
+  tree->Branch("trig_e60",&_b_trig_e60,"trig_e60/O");
+  tree->Branch("trig_mu36",&_b_trig_mu36,"trig_mu36/O");
+  tree->Branch("trig_e24i",&_b_trig_e24i,"trig_e24i/O");
+  tree->Branch("trig_mu24i",&_b_trig_mu24i,"trig_mu24i/O");
+ 
+  tree->Branch("l_e7",_b_l_e7,"l_e7[nlep]/O");
+  tree->Branch("l_e12",_b_l_e12,"l_e12[nlep]/O");
+  tree->Branch("l_e60",_b_l_e60,"l_e60[nlep]/O");
+  tree->Branch("l_e24i",_b_l_e24i,"l_e24i[nlep]/O");
+  tree->Branch("l_mu8",_b_l_mu8,"l_mu8[nlep]/O");
+  tree->Branch("l_mu18",_b_l_mu18,"l_mu18[nlep]/O");
+  tree->Branch("l_mu36",_b_l_mu36,"l_mu36[nlep]/O");
+  tree->Branch("l_mu24i",_b_l_mu24i,"l_mu24i[nlep]/O");
 
 
   //Fake lepton Block
@@ -261,11 +284,17 @@ void ToyNt::clearOutputBranches(void) {
   _b_npvCorr=-1;
   _b_w=0;
   _b_wbtag=1;
+  _b_wtrig=1;
   _b_wqflip=1;
+  _b_passDilTrig=false;
+  _b_isEg=false;
+  _b_isMc=false;
+
 
   _b_nlep=0;
   for(uint i=0; i<nLepMax; i++){
     _b_l_pt[i]=-999;
+    _b_l_pz[i]=-999;
     _b_l_eta[i]=-999;
     _b_l_phi[i]=-999;
     _b_l_e[i]=-999;
@@ -390,11 +419,30 @@ void ToyNt::clearOutputBranches(void) {
   _b_dphi_vBetaR_vBetaT=-999;
   _b_mDeltaR=-999;
   _b_cosThetaRp1=-999;
+  _b_cosTheta_b=-999;
   _b_vBeta_z->Clear();
   _b_pTCM->Clear();
   _b_vBetaT_CMtoR->Clear();
   _b_vBetaR->Clear();
   
+  
+  _b_trig_e12_mu8 = false;
+  _b_trig_mu18_e7 = false;
+  _b_trig_e60     = false;
+  _b_trig_mu36    = false;
+  _b_trig_e24i    = false;
+  _b_trig_mu24i   = false;
+
+  for(uint i=0; i<nLepMax; i++){
+    _b_l_e7[i] = false;
+    _b_l_e12[i] = false;
+    _b_l_e60[i] = false;
+    _b_l_e24i[i] = false;
+    _b_l_mu8[i] = false;
+    _b_l_mu18[i] = false;
+    _b_l_mu36[i] = false;
+    _b_l_mu24i[i] = false;
+  }
   
   _b_ll_FType=-1;
   _b_pass_SS1j=false;
@@ -444,17 +492,23 @@ void ToyNt::WriteTree(){
 } 
 
 //-----------------------------------------------------------------------------------------------------------
-void ToyNt::FillTreeEvent(int run, int event,int mcId, 
-			  float  npv, float npvCorr,double w, double wbtag, double wqflip)
+void ToyNt::FillTreeEvent(const Susy::Event* evt,
+			  float npvCorr,
+			  double w, double wbtag, double wqflip, double wtrig, 
+			  bool passDilTrig)
 {
-  _b_run = run;
-  _b_event = event;
-  _b_mcId = mcId;
-  _b_npv = npv;
+  _b_run = evt->run;
+  _b_event = evt->event;
+  _b_mcId = evt->mcChannel;
+  _b_npv = evt->nVtx;
   _b_npvCorr = npvCorr;
-  _b_w      = w;
+  _b_w       = w;
   _b_wbtag   = wbtag;
+  _b_wtrig   = wtrig;
   _b_wqflip  = wqflip;
+  _b_passDilTrig   = passDilTrig;
+  _b_isEg    = evt->stream == Stream_Egamma;
+  _b_isMc    = evt->stream == Stream_MC;
 }
 
 //-----------------------------------------------------------------------------------------------------------
@@ -483,6 +537,7 @@ void ToyNt::FillTreeLeptons(const LeptonVector* leptons,
      }
 
     _b_l_pt[ilep] = _l->Pt();
+    _b_l_pz[ilep] = _l->Pz();
     _b_l_eta[ilep] = _l->Eta();
     _b_l_phi[ilep] = _l->Phi();
     _b_l_e[ilep] = _l->E();
@@ -635,8 +690,10 @@ void ToyNt::FillTreeSignalJets(const JetVector* jets, const LeptonVector* lepton
     _b_pTjj = _jj.Pt();
   }
 
+
   //cout << "nSJets " << _b_nSJets << " nCJets " << _b_nCJets 
   //<< " nBJets " << _b_nBJets << " nFJets " << _b_nFJets << endl;
+  //getAnaType();
 
 }
 
@@ -669,6 +726,34 @@ void ToyNt::FillTreeEventVar(float mlj, float mljj,
   _b_topTag = topTag;
 
   _b_mll_collApprox = mllCollApprox;
+
+}
+
+//-----------------------------------------------------------------------------------------------------------
+void ToyNt::FillTrigger(const Susy::Event* evt,const LeptonVector* leptons)
+{
+  long long evtflag =evt->trigFlags;
+
+  _b_trig_e12_mu8 = evtflag & TRIG_e12Tvh_medium1_mu8;
+  _b_trig_mu18_e7 = evtflag & TRIG_mu18_tight_e7_medium1;
+  _b_trig_e60     = evtflag & TRIG_e60_medium1;
+  _b_trig_mu36    = evtflag & TRIG_mu36_tight;
+  _b_trig_e24i    = evtflag & TRIG_e24vhi_medium1;
+  _b_trig_mu24i   = evtflag & TRIG_mu24i_tight;
+
+
+  for(uint ilep=0; ilep<leptons->size(); ilep++){
+    const Susy::Lepton* _l = leptons->at(ilep);
+    long long trigflag =_l->trigFlags;
+    _b_l_e7[ilep]    = trigflag & TRIG_e7_medium1;
+    _b_l_e12[ilep]   = trigflag & TRIG_e12Tvh_medium1;
+    _b_l_e60[ilep]   = trigflag & TRIG_e60_medium1;
+    _b_l_e24i[ilep]  = trigflag & TRIG_e24vhi_medium1;
+    _b_l_mu8[ilep]   = trigflag & TRIG_mu8;
+    _b_l_mu18[ilep]  = trigflag & TRIG_mu18_tight;
+    _b_l_mu36[ilep]  = trigflag & TRIG_mu36_tight ;
+    _b_l_mu24i[ilep] = trigflag & TRIG_mu24i_tight;
+  }
 
 }
 
@@ -726,7 +811,8 @@ void ToyNt::FillRazor(const LeptonVector* leptons, const Met* met)
   superRazor( *leptons, met, 
 	      *_b_vBeta_z, *_b_pTCM, *_b_vBetaT_CMtoR, *_b_vBetaR,
 	      _b_shatr, _b_dphi_ll_vBetaT, _b_dphi_l1l2,
-	      _b_gammaR, _b_dphi_vBetaR_vBetaT, _b_mDeltaR, _b_cosThetaRp1);
+	      _b_gammaR, _b_dphi_vBetaR_vBetaT, _b_mDeltaR, _b_cosThetaRp1,
+	      _b_cosTheta_b);
 }
 
 //-----------------------------------------------------------------------------------------------------------

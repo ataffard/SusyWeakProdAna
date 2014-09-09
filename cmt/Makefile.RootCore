@@ -7,7 +7,7 @@ PACKAGE_PRELOAD  = Tree
 PACKAGE_CXXFLAGS = -DDEBUG -g
 PACKAGE_LDFLAGS  = $(shell root-config --libs) 
 PACKAGE_BINFLAGS = -lCintex -lReflex -lPyROOT -lXMLParser -lEG 
-PACKAGE_DEP      = ReweightUtils Mt2 SusyNtuple SameSignMatrixMethod SusyMatrixMethod ChargeFlip HistFitterTree SusyXSReader SignificanceCalculator
+PACKAGE_DEP      = ReweightUtils Mt2 SusyNtuple DileptonMatrixMethod ChargeFlip HistFitterTree SusyXSReader SignificanceCalculator
 PACKAGE_NOOPT    = 0
 
 include $(ROOTCOREDIR)/Makefile-common

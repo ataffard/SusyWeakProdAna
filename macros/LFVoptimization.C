@@ -23,14 +23,18 @@
 
 
 //_____________________________________________________________________________//
-static const string ver       = "histos_070614_21fb_n0150_DD_LFV_v1/";  
+static const string ver       = "histos_090514_21fb_n0155_DD_LFV_v2/"; //Note: trigger OFF!!!
+//static const string ver       = "histos_090514_21fb_n0155_DD_LFV_v1/"; //incomplete data
+//static const string ver       = "histos_082814_21fb_n0154_DD_LFV_v1/";
+//static const string ver       = "histos_081514_21fb_n0154_DD_LFV_v1/";
+//static const string ver       = "histos_070614_21fb_n0150_DD_LFV_v1/";  
 static const string SR        = "_LFV_base"; //Skimmed ToyNt suffix
 
-static const int dbg = 1;
+static const int dbg = 0;
 
 //Options for optimisation
-static const int    selDil = 2;  //EE=0, MM=1, EM=2, ME=3 
-static const int    selCuts = 4; //0: SR 1: Zpeak, 2: ttbar enriched, 3: EM/ME side bands; 4: WW VR
+static const int    selDil = 4;  //EE=0, MM=1, EM=2, ME=3 EM+ME=4
+static const int    selCuts = 5; //0: SR 1: Zpeak, 2: ttbar enriched, 3: EM/ME side bands; 4: WW VR, 5: EM Inc
 
 //LFV grids
 static const unsigned int   sigSampleStart = 169670; //TauMu
@@ -39,12 +43,13 @@ static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use fo
 
 //Settings for optimisation/plots
 static const bool   weightEvt          = true;   //Weight bkg/signal events
-static const bool   showData           = true;   //false; // shows Zn below plot
+static const bool   showData           = true;//false; // shows Zn below plot
+static const bool   blindData          = false;//true;
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group in cutflow & plots;
 static const bool   showCutflow        = true;   //dump cutflow yield
 static const bool   showCutflowDetail  = true;   //dump yield last cut
-static const bool   showCutflowDetail2 = false;  //dump cutflow each cut
+static const bool   showCutflowDetail2 = true;  //dump cutflow each cut
 static const bool   logPlot            = true;   
 
 static const float SYS_ERR = 0.3; //30% systematic on Bkg  - Note: Zn add stat err on tot bkg
@@ -143,6 +148,9 @@ vector<TGraphAsymmErrors*> _ratioTG;
 vector<TH1F*>              _ratioH;
 TH1F*                      _hBkgTotal;
 
+TCut                       weight;
+TCut                       trigger;
+
 vector<TEventList*> _bkgEvtList;
 vector<TEventList*> _sigEvtList;
 TEventList*         _dataEvtList;
@@ -160,13 +168,16 @@ void compareData(bool normalize=false,
 
 void signalYield();                                    //Print signal yield 
 
+void dumpCutflow(int mcId=0, string filename="");      //Dump cutflow for a given sample. 
+                                                       //either give mcId=110001 or filename toyNt_top_MCNLO
+
 /* Base functions */
 void init();
 //load Bkg, data and signals 
 void loadSamples();                                     
-//Set TCut to apply
+//Set list of cuts to apply
 TCut setSelection(int isel, int dilType=3, bool verbose=true); 
-//Generate event lists using TCut configured
+//Generate event lists using TCut configured by setSelection
 void selectEvent(TCut _cut,bool useOneSignal=true);    
 //Apply 1 cut at a time and show cutflow for bkg/signal
 //return yield at last cut
@@ -176,8 +187,8 @@ void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr, bool detail=true);
 /* Functions for plotting */
 void     bookHist();
 TH1F*    myBook(string name, int nbin, float  xlow, float  xhigh, string xaxis, string yaxis);
-TH1F*    histList(int ivar, string name);
-void     fillHist();                           //fill all histos using event List & save plots to file
+TH1F*    histList(int ivar, string name);       
+void     fillHist();                           //fill all histos using eventlist & save plots to file
 void     plotHist(bool logy=false);            //compare signal and bkg
 TH1F*    ZnHistos(TH1* _hBkg, TH1* _hSig, bool upper=true);
 THStack* buildStack(TLegend* _l, int ivar);
@@ -194,6 +205,7 @@ TCut sel_Z(int dilType, bool verbose=true);
 TCut sel_Top(int dilType, bool verbose=true);
 TCut sel_EMSideBands(int dilType, bool verbose=true);
 TCut sel_WW(int dilType, bool verbose=true);
+TCut sel_EMInc(int dilType, bool verbose=true);
 
 //_____________________________________________________________________________//
 //_____________________________________________________________________________//
@@ -242,7 +254,7 @@ void runOptimisation(bool useOneSignal)
       cout << "Total Bkg \t\t\t"<<  totYield << " +/- " << totYieldStatErr << endl;
       cout << "---------------------------------------------" << endl;
       cout << "---------------------------------------------" << endl;
-      if(showData){
+      if(showData && !blindData){
 	cutFlow(ntData,yield,statErr);
 	cout << "---------------------------------------------" << endl;
 	cout << "---------------------------------------------" << endl;
@@ -269,6 +281,14 @@ void init()
 
   _histoDir = new TDirectory("Ana","Ana");
   _histoDir->cd();
+
+  //Note when adding dilepton trigger, add the trigger weight!!!
+  //weight += TCut("w"); 
+  weight += TCut("w*wtrig"); 
+  //  weight += TCut("w*wbtag"); 
+
+  //trigger += TCut(""); 
+  trigger += TCut("passDilTrig"); 
 
 }
 //_____________________________________________________________________________//
@@ -427,6 +447,7 @@ void bookHist()
   _var.push_back("HT");
   _var.push_back("dPhiMetll");
   _var.push_back("deta_ll");
+  _var.push_back("dPt_ll");
   _var.push_back("max_mTl");
   _var.push_back("e_eta");
   _var.push_back("m_eta");
@@ -497,16 +518,17 @@ TH1F* histList(int ivar, string name)
   if(ivar==26) h = myBook(name.c_str(),40,0,800,"HT [GeV]",sY.c_str());
   if(ivar==27) h = myBook(name.c_str(),32,0,3.2,"#delta#phi(met,ll) [rad]",sY.c_str());
   if(ivar==28) h = myBook(name.c_str(),30,0,3,"#delta#eta_{ll} ",sY.c_str());
-  if(ivar==29) h = myBook(name.c_str(),40,0,400,"max(m_{T}^{l0},(m_{T}^{l1}) [GeV]",sY.c_str());
-  if(ivar==30) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{e}",sY.c_str());
-  if(ivar==31) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{#mu}",sY.c_str());
+  if(ivar==29) h = myBook(name.c_str(),25,0,50,"#delta#p_T_{ll} ",sY.c_str());
+  if(ivar==30) h = myBook(name.c_str(),40,0,400,"max(m_{T}^{l0},(m_{T}^{l1}) [GeV]",sY.c_str());
+  if(ivar==31) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{e}",sY.c_str());
+  if(ivar==32) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{#mu}",sY.c_str());
 
   //LFV specific
-  if(ivar==32) h = myBook(name.c_str(),30,0,300,"m_{coll-corr} [GeV]",sY.c_str());
-  if(ivar==33) h = myBook(name.c_str(),30,0,300,"E_{T}^{miss-corr} [GeV]",sY.c_str());
-  if(ivar==34) h = myBook(name.c_str(),30,0,300,"E_{T}^{miss,rel-corr} [GeV]",sY.c_str());
-  if(ivar==35) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{l0,ETmissCorr} [rad]",sY.c_str());
-  if(ivar==36) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{l1,ETmissCorr} [rad]",sY.c_str());
+  if(ivar==33) h = myBook(name.c_str(),30,0,300,"m_{coll-corr} [GeV]",sY.c_str());
+  if(ivar==34) h = myBook(name.c_str(),30,0,300,"E_{T}^{miss-corr} [GeV]",sY.c_str());
+  if(ivar==35) h = myBook(name.c_str(),30,0,300,"E_{T}^{miss,rel-corr} [GeV]",sY.c_str());
+  if(ivar==36) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{l0,ETmissCorr} [rad]",sY.c_str());
+  if(ivar==37) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{l1,ETmissCorr} [rad]",sY.c_str());
 
   return h;
 }
@@ -520,11 +542,12 @@ void fillHist()
   string cmdSig;
   string cmdData;
 
-  TCut weight("w");
+  //TCut weight("w*wbtag");
 
   for(uint ivar=0; ivar<_var.size(); ivar++){
     TCut _sel("metrel>=0"); //dummy cut to weight the events
     TCut _selData("");
+
     if     (ivar==4)  cmd = "mll_collApprox";
     else if(ivar==7)  cmd = "l_pt[0]+l_pt[1]+metCorr";
     else if(ivar==23) cmd = "l_etcone30[0]/l_pt[0]";
@@ -533,19 +556,20 @@ void fillHist()
     else if(ivar==26) cmd = "mEff";
     else if(ivar==27) cmd = "acos(cos(phill-metCorrPhi))";
     else if(ivar==28) cmd = "abs(deta_ll)";
-    else if(ivar==29) cmd = "TMath::Max(mTl0Corr,mTl1Corr)";
-    else if(ivar==30){
+    else if(ivar==29) cmd = "l_pt[0]-l_pt[1]";
+    else if(ivar==30) cmd = "TMath::Max(mTl0Corr,mTl1Corr)";
+    else if(ivar==31){
       cmd = "l_eta";
       _sel += TCut("l_isEle");
       _selData += TCut("l_isEle");
     }
-    else if(ivar==31){
+    else if(ivar==32){
       cmd = "l_eta";
       _sel += TCut("!l_isEle");
       _selData += TCut("!l_isEle");
     }
-    else if(ivar==35) cmd = "acos(cos(l_phi[0]-metCorrPhi))";
-    else if(ivar==36) cmd = "acos(cos(l_phi[1]-metCorrPhi))";
+    else if(ivar==36) cmd = "acos(cos(l_phi[0]-metCorrPhi))";
+    else if(ivar==37) cmd = "acos(cos(l_phi[1]-metCorrPhi))";
     else              cmd = _var[ivar];
     
     cmdSig = cmd + ">>sig_" + _var[ivar];
@@ -559,6 +583,7 @@ void fillHist()
       else          ntBkg[ibkg]->Draw(cmdBkg.c_str(),"","goff");
     }
     
+    if(ivar==33 && blindData) continue; //Don't plot data mColl
     cmdData = cmd + ">>data_" + _var[ivar];
     if(weightEvt) ntData->Draw(cmdData.c_str(),_selData,"goff");
     else          ntData->Draw(cmdData.c_str(),_selData,"goff");
@@ -587,9 +612,11 @@ void plotHist(bool logy)
   for(uint ivar=0; ivar<_var.size(); ivar++){  
     string label = _var[ivar] + "_Sig_AllBkg";
         
-    if(_hSig[ivar]->Integral()<=0. || _hData[ivar]->Integral()<=0. ){
-      if(_hData[ivar]->Integral()<=0.) cout << _hData[ivar]->GetTitle() << " is empty in range. Skipping. " << endl;
-      if(showData && _hData[ivar]->Integral()<=0.) continue; 
+    if(_hSig[ivar]->Integral()<=0. ){
+      if(showData && _hData[ivar]->Integral()<=0.){
+     	cout << _hData[ivar]->GetTitle() << " is empty in range. Skipping. " << endl;
+      	continue; 
+      }
       if(!showData && _hSig[ivar]->Integral()<=0){ 
 	cout << _hSig[ivar]->GetTitle() << " is empty in range. Skipping. " << endl;
 	continue;
@@ -599,15 +626,16 @@ void plotHist(bool logy)
     TLegend*  _leg = new TLegend(0.6,0.45,0.8,0.85);
     _utils->legendSetting(_leg,0.05); 
     
+    if(dbg>2) cout << "Plotting " << _var[ivar] << endl;
     THStack* _hStack = NULL;
     if(!skipDetailBkg){
       _hStack = buildStack(_leg,ivar);
       _hBkgStack.push_back(_hStack);
     }
     
-    if(dbg>2) cout << "Plotting " << _var[ivar] 
-		   << " " << _hSig[ivar]->Integral(0,-1)
-		   << " " << _hBkgTotal->Integral(0,-1)
+    if(dbg>2) cout << "Hist Int for " << _var[ivar] 
+		   << " Sig: " << _hSig[ivar]->Integral(0,-1)
+		   << " Bkg: " << _hBkgTotal->Integral(0,-1)
 		   << endl;
 
     if(ivar==33){//Grab bkg/signal yields`
@@ -795,6 +823,7 @@ void plotHist(bool logy)
 //_____________________________________________________________________________//
 THStack* buildStack(TLegend* _l,int ivar)
 {
+  if(dbg>2) cout << "Building MC Bkg Stack " << endl;
   _histoDir->cd();
   THStack* hStack = new THStack(string("stackBkg_"+_var[ivar]).c_str(),
 				string("stackBkg_"+_var[ivar]).c_str());
@@ -899,7 +928,7 @@ void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr,bool detail)
   vector<TH1F*> _hCut;
   string cmd;
   TCut _sel("");
-  TCut weight("w");
+  //TCut weight("w*wbtag"); 
 
   statErr=0;
   tot=0;
@@ -935,6 +964,9 @@ void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr,bool detail)
 //_____________________________________________________________________________//
 TCut setSelection(int isel, int dilType,bool verbose)
 {
+  _vCut.clear();
+  _vCut.push_back(trigger); //Add trigger selection !!!
+  
   TCut _sel("");
   if(isel == 0 ){
     _sel = sel_SR(dilType,verbose);
@@ -951,6 +983,9 @@ TCut setSelection(int isel, int dilType,bool verbose)
   else if(isel == 4){
     _sel = sel_WW(dilType,verbose);
   }
+  else if(isel == 5){
+    _sel = sel_EMInc(dilType,verbose);
+  }
 
   if(verbose) _sel.Print();
 
@@ -960,109 +995,52 @@ TCut setSelection(int isel, int dilType,bool verbose)
 //_____________________________________________________________________________//
 TCut sel_SR(int dilType, bool verbose)
 {
-  _vCut.clear();
   
-  //EE
-  if(dilType==0)
-    { 
-      _vCut.push_back(TCut("llType==0"));
-      _vCut.push_back(TCut("isOS"));
-      _vCut.push_back(TCut("nBJets==0"));
-      // _vCut.push_back(TCut("l_pt[0]>20"));
-      // _vCut.push_back(TCut("l_pt[1]>15"));
-      // _vCut.push_back(TCut("nCJets>=0 && nBJets==0 && nFJets==0"));
-    }
-  //MM
-  else if(dilType==1)
-    {
-      _vCut.push_back(TCut("llType==1"));
-      _vCut.push_back(TCut("isOS"));
-      _vCut.push_back(TCut("nBJets==0"));
-      // _vCut.push_back(TCut("l_pt[0]>20"));
-      // _vCut.push_back(TCut("l_pt[1]>15"));
-      // _vCut.push_back(TCut("nCJets>=0 && nBJets==0 && nFJets==0"));
-    }
-  //EM
-  else if(dilType==2)
-    {
-      //Shikma selection - presentation HSG4 05/21
-      /*
-      _vCut.push_back(TCut("llType==2"));
-      _vCut.push_back(TCut("isOS"));
-      _vCut.push_back(TCut("l_pt[0]>30"));
-      _vCut.push_back(TCut("l_pt[1]>20"));
-      //_vCut.push_back(TCut("nJets==0"));
-      _vCut.push_back(TCut("nJets>=1 && j_pt[0]<30 && abs(j_eta[0])<2.5"));
 
-      _vCut.push_back(TCut("abs(dphi_ll)>2.5"));
-      _vCut.push_back(TCut("abs(dphi_metl[1])<0.5"));
-      */
+  if(dilType==0)       _vCut.push_back(TCut("llType==0"));   //EE 
+  else if(dilType==1)  _vCut.push_back(TCut("llType==1"));   //MM
+  else if(dilType==2)  _vCut.push_back(TCut("llType==2"));   //EM
+  else if(dilType==3)  _vCut.push_back(TCut("llType==3"));   //ME
+  else if(dilType==4)  _vCut.push_back(TCut("llType==2 || llType==3"));   //EM+Me
 
-      _vCut.push_back(TCut("llType==2"));
-      _vCut.push_back(TCut("isOS"));
-      _vCut.push_back(TCut("l_pt[0]>30"));
-      _vCut.push_back(TCut("l_pt[1]>18"));   
-      //_vCut.push_back(TCut("nBJets==0"));
-      // _vCut.push_back(TCut("nCJets>=0 && nBJets==0 && nFJets==0"));
-      //_vCut.push_back(TCut("nCJets==0"));
-      //      _vCut.push_back(TCut("abs(dphi_ll)>2.5"));
-      //_vCut.push_back(TCut("abs(dphi_metl[1])<0.5"));
+  _vCut.push_back(TCut("l_pt[0]>35"));
+  _vCut.push_back(TCut("l_pt[1]>18"));
+  //  _vCut.push_back(TCut("nBJets==0"));
+  //  _vCut.push_back(TCut("nFJets==0"));
 
-      
-      
-    }
-  //ME
-  else if(dilType==3)
-    {
-      //Shikma selection - presentation HSG4 05/21
-      /*
-      _vCut.push_back(TCut("llType==3"));
-      _vCut.push_back(TCut("isOS"));
-      _vCut.push_back(TCut("l_pt[0]>30"));
-      _vCut.push_back(TCut("l_pt[1]>20"));
-      //_vCut.push_back(TCut("nJets==0"));
-      _vCut.push_back(TCut("nJets>=1 && j_pt[0]<30 && abs(j_eta[0])<2.5"));
+  /*
+  _vCut.push_back(TCut("isOS"));
+  _vCut.push_back(TCut("nBJets==0 && nFJets==0"));
+  _vCut.push_back(TCut("nCJets>=0")); 
+  _vCut.push_back(TCut("l_pt[0]>45"));
+  _vCut.push_back(TCut("l_pt[1]>15"));
+  //_vCut.push_back(TCut("l_pt[0]-l_pt[1]>50"));  
+  _vCut.push_back(TCut("abs(dphi_ll)>2.3"));   //2.5
+  _vCut.push_back(TCut("abs(dphi_metl[0])>2.3")); //2.5
+  _vCut.push_back(TCut("abs(dphi_metl[1])<0.8")); //0.5
 
-      _vCut.push_back(TCut("abs(dphi_ll)>2.5"));
-      _vCut.push_back(TCut("abs(dphi_metl[1])<0.5"));
-      */
+  */
 
 
-      _vCut.push_back(TCut("llType==3"));
-      _vCut.push_back(TCut("isOS"));
-      _vCut.push_back(TCut("l_pt[0]>40"));
-      //_vCut.push_back(TCut("l_pt[1]>20"));
-      _vCut.push_back(TCut("nBJets==0"));
-      _vCut.push_back(TCut("nFJets==0"));
-
-      //      _vCut.push_back(TCut("nCJets==0"));
-      _vCut.push_back(TCut("nCJets==1"));
-      
-      
-      _vCut.push_back(TCut("metrelCorr<40")); //signal has little metrel since it's aligned w/ 1 lepton
-      _vCut.push_back(TCut("mll>50 && mll<120")); //signal has mll >50 - removes Ztt, mll<120 removes WW/Top
-      _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>50"));
-      _vCut.push_back(TCut("(l_pt[0]+l_pt[1]+metCorr)>100 && (l_pt[0]+l_pt[1]+metCorr)<200"));  
-      _vCut.push_back(TCut("acos(cos(l_phi[1]-metCorrPhi))<0.5"));
-      //_vCut.push_back(TCut("pTll>20"));
-
-
-      //Not use
-      //_vCut.push_back(TCut("abs(dphi_ll)>2.5"))
-      //_vCut.push_back(TCut("met<80")); //signal has met ~40. WW/Top have higher MET.
-      
-      /*
-	mT l0/ max MT, peaks higher for signal than Ztt
-	HT between 100-200 - lower bound reduce Ztt, upper bound WW/top. cut 60% eff on signal- needed considering mcoll?
-
-	In 1j need to suppress firther Ztt
-	
-       */
-
-    }
+  //Other cuts tested
+  /*
+  _vCut.push_back(TCut("nJets>=1 && j_pt[0]<30 && abs(j_eta[0])<2.5"));
+  _vCut.push_back(TCut("metrelCorr<40")); //signal has little metrel since it's aligned w/ 1 lepton
+  _vCut.push_back(TCut("mll>50 && mll<120")); //signal has mll >50 - removes Ztt, mll<120 removes WW/Top
+  _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>50"));
+  _vCut.push_back(TCut("(l_pt[0]+l_pt[1]+metCorr)>100 && (l_pt[0]+l_pt[1]+metCorr)<200"));  
+  _vCut.push_back(TCut("acos(cos(l_phi[1]-metCorrPhi))<0.5"));
+  //_vCut.push_back(TCut("pTll>20"));
+  //_vCut.push_back(TCut("met<80")); //signal has met ~40. WW/Top have higher MET.
+  */
+  /*
+    mT l0/ max MT, peaks higher for signal than Ztt
+    HT between 100-200 - lower bound reduce Ztt, upper bound WW/top. cut 60% eff on signal- needed considering mcoll?
+    
+    In 1j need to suppress firther Ztt
+  */
+  
  
-
-
   //Build the TCut
   TCut _thisSel("");
   for(uint icut=0; icut<_vCut.size(); icut++){
@@ -1076,7 +1054,6 @@ TCut sel_SR(int dilType, bool verbose)
 TCut sel_Z(int dilType, bool verbose)
 {
   cout << "Selecting Z validation region " << endl;
-  _vCut.clear();
   TCut _thisSel("");
 
   if(dilType==0) //EE
@@ -1090,11 +1067,11 @@ TCut sel_Z(int dilType, bool verbose)
   else return _thisSel;
   
   _vCut.push_back(TCut("abs(mll-91.2)<10"));
-  _vCut.push_back(TCut("nBJets==0 && nFJets==0"));
+  //_vCut.push_back(TCut("nBJets==0 && nFJets==0"));
   //_vCut.push_back(TCut("nCJets==0"));
-  _vCut.push_back(TCut("nCJets>0"));
-  _vCut.push_back(TCut("l_pt[0]>30"));
-  _vCut.push_back(TCut("l_pt[1]>18"));
+  //_vCut.push_back(TCut("nCJets>0"));
+  //_vCut.push_back(TCut("l_pt[0]>30"));
+  //_vCut.push_back(TCut("l_pt[1]>18"));
 
    //Build the TCut
   for(uint icut=0; icut<_vCut.size(); icut++){
@@ -1107,10 +1084,9 @@ TCut sel_Z(int dilType, bool verbose)
 TCut sel_Top(int dilType, bool verbose)
 {
   cout << "Selecting Top validation region " << endl;
-  _vCut.clear();
   TCut _thisSel("");
 
-  if(dilType==2)//EM+ME
+  if(dilType==4)//EM+ME
     {
       _vCut.push_back(TCut("llType==2 || llType==3"));
     }
@@ -1134,7 +1110,6 @@ TCut sel_Top(int dilType, bool verbose)
 TCut sel_EMSideBands(int dilType, bool verbose)
 {
   cout << "Selecting EM or ME side bands " << endl;
-  _vCut.clear();
   TCut _thisSel("");
   
   if(dilType==2)//EM
@@ -1147,12 +1122,13 @@ TCut sel_EMSideBands(int dilType, bool verbose)
     }
   else return _thisSel;
   
-  _vCut.push_back(TCut("mcollCorr<100 || mcollCorr>150"));
+  _vCut.push_back(TCut("mcollCorr<100"));
+  //_vCut.push_back(TCut("mcollCorr>150"));
   _vCut.push_back(TCut("nBJets==0"));
   _vCut.push_back(TCut("nFJets==0"));
-  _vCut.push_back(TCut("l_pt[0]>30"));
+  _vCut.push_back(TCut("l_pt[0]>35"));
   _vCut.push_back(TCut("l_pt[1]>18"));
-  _vCut.push_back(TCut("nCJets==0"));
+  //_vCut.push_back(TCut("nCJets==0"));
   // _vCut.push_back(TCut("nCJets>0"));
 
 
@@ -1168,10 +1144,9 @@ TCut sel_EMSideBands(int dilType, bool verbose)
 TCut sel_WW(int dilType, bool verbose)
 {
   cout << "Selecting WW validation region " << endl;
-  _vCut.clear();
   TCut _thisSel("");
 
-  if(dilType==2)//EM+ME
+  if(dilType==4)//EM+ME
     {
       _vCut.push_back(TCut("llType==2 || llType==3"));
     }
@@ -1181,8 +1156,8 @@ TCut sel_WW(int dilType, bool verbose)
   _vCut.push_back(TCut("nFJets==0"));
   _vCut.push_back(TCut("l_pt[0]>30"));
   _vCut.push_back(TCut("l_pt[1]>18"));
-  //_vCut.push_back(TCut("nCJets==0"));
-  _vCut.push_back(TCut("nCJets>0"));
+  _vCut.push_back(TCut("nCJets==0"));
+  // _vCut.push_back(TCut("nCJets>0"));
   _vCut.push_back(TCut("mT2>40"));
 
   //Build the TCut
@@ -1193,6 +1168,28 @@ TCut sel_WW(int dilType, bool verbose)
   return _thisSel;
 }
 
+//_____________________________________________________________________________//
+TCut sel_EMInc(int dilType, bool verbose)
+{
+  cout << "Selecting EM validation region " << endl;
+  TCut _thisSel("");
+
+  if(dilType==4)//EM+ME
+    {
+      _vCut.push_back(TCut("llType==2 || llType==3"));
+    }
+  else return _thisSel;
+
+  _vCut.push_back(TCut("l_pt[0]>35"));
+  _vCut.push_back(TCut("l_pt[1]>18"));
+
+  //Build the TCut
+  for(uint icut=0; icut<_vCut.size(); icut++){
+    _thisSel += _vCut[icut];
+  }
+  
+  return _thisSel;
+}
 
 //_____________________________________________________________________________//
 //_____________________________________________________________________________//
@@ -1202,8 +1199,9 @@ void signal_kin(int iSig)
 
   _histoDir->cd();
    
-  TCut weight("w");
+  //TCut weight("w*wbtag");
   TCut _sel("metrel>=0");//dummy cut
+  _sel += trigger;
 
   _vNtSig[iSig]->Draw("l_pt[0]>>sig_l_pt[0]",_sel*weight,"goff");
   _vNtSig[iSig]->Draw("l_pt[1]>>sig_l_pt[1]",_sel*weight,"goff");
@@ -1253,9 +1251,11 @@ void data_kin(int dil)
 
   _histoDir->cd();
 
-  TCut weight("w");
+  //TCut weight("w*wbtag");
   TCut _sel("metrel>=0");//dummy cut
   TCut _sel2("");//additional selection cuts
+
+  _sel  += trigger;
 
   TCut _sel_EM("llType==2");
   TCut _sel_ME("llType==3");
@@ -1560,4 +1560,37 @@ void signalYield()
     TCut SEL = setSelection(selCuts, selDil,true/*false*/);
     cutFlow(nt,dummy,dummy,true/*false*/);
   }
+}
+
+
+//_____________________________________________________________________________//
+void dumpCutflow(int mcId, string filename)
+{
+  init();
+  
+  string dir =  string(getenv("HISTOANA")) + "/SusyAna/" +  ver ;
+  string subDir = "ToyNtOutputs/";
+  
+  Double_t dummy;
+  string sigFileName;
+
+  TChain* nt = new TChain("ToyNt");
+  if(mcId!=0){
+    char DSID[200];
+    sprintf(DSID,"%i",mcId);
+    sigFileName = DSID + SR + ".root"; 
+    nt->Add( string(dir+subDir + sigFileName).c_str());
+  }
+  else{
+    sigFileName = filename  + SR + "_rlep.root";
+    nt->Add( string(dir + sigFileName).c_str());
+  }
+
+  if(nt->GetEntries()<10) return;
+
+  TCut SEL = setSelection(selCuts, selDil,true);
+  if(dbg>0) cout << mcId << " nEntries " << nt->GetEntries() << endl;
+
+  cutFlow(nt,dummy,dummy,true);
+
 }

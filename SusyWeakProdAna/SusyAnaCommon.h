@@ -1,3 +1,4 @@
+
 ///
 ///  SusyAnaCommon
 ///  Contains default flags for running analyses
@@ -18,7 +19,7 @@ enum LUMISET {NOLUMI=0, LUMI13FB, LUMI_IJL, LUMI_E, LUMI21FB };
 const std::string TAG  = "070614";
 const std::string SUFF = "_n0150_DD_LFV_v1"; 
 
-const bool n0150BugFix=true;
+const bool n0150BugFix=false;//true;
 
 //
 //Normal mode - all these are true
@@ -35,7 +36,7 @@ const unsigned int TOYNT_iSR   = LFV_base;     //SR used to fill ToyNt
 const bool DO_SYS         = false;   //Toggles systematics looper
 const bool FILL_HFT       = false;  //Write the HistFitterTree
 
-const bool CUTFLOW        = false;  // require at least 2 tight/base lep SPEED ANA
+const bool CUTFLOW        = false;  // false requires at least 2 tight/base lep SPEED ANA
 
 const bool WEIGHT_COUNT   = true;   //Apply weight to dump count table - NLO weight always applied
 const bool WEIGHT_ONE     = false; //Ignore evt->w use 1

@@ -4,7 +4,7 @@
 # sed 's/^/#/' mc12_sampleList.txt >mc12_sampleList_primary.txt
 #
 
-sub=_n0154
+sub=_n0155
 
 InPath=/gdata/atlas/ucintprod/SusyNt
 OutPath=$WORKAREA/SusyWeakProdAna/scripts
@@ -22,7 +22,8 @@ if [[ $type == "mc12" ]]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
 
-    list=(`ls -d ${InPath}/$type${sub}/user* |sort`)
+    #list=(`ls -d ${InPath}/$type${sub}/user* |sort`)
+    list=(`ls -d ${InPath}/$type${sub}/group* |sort`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	
@@ -86,7 +87,8 @@ elif [ "$type" == "susy" ]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
 
-    list=(`ls -d ${InPath}/$type${sub}/user* |sort`)
+    #list=(`ls -d ${InPath}/$type${sub}/user* |sort`)
+    list=(`ls -d ${InPath}/$type${sub}/group* |sort`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	
@@ -102,19 +104,21 @@ elif [ "$type" == "data12" ]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
 
-    list=(`ls -d ${InPath}/$type${sub}/user* |grep Egamma`)
+    #list=(`ls -d ${InPath}/$type${sub}/user* |grep Egamma`)
+    list=(`ls -d ${InPath}/$type${sub}/group* |grep Egamma`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	name="Egamma"
-	DIS=( `echo $dir |cut -d'.' -f6-6`)
+	DIS=( `echo $dir |cut -d'.' -f4-4`)
 	printf "${name}.${DIS} \t ${dir}/ \n" >>${log}
     done
     
-    list=(`ls -d ${InPath}/$type${sub}/user* |grep Muons`)
+    #list=(`ls -d ${InPath}/$type${sub}/user* |grep Muons`)
+    list=(`ls -d ${InPath}/$type${sub}/group* |grep Muons`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	name="Muons"
-	DIS=( `echo $dir |cut -d'.' -f6-6`)
+	DIS=( `echo $dir |cut -d'.' -f4-4`)
 	printf "${name}.${DIS} \t ${dir}/ \n" >>${log}
     done
 
@@ -125,7 +129,8 @@ elif [ "$type" == "debug" ]; then
     log=${OutPath}/${type}_sampleList.txt
     [ -f ${log} ] && rm -f ${log}
 
-    list=(`ls -d ${InPath}/$type${sub}/user* |grep debug`)
+    #list=(`ls -d ${InPath}/$type${sub}/user* |grep debug`)
+    list=(`ls -d ${InPath}/$type${sub}/group* |grep debug`)
     for iline in ${list[@]}; do
 	dir=(`echo $iline | tr ',' ' '`)
 	name="debug"

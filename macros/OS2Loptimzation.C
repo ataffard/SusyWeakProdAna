@@ -1,3 +1,7 @@
+/*
+.L 
+
+ */
 #include <stdlib.h>
 #include <vector>
 #include <string>
@@ -25,17 +29,19 @@
 #include "SusyWeakProdAna/XSObject.h"
 
 //_____________________________________________________________________________//
-static const string ver       = "histos_070614_21fb_n0150_DD_LFV_v1/";  
+static const string ver       = "histos_082814_21fb_n0154_DD_LFV_v1/";
+//static const string ver       = "histos_070614_21fb_n0150_DD_LFV_v1/";  
 static const string SR        = "_LFV_base"; //Skimmed ToyNt suffix - inclusive OS
 
 static const int dbg = 1;
 
 //Options for optimisation
 static const int    selDil    = 0;  //EE=0, MM=1, EM+ME=2 
-static const int    selCuts   = 0;  //0: SR
+static const int    selCuts   = 2;  //0: SR
+static const int    selSub    = 0;  //Sub-selection. 
 
 //C1C1 grids
-static const int    sigSampleId    = 144917; //Id of signal sample to use for optimisation
+static const int    sigSampleId    = 176559;//144917; //Id of signal sample to use for optimisation
 static const float  scaleSignal    = 1;      //Set to one if want no scaling
 static const string SignalSampleDB = "modeC_lightslep_MC1eqMN2_DiagonalMatrix.txt";
 static const int    nSignalPts     = 60; //to be update to fit file
@@ -174,7 +180,7 @@ void init();
 //load Bkg, data and signals 
 void loadSamples();                                     
 //Set TCut to apply
-TCut setSelection(int isel, int dilType=3, bool verbose=true); 
+TCut setSelection(int isel, int dilType=3, int subSel=0, bool verbose=true); 
 //Generate event lists using TCut configured
 void selectEvent(TCut _cut,bool useOneSignal=true);    
 //Apply 1 cut at a time and show cutflow for bkg/signal
@@ -202,7 +208,9 @@ int      getSignalSampleIdx(int dsid);
 void     getSignalSamples(string file=SignalSampleDB);
 
 /* Selections for various ana */
-TCut sel_SR(int dilType);
+TCut sel_SR0(int dilType, int subSel);
+TCut sel_SR1(int dilType, int subSel);
+TCut sel_SRZjets(int dilType, int subSel);
 
 
 //_____________________________________________________________________________//
@@ -228,7 +236,7 @@ void runOptimisation(bool useOneSignal)
   Double_t totYield=0;
   Double_t totYieldStatErr=0;
 
-  TCut SEL = setSelection(selCuts,selDil);
+  TCut SEL = setSelection(selCuts,selDil,selSub);
   if(showCutflow){
     cutFlow(_vNtSig[getSignalSampleIdx(sigSampleId)],yield,statErr);
     cout << "---------------------------------------------" << endl;
@@ -403,58 +411,63 @@ void bookHist()
   string name;
     
   //leptons
-  _var.push_back("l_pt[0]");
-  _var.push_back("l_pt[1]");
-  _var.push_back("e_eta");
-  _var.push_back("m_eta");
+  _var.push_back("l_pt[0]");   //0
+  _var.push_back("l_pt[1]");   //1
+  _var.push_back("e_eta");     //2
+  _var.push_back("m_eta");     //3
 
   //jets
-  _var.push_back("nJets");
-  _var.push_back("nCJets");
-  _var.push_back("nBJets");
-  _var.push_back("nFJets");
-  _var.push_back("j_pt[0]");
-  _var.push_back("j_pt[1]");
-  _var.push_back("j_pt[2]");
+  _var.push_back("nJets");     //4
+  _var.push_back("nCJets");    //5
+  _var.push_back("nBJets");    //6
+  _var.push_back("nFJets");    //7
+  _var.push_back("j_pt[0]");   //8
+  _var.push_back("j_pt[1]");   //9
+  _var.push_back("j_pt[2]");   //10
 
   //met
-  _var.push_back("metrel");
-  _var.push_back("met");
+  _var.push_back("metrel");    //11
+  _var.push_back("met");       //12
 
   //dilepton
-  _var.push_back("llType");
-  _var.push_back("dR_ll");
-  _var.push_back("dphi_ll");
-  _var.push_back("deta_ll");
-  _var.push_back("mll");
-  _var.push_back("pTll");
+  _var.push_back("llType");    //13
+  _var.push_back("dR_ll");     //14
+  _var.push_back("dphi_ll");   //15 
+  _var.push_back("deta_ll");   //16
+  _var.push_back("mll");       //17
+  _var.push_back("pTll");      //18
 
 
   //lepton(s) - met
-  _var.push_back("mTl[0]");
-  _var.push_back("mTl[1]");
-  _var.push_back("max_mTl");
-  _var.push_back("min_mTl");
-  _var.push_back("dphi_metl[0]");
-  _var.push_back("dphi_metl[1]");
-  _var.push_back("dPhiMetll");
+  _var.push_back("mTl[0]");        //19
+  _var.push_back("mTl[1]");        //20
+  _var.push_back("max_mTl");       //21
+  _var.push_back("min_mTl");       //22 
+  _var.push_back("dphi_metl[0]");  //23
+  _var.push_back("dphi_metl[1]");  //24
+  _var.push_back("dPhiMetll");     //25
+
+  //lepton - leading jet
+  _var.push_back("dphi_ll_j1");    //26          
 
   //event kinematics
-  _var.push_back("HT");  //Sum lep T & met - overwrite due to bug when nSj=0!
-  _var.push_back("mEff");
-  _var.push_back("ST");
-  _var.push_back("mll_collApprox");
+  _var.push_back("HT");               //27  //HT: Sum lep T & met
+  _var.push_back("mEff");             //28
+  _var.push_back("ST");               //29
+  _var.push_back("mll_collApprox");   //30 
 
   //mT2 - mCT
-  _var.push_back("mT2");
-  _var.push_back("mT2J");
-  _var.push_back("mT2jj");
-  _var.push_back("mct");
-  _var.push_back("mctPerp");
-  _var.push_back("mctPara");
+  _var.push_back("mT2");              //31
+  _var.push_back("mT2J");             //32
+  _var.push_back("mT2jj");            //33
+  _var.push_back("mct");              //34
+  _var.push_back("mctPerp");          //35
+  _var.push_back("mctPara");          //36
 
   //Add razor
-  
+  _var.push_back("mDeltaR");          //37
+  _var.push_back("dphi_ll_vBetaT");   //38
+   
 
   cout << "Booking histo for " << _var.size() << " variables " << endl;
 
@@ -523,20 +536,25 @@ TH1F* histList(int ivar, string name)
   if(ivar==24) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{l1,ETmiss} [rad]",sY.c_str());
   if(ivar==25) h = myBook(name.c_str(),32,0,3.2,"#delta#phi(met,ll) [rad]",sY.c_str());
 
+  //dilepton - lead jet
+  if(ivar==26) h = myBook(name.c_str(),32,0,3.2,"#delta#phi_{j0,ll} [rad]",sY.c_str());
+
   //event kinematics
-  if(ivar==26) h = myBook(name.c_str(),40,0,800,"HT [GeV]",sY.c_str());
-  if(ivar==27) h = myBook(name.c_str(),80,0,800,"m_{Eff} [GeV]",sY.c_str());
-  if(ivar==28) h = myBook(name.c_str(),40,0,400,"S_{T} [GeV]",sY.c_str());
-  if(ivar==29) h = myBook(name.c_str(),20,0,200,"m_{ll}^{CollApprox} [GeV]",sY.c_str());
+  if(ivar==27) h = myBook(name.c_str(),40,0,800,"HT [GeV]",sY.c_str());
+  if(ivar==28) h = myBook(name.c_str(),80,0,800,"m_{Eff} [GeV]",sY.c_str());
+  if(ivar==29) h = myBook(name.c_str(),40,0,400,"S_{T} [GeV]",sY.c_str());
+  if(ivar==30) h = myBook(name.c_str(),20,0,200,"m_{ll}^{CollApprox} [GeV]",sY.c_str());
 
   //mT2 - mCT
-  if(ivar==30) h = myBook(name.c_str(),40,0,400,"m_{T2} [GeV]",sY.c_str());
-  if(ivar==31) h = myBook(name.c_str(),40,0,400,"m_{T2}^{J} [GeV]",sY.c_str());
-  if(ivar==32) h = myBook(name.c_str(),40,0,400,"m_{T2,jj} [GeV]",sY.c_str());
-  if(ivar==33) h = myBook(name.c_str(),40,0,400,"m_{CT} [GeV]",sY.c_str());
-  if(ivar==34) h = myBook(name.c_str(),40,0,400,"m_{CT}^{Perp} [GeV]",sY.c_str());
-  if(ivar==35) h = myBook(name.c_str(),40,0,400,"m_{CT}^{Para} [GeV]",sY.c_str());
+  if(ivar==31) h = myBook(name.c_str(),40,0,400,"m_{T2} [GeV]",sY.c_str());
+  if(ivar==32) h = myBook(name.c_str(),40,0,400,"m_{T2}^{J} [GeV]",sY.c_str());
+  if(ivar==33) h = myBook(name.c_str(),40,0,400,"m_{T2,jj} [GeV]",sY.c_str());
+  if(ivar==34) h = myBook(name.c_str(),40,0,400,"m_{CT} [GeV]",sY.c_str());
+  if(ivar==35) h = myBook(name.c_str(),40,0,400,"m_{CT}^{Perp} [GeV]",sY.c_str());
+  if(ivar==36) h = myBook(name.c_str(),40,0,400,"m_{CT}^{Para} [GeV]",sY.c_str());
 
+  if(ivar==37) h = myBook(name.c_str(), 40,0,400, "M_{#Delta}^{R} [GeV]", sY.c_str());
+  if(ivar==38) h = myBook(name.c_str(), 32,0,3.2, "#Delta#phi_{R}^{#beta}",sY.c_str());
 
   return h;
 }
@@ -572,7 +590,7 @@ void fillHist()
     else if(ivar==21) cmd = "TMath::Max(mTl[0],mTl[1])";
     else if(ivar==22) cmd = "TMath::Min(mTl[0],mTl[1])";
     else if(ivar==25) cmd = "acos(cos(phill-met_phi))";
-    else if(ivar==26) cmd = "l_pt[0]+l_pt[1]+met";
+    else if(ivar==27) cmd = "l_pt[0]+l_pt[1]+met";
     else              cmd = _var[ivar];
     
     if(dbg>1) cout << "Filling histo for " << _var[ivar] << endl;
@@ -605,7 +623,7 @@ void plotHist(bool logy)
   float scale=maxScaleLin;
   if(logy)  scale=maxScaleLog;
 
-  string fileName="comp_" + itos(sigSampleId) + SR + ".root";
+  string fileName="comp_OS_" + itos(sigSampleId) + ".root";
   TFile* _f = new TFile(fileName.c_str(), "RECREATE");
   
   float nBkg=0;
@@ -691,6 +709,7 @@ void plotHist(bool logy)
     }
 
     //Plot the canvases
+    if(_hBkgTotal->Integral(0,-1) >1000) logy = true;
     float min =  0;
     if(logy) min = 0.1;
     float max =  _utils->getMax(_hBkgTotal,_hSig[ivar])*scale;
@@ -1015,11 +1034,17 @@ void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr,bool detail)
 
 //_____________________________________________________________________________//
 //_____________________________________________________________________________//
-TCut setSelection(int isel, int dilType,bool verbose)
+TCut setSelection(int isel, int dilType, int subSel, bool verbose)
 {
   TCut _sel("");
   if(isel == 0 ){
-    _sel=sel_SR(dilType);
+    _sel=sel_SR0(dilType, subSel);
+  }
+  if(isel == 1 ){
+    _sel=sel_SR1(dilType, subSel);
+  }
+  if(isel == 2 ){
+    _sel=sel_SRZjets(dilType, subSel);
   }
   
   if(verbose) _sel.Print();
@@ -1028,89 +1053,41 @@ TCut setSelection(int isel, int dilType,bool verbose)
 }
 
 //_____________________________________________________________________________//
-TCut sel_SR(int dilType)
+TCut sel_SR0(int dilType, int subSel)
 {
   _vCut.clear();
   TCut _thisSel("");
 
+  if(dilType==0)       _vCut.push_back(TCut("llType==0"));   //EE 
+  else if(dilType==1)  _vCut.push_back(TCut("llType==1"));   //MM
+  else if(dilType==2)  _vCut.push_back(TCut("llType==2 || llType==3"));   //EM+Me
+
+  _vCut.push_back(TCut("nBJets==0"));
+  _vCut.push_back(TCut("nFJets==0"));
+  _vCut.push_back(TCut("nCJets==0"));
 
   //EE or MM  - same flavor
-  if(dilType==0 || dilType==1)
-    { 
-      if(dilType==0) //EE
-	{
-	  _vCut.push_back(TCut("llType==0"));
-	}
-      else if(dilType==1) //MM
-	{
-	  _vCut.push_back(TCut("llType==1"));
-	}
-      else if(dilType==-1) //EE+MM
-	{
-	  _vCut.push_back(TCut("llType==0 || llType ==1"));
-	}
-      else return _thisSel;
-      
-      
-      /*
-      _vCut.push_back(TCut("abs(mll-91.2)>10"));
-      _vCut.push_back(TCut("nSJets==0"));
-      _vCut.push_back(TCut("l_pt[0]>35 && l_pt[1]>20"));
-      _vCut.push_back(TCut("mT2>90"));
-      */
+  if(dilType==0 || dilType==1){ 
+    _vCut.push_back(TCut("abs(mll-91.2)>10"));
+  }
 
-      //_vCut.push_back(TCut("llType==1 "));
-      //_vCut.push_back(TCut("llType==0 || llType==1"));
-      //_vCut.push_back(TCut("abs(mll-91.2)>10"));
-      //_vCut.push_back(TCut("mll<75 || mll>105"));
-      //_vCut.push_back(TCut("nBJets==0 && nFJets==0"));
-      //_vCut.push_back(TCut("nSJets==0"));
-      //_vCut.push_back(TCut("(nJets-nBJets-nFJets)==0"));
-      //_vCut.push_back(TCut("l_pt[0]>35 && l_pt[1]>20"));
-      //_vCut.push_back(TCut("mT2>90"));
-      //_vCut.push_back(TCut("pTll>10"));
+  if(subSel == 0){
+    _vCut.push_back(TCut("pTll>20"));
+    _vCut.push_back(TCut("mDeltaR>20"));
+  }
+  else if(subSel == 1){
+    _vCut.push_back(TCut("pTll>70"));
+    _vCut.push_back(TCut("mDeltaR>70"));
+  }
+  else if(subSel == 2){
+    _vCut.push_back(TCut("pTll>70"));
+    _vCut.push_back(TCut("mDeltaR>120"));
+  }
+  else if(subSel == 3){
+    _vCut.push_back(TCut("pTll>70"));
+    _vCut.push_back(TCut("mDeltaR>150"));
+  }
 
-      /*
-      _vCut.push_back(TCut("abs(mll-91.2)>10"));
-      _vCut.push_back(TCut("nBJets==0"));
-      _vCut.push_back(TCut("nFJets==0"));
-      _vCut.push_back(TCut("nCJets==0"));
-      _vCut.push_back(TCut("metrel>40"));//50
-      _vCut.push_back(TCut("pTll>50"));//40
-      _vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>80"));
-      */
-      //_vCut.push_back(TCut("mTl[0]>40"));//50-60 or use max at 50
-      //_vCut.push_back(TCut("mTl[1]>20"));
-      //_vCut.push_back(TCut("l_pt[0]>35"));
-
-    }
- 
-  //EM
-  else if(dilType==2)
-    {
-      _vCut.push_back(TCut("llType>=2"));
-      //_vCut.push_back(TCut("nSJets==0"));
-      //_vCut.push_back(TCut("nCJets==0 && nBJets==0 && nFJets==0"));
-      //_vCut.push_back(TCut("l_pt[0]>35 && l_pt[1]>20"));
-      //_vCut.push_back(TCut("mT2>90"));
-
-      _vCut.push_back(TCut("nBJets==0"));
-      _vCut.push_back(TCut("nFJets==0"));
-      _vCut.push_back(TCut("nCJets<2"));
-      _vCut.push_back(TCut("pTll>30"));//30
-      _vCut.push_back(TCut("mTl[0]>40"));
-      _vCut.push_back(TCut("mTl[1]>20"));
-      _vCut.push_back(TCut("l_pt[0]>35"));
-      //_vCut.push_back(TCut("TMath::Max(mTl[0],mTl[1])>40"));
-      //dPhi(l1,MET)>0.3-0.5
-      
-      /*
-      _vCut.push_back(TCut("nCJets==0 && nBJets==0 && nFJets==0"));
-      _vCut.push_back(TCut("l_pt[0]>35 && l_pt[1]>20"));
-      _vCut.push_back(TCut("mT2>90"));
-      */
-    }
-  
   
   for(uint icut=0; icut<_vCut.size(); icut++){
     _thisSel += _vCut[icut];
@@ -1118,6 +1095,76 @@ TCut sel_SR(int dilType)
 
   return _thisSel;
 }
+
+//_____________________________________________________________________________//
+TCut sel_SR1(int dilType, int subSel)
+{
+  _vCut.clear();
+  TCut _thisSel("");
+
+  if(dilType==0)       _vCut.push_back(TCut("llType==0"));   //EE 
+  else if(dilType==1)  _vCut.push_back(TCut("llType==1"));   //MM
+  else if(dilType==2)  _vCut.push_back(TCut("llType==2 || llType==3"));   //EM+Me
+
+  _vCut.push_back(TCut("nBJets==0"));
+  _vCut.push_back(TCut("nFJets==0"));
+  _vCut.push_back(TCut("nCJets==1"));
+
+  //EE or MM  - same flavor
+  if(dilType==0 || dilType==1){ 
+    _vCut.push_back(TCut("abs(mll-91.2)>10"));
+  }
+
+  _vCut.push_back(TCut("j_pt[0]>80"));
+   
+
+  if(subSel == 0){
+    _vCut.push_back(TCut("dphi_ll_j1>1.5"));
+    _vCut.push_back(TCut("dphi_ll_vBetaT>2.75"));
+    _vCut.push_back(TCut("mDeltaR>20"));
+  }
+  else if(subSel == 1){
+    _vCut.push_back(TCut("dphi_ll_vBetaT>2.75"));
+    _vCut.push_back(TCut("mDeltaR>50"));
+  }
+  else if(subSel == 2){
+    _vCut.push_back(TCut("dphi_ll_vBetaT>2"));
+    _vCut.push_back(TCut("mDeltaR>90"));
+  }
+  
+
+  
+  for(uint icut=0; icut<_vCut.size(); icut++){
+    _thisSel += _vCut[icut];
+  }
+
+  return _thisSel;
+}
+
+//_____________________________________________________________________________//
+TCut sel_SRZjets(int dilType, int subSel)
+{
+  cout << "Running SR ZJets " << endl;
+  _vCut.clear();
+  TCut _thisSel("");
+
+  if(dilType==0)       _vCut.push_back(TCut("llType==0"));   //EE 
+  else if(dilType==1)  _vCut.push_back(TCut("llType==1"));   //MM
+  else if(dilType==2)  _vCut.push_back(TCut("llType==2 || llType==3"));   //EM+Me
+
+  _vCut.push_back(TCut("nBJets==0"));
+  _vCut.push_back(TCut("nFJets==0"));
+  _vCut.push_back(TCut("nCJets==2"));
+
+  
+
+ for(uint icut=0; icut<_vCut.size(); icut++){
+    _thisSel += _vCut[icut];
+  }
+
+  return _thisSel;
+}
+
 
 
 //_____________________________________________________________________________//
@@ -1189,7 +1236,7 @@ void signalYield()
     TChain* nt = new TChain("ToyNt",itos(iSig).c_str());
     nt->Add( string(dir+subDir + sigFileName).c_str());
     if(nt->GetEntries()<10) continue;
-    TCut SEL = setSelection(selCuts, selDil,true/*false*/);
+    TCut SEL = setSelection(selCuts, selDil, selSub, true/*false*/);
     cutFlow(nt,dummy,dummy,true/*false*/);
   }
 }
@@ -1218,7 +1265,7 @@ void dumpCutflow(int mcId, string filename)
   nt->Add( string(dir+subDir + sigFileName).c_str());
 
   if(nt->GetEntries()<10) return;
-  TCut SEL = setSelection(selCuts, selDil,true);
+  TCut SEL = setSelection(selCuts, selDil, selSub, true);
   if(dbg>0) cout << mcId << " nEntries " << nt->GetEntries() << endl;
 
   cutFlow(nt,dummy,dummy,true);
@@ -1318,7 +1365,8 @@ void make_ZnPlots()
   Double_t totB_StatErr=0;
 
   int ilep = 2; //Add loop
-  TCut SEL = sel_SR(ilep);
+  int subSel = 0; //Add loop
+  TCut SEL = sel_SR0(ilep,subSel);
   
   //Get the background yield and stat error
   /*
@@ -1362,7 +1410,7 @@ void make_ZnPlots()
     3 or more Zn plots for each independent channel. Make combine Zn plot adding in quad
   */
   
-
+  /*
   float DS_pts[nSignalPts]={0};
   float MN1_pts[nSignalPts]={0};
   float MSP_pts[nSignalPts]={0};
@@ -1405,7 +1453,7 @@ void make_ZnPlots()
   TCanvas* _c1  = _utils->myCanvas("Yield");		    
   //g_Yield->Draw("colz");
   g_Yield->Draw("text");
-
+  */
 
   /*
   TGraph2D* g_Zn = new TGraph2D(npts, MSP_pts, MN1_pts, Zn_pts);

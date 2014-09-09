@@ -6,7 +6,6 @@
 
 #include "SusyWeakProdAna/SusyAnaCommon.h"
 //#include "SusyWeakProdAna/DsidGroups.h"
-#include "SameSignMatrixMethod/FakeRegions.h"
 
 using namespace std;
 using namespace Susy;
@@ -733,7 +732,7 @@ bool SusyWHAna::selectEvent(LeptonVector* leptons,
       if(dbg() >10 ) cout << "\t Filled histos " << sSR << endl;
     }
     if(FILL_TOYNT && iSR==TOYNT_iSR && SYST==DGSys_NOM) 
-      fillToyNt(SYST,leptons, signalJets,&new_met,_ww, bTagWeight,_ww_qFlip);
+      fillToyNt(SYST,leptons, signalJets,&new_met,_ww, bTagWeight,_ww_qFlip,_trigW);
        
   }
   
@@ -756,44 +755,12 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
   
   if(leptons->size()>2) return 0;
 
-  susy::fakess::Region frSR = susy::fakess::CR_SSInc1j;
-  /*
-  switch (iSR){
-  case WH_SRSS1j:
-    frSR = susy::fake::CR_SRWH1j;
-    break;
-  case WH_SRSS23j:
-    frSR = susy::fake::CR_SRWH2j;
-    break;
-  case WH_CRSSZVFAKE:
-    if(nJet==1) frSR = susy::fake::CR_WHZVfake1j;
-    else        frSR = susy::fake::CR_WHZVfake2j;
-    break;
-  case WH_CRSSFAKE:
-    if(nJet==1) frSR = susy::fake::CR_WHfake1j;
-    else        frSR = susy::fake::CR_WHfake2j;
-    break;
-  case WH_optimSRSS:
-    frSR = susy::fake::CR_SSInc1j;
-    break;
-  case WH_HighMll:
-    frSR = susy::fake::CR_SSInc1j;
-    break;
-  case WH_HighPtll:
-    frSR = susy::fake::CR_SSInc1j;
-    break;
-  case WH_lowMET:
-    frSR = susy::fake::CR_SSInc1j;
-    break;
-  case WH_BTag:
-    frSR = susy::fake::CR_SSInc1j;
-    break;
-  }
-  */
-
+  const std::string regionName = "CR_SSInc1j";
+  size_t iRegion = m_matrix_methodWH.getIndexRegion(regionName);
+  
   for(uint i=0; i<leptons->size(); i++){
     _isEle[i]=leptons->at(i)->isEle();
-    _pt[i]= leptons->at(i)->pt*1000;//MeV
+    _pt[i]= leptons->at(i)->pt;
     _eta[i]= leptons->at(i)->eta;
     if(_isEle[i])_isSignal[i] = isSignalElectron((Electron*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
     else         _isSignal[i] = isSignalMuon((Muon*) leptons->at(i),*v_baseEle,*v_baseMu,nVtx,isMC,false);
@@ -801,35 +768,25 @@ float SusyWHAna::getFakeWeight(const LeptonVector* leptons, uint nVtx,
 
   //Map naming convention  
   float _fw = 0;
-  uint iiSys = DGSys_NOM;
-  if(iSys==DGSys_FAKE_EL_RE_UP) iiSys=SameSignMatrixMethod::SYS_EL_RE_UP;
-  if(iSys==DGSys_FAKE_EL_RE_DN) iiSys=SameSignMatrixMethod::SYS_EL_RE_DOWN;
-  if(iSys==DGSys_FAKE_EL_FR_UP) iiSys=SameSignMatrixMethod::SYS_EL_FR_UP;
-  if(iSys==DGSys_FAKE_EL_FR_DN) iiSys=SameSignMatrixMethod::SYS_EL_FR_DOWN;
-  if(iSys==DGSys_FAKE_MU_RE_UP) iiSys=SameSignMatrixMethod::SYS_MU_RE_UP;
-  if(iSys==DGSys_FAKE_MU_RE_DN) iiSys=SameSignMatrixMethod::SYS_MU_RE_DOWN;
-  if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=SameSignMatrixMethod::SYS_MU_FR_UP;
-  if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=SameSignMatrixMethod::SYS_MU_FR_DOWN;
+  Systematic::Value iiSys = Systematic::SYS_NOM;
+  if(iSys==DGSys_FAKE_EL_RE_UP) iiSys=Systematic::SYS_EL_RE_UP;
+  if(iSys==DGSys_FAKE_EL_RE_DN) iiSys=Systematic::SYS_EL_RE_DOWN;
+  if(iSys==DGSys_FAKE_EL_FR_UP) iiSys=Systematic::SYS_EL_FR_UP;
+  if(iSys==DGSys_FAKE_EL_FR_DN) iiSys=Systematic::SYS_EL_FR_DOWN;
+  if(iSys==DGSys_FAKE_MU_RE_UP) iiSys=Systematic::SYS_MU_RE_UP;
+  if(iSys==DGSys_FAKE_MU_RE_DN) iiSys=Systematic::SYS_MU_RE_DOWN;
+  if(iSys==DGSys_FAKE_MU_FR_UP) iiSys=Systematic::SYS_MU_FR_UP;
+  if(iSys==DGSys_FAKE_MU_FR_DN) iiSys=Systematic::SYS_MU_FR_DOWN;
 
-
-  //WH 1D fake MM
-  float _fw_1D = 1;/*m_matrix_method.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
-					_isSignal[1], _isEle[1], _pt[1],_eta[1],
-					frSR, metrel, 
-					(SusyMatrixMethod::SYSTEMATIC) iiSys);  */
-
-  //WH 2D MM
-  _fw = m_matrix_methodWH.getTotalFake(_isSignal[0], _isEle[0], _pt[0],_eta[0],
-				       _isSignal[1], _isEle[1], _pt[1],_eta[1],
-				       frSR, metrel, 
-				       (SameSignMatrixMethod::SYSTEMATIC) iiSys); 
+  sf::Lepton l0(_isSignal[0], _isEle[0], _pt[0], _eta[0]);
+  sf::Lepton l1(_isSignal[1], _isEle[1], _pt[1], _eta[1]);
+  _fw = m_matrix_methodWH.getTotalFake(l0, l1, iRegion, metrel, iiSys); 
 
   if(dbg()>10) cout << "SR " << WH_SRNAME[iSR] 
 		     << " applying Ssys " << SYST 
 		     << " " << DGSystNames[SYST] 
 		     << " l0 pT " << leptons->at(0)->pt << " eta " << leptons->at(0)->eta << " isEle " << leptons->at(0)->isEle()
 		     << " l1 pT " << leptons->at(1)->pt << " eta " << leptons->at(1)->eta << " isEle " << leptons->at(1)->isEle()
-		     << " 1D fw: " << _fw_1D 
 		     << " 2D fw: " << _fw 
 		     << endl;
   
