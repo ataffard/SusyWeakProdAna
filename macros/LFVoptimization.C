@@ -33,17 +33,17 @@ static const string SR        = "_LFV_base"; //Skimmed ToyNt suffix
 static const int dbg = 0;
 
 //Options for optimisation
-static const int    selDil = 4;  //EE=0, MM=1, EM=2, ME=3 EM+ME=4
-static const int    selCuts = 5; //0: SR 1: Zpeak, 2: ttbar enriched, 3: EM/ME side bands; 4: WW VR, 5: EM Inc
+static const int    selDil = 3;  //EE=0, MM=1, EM=2, ME=3 EM+ME=4
+static const int    selCuts = 0; //0: SR 1: Zpeak, 2: ttbar enriched, 3: EM/ME side bands; 4: WW VR, 5: EM Inc
 
 //LFV grids
-static const unsigned int   sigSampleStart = 169670; //TauMu
-static const unsigned int   sigSampleEnd   = 169671; //TauEl
+static const unsigned int   sigSampleStart = 169670;//189890;//169670; //TauMu
+static const unsigned int   sigSampleEnd   = 189894;//169671; //TauEl
 static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use for optimisation
 
 //Settings for optimisation/plots
 static const bool   weightEvt          = true;   //Weight bkg/signal events
-static const bool   showData           = true;//false; // shows Zn below plot
+static const bool   showData           = false; // shows Zn below plot
 static const bool   blindData          = false;//true;
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group in cutflow & plots;
@@ -542,8 +542,6 @@ void fillHist()
   string cmdSig;
   string cmdData;
 
-  //TCut weight("w*wbtag");
-
   for(uint ivar=0; ivar<_var.size(); ivar++){
     TCut _sel("metrel>=0"); //dummy cut to weight the events
     TCut _selData("");
@@ -601,7 +599,7 @@ void plotHist(bool logy)
   float scale=maxScaleLin;
   if(logy)  scale=maxScaleLog;
 
-  string fileName="comp_" + itos(sigSampleStart + sigSampleIdx) + SR + ".root";
+  string fileName="LFV_" + itos(sigSampleStart + sigSampleIdx) + ".root";
   TFile* _f = new TFile(fileName.c_str(), "RECREATE");
   
   float nBkg=0;
@@ -928,7 +926,6 @@ void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr,bool detail)
   vector<TH1F*> _hCut;
   string cmd;
   TCut _sel("");
-  //TCut weight("w*wbtag"); 
 
   statErr=0;
   tot=0;
@@ -1003,10 +1000,17 @@ TCut sel_SR(int dilType, bool verbose)
   else if(dilType==3)  _vCut.push_back(TCut("llType==3"));   //ME
   else if(dilType==4)  _vCut.push_back(TCut("llType==2 || llType==3"));   //EM+Me
 
-  _vCut.push_back(TCut("l_pt[0]>35"));
-  _vCut.push_back(TCut("l_pt[1]>18"));
-  //  _vCut.push_back(TCut("nBJets==0"));
-  //  _vCut.push_back(TCut("nFJets==0"));
+  _vCut.push_back(TCut("l_pt[0]>45"));
+  _vCut.push_back(TCut("l_pt[1]>15"));
+  _vCut.push_back(TCut("nBJets==0"));
+  _vCut.push_back(TCut("nCJets==0"));
+  _vCut.push_back(TCut("abs(dphi_metl[1])<0.8")); //0.5
+  _vCut.push_back(TCut("abs(dphi_ll)>2.3"));   //2.5
+  _vCut.push_back(TCut("abs(dphi_metl[0])>2.5")); //2.5
+  _vCut.push_back(TCut("l_pt[0]-l_pt[1]>7"));  
+
+  _vCut.push_back(TCut("mcollCorr>100"));
+  _vCut.push_back(TCut("mcollCorr<150"));
 
   /*
   _vCut.push_back(TCut("isOS"));
@@ -1199,7 +1203,6 @@ void signal_kin(int iSig)
 
   _histoDir->cd();
    
-  //TCut weight("w*wbtag");
   TCut _sel("metrel>=0");//dummy cut
   _sel += trigger;
 
@@ -1251,7 +1254,6 @@ void data_kin(int dil)
 
   _histoDir->cd();
 
-  //TCut weight("w*wbtag");
   TCut _sel("metrel>=0");//dummy cut
   TCut _sel2("");//additional selection cuts
 

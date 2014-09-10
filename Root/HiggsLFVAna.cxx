@@ -304,10 +304,10 @@ bool HiggsLFVAna::selectEvent(LeptonVector* leptons,
     cout << ">>> run " << nt->evt()->run  
 	 << " event " << nt->evt()->event 
 	 << " SYST " << DGSystNames[SYST]
+	 << " w " << w
 	 << " lepSF " << _lepSFW
 	 << " trigW " << _trigW
 	 << " bTag " << bTagWeight
-	 << " weight(w/btag) " << _ww*bTagWeight 
 	 << " event weight ww " << _ww 
 	 << endl;
   }
