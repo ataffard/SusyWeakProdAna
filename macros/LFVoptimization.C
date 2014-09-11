@@ -1,3 +1,8 @@
+/*
+.L ../macros/LFVoptimization.C++
+LFVoptimization()
+
+ */
 #include <stdlib.h>
 #include <vector>
 #include <string>
@@ -33,12 +38,14 @@ static const string SR        = "_LFV_base"; //Skimmed ToyNt suffix
 static const int dbg = 0;
 
 //Options for optimisation
-static const int    selDil = 3;  //EE=0, MM=1, EM=2, ME=3 EM+ME=4
-static const int    selCuts = 0; //0: SR 1: Zpeak, 2: ttbar enriched, 3: EM/ME side bands; 4: WW VR, 5: EM Inc
+static const int    selDil  = 3;  //EE=0, MM=1, EM=2, ME=3 EM+ME=4
+static const int    selCuts = 0;  //0: SR 1: Zpeak, 2: ttbar enriched, 3: EM/ME side bands; 4: WW VR, 5: EM Inc
+static const int    selSub  = 0;  //0: 0-jet, 1->=1 jet 
 
 //LFV grids
-static const unsigned int   sigSampleStart = 169670;//189890;//169670; //TauMu
-static const unsigned int   sigSampleEnd   = 189894;//169671; //TauEl
+static const unsigned int   sigSampleStart = 189890; //169670;//189890;//169670; //TauM
+//static const unsigned int   sigSampleStart = 189894;//169671; //TauEl
+static const unsigned int   sigSampleEnd   = 189895;//169671; //TauEl
 static const unsigned int   sigSampleIdx   = 0; //Idx of signal sample to use for optimisation
 
 //Settings for optimisation/plots
@@ -48,8 +55,7 @@ static const bool   blindData          = false;//true;
 
 static const bool   skipDetailBkg      = false;  //false: shows each bkg group in cutflow & plots;
 static const bool   showCutflow        = true;   //dump cutflow yield
-static const bool   showCutflowDetail  = true;   //dump yield last cut
-static const bool   showCutflowDetail2 = true;  //dump cutflow each cut
+static const bool   showCutflowDetail  = false;   //dump cutflow each cut - by default dump last cut
 static const bool   logPlot            = true;   
 
 static const float SYS_ERR = 0.3; //30% systematic on Bkg  - Note: Zn add stat err on tot bkg
@@ -155,6 +161,7 @@ vector<TEventList*> _bkgEvtList;
 vector<TEventList*> _sigEvtList;
 TEventList*         _dataEvtList;
 
+void LFVoptimization();
 
 /* Analyses function */
 void runOptimisation(bool useOneSignal=true);          //Run Optimisation
@@ -176,12 +183,12 @@ void init();
 //load Bkg, data and signals 
 void loadSamples();                                     
 //Set list of cuts to apply
-TCut setSelection(int isel, int dilType=3, bool verbose=true); 
+TCut setSelection(int isel, int dilType=3, int subSel=0, bool verbose=true); 
 //Generate event lists using TCut configured by setSelection
 void selectEvent(TCut _cut,bool useOneSignal=true);    
 //Apply 1 cut at a time and show cutflow for bkg/signal
 //return yield at last cut
-void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr, bool detail=true);            
+void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr);            
 
 
 /* Functions for plotting */
@@ -200,16 +207,16 @@ void     resetHist();
 string itos(int i);
 
 /* Selections for various ana */
-TCut sel_SR(int dilType, bool verbose=true);
+TCut sel_SR(int dilType,int subSel, bool verbose=true);
 TCut sel_Z(int dilType, bool verbose=true);
 TCut sel_Top(int dilType, bool verbose=true);
-TCut sel_EMSideBands(int dilType, bool verbose=true);
+TCut sel_EMSideBands(int dilType, int subSel, bool verbose=true);
 TCut sel_WW(int dilType, bool verbose=true);
 TCut sel_EMInc(int dilType, bool verbose=true);
 
 //_____________________________________________________________________________//
 //_____________________________________________________________________________//
-int main(int argc, char *argv[]){
+void LFVoptimization(){
 
   init();
   loadSamples(); 
@@ -232,35 +239,44 @@ int main(int argc, char *argv[]){
 void runOptimisation(bool useOneSignal)
 {
  
+  Double_t sigYield=0;
+  Double_t sigStatErr=0;
   Double_t yield=0;
   Double_t statErr=0;
   Double_t totYield=0;
   Double_t totYieldStatErr=0;
 
-  TCut SEL = setSelection(selCuts,selDil);
+  TCut SEL = setSelection(selCuts,selDil,selSub);
   if(showCutflow){
-    cutFlow(_vNtSig[sigSampleIdx],yield,statErr);
+    cout << "==>>> Dumping cutflow " << endl;
     cout << "---------------------------------------------" << endl;
-    cout << "---------------------------------------------" << endl;
-    if(!skipDetailBkg && showCutflowDetail){
-      cutFlow(ntBkg[FAKE],yield,statErr);  totYield+=yield; totYieldStatErr+= pow(statErr,2);
-      cutFlow(ntBkg[ZV],yield,statErr);    totYield+=yield; totYieldStatErr+= pow(statErr,2);
-      cutFlow(ntBkg[WW],yield,statErr);    totYield+=yield; totYieldStatErr+= pow(statErr,2);
-      cutFlow(ntBkg[TOP],yield,statErr);   totYield+=yield; totYieldStatErr+= pow(statErr,2);
-      cutFlow(ntBkg[Zjets],yield,statErr); totYield+=yield; totYieldStatErr+= pow(statErr,2);
-      cutFlow(ntBkg[HIGGS],yield,statErr); totYield+=yield; totYieldStatErr+= pow(statErr,2);
-      cout << "---------------------------------------------" << endl;
-      totYieldStatErr=sqrt(totYieldStatErr);
-      cout << "Total Bkg \t\t\t"<<  totYield << " +/- " << totYieldStatErr << endl;
-      cout << "---------------------------------------------" << endl;
-      cout << "---------------------------------------------" << endl;
-      if(showData && !blindData){
-	cutFlow(ntData,yield,statErr);
-	cout << "---------------------------------------------" << endl;
-	cout << "---------------------------------------------" << endl;
-      }
 
+    cutFlow(_vNtSig[sigSampleIdx],sigYield,sigStatErr);
+    cout << "---------------------------------------------" << endl;
+    cout << "---------------------------------------------" << endl;
+
+    cutFlow(ntBkg[FAKE],yield,statErr);  totYield+=yield; totYieldStatErr+= pow(statErr,2);
+    cutFlow(ntBkg[ZV],yield,statErr);    totYield+=yield; totYieldStatErr+= pow(statErr,2);
+    cutFlow(ntBkg[WW],yield,statErr);    totYield+=yield; totYieldStatErr+= pow(statErr,2);
+    cutFlow(ntBkg[TOP],yield,statErr);   totYield+=yield; totYieldStatErr+= pow(statErr,2);
+    cutFlow(ntBkg[Zjets],yield,statErr); totYield+=yield; totYieldStatErr+= pow(statErr,2);
+    cutFlow(ntBkg[HIGGS],yield,statErr); totYield+=yield; totYieldStatErr+= pow(statErr,2);
+    cout << "---------------------------------------------" << endl;
+    totYieldStatErr=sqrt(totYieldStatErr);
+    cout << "Total Bkg \t\t\t"<<  totYield << " +/- " << totYieldStatErr << endl;
+    cout << "---------------------------------------------" << endl;
+    cout << "---------------------------------------------" << endl;
+    if(showData && !blindData){
+      cutFlow(ntData,yield,statErr);
+      cout << "---------------------------------------------" << endl;
+      cout << "---------------------------------------------" << endl;
     }
+
+    float totErr = sqrt(pow(totYieldStatErr/totYield,2)+pow(SYS_ERR,2));
+    float ZnVal= RooStats::NumberCountingUtils::BinomialExpZ(sigYield, totYield, totErr);
+    cout << "S: " << sigYield << " B: "<< totYield <<  " +/- " << totYieldStatErr << " +/- " << totYield*SYS_ERR 
+	 << "\t Zn: " << ZnVal << endl;
+    
   }
   selectEvent(SEL,useOneSignal);
 
@@ -284,11 +300,18 @@ void init()
 
   //Note when adding dilepton trigger, add the trigger weight!!!
   //weight += TCut("w"); 
-  weight += TCut("w*wtrig"); 
-  //  weight += TCut("w*wbtag"); 
+  //weight += TCut("w*wtrig*wbtag"); 
+  weight += TCut("w*wbtag"); 
 
-  //trigger += TCut(""); 
-  trigger += TCut("passDilTrig"); 
+  trigger += TCut(""); 
+  //trigger += TCut("passDilTrig"); 
+
+  TCut single_e("trig_e24i && (l_e24i[0] || l_e24i[1])");
+  TCut single_m("trig_mu24i && (l_mu24i[0] || l_mu24i[1])");
+  //  TCut single_m("(trig_mu24i && (l_mu24i[0] || l_mu24i[1])) || (trig_mu36 && (l_mu36[0] || l_mu36[1])) ");
+  trigger +=  single_e || single_m;
+
+
 
 }
 //_____________________________________________________________________________//
@@ -422,8 +445,8 @@ void bookHist()
   _var.push_back("mll_collApprox");
   _var.push_back("dR_ll");
   _var.push_back("dphi_ll");
-  _var.push_back("mEff"); //Sum lep T & met - overwrite due to bug when nSj=0!
-  _var.push_back("ST");
+  _var.push_back("mEff"); //Sum lep & jet pT & met
+  _var.push_back("ST"); //Jet Pt
   
   _var.push_back("l_pt[0]");
   _var.push_back("l_pt[1]");
@@ -444,7 +467,7 @@ void bookHist()
   _var.push_back("etcone30Rel_l0");
   _var.push_back("etcone30Rel_l1");
   _var.push_back("min_mTl");
-  _var.push_back("HT");
+  _var.push_back("HT"); //letpon & MET
   _var.push_back("dPhiMetll");
   _var.push_back("deta_ll");
   _var.push_back("dPt_ll");
@@ -518,7 +541,7 @@ TH1F* histList(int ivar, string name)
   if(ivar==26) h = myBook(name.c_str(),40,0,800,"HT [GeV]",sY.c_str());
   if(ivar==27) h = myBook(name.c_str(),32,0,3.2,"#delta#phi(met,ll) [rad]",sY.c_str());
   if(ivar==28) h = myBook(name.c_str(),30,0,3,"#delta#eta_{ll} ",sY.c_str());
-  if(ivar==29) h = myBook(name.c_str(),25,0,50,"#delta#p_T_{ll} ",sY.c_str());
+  if(ivar==29) h = myBook(name.c_str(),25,0,50,"#delta p_T_{ll} ",sY.c_str());
   if(ivar==30) h = myBook(name.c_str(),40,0,400,"max(m_{T}^{l0},(m_{T}^{l1}) [GeV]",sY.c_str());
   if(ivar==31) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{e}",sY.c_str());
   if(ivar==32) h = myBook(name.c_str(),25,-2.5,2.5,"#eta^{#mu}",sY.c_str());
@@ -547,12 +570,12 @@ void fillHist()
     TCut _selData("");
 
     if     (ivar==4)  cmd = "mll_collApprox";
-    else if(ivar==7)  cmd = "l_pt[0]+l_pt[1]+metCorr";
+    else if(ivar==7)  cmd = "mEff-met+metCorr";
     else if(ivar==23) cmd = "l_etcone30[0]/l_pt[0]";
     else if(ivar==24) cmd = "l_etcone30[1]/l_pt[1]";
-    else if(ivar==25) cmd = "TMath::Min(mTl[0],mTl[1])";
-    else if(ivar==26) cmd = "mEff";
-    else if(ivar==27) cmd = "acos(cos(phill-metCorrPhi))";
+    else if(ivar==25) cmd = "TMath::Min(mTl0Corr,mTl1Corr)";
+    else if(ivar==26) cmd = "l_pt[0]+l_pt[1]+metCorr";
+    else if(ivar==27) cmd = "acos(cos(TVector2::Phi_0_2pi(phill)-metCorrPhi))";
     else if(ivar==28) cmd = "abs(deta_ll)";
     else if(ivar==29) cmd = "l_pt[0]-l_pt[1]";
     else if(ivar==30) cmd = "TMath::Max(mTl0Corr,mTl1Corr)";
@@ -566,8 +589,8 @@ void fillHist()
       _sel += TCut("!l_isEle");
       _selData += TCut("!l_isEle");
     }
-    else if(ivar==36) cmd = "acos(cos(l_phi[0]-metCorrPhi))";
-    else if(ivar==37) cmd = "acos(cos(l_phi[1]-metCorrPhi))";
+    else if(ivar==36) cmd = "acos(cos(TVector2::Phi_0_2pi(l_phi[0])-metCorrPhi))";
+    else if(ivar==37) cmd = "acos(cos(TVector2::Phi_0_2pi(l_phi[1])-metCorrPhi))";
     else              cmd = _var[ivar];
     
     cmdSig = cmd + ">>sig_" + _var[ivar];
@@ -921,7 +944,7 @@ void saveHist(string fileName)
 }
 
 //_____________________________________________________________________________//
-void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr,bool detail)
+void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr)
 {
   vector<TH1F*> _hCut;
   string cmd;
@@ -930,7 +953,6 @@ void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr,bool detail)
   statErr=0;
   tot=0;
 
-  if(detail) cout << nt->GetTitle() << "\t ";
   for(unsigned int icut=0; icut<_vCut.size(); icut++){
     char hName[200];
     sprintf(hName,"cut_%02d",icut);
@@ -938,35 +960,41 @@ void cutFlow(TChain* nt, Double_t &tot, Double_t &statErr,bool detail)
 
     _sel += _vCut[icut];
     cmd = "llType>>" + string(_h->GetName());
-    if(weightEvt) nt->Draw(cmd.c_str(),_sel*weight,"goff");
-    else          nt->Draw(cmd.c_str(),_sel,"goff");
-    _hCut.push_back(_h);
     
-    tot = _hCut[icut]->IntegralAndError(0,-1,statErr);
-
-    if(detail){
-      if(showCutflowDetail2 && icut<_vCut.size()) 
-	cout << "\n" <<_vCut[icut].GetTitle() 
-	     <<  std::setprecision(2) << std::fixed <<"\t\t\t" << tot << " +/- " << statErr;
-      if(icut==_vCut.size()-1){
-	if(showCutflowDetail2) cout << endl;
+    if(showCutflowDetail || icut==_vCut.size()-1){
+      if(weightEvt) nt->Draw(cmd.c_str(),_sel*weight,"goff");
+      else          nt->Draw(cmd.c_str(),_sel,"goff");
+      _hCut.push_back(_h);
+      tot = _hCut[icut]->IntegralAndError(0,-1,statErr); 
+    }
+    else     _hCut.push_back(_h); //empty histo!!
+    
+    if(showCutflowDetail && icut<_vCut.size()){ 
+      if(icut==0)   cout << nt->GetTitle() << "\t " << endl;
+      cout << _vCut[icut].GetTitle() 
+	   <<  std::setprecision(2) << std::fixed <<"\t\t\t" << tot << " +/- " << statErr << endl;
+    }
+    if(icut==_vCut.size()-1){
+      if(showCutflowDetail) cout << endl;
+      else{
+	cout << nt->GetTitle() << "\t ";
 	cout << "\t\t\t " << std::setprecision(2) << std::fixed << tot << " +/- " << statErr ;
       }
     }
   }
-  if(detail) cout << endl;
+  cout << endl;
 }
 
 //_____________________________________________________________________________//
 //_____________________________________________________________________________//
-TCut setSelection(int isel, int dilType,bool verbose)
+TCut setSelection(int isel, int dilType, int subSel, bool verbose)
 {
   _vCut.clear();
   _vCut.push_back(trigger); //Add trigger selection !!!
   
   TCut _sel("");
   if(isel == 0 ){
-    _sel = sel_SR(dilType,verbose);
+    _sel = sel_SR(dilType,subSel, verbose);
   }
   else if(isel == 1){
     _sel = sel_Z(dilType,verbose);
@@ -975,7 +1003,7 @@ TCut setSelection(int isel, int dilType,bool verbose)
     _sel = sel_Top(dilType,verbose);
   }
   else if(isel == 3){
-    _sel = sel_EMSideBands(dilType,verbose);
+    _sel = sel_EMSideBands(dilType,subSel,verbose);
   }
   else if(isel == 4){
     _sel = sel_WW(dilType,verbose);
@@ -990,7 +1018,7 @@ TCut setSelection(int isel, int dilType,bool verbose)
 }
 
 //_____________________________________________________________________________//
-TCut sel_SR(int dilType, bool verbose)
+TCut sel_SR(int dilType, int subSel, bool verbose)
 {
   
 
@@ -1000,17 +1028,34 @@ TCut sel_SR(int dilType, bool verbose)
   else if(dilType==3)  _vCut.push_back(TCut("llType==3"));   //ME
   else if(dilType==4)  _vCut.push_back(TCut("llType==2 || llType==3"));   //EM+Me
 
+  _vCut.push_back(TCut("abs(l_eta[0])<2.4 && abs(l_eta[1])<2.4"));
   _vCut.push_back(TCut("l_pt[0]>45"));
-  _vCut.push_back(TCut("l_pt[1]>15"));
-  _vCut.push_back(TCut("nBJets==0"));
-  _vCut.push_back(TCut("nCJets==0"));
-  _vCut.push_back(TCut("abs(dphi_metl[1])<0.8")); //0.5
+  _vCut.push_back(TCut("l_pt[1]>10")); //15
+  _vCut.push_back(TCut("acos(cos(TVector2::Phi_0_2pi(l_phi[1])-metCorrPhi))<0.8")); //0.5
   _vCut.push_back(TCut("abs(dphi_ll)>2.3"));   //2.5
-  _vCut.push_back(TCut("abs(dphi_metl[0])>2.5")); //2.5
+  _vCut.push_back(TCut("acos(cos(TVector2::Phi_0_2pi(l_phi[0])-metCorrPhi))>2.5")); //2.5
   _vCut.push_back(TCut("l_pt[0]-l_pt[1]>7"));  
+  _vCut.push_back(TCut("nBJets==0 && nFJets==0"));
+
+  //0 Jet
+  if(subSel==0){
+  _vCut.push_back(TCut("nCJets==0"));
+  }
+
+  //>=1 Jet
+  if(subSel==1){
+    _vCut.push_back(TCut("nCJets>0 "));
+    _vCut.push_back(TCut("l_pt[0]+l_pt[1]+metCorr<180 ")); //BEST !!
+    //_vCut.push_back(TCut("nCJets>0 && j_pt[0]<30"));
+    //_vCut.push_back(TCut("(mEff-met+metCorr)<220 "));
+    //_vCut.push_back(TCut("TMath::Max(mTl0Corr,mTl1Corr)<200 ")); 
+  }
+
 
   _vCut.push_back(TCut("mcollCorr>100"));
   _vCut.push_back(TCut("mcollCorr<150"));
+
+
 
   /*
   _vCut.push_back(TCut("isOS"));
@@ -1070,6 +1115,7 @@ TCut sel_Z(int dilType, bool verbose)
     }
   else return _thisSel;
   
+  _vCut.push_back(TCut("abs(l_eta[0])<2.4 && abs(l_eta[1])<2.4"));
   _vCut.push_back(TCut("abs(mll-91.2)<10"));
   //_vCut.push_back(TCut("nBJets==0 && nFJets==0"));
   //_vCut.push_back(TCut("nCJets==0"));
@@ -1096,6 +1142,7 @@ TCut sel_Top(int dilType, bool verbose)
     }
   else return _thisSel;
 
+  _vCut.push_back(TCut("abs(l_eta[0])<2.4 && abs(l_eta[1])<2.4"));
   _vCut.push_back(TCut("nBJets>0"));
   _vCut.push_back(TCut("nFJets==0"));
   _vCut.push_back(TCut("l_pt[0]>30"));
@@ -1111,7 +1158,7 @@ TCut sel_Top(int dilType, bool verbose)
 }
 
 //_____________________________________________________________________________//
-TCut sel_EMSideBands(int dilType, bool verbose)
+TCut sel_EMSideBands(int dilType, int subSel, bool verbose)
 {
   cout << "Selecting EM or ME side bands " << endl;
   TCut _thisSel("");
@@ -1126,6 +1173,7 @@ TCut sel_EMSideBands(int dilType, bool verbose)
     }
   else return _thisSel;
   
+  _vCut.push_back(TCut("abs(l_eta[0])<2.4 && abs(l_eta[1])<2.4"));
   _vCut.push_back(TCut("mcollCorr<100"));
   //_vCut.push_back(TCut("mcollCorr>150"));
   _vCut.push_back(TCut("nBJets==0"));
@@ -1134,6 +1182,19 @@ TCut sel_EMSideBands(int dilType, bool verbose)
   _vCut.push_back(TCut("l_pt[1]>18"));
   //_vCut.push_back(TCut("nCJets==0"));
   // _vCut.push_back(TCut("nCJets>0"));
+
+  //0 Jet
+  if(subSel==0){
+  _vCut.push_back(TCut("nCJets==0"));
+  }
+
+  //>=1 Jet
+  if(subSel==1){
+    _vCut.push_back(TCut("nCJets>0 "));
+    _vCut.push_back(TCut("l_pt[0]+l_pt[1]+metCorr<180 ")); //BEST !!
+  }
+
+
 
 
  //Build the TCut
@@ -1156,6 +1217,7 @@ TCut sel_WW(int dilType, bool verbose)
     }
   else return _thisSel;
 
+  _vCut.push_back(TCut("abs(l_eta[0])<2.4 && abs(l_eta[1])<2.4"));
   _vCut.push_back(TCut("nBJets==0"));
   _vCut.push_back(TCut("nFJets==0"));
   _vCut.push_back(TCut("l_pt[0]>30"));
@@ -1184,6 +1246,7 @@ TCut sel_EMInc(int dilType, bool verbose)
     }
   else return _thisSel;
 
+  _vCut.push_back(TCut("abs(l_eta[0])<2.4 && abs(l_eta[1])<2.4"));
   _vCut.push_back(TCut("l_pt[0]>35"));
   _vCut.push_back(TCut("l_pt[1]>18"));
 
@@ -1216,8 +1279,8 @@ void signal_kin(int iSig)
   _vNtSig[iSig]->Draw("dphi_ll>>sig_dphi_ll",_sel*weight,"goff");
   _vNtSig[iSig]->Draw("abs(deta_ll)>>sig_deta_ll",_sel*weight,"goff");
 
-  _vNtSig[iSig]->Draw("acos(cos(l_phi[0]-metCorrPhi))>>sig_dphi_metl[0]",_sel*weight,"goff");
-  _vNtSig[iSig]->Draw("acos(cos(l_phi[1]-metCorrPhi))>>sig_dphi_metl[1]",_sel*weight,"goff");
+  _vNtSig[iSig]->Draw("acos(cos(TVector2::Phi_0_2pi(l_phi[0])-metCorrPhi))>>sig_dphi_metl[0]",_sel*weight,"goff");
+  _vNtSig[iSig]->Draw("acos(cos(TVector2::Phi_0_2pi(l_phi[1])-metCorrPhi))>>sig_dphi_metl[1]",_sel*weight,"goff");
 
   _vNtSig[iSig]->Draw("met>>sig_met",_sel*weight,"goff");
   _vNtSig[iSig]->Draw("metCorr>>sig_metCorr",_sel*weight,"goff");
@@ -1362,12 +1425,12 @@ void data_kin(int dil)
   TH1F* _h_dPhi_metL1_corr = (TH1F*) _hSig[14]->Clone();
   _h_dPhi_metL1_corr->SetTitle("data_dPhi_metL1_corr_cut20");
   _h_dPhi_metL1_corr->SetName("data_dPhi_metL1_corr_cut20");
-  ntData->Draw("acos(cos(l_phi[1]-metCorrPhi))>>data_dPhi_metL1_corr_cut20",_sel2*weight,"goff");
+  ntData->Draw("acos(cos(TVector2::Phi_0_2pi(l_phi[1])-metCorrPhi))>>data_dPhi_metL1_corr_cut20",_sel2*weight,"goff");
   
 
   //+ Angular cuts
   _sel2.Clear();
-  _sel2 = _sel + TCut("l_pt[0]>40 && l_pt[1]>20 && abs(dphi_ll)>2.5 && abs(acos(cos(l_phi[1]-metCorrPhi)))<0.5");
+  _sel2 = _sel + TCut("l_pt[0]>40 && l_pt[1]>20 && abs(dphi_ll)>2.5 && abs(acos(cos(TVector2::Phi_0_2pi(l_phi[1])-metCorrPhi)))<0.5");
   TH1F* _h_pt_l0_ang = (TH1F*) _hSig[9]->Clone();
   _h_pt_l0_ang->SetTitle("data_l0_pt_cut4020_ang");
   _h_pt_l0_ang->SetName("data_l0_pt_cut4020_ang");
@@ -1385,7 +1448,7 @@ void data_kin(int dil)
   ntData->Draw("l_pt[0]>>data_l0_pt_cut4020_ang",_sel2*weight,"goff");
   ntData->Draw("l_pt[1]>>data_l1_pt_cut4020_ang",_sel2*weight,"goff");
   ntData->Draw("dphi_ll>>data_dPhill_cut4020_ang",_sel2*weight,"goff");
-  ntData->Draw("acos(cos(l_phi[1]-metCorrPhi))>>data_dPhi_metL1_corr_cut4020_ang",_sel2*weight,"goff");
+  ntData->Draw("acos(cos(TVector2::Phi_0_2pi(l_phi[1])-metCorrPhi))>>data_dPhi_metL1_corr_cut4020_ang",_sel2*weight,"goff");
 
   TH1F* _h_mcollCorr_ang = (TH1F*) _hSig[32]->Clone();
   _h_mcollCorr_ang->SetTitle("data_mcollCorr_cut4020_ang");
@@ -1559,8 +1622,8 @@ void signalYield()
     TChain* nt = new TChain("ToyNt",DSID);
     nt->Add( string(dir+subDir + sigFileName).c_str());
     if(nt->GetEntries()<10) continue;
-    TCut SEL = setSelection(selCuts, selDil,true/*false*/);
-    cutFlow(nt,dummy,dummy,true/*false*/);
+    TCut SEL = setSelection(selCuts, selDil,selSub, true/*false*/);
+    cutFlow(nt,dummy,dummy);
   }
 }
 
@@ -1590,9 +1653,9 @@ void dumpCutflow(int mcId, string filename)
 
   if(nt->GetEntries()<10) return;
 
-  TCut SEL = setSelection(selCuts, selDil,true);
+  TCut SEL = setSelection(selCuts, selDil, selSub, true);
   if(dbg>0) cout << mcId << " nEntries " << nt->GetEntries() << endl;
 
-  cutFlow(nt,dummy,dummy,true);
+  cutFlow(nt,dummy,dummy);
 
 }
