@@ -101,6 +101,7 @@ enum LEP {
   MM,
   EM,
   ME,
+  OF,
   ALL,
   N_LEP
 };
@@ -110,6 +111,7 @@ const std::string LepN[] = {
   "MM",
   "EM",
   "ME",
+  "OF",
   "ALL"
 };
 const std::string LepNames[] = {
@@ -300,17 +302,18 @@ void init()
 
   //Note when adding dilepton trigger, add the trigger weight!!!
   //weight += TCut("w"); 
-  //weight += TCut("w*wtrig*wbtag"); 
-  weight += TCut("w*wbtag"); 
+  weight += TCut("w*wtrig*wbtag"); 
+  //weight += TCut("w*wbtag"); 
 
-  trigger += TCut(""); 
-  //trigger += TCut("passDilTrig"); 
-
+  //trigger += TCut(""); 
+  trigger += TCut("passDilTrig"); 
+  
+  /*
   TCut single_e("trig_e24i && (l_e24i[0] || l_e24i[1])");
   TCut single_m("trig_mu24i && (l_mu24i[0] || l_mu24i[1])");
   //  TCut single_m("(trig_mu24i && (l_mu24i[0] || l_mu24i[1])) || (trig_mu36 && (l_mu36[0] || l_mu36[1])) ");
   trigger +=  single_e || single_m;
-
+  */
 
 
 }
